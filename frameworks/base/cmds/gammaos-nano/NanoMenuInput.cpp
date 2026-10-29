@@ -1191,16 +1191,26 @@ bool NanoMenu::enterDrmSleep() {
     } else {
         ALOGE("NanoMenu: epoll_create1 failed (errno %d) - wake may need extra presses", errno);
     }
+    // A wake that does not come through an input fd (a USB plug with config_unplugTurnsOnScreen, the
+    // framework's own wake policy, `input keyevent WAKEUP`) turns the backlight on while this loop
+    // keeps waiting for KEY_POWER: the panels stay off under a lit backlight, and PowerManager keeps
+    // the display pinned (menu_active) until the power key is pressed. So watch sys.screen.state too,
+    // but only once it has read "off": our own sleep request takes a moment to reach PowerManager
+    // and the property still says "on" until it does.
+    bool sawFrameworkOff = false;
     while (asleep) {
         // Block on the input fds so the CPU can idle / suspend (a busy poll
         // would keep it awake and defeat the suspend). With PowerManager
-        // engaged, block indefinitely: the system suspends and this thread
-        // freezes here until a wake source fires. Otherwise cap the wait at
-        // the remaining 60s budget.
+        // engaged the system suspends and this thread freezes here until a
+        // wake source fires; the 1s cap below only re-checks sys.screen.state
+        // while the SoC is awake. Otherwise cap the wait at the remaining 60s
+        // budget.
         int timeoutMs = -1;
         if (keepAudio) {
             timeoutMs = 1000;   // wake periodically to auto-advance the track
-        } else if (!pmSleep) {
+        } else if (pmSleep) {
+            timeoutMs = 1000;   // and to look at sys.screen.state (a timer does not keep the SoC from suspending)
+        } else {
             int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
             if (left <= 0) {
                 ALOGI("NanoMenu: sleep timeout, shutting down");
@@ -1246,6 +1256,17 @@ bool NanoMenu::enterDrmSleep() {
                     asleep = false;
                     mLastInputMs = android::uptimeMillis();
                 }
+            }
+        }
+        if (asleep && pmSleep) {
+            char ss[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.screen.state", ss, "");
+            if (!strcmp(ss, "off")) {
+                sawFrameworkOff = true;
+            } else if (sawFrameworkOff && !strcmp(ss, "on")) {
+                ALOGI("NanoMenu: framework woke the screen (no wake key) -> waking the home");
+                asleep = false;
+                mLastInputMs = android::uptimeMillis();
             }
         }
         // Woke: pin the SoC up immediately so it cannot re-suspend before the
