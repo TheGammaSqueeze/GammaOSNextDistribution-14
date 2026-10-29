@@ -115,3 +115,28 @@ service watchdogd-gsi /system/bin/watchdogd 10 20
     class core
     oneshot
     seclabel u:r:watchdogd:s0
+
+# RG DS Plus: the vendor init pins the Mali power policy to always_on (tearing workaround) and the
+# Rockchip kbase platform holds the "gpu" kernel wakeup source while the GPU is powered, so
+# /sys/power/wakeup_count never returns and Android autosuspend cannot run. While the screen is off
+# let the idle GPU power down (which drops that wakeup source); always_on returns with the screen.
+on property:sys.screen.state=off && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/devices/platform/fde60000.gpu/power_policy coarse_demand
+
+on property:sys.screen.state=on && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/devices/platform/fde60000.gpu/power_policy always_on
+
+# The vendor force_sleep -> sleep.sh loop writes 'mem' to /sys/power/state without the wakeup_count
+# handshake, so it ignores kernel wakelocks. Do not run it while the nano home keeps music playing
+# with the screen off (it publishes sys.gammaos.nano.keep_audio next to its nano_music wakelock),
+# and restart it when the music stops while the screen is still off. force_sleep sets the
+# battery_charging LED to heartbeat for its 5 s countdown, so clear it again when stopping it early.
+on property:init.svc.force_sleep=running && property:sys.gammaos.nano.keep_audio=1
+    stop force_sleep
+    write /sys/class/leds/battery_charging/trigger none
+
+on property:init.svc.cpu_screen_off=running && property:sys.gammaos.nano.keep_audio=1
+    stop cpu_screen_off
+
+on property:sys.gammaos.nano.keep_audio=0 && property:sys.screen.state=off && property:persist.gammaos.ultra_low_power_saving_mode=1 && property:sys.gammaos.usb.connected=0 && property:sys.boot_completed=1
+    start force_sleep
