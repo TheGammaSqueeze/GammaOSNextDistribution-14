@@ -5221,13 +5221,15 @@ private:
         std::vector<std::string> displayNames;
         std::vector<std::string> activePaths;
         std::string activePath;
-        bool valid;              // true if scan found at least one path
+        std::string id;          // XmbSystem::id of the snapshot entry this result belongs to
+        bool attempted = false;  // true if the scan ran for this entry (it was enabled in the snapshot)
+        bool valid = false;      // true if scan found at least one path
     };
     std::mutex mBgScanMutex;
     std::vector<BgScanResult> mBgScanResults; // one per system, guarded by mutex
     bool mBgScanResultReady;                  // set by thread, cleared by render loop
     bool mBgScanThreadRunning;                // true while thread is active
-    void bgScanThreadFunc();                  // the thread entry point
+    void bgScanThreadFunc(std::vector<XmbSystem> jobs);   // works on a render-thread snapshot, never on mXmbSystems
 
     // Settings column. Pinned as the leftmost XMB column at sentinel index -2.
     // Order: -2 Settings | -1 Recently Played | 0..N-1 Systems.

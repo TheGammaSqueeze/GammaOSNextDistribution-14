@@ -1939,8 +1939,18 @@ void NanoMenu::forceRescanAllSystems() {
     // results in mBgScanResults; the render loop swaps them in when ready.
     if (mBgScanThreadRunning) return; // already scanning
     mBgScanThreadRunning = true;
+    // The thread works on a snapshot of the scan inputs: the Game Systems editor adds, erases and
+    // swaps mXmbSystems entries on the render thread while a scan runs. roms and displayNames stay out.
+    std::vector<XmbSystem> jobs;
+    jobs.reserve(mXmbSystems.size());
+    for (const auto& s : mXmbSystems) {
+        XmbSystem j;
+        j.id = s.id; j.enabled = s.enabled; j.romDir = s.romDir; j.acceptExts = s.acceptExts;
+        j.scanSources = s.scanSources; j.disabledDefaultFolders = s.disabledDefaultFolders;
+        jobs.push_back(std::move(j));
+    }
     ALOGI("NanoMenu: launching background scan thread");
-    std::thread(&NanoMenu::bgScanThreadFunc, this).detach();
+    std::thread(&NanoMenu::bgScanThreadFunc, this, std::move(jobs)).detach();
 }
 
 // Re-scan the whole ROM library after a scan-behaviour toggle (Scan ROM
@@ -1959,18 +1969,21 @@ void NanoMenu::romRescanFromSettings() {
 }
 
 // Background thread: scans all systems and stores results for the render
-// thread to pick up. Never touches sys.roms/displayNames directly -- only
-// writes to mBgScanResults behind a mutex.
-void NanoMenu::bgScanThreadFunc() {
+// thread to pick up. Never touches mXmbSystems -- it works on the snapshot
+// `jobs` and only writes to mBgScanResults behind a mutex. Results carry the
+// system id, so the render thread matches them up even if the list changed.
+void NanoMenu::bgScanThreadFunc(std::vector<XmbSystem> jobs) {
     nanoThreadNormalPriority();   // started from the FIFO 80 / nice -20 render thread; not latency critical
-    int numSys = (int)mXmbSystems.size();
+    int numSys = (int)jobs.size();
     std::vector<BgScanResult> results(numSys);
 
     for (int si = 0; si < numSys; si++) {
-        const auto& sys = mXmbSystems[si];
+        const auto& sys = jobs[si];
         auto& res = results[si];
+        res.id = sys.id;
         res.valid = false;
         if (!sys.enabled) continue;   // disabled systems are never scanned
+        res.attempted = true;
 
         std::vector<std::string> scanPaths = buildScanCandidates(sys);
 

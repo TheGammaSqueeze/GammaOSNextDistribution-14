@@ -5940,10 +5940,14 @@ if (sRingPrimedCount >= 2) {
                 if (mBgScanResultReady) {
                     std::lock_guard<std::mutex> lock(mBgScanMutex);
                     if (mBgScanResultReady) {
-                        for (int i = 0; i < (int)mXmbSystems.size()
-                                 && i < (int)mBgScanResults.size(); i++) {
+                        for (int i = 0; i < (int)mXmbSystems.size(); i++) {
                             auto& sys = mXmbSystems[i];
-                            auto& res = mBgScanResults[i];
+                            // Results are keyed by system id: the editor may have added, erased or
+                            // reordered systems since the scan took its snapshot.
+                            BgScanResult* rp = nullptr;
+                            for (auto& r : mBgScanResults) if (r.id == sys.id) { rp = &r; break; }
+                            if (!rp || !rp->attempted) continue;   // added/enabled after the snapshot: the next 30 s scan covers it
+                            auto& res = *rp;
                             if (!sys.enabled) continue;   // disabled systems are never scanned
                             // Guard: don't replace with fewer ROMs when storage
                             // is partially mounted. Two checks:
