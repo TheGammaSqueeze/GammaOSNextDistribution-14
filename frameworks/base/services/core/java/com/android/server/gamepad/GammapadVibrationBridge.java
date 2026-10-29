@@ -27,6 +27,7 @@ import android.net.LocalSocket;
 import android.util.Slog;
 import android.widget.Toast;
 
+import com.android.internal.os.BackgroundThread;
 import com.android.server.SystemService;
 
 import java.util.List;
@@ -52,6 +53,7 @@ public class GammapadVibrationBridge extends SystemService {
 
     private final Context mContext;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
+    private final Handler mFgHandler = BackgroundThread.getHandler();
     private Vibrator mVibrator;
     private LocalServerSocket mServerSocket;
     private volatile String mLastFgPkg = "";
@@ -106,8 +108,13 @@ public class GammapadVibrationBridge extends SystemService {
                             updateForegroundPackage();
                             // Re-check after a short delay since the task stack
                             // may not have fully settled yet
-                            mMainHandler.postDelayed(
+                            mFgHandler.postDelayed(
                                     () -> updateForegroundPackage(), 300);
+                        }
+
+                        @Override
+                        public void onTaskFocusChanged(int taskId, boolean focused) {
+                            if (focused) mFgHandler.post(() -> updateForegroundPackage());
                         }
 
                         @Override
@@ -122,18 +129,18 @@ public class GammapadVibrationBridge extends SystemService {
                                 }
                             }
                             // Re-check in case the info was stale
-                            mMainHandler.postDelayed(
+                            mFgHandler.postDelayed(
                                     () -> updateForegroundPackage(), 300);
                         }
                     });
             Slog.i(TAG, "Foreground app tracker registered");
 
             // Periodic polling as a safety net to catch any missed transitions
-            mMainHandler.postDelayed(new Runnable() {
+            mFgHandler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     updateForegroundPackage();
-                    mMainHandler.postDelayed(this, 1000);
+                    mFgHandler.postDelayed(this, 5000);
                 }
             }, 2000);
         } catch (RemoteException e) {
