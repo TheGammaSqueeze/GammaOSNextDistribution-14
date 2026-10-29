@@ -12,6 +12,15 @@ on early-init
     setprop log.tag.audio_route I
     setprop log.tag.AW_PowerHAL I
 
+# RG DS Plus (RK3568, 1 GB RAM, all partitions on one microSD): for the first minutes after boot the
+# platform's default timeouts are too tight. Cold app starts exceed the 10 s process-start limit (the
+# MediaProvider process was killed in a loop), and the 60 s watchdog and the 3 s Bluetooth stack
+# start are hit too. Scale them 3x. Build.HW_TIMEOUT_MULTIPLIER and the native readers pick the value
+# up when zygote and the services start; /vendor/build.prop (ro.gammaos.device) is loaded before
+# early-init runs.
+on early-init && property:ro.gammaos.device=anbernicrgdsplus
+    setprop ro.hw_timeout_multiplier 3
+
 on post-fs
     start gammaos_on_boot
     mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
