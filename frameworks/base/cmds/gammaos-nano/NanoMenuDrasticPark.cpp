@@ -283,6 +283,9 @@ bool NanoMenu::drasticParkSession() {
     }
     break;
   }
+    // Drop any scripted nav queued while the home was parked (e.g. a framework power-hold
+    // during the session): it was meant for a menu that was not on screen.
+    property_set("sys.gammaos.nano.nav", "");
     const int64_t tWake = uptimeMillis();
     // The render thread was parked in this function for the whole session, so the
     // idle-sleep tick never saw the game as an unfocused state: restart the Screen

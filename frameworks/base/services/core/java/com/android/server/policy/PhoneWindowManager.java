@@ -1762,6 +1762,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Slog.d(TAG, "powerLongPress: eventTime=" + eventTime
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
 
+        // GammaOS Nano: a native DS/3DS session on DRM (drastic-nano, azahar-nano) owns the
+        // panel while the home is parked or stopped, and it leaves sys.gammaos.nano.app_launched
+        // at 0 (only the SurfaceFlinger-hosted drastic session sets it, and there PWM keeps
+        // owning the overlay toggle below). drastic-nano reads POWER from evdev itself
+        // (1.5 s = its own menu, 5 s = power off). Without this the hold took the "home visible"
+        // branch and queued nav=powermenu, which the home ran after the session: Quick Menu >
+        // Power with Restart focused. init.svc rather than the session prop, so a session prop
+        // left at 1 by a killed session cannot disable the home's power hold.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))
+                && ("running".equals(android.os.SystemProperties.get(
+                                "init.svc.drastic-nano", ""))
+                        || "running".equals(android.os.SystemProperties.get(
+                                "init.svc.azahar-nano", "")))) {
+            mPowerKeyHandled = true;
+            Slog.d(TAG, "GammaOS Nano: power long press during a native DS/3DS session, left to the session");
+            return;
+        }
+
         // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled, a
         // power-hold raises / dismisses the resident overlay XMB (gammaos-nano-overlay)
         // instead of the global actions dialog. Over a running app it toggles (raise to

@@ -1294,9 +1294,10 @@ void doSleep(android::drastic_input::InputState* input,
 // press = toggle overlay; held past kBackHoldMs = long press = exit.
 #define kBackShortMs gBackHoldMs
 
-// Power gestures (read straight from evdev: PhoneWindowManager
-// consumes KEYCODE_POWER inertly while minimal_boot=1 with no app or
-// SF overlay foreground, which is exactly a drastic-nano session).
+// Power gestures (read straight from evdev: PhoneWindowManager still
+// sees the key, it only swallows it with persist.gammaos.nano.grab_input=1,
+// but leaves the long press to the session while init.svc.drastic-nano
+// is running).
 // Release before kPowerHoldMs = system sleep; held past it = raise the
 // in-game overlay menu (drastic owns the DRM panel, so the menu is
 // drastic's own DRM-direct OverlayMenu, the same one short-BACK opens;
