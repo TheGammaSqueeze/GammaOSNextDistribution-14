@@ -922,7 +922,11 @@ public final class BatteryService extends SystemService {
             mBatteryLevelsEventQueue.clear();
         }
         final Intent intent = new Intent(Intent.ACTION_BATTERY_LEVEL_CHANGED);
-        intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+        // GammaOS Nano: INCLUDE_BACKGROUND lets the manifest receiver of Settings cold-start the
+        // whole app on every battery step. Registered receivers still get the broadcast.
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            intent.addFlags(Intent.FLAG_RECEIVER_INCLUDE_BACKGROUND);
+        }
         intent.putParcelableArrayListExtra(BatteryManager.EXTRA_EVENTS, events);
 
         mContext.sendBroadcastAsUser(intent, UserHandle.ALL,
