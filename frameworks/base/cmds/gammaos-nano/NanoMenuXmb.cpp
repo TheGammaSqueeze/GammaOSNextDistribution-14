@@ -2093,16 +2093,12 @@ void NanoMenu::loadXmbRecent() {
 }
 
 void NanoMenu::saveXmbRecent() {
-    int fd = open(kXmbRecentFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kXmbRecentFile, 0644);
-    for (const auto& e : mXmbRecent) {
-        std::string block = e.romPath + "\n" + e.coreSo + "\n" + e.launchPkg + "\n"
-            + e.launchIntent + "\n" + e.displayName + "\n" + e.systemName + "\n"
-            + e.romDir + "\n\n";
-        write(fd, block.c_str(), block.size());
-    }
-    close(fd);
+    std::string text;
+    for (const auto& e : mXmbRecent)
+        text += e.romPath + "\n" + e.coreSo + "\n" + e.launchPkg + "\n" + e.launchIntent + "\n"
+              + e.displayName + "\n" + e.systemName + "\n" + e.romDir + "\n\n";
+    if (!writeFileDurable(kXmbRecentFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kXmbRecentFile, errno);
 }
 
 // ---- User Collections (cross-system game groups) --------------------------------------------
@@ -2130,16 +2126,14 @@ void NanoMenu::loadCollections() {
 }
 
 void NanoMenu::saveCollections() {
-    int fd = open(kCollectionsFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kCollectionsFile, 0644);
+    std::string text;
     for (const auto& c : mXmbCollections) {
-        std::string block = c.name + "\n";
-        for (const auto& r : c.roms) block += r + "\n";
-        block += "\n";
-        ssize_t w = write(fd, block.c_str(), block.size()); (void)w;
+        text += c.name + "\n";
+        for (const auto& r : c.roms) text += r + "\n";
+        text += "\n";
     }
-    close(fd);
+    if (!writeFileDurable(kCollectionsFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kCollectionsFile, errno);
 }
 
 // Resolve a stored ROM path to a live (system, rom) index so a collection game reuses the normal
@@ -2246,14 +2240,10 @@ void NanoMenu::loadFavorites() {
 }
 
 void NanoMenu::saveFavorites() {
-    int fd = open(kFavoritesFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kFavoritesFile, 0644);
-    for (const auto& r : mXmbFavorites) {
-        std::string ln = r + "\n";
-        ssize_t w = write(fd, ln.c_str(), ln.size()); (void)w;
-    }
-    close(fd);
+    std::string text;
+    for (const auto& r : mXmbFavorites) text += r + "\n";
+    if (!writeFileDurable(kFavoritesFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kFavoritesFile, errno);
 }
 
 bool NanoMenu::isFavorite(const std::string& romPath) const {
