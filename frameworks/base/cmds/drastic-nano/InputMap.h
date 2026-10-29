@@ -90,6 +90,9 @@ struct InputState {
     // persist.gammaos.nano.cc.touchdev and any other is the top panel's.
     std::vector<int> touchNodeW, touchNodeH;
     std::vector<bool> touchNodeTop;
+    // Both a top-panel and a bottom-panel digitizer were identified (cc.touchdev set and matching
+    // one of two or more nodes). Only then does the render loop gate the stylus by panel.
+    bool hasTopTouch = false;
     // The last touch came from the top panel; its touchDs fraction is then already turned
     // into the top panel's landscape frame by persist.gammaos.nano.osk_touch_swap/flipx/flipy.
     bool touchTop = false;

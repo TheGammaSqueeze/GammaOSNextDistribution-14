@@ -2285,7 +2285,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (fastOwns(ovOpen, fin.cursorMode) && !gRaTestInputActive.load() && !dr->probeOwnsInput()) {
                 // Two panels with a digitizer each (RP Duo Lite): a touch on the top panel is not a
                 // DS touch while the screens are not swapped (the render loop drops it the same way).
-                const bool held = fa.touchHeld && !(hasDualDisplay && !fa.touchDirect && fa.touchTop);
+                const bool held = fa.touchHeld && !(hasDualDisplay && !fa.touchDirect && fa.touchTop && fin.hasTopTouch);
                 std::lock_guard<std::mutex> lk(inputFwdMutex);
                 dr->setInputWithTouch(fa.dsBtnMask, fa.touchX, fa.touchY, held);
             }
@@ -2702,11 +2702,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     dsTouchHeld = false;  // touch outside the bottom screen
                 }
             }
-        } else if (hasDualDisplay && !actions.touchDirect) {
+        } else if (hasDualDisplay && !actions.touchDirect && input.hasTopTouch) {
             // Two panels with a digitizer each (RP Duo Lite): only the panel showing the DS touch
             // screen drives the stylus, the bottom one unless the screens are swapped. A top-panel
             // touch is already in that panel's landscape frame (InputMap calibration); the DS
-            // screen is aspect-fit and centred there, so rescale through that 4:3 area.
+            // screen is aspect-fit and centred there, so rescale through that 4:3 area. Single-digitizer
+            // dual-panel units (RG DS Plus) and units without cc.touchdev keep the 1:1 pass-through.
             if (actions.touchTop != screensSwapped) {
                 dsTouchHeld = false;
             } else if (actions.touchTop) {

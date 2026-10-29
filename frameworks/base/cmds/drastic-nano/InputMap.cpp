@@ -99,6 +99,7 @@ void closeDeviceFds(InputState* st) {
     st->touchNodeW.clear();
     st->touchNodeH.clear();
     st->touchNodeTop.clear();
+    st->hasTopTouch = false;
 }
 }  // namespace
 
@@ -218,6 +219,11 @@ void scanInputDevices(InputState* st) {
         close(fd);
     }
     closedir(d);
+    bool anyTop = false, anyBottom = false;
+    for (size_t i = 0; i < st->touchNodeTop.size(); i++) {
+        if (st->touchNodeTop[i]) anyTop = true; else anyBottom = true;
+    }
+    st->hasTopTouch = anyTop && anyBottom;
 }
 
 void recalibrateAxes(InputState* st) {
