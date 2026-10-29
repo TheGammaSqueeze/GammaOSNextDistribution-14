@@ -4259,8 +4259,12 @@ public final class SystemServer implements Dumpable {
                 // sys.gammaos.nano.ext_storage_ready=1 once it reports
                 // mounted; nano's QR preview keeps rendering until it flips.
                 boolean extStorageReady = false;
+                // Each probe takes StorageManagerService.mLock (and logs a warning until the
+                // primary volume exists), so probe about every 250 ms while do_launch is still
+                // checked every 25 ms.
+                int storageProbeTick = 0;
                 while (true) {
-                    if (!extStorageReady) {
+                    if (!extStorageReady && (storageProbeTick++ % 10) == 0) {
                         try {
                             if (android.os.Environment.MEDIA_MOUNTED.equals(
                                     android.os.Environment.getExternalStorageState())) {
@@ -4288,8 +4292,9 @@ public final class SystemServer implements Dumpable {
                     // Bounded so a storage failure degrades to the old
                     // behavior instead of never launching.
                     for (int i = 0; i < 1200 && !extStorageReady; i++) {
+                        // Probe every 10th pass (~250 ms); the 30 s bound is unchanged.
                         try {
-                            if (android.os.Environment.MEDIA_MOUNTED.equals(
+                            if (i % 10 == 0 && android.os.Environment.MEDIA_MOUNTED.equals(
                                     android.os.Environment.getExternalStorageState())) {
                                 SystemProperties.set(
                                         "sys.gammaos.nano.ext_storage_ready", "1");
