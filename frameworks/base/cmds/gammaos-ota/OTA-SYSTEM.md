@@ -326,7 +326,7 @@ Both the writes and the read-back use `O_DIRECT`, so the data bypasses the page 
 ### Phase 7: Reboot
 
 On success:
-1. Package directory is cleaned up via direct `unlink()` syscalls (not shell commands, since the staged shell may be gone)
+1. Package directory is cleaned up via direct `unlink()` syscalls (not shell commands, since the staged shell may be gone). Before the countdown the payload (the manifest's `.img.xz` files and `manifest.json` when the package lives under `/data/gammaos_ota`) and every `*.zip` at the top of `/data/gammaos_ota` (nano downloads, `external_update.zip`) are deleted. A failed update keeps them for Retry.
 2. Bind-mounts over `/system/bin` and `/system/lib64` are unmounted
 3. Device reboots via `::reboot(RB_AUTOBOOT)` syscall directly (not `sys.powerctl` which caused a soft reboot preserving mount namespace)
 

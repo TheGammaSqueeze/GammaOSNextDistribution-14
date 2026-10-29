@@ -948,6 +948,8 @@ void OtaMenu::runFlashSequence() {
     // all of that matched, so nothing unverified is booted.
     OtaFlasher::logToFile("INFO", "--- Phase: VERIFY (done inside flash, every partition read back) ---");
     mFlasher.finishProgress();
+    // Before the countdown: a press during it reboots at once (STATE_SUCCESS in handleSelect).
+    mFlasher.cleanupAfterSuccess(mManifest);
     OtaFlasher::logToFile("INFO", "=== OTA FLASH SEQUENCE: SUCCESS ===");
     OtaFlasher::logToFile("INFO", "========================================");
     mState = STATE_SUCCESS;

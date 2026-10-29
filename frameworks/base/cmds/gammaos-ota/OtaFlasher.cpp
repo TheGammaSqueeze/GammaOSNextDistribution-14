@@ -1616,6 +1616,34 @@ bool OtaFlasher::restoreFromBackup() {
     return true;
 }
 
+void OtaFlasher::cleanupAfterSuccess(const OtaManifest& manifest) {
+    // Plain syscalls only: /system is already overwritten, so no execCommand.
+    const std::string otaDir = OTA_DIR;
+    // Only touch payloads we own: a legacy Mode-A package dir elsewhere is the user's.
+    if (mPackageDir == otaDir || mPackageDir.rfind(otaDir + "/", 0) == 0) {
+        for (const auto& part : manifest.partitions) {
+            if (part.file.empty() || part.file.find("..") != std::string::npos) continue;
+            std::string p = mPackageDir + "/" + part.file;
+            if (unlink(p.c_str()) == 0) logToFile("INFO", "  Deleted: %s", p.c_str());
+        }
+        std::string m = mPackageDir + "/manifest.json";
+        if (unlink(m.c_str()) == 0) logToFile("INFO", "  Deleted: %s", m.c_str());
+    }
+    // Downloaded (nano) and copied (external_update.zip) packages at the top of OTA_DIR.
+    if (DIR* d = opendir(OTA_DIR)) {
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            std::string n = e->d_name;
+            if (n.size() <= 4 || n.compare(n.size() - 4, 4, ".zip") != 0) continue;
+            std::string p = otaDir + "/" + n;
+            struct stat st;
+            if (lstat(p.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
+            if (unlink(p.c_str()) == 0) logToFile("INFO", "  Deleted: %s", p.c_str());
+        }
+        closedir(d);
+    }
+}
+
 void OtaFlasher::reboot() {
     // Clean up extracted package to prevent re-launch after reboot
     // Use direct syscalls instead of execCommand — the staged shell may be gone

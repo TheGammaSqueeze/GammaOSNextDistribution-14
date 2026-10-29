@@ -98,6 +98,9 @@ public:
     // The update is done (the reboot countdown): the bar reads 100%.
     void finishProgress();
 
+    // After a verified flash: delete the package payload and the downloaded or copied zips in OTA_DIR.
+    void cleanupAfterSuccess(const OtaManifest& manifest);
+
     // Reboot the device.
     void reboot();
 
