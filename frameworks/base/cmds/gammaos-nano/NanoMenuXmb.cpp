@@ -1962,6 +1962,7 @@ void NanoMenu::romRescanFromSettings() {
 // thread to pick up. Never touches sys.roms/displayNames directly -- only
 // writes to mBgScanResults behind a mutex.
 void NanoMenu::bgScanThreadFunc() {
+    nanoThreadNormalPriority();   // started from the FIFO 80 / nice -20 render thread; not latency critical
     int numSys = (int)mXmbSystems.size();
     std::vector<BgScanResult> results(numSys);
 
