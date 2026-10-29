@@ -34,7 +34,9 @@ import androidx.preference.SwitchPreference;
 import com.android.tv.settings.R;
 import com.android.tv.settings.SettingsPreferenceFragment;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Keep
@@ -430,13 +432,13 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
 
     private void bindEditText(EditTextPreference etp, String key) {
         String def = DEFAULTS.getOrDefault(key, "");
-        String current = SystemProperties.get(key, def);
+        String current = isMultipart(key) ? getMultiSegment(key) : SystemProperties.get(key, def);
         etp.setText(current);
         updateEditTextSummary(etp, current);
     }
 
     private void showEditDialog(EditTextPreference etp, String key, String def) {
-        String current = SystemProperties.get(key, def);
+        String current = isMultipart(key) ? getMultiSegment(key) : SystemProperties.get(key, def);
 
         final EditText input = new EditText(getContext());
         input.setText(current);
@@ -461,6 +463,13 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
                 .setView(container)
                 .setPositiveButton(android.R.string.ok, (dialog, which) -> {
                     String raw = input.getText().toString();
+                    if (isMultipart(key)) {
+                        String v = raw.trim();
+                        setMultiSegment(key, v);
+                        etp.setText(v);
+                        updateEditTextSummary(etp, v);
+                        return;
+                    }
                     String val = sanitize(key, def, raw);
                     if (val != null) {
                         SystemProperties.set(key, val);
@@ -477,6 +486,70 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
             etp.setSummary(getString(R.string.gammaos_toolbox_value_not_set));
         } else {
             etp.setSummary(value);
+        }
+    }
+
+    // Package-list properties are stored across a base prop plus _1, _2, ... continuation
+    // segments (a single Android prop caps at ~92 bytes), as the dedicated DualStackControl /
+    // SecondaryDisplayControl apps write them. Read and write the full multi-segment value.
+
+    private static boolean isMultipart(String key) {
+        return "persist.gammaos.dualstack.pkgs".equals(key)
+                || "persist.gammaos.secondary_display.packages".equals(key)
+                || "persist.gammaos.ultra_low_power_saving_freeze_exclude_packages".equals(key);
+    }
+
+    /** Join the base prop with its _1, _2, ... continuations into one comma-separated list. */
+    private static String getMultiSegment(String baseKey) {
+        StringBuilder out = new StringBuilder();
+        appendSeg(out, SystemProperties.get(baseKey, ""));
+        for (int idx = 1; ; idx++) {
+            String seg = SystemProperties.get(baseKey + "_" + idx, "");
+            if (TextUtils.isEmpty(seg) || seg.trim().isEmpty()) break;
+            appendSeg(out, seg);
+        }
+        return out.toString();
+    }
+
+    private static void appendSeg(StringBuilder out, String seg) {
+        if (seg == null) return;
+        seg = seg.trim();
+        if (seg.isEmpty()) return;
+        if (out.length() > 0) out.append(',');
+        out.append(seg);
+    }
+
+    /** Split a comma/space list back into <=90-char segments across base + _1.._N, clearing stale. */
+    private static void setMultiSegment(String baseKey, String value) {
+        List<String> tokens = new ArrayList<>();
+        if (value != null) {
+            for (String t : value.split("[,\\s]+")) {
+                String s = t.trim();
+                if (!s.isEmpty()) tokens.add(s);
+            }
+        }
+        List<String> segments = new ArrayList<>();
+        StringBuilder cur = new StringBuilder();
+        for (String tok : tokens) {
+            int extra = (cur.length() == 0) ? tok.length() : (1 + tok.length());
+            if (cur.length() > 0 && cur.length() + extra > 90) {
+                segments.add(cur.toString());
+                cur.setLength(0);
+            }
+            if (cur.length() > 0) cur.append(',');
+            cur.append(tok);
+        }
+        if (cur.length() > 0) segments.add(cur.toString());
+
+        SystemProperties.set(baseKey, segments.isEmpty() ? "" : segments.get(0));
+        for (int idx = 1; idx < segments.size(); idx++) {
+            SystemProperties.set(baseKey + "_" + idx, segments.get(idx));
+        }
+        for (int idx = Math.max(1, segments.size()); ; idx++) {
+            String k = baseKey + "_" + idx;
+            String old = SystemProperties.get(k, "");
+            if (TextUtils.isEmpty(old) || old.trim().isEmpty()) break;
+            SystemProperties.set(k, "");
         }
     }
 
