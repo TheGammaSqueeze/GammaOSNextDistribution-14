@@ -37,7 +37,10 @@ throttled_copy() {
     [ "$rate" -lt 1 ] 2>/dev/null && rate=1
     local size total off
     size=$(stat -c %s "$src" 2>/dev/null) || return 1
-    total=$(( (size + 1048575) / 1048576 ))   # size in MiB, rounded up
+    # Size in MiB, rounded up. mksh arithmetic is 32-bit, which wraps for files of 2 GiB and up, so
+    # use toybox expr (64-bit). expr exits 1 for a result of 0, so test the output, not the status.
+    total=$(expr \( "$size" + 1048575 \) / 1048576 2>/dev/null)
+    [ -n "$total" ] || return 1
     : > "$dst" 2>/dev/null || return 1
     off=0
     while [ "$off" -lt "$total" ]; do
@@ -54,9 +57,10 @@ atomic_copy() {
     local size
     size=$(stat -c %s "$src" 2>/dev/null || echo 0)
     # Throttle only large files; small ones (saves, BIOS, config) copy plainly so the per-chunk
-    # pause never adds latency to the many tiny delta-sync copies.
+    # pause never adds latency to the many tiny delta-sync copies. The size is compared with expr
+    # because the builtin [ -gt ] is 32-bit and wraps for a file of 2 GiB or more.
     if [ "$CACHE_COPY_RATE_MB" -gt 0 ] 2>/dev/null && \
-       [ "$size" -gt "$(( CACHE_COPY_THROTTLE_MB * 1048576 ))" ]; then
+       [ "$(expr "$size" \> "$(( CACHE_COPY_THROTTLE_MB * 1048576 ))" 2>/dev/null)" = 1 ]; then
         if throttled_copy "$src" "$tmp" && mv -f "$tmp" "$dst" 2>/dev/null; then
             return 0
         fi
