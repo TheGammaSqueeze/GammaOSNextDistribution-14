@@ -96,6 +96,21 @@ on property:persist.gammaos.ultra_low_power_saving_mode=true
 on property:persist.gammaos.ultra_low_power_saving_mode=false
     setprop persist.gammaos.ultra_low_power_saving_mode 0
 
+# Same self-heal for the gamepad and DC-dimming toggles: older toolbox builds wrote
+# "true"/"false", but the gammapad.rc and init.rc triggers only match 1/0. Rewriting
+# to 1/0 fires those triggers. Not a loop: 1/0 do not re-match the true/false triggers.
+on property:persist.gammaos.gamepad.enable=true
+    setprop persist.gammaos.gamepad.enable 1
+
+on property:persist.gammaos.gamepad.enable=false
+    setprop persist.gammaos.gamepad.enable 0
+
+on property:persist.gammaos.dcdimmingemulation=true
+    setprop persist.gammaos.dcdimmingemulation 1
+
+on property:persist.gammaos.dcdimmingemulation=false
+    setprop persist.gammaos.dcdimmingemulation 0
+
 service watchdogd-gsi /system/bin/watchdogd 10 20
     class core
     oneshot
