@@ -204,7 +204,7 @@ The bar shows the whole update, start to finish. Before preflight the flasher ma
 Before any writes occur:
 
 1. **Device compatibility**: `ro.gammaos.device` must match manifest `device[]` list
-2. **Battery level**: Must meet `min_battery` threshold (or be plugged in via AC/USB)
+2. **Battery level**: at least max(`min_battery`, 20)% unless a charger is connected (any non-battery power_supply with online=1). Skipped when no battery supply with a capacity node exists.
 3. **File integrity**: SHA-256 of each compressed `.img.xz` file verified against manifest
 4. **Super partition space**: For logical partition size increases, verifies enough free space exists in the super partition
 

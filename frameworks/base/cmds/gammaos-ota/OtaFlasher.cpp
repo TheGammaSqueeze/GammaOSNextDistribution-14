@@ -48,6 +48,7 @@
 #include <time.h>
 
 #include <android-base/file.h>
+#include <android-base/parseint.h>
 #include <android-base/properties.h>
 #include <android-base/strings.h>
 #include <cutils/properties.h>
@@ -442,11 +443,45 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
     }
     logToFile("INFO", "Device compatible: OK");
 
-    // Battery/charger preflight check removed: sysfs node names
-    // (/sys/class/power_supply/battery, .../ac, .../usb) vary per SoC, and a
-    // false-negative here silently aborts the flash. Rely on the manifest's
-    // min_battery field at package-build time instead of enforcing on-device.
-    logToFile("INFO", "Battery check: skipped (not enforced on-device)");
+    // Battery / charger. Node names differ per SoC, so find supplies by their 'type'.
+    // A missing node never blocks the update. Power loss during the logical write leaves a
+    // system that does not boot.
+    {
+        int capacity = -1;      // highest capacity of any present type==Battery supply
+        bool external = false;  // any non-Battery supply (Mains/USB/Wireless...) with online==1
+        DIR* d = opendir("/sys/class/power_supply");
+        if (d) {
+            struct dirent* e;
+            while ((e = readdir(d)) != nullptr) {
+                if (e->d_name[0] == '.') continue;
+                const std::string supply = std::string("/sys/class/power_supply/") + e->d_name;
+                std::string type, val;
+                if (!android::base::ReadFileToString(supply + "/type", &type)) continue;
+                type = android::base::Trim(type);
+                if (type == "Battery") {
+                    if (android::base::ReadFileToString(supply + "/present", &val) && android::base::Trim(val) == "0") continue;
+                    int c = -1;
+                    if (android::base::ReadFileToString(supply + "/capacity", &val) && android::base::ParseInt(android::base::Trim(val), &c, 0, 100))
+                        capacity = std::max(capacity, c);
+                } else if (android::base::ReadFileToString(supply + "/online", &val) && android::base::Trim(val) == "1") {
+                    external = true;
+                }
+            }
+            closedir(d);
+        }
+        const int required = std::max(manifest.minBattery, 20);
+        if (capacity < 0) {
+            logToFile("INFO", "Battery check: no battery supply with a capacity found, not enforced");
+        } else if (external) {
+            logToFile("INFO", "Battery check: %d%%, charger connected: OK", capacity);
+        } else if (capacity < required) {
+            std::string err = "Battery at " + std::to_string(capacity) + "%. Connect the charger (needs " + std::to_string(required) + "%)";
+            logToFile("ERROR", "PREFLIGHT FAIL: %s", err.c_str());
+            return err;
+        } else {
+            logToFile("INFO", "Battery check: %d%% >= %d%%: OK", capacity, required);
+        }
+    }
 
     // Verify compressed file checksums
     logToFile("INFO", "Verifying compressed file checksums...");
