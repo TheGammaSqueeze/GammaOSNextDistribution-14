@@ -1370,8 +1370,15 @@ class BluetoothManagerService {
                     BluetoothProtoEnums.ENABLE_DISABLE_REASON_SYSTEM_BOOT,
                     mContext.getPackageName());
         } else if (!isNameAndAddressSet()) {
-            Log.i(TAG, "internalHandleOnBootPhase: Getting adapter name and address");
-            mHandler.sendEmptyMessage(MESSAGE_GET_NAME_AND_ADDRESS);
+            // GammaOS Nano: do not bind AdapterService at boot just to read the name and
+            // address. It cold-starts the Bluetooth app and HAL in the boot I/O storm; both
+            // are stored when Bluetooth is first enabled.
+            if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                Log.i(TAG, "internalHandleOnBootPhase: Skipping adapter name and address fetch");
+            } else {
+                Log.i(TAG, "internalHandleOnBootPhase: Getting adapter name and address");
+                mHandler.sendEmptyMessage(MESSAGE_GET_NAME_AND_ADDRESS);
+            }
         } else {
             autoOnSetupTimer();
         }
