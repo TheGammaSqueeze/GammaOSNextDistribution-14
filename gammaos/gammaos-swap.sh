@@ -54,7 +54,10 @@ if [ "$size_mb" -gt "$MAX_MB" ]; then
     size_mb=$MAX_MB
 fi
 
-want_bytes=$((size_mb * 1024 * 1024))
+# mksh does 32-bit arithmetic, so $((size_mb * 1024 * 1024)) wraps from 2048 MB up (8192 gives 0)
+# and the size checks below never matched: the file was deleted and rewritten on every boot.
+# toybox expr is 64-bit.
+want_bytes=$(expr "$size_mb" \* 1048576)
 have_bytes=$(file_bytes)
 
 # Already active at exactly the requested size -> nothing to do (fast boot path).
@@ -89,6 +92,7 @@ mkdir -p "$SWAPDIR" 2>/dev/null
 chmod 0700 "$SWAPDIR" 2>/dev/null
 
 if [ ! -f "$SWAPFILE" ] || [ "$have_bytes" != "$want_bytes" ]; then
+    log_i "(re)creating swap file: have ${have_bytes} bytes, want ${want_bytes} bytes"
     rm -f "$SWAPFILE"
     if ! fallocate -l "${size_mb}M" "$SWAPFILE" 2>/dev/null; then
         log_i "fallocate ${size_mb}M failed"
@@ -103,8 +107,9 @@ if ! mkswap "$SWAPFILE" >/dev/null 2>&1; then
     rm -f "$SWAPFILE"
     exit 1
 fi
+swapon_start=$SECONDS
 if swapon "$SWAPFILE" 2>/dev/null; then
-    log_i "swap enabled: ${size_mb}MB at $SWAPFILE"
+    log_i "swap enabled: ${size_mb}MB at $SWAPFILE (swapon took $((SECONDS - swapon_start))s)"
 else
     log_i "swapon failed for $SWAPFILE"
     rm -f "$SWAPFILE"
