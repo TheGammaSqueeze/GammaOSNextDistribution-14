@@ -96,6 +96,13 @@ public:
     size_t feedPcm(const int16_t* s, size_t nSamples);
     void seekFed(double sec);
 
+    // Gapless loop (the DSi menu ambiance): while set, the decode thread wraps its source back to 0 at
+    // end-of-stream and keeps feeding the same ring, so the queued PCM bridges the loop point. No AAudio
+    // pause/start, no ring clear and no new AMediaCodec (the seek-and-restart loop left a 20-130 ms
+    // silent hole on every pass). Covers the PCM passthrough and AMediaCodec decode paths (ended() then
+    // only fires if the wrap itself fails); AC-3 and fed sources finish as before. Set it before open().
+    void setLoop(bool on) { mLoop.store(on, std::memory_order_relaxed); }
+
     void play();
     void pause();
     void togglePause();
@@ -214,6 +221,7 @@ private:
     int   mExTrack = -1;                         // selected track index
     bool  mExUseAc3 = false;                     // selected track is AC-3 (liba52 path)
     std::atomic<bool> mEos{false};              // decoder hit end-of-stream
+    std::atomic<bool> mLoop{false};             // setLoop(): wrap at end-of-stream instead of finishing
     std::atomic<int64_t> mPendingSeekUs{-1};    // seek (us) the next decode consumes at start
     std::string mCurrentPath;                   // path of the open track (for re-seek respawn)
 

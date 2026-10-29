@@ -565,7 +565,8 @@ void NanoMenu::ndsSfxTick() {
 
 // Per-frame carousel background ambiance: loop menu_ambiance.wav while the DSi home is up
 // (started only after the boot enter fanfare finishes so it is not clipped), stopped
-// otherwise. Looped by seeking back to 0 when the track ends. Independent player instance.
+// otherwise. Looped inside the decoder (setLoop), so the wrap is gapless; the seek back to 0
+// at the end of the tick only covers a decoder that could not wrap. Independent player instance.
 void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
     const bool direct = nanoDirectAudioUsable() && !dsiBootCompleted();
 
@@ -611,6 +612,7 @@ void NanoMenu::ndsAmbianceTick(bool wantOnHome) {
         std::string path = dsiAudioPath("menu_ambiance.wav");
         std::thread([this, path]() {
             mAmbiancePlayer.init();
+            mAmbiancePlayer.setLoop(true);   // before open(): that starts the decode thread
             if (mAmbiancePlayer.open(path)) {
                 mAmbiancePlayer.setVolume(0.56f);   // web master 0.8 * voice 0.7 (was 0.7, a 1:1 miss)
                 mAmbiancePlayer.play();
