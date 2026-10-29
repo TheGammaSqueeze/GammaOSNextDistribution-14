@@ -74,6 +74,11 @@ public final class SystemServiceManager implements Dumpable {
     private static final boolean DEBUG = false;
     private static final int SERVICE_CALL_WARN_TIME_MS = 50;
 
+    // GammaOS Nano: besides StorageManager, UsageStatsService still gets onUserUnlocking in
+    // minimal boot. A string because services.core cannot depend on services.usage.
+    private static final String NANO_USAGE_STATS_SERVICE =
+            "com.android.server.usage.UsageStatsService";
+
     // Constants used on onUser(...)
     // NOTE: do not change their values, as they're used on Trace calls and changes might break
     // performance tests that rely on them.
@@ -557,9 +562,13 @@ public final class SystemServiceManager implements Dumpable {
                         // GammaOS Nano: skip non-essential unlock callbacks to
                         // speed up the path to RetroArch launch. Only
                         // StorageManagerService is needed for CE storage.
+                        // UsageStatsService only posts MSG_UNLOCKED_USER here (the
+                        // work runs on android.bg); without it the user is never
+                        // unlocked for usage stats and queryEvents() returns null.
                         if (android.os.SystemProperties.getBoolean(
                                 "sys.gammaos.minimal_boot", false)
-                                && !serviceName.contains("StorageManager")) {
+                                && !serviceName.contains("StorageManager")
+                                && !serviceName.equals(NANO_USAGE_STATS_SERVICE)) {
                             break;
                         }
                         service.onUserUnlocking(curUser);
