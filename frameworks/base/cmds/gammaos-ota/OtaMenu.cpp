@@ -698,6 +698,7 @@ void OtaMenu::handleUp() {
             break;
         case STATE_FAILED:
             if (mErrorSelectedIndex > 0) mErrorSelectedIndex--;
+            if (mErrorSelectedIndex == 1 && !mHasBackup) mErrorSelectedIndex = 0;  // hidden row
             break;
         default:
             break;
@@ -714,6 +715,7 @@ void OtaMenu::handleDown() {
             break;
         case STATE_FAILED:
             if (mErrorSelectedIndex < 2) mErrorSelectedIndex++;
+            if (mErrorSelectedIndex == 1 && !mHasBackup) mErrorSelectedIndex = 2;  // hidden row
             break;
         default:
             break;
@@ -797,7 +799,8 @@ void OtaMenu::handleSelect() {
         case STATE_FAILED:
             if (mErrorSelectedIndex == 0) { // Retry
                 startFlashThread();
-            } else if (mErrorSelectedIndex == 1 && mHasBackup) { // Restore
+            } else if (mErrorSelectedIndex == 1) { // Restore (row hidden without a backup)
+                if (!mHasBackup) break;
                 mState = STATE_FLASHING;
                 pthread_t restoreThread;
                 pthread_create(&restoreThread, nullptr, [](void* arg) -> void* {
@@ -839,12 +842,19 @@ void OtaMenu::handleTouch(int x, int y) {
                 handleSelect();
             }
             break;
-        case STATE_FAILED:
-            if (itemIndex >= 0 && itemIndex < 3) {
-                mErrorSelectedIndex = itemIndex;
+        case STATE_FAILED: {
+            // Without a backup the Restore row is not drawn: map the visible rows to options.
+            int idx = itemIndex;
+            if (!mHasBackup) {
+                if (idx == 1) idx = 2;
+                else if (idx >= 2) idx = -1;
+            }
+            if (idx >= 0 && idx < 3) {
+                mErrorSelectedIndex = idx;
                 handleSelect();
             }
             break;
+        }
         case STATE_SUCCESS:
             handleSelect(); // any touch = reboot
             break;
@@ -1178,6 +1188,8 @@ void OtaMenu::render() {
             y += lineH;
 
             const char* options[] = {"Retry flash", "Restore from backup", "Reboot anyway"};
+            mItemStartY = y - mFontSize; // record for touch (else the confirm screen's rows apply)
+            mItemHeight = lineH;
             for (int i = 0; i < 3; i++) {
                 if (i == 1 && !mHasBackup) continue; // skip restore if no backup
                 bool sel = (i == mErrorSelectedIndex);
