@@ -2532,6 +2532,10 @@ public final class PowerManagerService extends SystemService
     // Schedules a delayed freeze so apps can cleanly suspend first.
     // Also allows us to cancel if we wake before the delay elapses.
     private static final long ULTRA_POWER_FREEZE_DELAY_MS = 5000;
+    // Whether the ULP freeze and hardware park ran and have not been undone. Touched only on
+    // mHandler, which runs both the park (mUltraPowerFreezeRunnable) and the restore
+    // (mUltraPowerWakeRunnable), so the two are serialized.
+    private boolean mGammaUlpParked;
     private final Runnable mUltraPowerFreezeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -2557,7 +2561,26 @@ public final class PowerManagerService extends SystemService
             final boolean keepAudio =
                     "1".equals(SystemProperties.get("sys.gammaos.nano.keep_audio", "0"));
             gammaUlpParkHardware(true, !keepAudio);
+            mGammaUlpParked = true;
             freezeNonSystemApps();
+        }
+    };
+
+    // Undoes the freeze and the hardware park. Posted to mHandler on wake: the cgroup scan, the
+    // audioserver setParameters and the sensorservice dump block, so they must not run under
+    // mLock, and on mHandler a wake that lands while the freeze runs is applied after it.
+    private final Runnable mUltraPowerWakeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // ULP may have been switched off while asleep: still undo a park that ran.
+            if (!mGammaUlpParked && !isUltraPowerSaveEnabled()) {
+                return;
+            }
+            unfreezeNonSystemApps();
+            if (mGammaUlpParked) {
+                mGammaUlpParked = false;
+                gammaUlpParkHardware(false, true);
+            }
         }
     };
 
@@ -2686,12 +2709,11 @@ public final class PowerManagerService extends SystemService
                         + ", details=" + details
                         + ")...");
                 SystemProperties.set("sys.screen.state", "on");
-                if (isUltraPowerSaveEnabled()) {
-                    // Cancel any pending freeze and unfreeze immediately on wake
-                    mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
-                    unfreezeNonSystemApps();
-                    gammaUlpParkHardware(false, true);
-                }
+                // Cancel any pending freeze; the unfreeze and the hardware restore run on mHandler
+                // (see mUltraPowerWakeRunnable), not under mLock.
+                mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
+                mHandler.removeCallbacks(mUltraPowerWakeRunnable);
+                mHandler.post(mUltraPowerWakeRunnable);
                 mLastGlobalWakeTime = eventTime;
                 mLastGlobalWakeReason = reason;
                 mLastGlobalWakeTimeRealtime = mClock.elapsedRealtime();
