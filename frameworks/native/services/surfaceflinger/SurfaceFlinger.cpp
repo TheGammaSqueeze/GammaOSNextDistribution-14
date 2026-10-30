@@ -103,6 +103,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <array>
 #include <algorithm>
 #include <cerrno>
+#include <chrono>
 #include <cinttypes>
 #include <cmath>
 #include <cstdint>
@@ -110,6 +111,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <cstring>
 #include <filesystem>
 #include <functional>
+#include <future>
 #include <memory>
 #include <mutex>
 #include <optional>
@@ -1090,6 +1092,9 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
 
     // Skip shader cache priming in nano/minimal boot mode for faster startup.
     // NanoMenu uses its own simple GL shaders and doesn't need the SF cache.
+    // SF starts in late-fs, before persist props are loaded and before init sets
+    // sys.gammaos.minimal_boot, so on a cold boot both are still unset here. With a
+    // threaded RenderEngine, decide on a helper thread once persist props are ready.
     const bool minimalBoot = base::GetBoolProperty("sys.gammaos.minimal_boot"s, false);
     if (base::GetBoolProperty("service.sf.prime_shader_cache"s, true) && !minimalBoot) {
         if (setSchedFifo(false) != NO_ERROR) {
@@ -1098,7 +1103,22 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
 
         bool shouldPrimeUltraHDR =
                 base::GetBoolProperty("ro.surface_flinger.prime_shader_cache.ultrahdr"s, false);
-        mRenderEnginePrimeCacheFuture = getRenderEngine().primeCache(shouldPrimeUltraHDR);
+        if (getRenderEngine().isThreaded()) {
+            renderengine::RenderEngine* re = &getRenderEngine();
+            mRenderEnginePrimeCacheFuture = std::async(std::launch::async, [re,
+                                                                            shouldPrimeUltraHDR] {
+                base::WaitForProperty("ro.persistent_properties.ready"s, "true"s,
+                                      std::chrono::seconds(30));
+                if (base::GetBoolProperty("sys.gammaos.minimal_boot"s, false) ||
+                    base::GetProperty("persist.bootanim.skip_nano"s, "1"s) == "0") {
+                    ALOGI("GammaOS: nano boot, RenderEngine shader cache not primed");
+                    return;
+                }
+                re->primeCache(shouldPrimeUltraHDR).wait();
+            });
+        } else {
+            mRenderEnginePrimeCacheFuture = getRenderEngine().primeCache(shouldPrimeUltraHDR);
+        }
 
         if (setSchedFifo(true) != NO_ERROR) {
             ALOGW("Can't set SCHED_FIFO after primeCache");
