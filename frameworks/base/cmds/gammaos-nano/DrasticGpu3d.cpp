@@ -157,6 +157,11 @@ static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL 
 // pass alone 0.3 ms; 0 = every textured polygon.
 static int gDsUv = 3;
 static int gDsUvMin = 16;
+// persist gpu3d_rowinv (read at GL init, default on only for the RG DS Plus, 0 = the old pass): the
+// row pass starts from invalidated targets and writes only the rows in use. Every texel a fragment
+// reads was written by the same job's points, so the old table is dead; a tiled GPU then neither
+// reloads nor writes back the whole 3 MiB table (3 RGBA32I attachments, 128 x 512) per job.
+static bool gRowInv = false;
 static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
 static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
 static int gPolyRows = 0;                           // row table rows handed out so far in this job
@@ -1298,7 +1303,11 @@ bool initGl() {
             else { glUseProgram(g.rowProg); glUniform1i(glGetUniformLocation(g.rowProg, "uPolyTab"), 8); glUniform1i(glGetUniformLocation(g.rowProg, "uRowOwner"), 11); }
         }
         if (rst != GL_FRAMEBUFFER_COMPLETE || !g.rowProg) { ALOGW("gpu3d: DS span sampling unavailable (row fbo %x, program %u): GL's own texel mapping stays", rst, g.rowProg); g.rowProg = 0; }
-        else ALOGI("gpu3d: DS span sampling ready (row table %d x %d)", kRowTabW, kRowTabH);
+        else {
+            char rowDev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", rowDev, "");
+            gRowInv = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_rowinv", strcmp(rowDev, "anbernicrgdsplus") == 0);
+            ALOGI("gpu3d: DS span sampling ready (row table %d x %d, row pass invalidate+scissor %d)", kRowTabW, kRowTabH, gRowInv ? 1 : 0);
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     glActiveTexture(GL_TEXTURE0);
@@ -2249,7 +2258,7 @@ void useProgram(GLuint prog, bool blend) {
 // where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
 // does the same arithmetic in the shader and needs none of this.
 static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
-static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0;   // per-300-frame draw census
+static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0, gDcRowJobs = 0, gDcRowLines = 0;   // per-300-frame draw census (row jobs / lines: jobs that ran the DS span sampling row pass, and the table lines it drew)
 static int gProbe = 0;   // sys gpu3d_probe timing probes (A/B only, wrong output): 1 plain blend equation, 2 no drawn plane, 4 no shadow pass, 8 no caster redraw, 16 full stencil clears, 32 no translucent stream, 64 no opaque stream, 128 quarter-size viewport
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
@@ -2798,10 +2807,19 @@ void renderJob(Job& j) {
         glActiveTexture(GL_TEXTURE0);
         // one point per row: the vertex shader does the edge walk, the point lands on the row's texel
         glBindFramebuffer(GL_FRAMEBUFFER, g.rowFbo); glViewport(0, 0, kRowTabW, kRowTabH);
+        // The last job's table is dead: every row a fragment reads (its own polygon's rows) is
+        // written by the points below. Invalidated, a tiled GPU does not reload the 3 MiB table,
+        // and the scissor keeps the write-back to the rows in use; the viewport stays full size so
+        // the points land where they always did.
+        const bool rowInv = gRowInv && rowLines > 0;
+        if (rowInv) { const GLenum ra[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; glInvalidateFramebuffer(GL_FRAMEBUFFER, 3, ra); }
         glDisable(GL_DEPTH_TEST); glDisable(GL_STENCIL_TEST); glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST);
+        if (rowInv) { glEnable(GL_SCISSOR_TEST); glScissor(0, 0, kRowTabW, rowLines); }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         glUseProgram(g.rowProg); glBindVertexArray(0);
         glDrawArrays(GL_POINTS, 0, rowLines * kRowTabW);
+        if (rowInv) glDisable(GL_SCISSOR_TEST);
+        gDcRowJobs++; gDcRowLines += (uint32_t)rowLines;
         glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST);   // the job's own target and viewport are bound right below
         g.curProg = 0; g.curBlend = false;
     }
@@ -3468,9 +3486,10 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
         if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot) probe %d", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples, gProbe); g.sumGpuNs = 0; g.gpuSamples = 0; }
-        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0);
+        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f, row jobs %.2f, row lines avg %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0,
+              gDcRowJobs / 300.0, gDcRowJobs ? (double)gDcRowLines / gDcRowJobs : 0.0);
         { const uint32_t a = gDcLayerAdv.exchange(0), r = gDcLayerRep.exchange(0); if (a + r) ALOGI("gpu3d: 3D layer over %u composites: advanced %u, repeated %u (%.1f new 3D frames per 60 composites)", a + r, a, r, 60.0 * a / (a + r)); }
-        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = 0;
+        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = gDcRowJobs = gDcRowLines = 0;
         ALOGI("gpu3d: %u frames, GL thread %.2f ms (tex %.2f, upload+draw %.2f, gpu wait %.2f, readback %.2f, scatter %.2f), worker build %.2f ms, worker join wait %.2f ms, %zu verts, %u tex reuploads, max %.2f ms, %zu textures cached",
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
