@@ -447,19 +447,16 @@ bool NanoMenu::isLaunchReady() const {
     char val[PROPERTY_VALUE_MAX] = {};
     property_get("sys.boot_completed", val, "0");
     if (val[0] != '1') return false;
-    // Condition 2: the emulated FUSE is ACTUALLY MOUNTED, not just the early tmpfs
-    // placeholder. This is the exact live poll Quick Resume's handoff uses
-    // (isQrRomStorageReady gate 1): /storage/emulated/0/Android exists as a
-    // directory ONLY after FUSE mounts over the placeholder - a plain stat of
-    // /storage/emulated/0 passes prematurely because vold makes an empty tmpfs
-    // there from very early boot. Inlined (not isQrRomStorageReady itself) to avoid
-    // its gate-2 external-SD check, which keys off a possibly-stale QR rom path and
-    // could otherwise block launches indefinitely. Returns true the instant FUSE is
-    // up, so the launch fires as soon as it is genuinely safe.
-    struct stat st;
-    if (stat("/storage/emulated/0/Android", &st) != 0 || !S_ISDIR(st.st_mode))
-        return false;
-    return true;
+    // Condition 2: the primary emulated storage is served to apps: the framework's
+    // sys.gammaos.nano.ext_storage_ready first, then the /storage/emulated/0/Android probe
+    // (isPrimaryStorageReady; not isQrRomStorageReady, whose gate-2 external-SD check keys off
+    // a possibly-stale QR rom path and could block launches indefinitely). The probe alone is
+    // not enough: the vendor esde_fix.sh runs mkdir -p /storage/emulated/0/Android/data at
+    // boot_completed, which lands in vold's tmpfs placeholder, so it passed 4-10 s before FUSE
+    // and a queued launch then found no ROM. Probing the FUSE mount before MediaProvider serves
+    // it also sleeps in D state (6.6 s measured on the RG DS Plus); the property keeps the
+    // render thread off it.
+    return isPrimaryStorageReady();
 }
 
 void NanoMenu::showLaunchBusyToast() {
