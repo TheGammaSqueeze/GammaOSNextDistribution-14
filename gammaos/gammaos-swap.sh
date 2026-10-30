@@ -54,6 +54,24 @@ if [ "$size_mb" -gt "$MAX_MB" ]; then
     size_mb=$MAX_MB
 fi
 
+# RG DS Plus nano: swapon of the file reads every f2fs node block of it from the microSD (2081
+# reads, 2.5 s on an idle system; 9-11 s at boot, overlapping zygote and system_server). zram and
+# the swap partition (2.4 GB, higher priority) cover boot, which used under 200 MB of swap, so the
+# boot-time property trigger leaves the file to the sys.boot_completed start, which waits until
+# the game storage is up. A file that is already active (a resize) is not delayed.
+if [ "$(getprop ro.gammaos.device)" = anbernicrgdsplus ] && [ "$(getprop sys.gammaos.minimal_boot)" = 1 ] \
+        && ! is_active; then
+    if [ "$(getprop sys.boot_completed)" != 1 ]; then
+        log_i "swap file activation deferred until boot completes"
+        exit 0
+    fi
+    if [ "$(cut -d. -f1 /proc/uptime)" -lt 300 ]; then
+        n=0
+        while [ "$(getprop sys.gammaos.nano.ext_storage_ready)" != 1 ] && [ $n -lt 120 ]; do sleep 1; n=$((n + 1)); done
+        sleep 30
+    fi
+fi
+
 # mksh does 32-bit arithmetic, so $((size_mb * 1024 * 1024)) wraps from 2048 MB up (8192 gives 0)
 # and the size checks below never matched: the file was deleted and rewritten on every boot.
 # toybox expr is 64-bit.
