@@ -533,9 +533,12 @@ void NanoMenu::bootProgTick() {
     const int64_t now = elapsedRealtime();
     if (!b.init) {   // first frame: persist props (theme) and /data are up by the time the loop runs
         b.init = true; b.initMs = now;
+        // Cold boot only, tested as the boot intro does (threadLoop): sys.gammaos.minimal_boot is
+        // raised only once SurfaceFlinger runs, seconds after nano's first frame on the DRM path.
         b.enabled = mNdsTheme && !mOverlayMode
-            && property_get_bool("sys.gammaos.minimal_boot", false)
-            && !property_get_bool("sys.gammaos.nano.ext_storage_ready", false);   // cold boot only
+            && !property_get_bool("sys.boot_completed", false)
+            && !property_get_bool("sys.gammaos.nano.force_drm", false)
+            && !property_get_bool("sys.gammaos.nano.ext_storage_ready", false);
         if (!b.enabled) return;
         for (int i = 0; i < 6; i++) b.hist[i] = kBpMs[i].defMs;
         b.sameBuild = bootProgLoad();
