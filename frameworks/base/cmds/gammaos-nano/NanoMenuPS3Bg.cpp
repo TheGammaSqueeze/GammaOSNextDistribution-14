@@ -1009,6 +1009,7 @@ void shutdown() {
     sGradFbo = sWorkFbo = sGradTex = sWorkTex = 0;
     sFbW = sFbH = sWorkW = sWorkH = 0; sWaveHalfEnabled = false;   // wave half-res state
     sScrimFreeze = false; sScrimEpoch = 1; sScrimLastEpoch = 0;
+    sThemeFadingNow = false;   // a park mid-fade must not leave it true: render() recomputes it only once ready()
     sWaveSeqVBO = sWaveAttrVBO = sWaveIBO = sQuadVBO = 0;
     sSeqCount = 0;
     sSeqFrames.clear();

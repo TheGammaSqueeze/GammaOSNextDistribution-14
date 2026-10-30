@@ -6697,10 +6697,32 @@ void NanoMenu::render() {
         // screen over the rendered wallpaper; otherwise keep the wave OFFSCREEN only
         // (it just feeds glass-icon refraction).
         bool mpWavesVis = (mMpActive && mMpVis == 0);
+        // The plain DSi home never reads that offscreen wave texture: the carousel, every drilled level
+        // and the DSi option panels / dialogs / pickers / net wizard / search are drawn by the DSi
+        // renderers (no glass icon, no frosted backdrop). Building it anyway made the first DSi frame
+        // after a game (and after every park wake, since the park shuts ps3bg down) pay ps3bg::init():
+        // ~9 MB of wave_geo/wave_seq2 reads, five program links and the ~21 MB keyframe VBO upload,
+        // about 0.8 s. So skip the pass there and let it init lazily on the first frame that DOES have
+        // a reader. The readers reachable from the DSi theme are the XMB fallbacks: a media player,
+        // the slide-shut PSP clock (its glass samples the work texture), the setup wizard, and the
+        // Test Controller / Calibrate / press-to-capture pages (their glass header icon); the OSK only
+        // when its frost reads the wave (frostBufferSharedWithClock). The wave as the DSi Background
+        // Effect (22) never gets here (renderEffect draws and lazily inits it). Keep rendering while a
+        // colour / day-night cross-fade of a live wave is still settling, so themeFading() cannot stay
+        // stuck true while the pass is skipped (it would block the idle frame-rate drop).
+        const bool ndsClockUp = !mPs3BootActive &&
+            (mPspClockStandalone || mPspClockOn || mPspClockReveal > 0.0f);
+        const bool ndsPureHome = mNdsTheme && !mPs3BootActive && !mSetupWizardActive
+                                 && !ndsClockUp && !ndsPlayerActive()
+                                 && !(mOskActive && frostBufferSharedWithClock())
+                                 && !mGpTestActive && !mGpCalibActive && !mGpCaptureActive
+                                 && !(ps3bg::ready() && ps3bg::themeFading());
         if (mPs3Xmb && mCurrentEffect != 22 && !visCovers && !setupBlankDual && !ctrPureHome) {
+            // Layout globals stay computed every frame, as before: other DSi draw code may read them.
             ps3::layoutComputeNative(mWidth, mHeight);
-            ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
-                          sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
+            if (!ndsPureHome)
+                ps3bg::render(mWidth, mHeight, mFrameDt, sDrmRotMat,
+                              sDrmActive && sDrmGlRotation, /*compositeToScreen=*/mpWavesVis);
         }
     }
 
