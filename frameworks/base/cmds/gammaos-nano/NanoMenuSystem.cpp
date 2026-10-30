@@ -314,6 +314,43 @@ void NanoMenu::renderBrightnessBar() {
 // Volume
 // ---------------------------------------------------------------------------
 
+// Before PhoneWindowManager.systemBooted() no volume key reaches nanoSyncAllStreamsVolume
+// (InputReader starts ~20 s after the home is up, and interceptKeyBeforeQueueing drops every key
+// while !mSystemBooted), so adjustVolume steps the level itself. The persist write is a
+// synchronous round trip to init, which is busy this early in boot, so it must not run on the
+// render/input thread: one helper thread at normal priority writes the LATEST requested level
+// (a burst of presses collapses into one write). sys.gammaos.nano.volume_preboot carries that
+// level to systemBooted() (-1 / unset: none) and is written FIRST: a plain sys prop costs init no
+// persistent-store write, so it lands quickly, while the persist prop after it (the one the early
+// direct-PCM gain reads) can block for seconds. systemBooted() therefore finds the level even
+// while the persist write is still in flight, and does not depend on the persist prop.
+static std::atomic<int> sPrebootVolPending{-1};    // latest level to persist (-1 none)
+static std::atomic<bool> sPrebootVolRunning{false};
+
+static void nanoPersistPrebootVolume(int level) {
+    sPrebootVolPending.store(level);
+    if (sPrebootVolRunning.exchange(true)) return;   // the worker drains sPrebootVolPending before it exits
+    std::thread([]() {
+        nanoThreadNormalPriority();
+        do {
+            for (;;) {
+                const int lvl = sPrebootVolPending.exchange(-1);
+                if (lvl < 0) break;
+                // PWM took over in the meantime and already applied what it found: a level
+                // written now would linger in volume_preboot until the next systemBooted().
+                if (property_get_bool("sys.gammaos.nano.pwm_volume", false)) continue;
+                char v[16];
+                snprintf(v, sizeof(v), "%d", lvl);
+                property_set("sys.gammaos.nano.volume_preboot", v);
+                property_set("persist.gammaos.nano.volume", v);
+            }
+            sPrebootVolRunning.store(false);
+            // A level queued between the last exchange and the flag clear: take the flag back
+            // and write it, unless a newer call already started another worker.
+        } while (sPrebootVolPending.load() >= 0 && !sPrebootVolRunning.exchange(true));
+    }).detach();
+}
+
 void NanoMenu::adjustVolume(int direction) {
     // PhoneWindowManager is the single volume authority in nano mode: the SAME physical
     // volume key that nano reads here ALSO reaches PWM (nano reads the evdev nodes
@@ -333,7 +370,9 @@ void NanoMenu::adjustVolume(int direction) {
     // rapid presses, so re-reading the prop here returns a STALE index and several
     // consecutive presses would land on the SAME displayed step while PWM (which
     // queues every key event) actually moves the volume each time - the reported bug.
-    if (!mShowVolumeBar) {
+    // Not while a pre-boot persist write is still in flight: the prop is then older than our
+    // own counter, and re-reading it would drop the last presses.
+    if (!mShowVolumeBar && sPrebootVolPending.load() < 0 && !sPrebootVolRunning.load()) {
         char cur[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.nano.volume", cur, "");
         if (cur[0]) mVolume = atoi(cur);
@@ -346,6 +385,15 @@ void NanoMenu::adjustVolume(int direction) {
     // to PhoneWindowManager, which does the real all-stream change + republish +
     // persist. Injecting another key here applied the change twice (the 2-steps-per-
     // press bug). The optimistic mVolume above keeps the slider in lockstep with it.
+    //
+    // Except before PhoneWindowManager.systemBooted() (sys.gammaos.nano.pwm_volume is set
+    // there): until then the press never reaches it, so it was lost and the next burst re-read
+    // the old level. The early audio (direct PCM, see dsiEarlyAudioGain) takes its gain from
+    // persist.gammaos.nano.volume, so step it here and publish the level in
+    // sys.gammaos.nano.volume_preboot; systemBooted() applies that level to the streams.
+    if (!property_get_bool("sys.gammaos.nano.pwm_volume", false)) {
+        nanoPersistPrebootVolume(mVolume);
+    }
 
     mShowVolumeBar = true;
     mVolumeBarTimer = 90; // ~1.5s at 60fps
@@ -640,6 +688,9 @@ void NanoMenu::pollVolume() {
     if (--mVolumePollTicks > 0) return;
     mVolumePollTicks = 30; // ~0.5s at 60fps
     if (mShowVolumeBar) return;   // in a burst: keep the optimistic slider value
+    // A pre-boot persist write (nanoPersistPrebootVolume) still in flight: the prop is older
+    // than mVolume, and adopting it would make the next press step from the stale level.
+    if (sPrebootVolPending.load() >= 0 || sPrebootVolRunning.load()) return;
     char m[PROPERTY_VALUE_MAX] = {}, v[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.volmax", m, "");
     if (m[0]) { int mm = atoi(m); if (mm > 0) mMaxVolume = mm; }

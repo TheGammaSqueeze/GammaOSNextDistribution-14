@@ -3417,6 +3417,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         nanoEscThread.setDaemon(true);
         nanoEscThread.start();
 
+        // GammaOS Nano: systemBooted() raises sys.gammaos.nano.pwm_volume once volume keys reach
+        // nanoSyncAllStreamsVolume, and the nano home steps the volume itself until then
+        // (NanoMenu::adjustVolume). Clear it here: after a system_server soft restart the previous
+        // run's 1 would still be set while this run drops every key again until its systemBooted().
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            android.os.SystemProperties.set("sys.gammaos.nano.pwm_volume", "0");
+        }
+
         // Lineage additions
         mAlarmManager = mContext.getSystemService(AlarmManager.class);
         mCameraManager = (CameraManager) mContext.getSystemService(Context.CAMERA_SERVICE);
@@ -7981,6 +7989,40 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    // GammaOS Nano: apply the level the nano home stepped before systemBooted() (its adjustVolume
+    // publishes it in sys.gammaos.nano.volume_preboot, then in persist.gammaos.nano.volume, while no
+    // volume key reaches nanoSyncAllStreamsVolume) to every audible stream, then republish the props.
+    // The level is read by systemBooted() and passed in: the persist prop is not a safe source, the
+    // volume-change receiver registered right after it overwrites that prop with the AudioService
+    // index. Runs on the nano-volume thread, like the key steps.
+    private void nanoApplyPrebootVolumeNow(int want) {
+        try {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) return;
+            int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            if (want >= 0 && musMax > 0) {
+                if (want > musMax) want = musMax;
+                final float frac = (float) want / (float) musMax;
+                final int[] streams = {
+                    AudioManager.STREAM_MUSIC, AudioManager.STREAM_SYSTEM,
+                    AudioManager.STREAM_RING, AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.STREAM_ALARM,
+                };
+                for (int s : streams) {
+                    int sMax = am.getStreamMaxVolume(s);
+                    int v = Math.max(0, Math.min(Math.round(frac * sMax), sMax));
+                    try { am.setStreamVolume(s, v, 0); } catch (Exception ignore) {}
+                }
+                Log.i(TAG, "Nano: pre-boot volume " + want + " of " + musMax + " applied to all streams");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Nano: pre-boot volume apply failed", e);
+        } finally {
+            android.os.SystemProperties.set("sys.gammaos.nano.volume_preboot", "-1");
+            nanoPublishBootVolumeProps();
+        }
+    }
+
     // Publish the CURRENT music volume to the props the nano cold-boot chime reads
     // (persist.gammaos.nano.volume / volmax) at boot, so the chime respects the system volume even
     // when the user has not pressed the volume keys this session. nanoSyncAllStreamsVolume only
@@ -8922,8 +8964,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     public void systemBooted() {
         bindKeyguard();
         // Seed the nano cold-boot chime volume props from the current system volume (AudioService is
-        // up by now), so the chime respects the system level on the next boot.
-        nanoPublishBootVolumeProps();
+        // up by now), so the chime respects the system level on the next boot. A level the nano home
+        // stepped before this point (no key reached us yet, >= 0 in sys.gammaos.nano.volume_preboot)
+        // is applied to the streams first, on the nano-volume thread so it runs before any key
+        // queued from here on. It is read here, not on that thread: the receiver registered below
+        // overwrites persist.gammaos.nano.volume with the AudioService index.
+        final int prebootVol = android.os.SystemProperties.getInt("sys.gammaos.nano.volume_preboot", -1);
+        if (prebootVol >= 0) {
+            nanoVolumeHandler().post(() -> nanoApplyPrebootVolumeNow(prebootVol));
+        } else {
+            nanoPublishBootVolumeProps();
+        }
         // GammaOS Nano: keep the published volume props tracking the REAL music volume for the
         // output device in use. They were only rewritten by a volume key press here, so every
         // other change left them stale: AudioService keeps a separate STREAM_MUSIC index per
@@ -8950,6 +9001,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (mSystemReady) {
                 mKeyguardDelegate.onBootCompleted();
             }
+        }
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            // Volume keys reach nanoSyncAllStreamsVolume from here on: the nano home stops
+            // stepping the volume props itself (NanoMenu::adjustVolume). A press between
+            // mSystemBooted above and this line is handled by both sides and normally ends on the
+            // same level, but the nano helper thread can still raise volume_preboot (nothing
+            // consumes it before the next systemBooted()) and land its slow persist write after
+            // our publish. That self-corrects: the next volume event republishes the AudioService
+            // index.
+            android.os.SystemProperties.set("sys.gammaos.nano.pwm_volume", "1");
         }
         mLineageButtons = new LineageButtons(mContext);
         mSideFpsEventHandler.onFingerprintSensorReady();
