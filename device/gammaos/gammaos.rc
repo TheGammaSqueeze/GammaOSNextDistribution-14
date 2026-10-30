@@ -147,3 +147,20 @@ on property:sys.gammaos.nano.keep_audio=0 && property:sys.screen.state=off && pr
 # Wi-Fi HAL sets wlan.driver.status=ok after each load, so it is written again.
 on property:wlan.driver.status=ok && property:ro.gammaos.device=anbernicrgdsplus
     write /sys/module/8821cs/parameters/rtw_drv_log_level 3
+
+# RG DS Plus nano: MediaProvider (an APEX priv-app, never preopted) runs from its APK because the ART
+# background dexopt job waits for IDLE, which nano never reaches. Its cold start then verifies the
+# dex on every boot (Verify dex file 630 ms + 385 VerifyClass 785 ms) on the way to the FUSE mount
+# that the first game launch after boot waits for. Verify it once, a minute after storage is up (the
+# compile runs at background priority). Without -f an existing result is a no-op, so later boots only
+# pay for the cmd call. The result goes to logcat, tag gammaos_mp_verify.
+service gammaos_mp_verify /system/bin/sh -c "sleep 60; /system/bin/cmd package compile -m verify com.android.providers.media.module 2>&1 | /system/bin/log -t gammaos_mp_verify"
+    user root
+    group root system
+    seclabel u:r:gammaoscustomization:s0
+    oneshot
+    disabled
+
+on property:sys.gammaos.nano.ext_storage_ready=1 && property:ro.gammaos.device=anbernicrgdsplus && property:sys.gammaos.minimal_boot=1
+    start gammaos_mp_verify
+
