@@ -296,7 +296,10 @@ inline uint32_t drmTintArgb(const float m[12], uint32_t argb) {
 }
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
 void drmRescanDisplays();
-void drmEarlySplash(int existingFd = -1);
+// With no existingFd the call opens card0 and waits up to masterWaitMs for DRM master (a relaunch's
+// outgoing drastic-nano may still hold it); drastic-nano's setupDisplay passes what is left of its
+// one deadline. gammaos-nano's callers pass an fd that already is master.
+void drmEarlySplash(int existingFd = -1, int masterWaitMs = 4000);
 // Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
 // DROP_MASTER, close the DRM fd, clear sDrmActive/sDrmDisplays/sDrmZeroCopy,
 // and publish sys.gammaos.nano.drm_active=0. Used by readyToRun() to abandon
@@ -304,6 +307,9 @@ void drmEarlySplash(int existingFd = -1);
 // where libEGL needs SurfaceFlinger binder to return a usable EGL config) so
 // that the SF window-surface fallback path can take over without leaking master.
 void drmReleaseEarly();
+// Open card0 for a client that does not present and give back the master the kernel makes of an
+// opener while nobody holds it (the Screen Calibration worker, the refresh probe). -1 on failure.
+int drmOpenCard0NoMaster();
 double drmProbePrimaryRefreshHz();
 int64_t drmLastGpuDoneUs();
 bool drmDeferDrainActive();

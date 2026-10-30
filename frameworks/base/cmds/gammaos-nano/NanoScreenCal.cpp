@@ -18,6 +18,7 @@
 
 #include "NanoScreenCal.h"
 #include "NanoColorMatrix.h"
+#include "NanoMenuDrm.h"   // drmOpenCard0NoMaster
 
 #include <dirent.h>
 #include <errno.h>
@@ -248,7 +249,11 @@ struct LiveState {
 
 bool commitLive(LiveState& st, const Cal cal[2]) {
     if (st.fd < 0) {
-        st.fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+        // This fd stays open for the life of the process. Opened while nobody holds master, the
+        // kernel would make it the master, and drastic-nano's SET_MASTER then waits out its whole
+        // budget behind a holder that never presents. The commit does not need master: on the DRM
+        // home this fd is opened while the home holds it, and the RG DS kernel accepts that.
+        st.fd = drmOpenCard0NoMaster();
         if (st.fd < 0) { ALOGW("screencal: open card0: %s", strerror(errno)); return false; }
         if (!discover(st.fd, st.ports)) { ALOGW("screencal: DSI ports not found"); close(st.fd); st.fd = -1; return false; }
         st.haveLast = false;
@@ -546,7 +551,7 @@ void scheduleBaseparameter() {
             Cal cal[2] = { load(kTop), load(kBottom) };
             Port ports[2];
             {
-                int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+                int fd = drmOpenCard0NoMaster();
                 if (fd >= 0) { discover(fd, ports); close(fd); }
             }
             writeBaseparameter(cal, ports);

@@ -897,12 +897,21 @@ bool setupDisplay(Display* out) {
     // -- retry briefly to let the outgoing instance release master before we
     // give up and fall back to SurfaceFlinger, which strands offscreen on a
     // DRM-direct panel and would leave the user on a dead home.
-    android::drmEarlySplash();
+    // One deadline covers all of it. Each attempt waits for master on its own (up to 4 s) and a
+    // stuck holder used to cost 31 of those, minutes of black screen before the fallback; every
+    // attempt now gets what is left of the same ~4 s, which still spans the relaunch handshake.
+    const int kDisplayBudgetMs = 4000;
+    const int64_t dl0 = android::uptimeMillis();
+    auto budgetLeftMs = [&]() -> int {
+        const int64_t left = kDisplayBudgetMs - (android::uptimeMillis() - dl0);
+        return left > 0 ? (int)left : 0;
+    };
+    android::drmEarlySplash(-1, budgetLeftMs());
     for (int tries = 0;
-         (!android::sDrmActive || android::sDrmDisplays.empty()) && tries < 30;
+         (!android::sDrmActive || android::sDrmDisplays.empty()) && tries < 30 && budgetLeftMs() > 0;
          tries++) {
-        usleep(100 * 1000);   // 100 ms per attempt, up to ~3s total
-        android::drmEarlySplash();
+        usleep(100 * 1000);   // 100 ms between attempts, while the budget lasts
+        android::drmEarlySplash(-1, budgetLeftMs());
     }
     if (!android::sDrmActive || android::sDrmDisplays.empty()) {
         ALOGE("drastic-nano: DRM master / display enumeration failed");

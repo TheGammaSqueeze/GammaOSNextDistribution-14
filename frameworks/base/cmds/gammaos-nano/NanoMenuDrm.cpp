@@ -696,12 +696,26 @@ static int64_t drmFenceDoneUs(int probeFd) {
     return latest ? (int64_t)(latest / 1000ULL) : 0;
 }
 
+// Open /dev/dri/card0 for a client that is not meant to own the display (the Screen Calibration
+// worker, the refresh-rate probe). The kernel makes any opener the master while nobody holds it
+// (drm_master_open), and that fd then keeps it for as long as it stays open: the calibration
+// worker's long-lived fd did so on the SurfaceFlinger-hosted home and sat on the master through
+// every drastic-nano launch, which waited its whole SET_MASTER budget for a holder that never
+// presents. So the implicit right goes straight back. DROP_MASTER on an fd that is not master
+// (the usual case) fails with EINVAL and is ignored. The openers that do need master (the
+// splash, the park's re-acquire, the cold-boot grab in main()) do not use this.
+int drmOpenCard0NoMaster() {
+    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    if (fd >= 0) ioctl(fd, DRM_IOCTL_DROP_MASTER, 0);
+    return fd;
+}
+
 // Refresh rate of the first connected connector's preferred mode, from the
 // mode timings (clock / (htotal * vtotal)), before the DRM path is set up.
 // Used to lock drastic's frame pacing and audio rate to the panel. 0 if
 // nothing is connected or the device cannot be opened.
 double drmProbePrimaryRefreshHz() {
-    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    int fd = drmOpenCard0NoMaster();
     if (fd < 0) return 0.0;
     double hz = 0.0;
     struct drm_mode_card_res res = {};
@@ -1205,7 +1219,7 @@ void drmReleaseEarly() {
           "falling back to SurfaceFlinger window-surface path");
 }
 
-void drmEarlySplash(int existingFd) {
+void drmEarlySplash(int existingFd, int masterWaitMs) {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     int fd;
     if (existingFd >= 0) {
@@ -1243,23 +1257,51 @@ void drmEarlySplash(int existingFd) {
         // through to the existing fallback, but now we log why.
         {
             const int64_t m0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-            const int kMasterWaitMs = 4000;
+            // The wait serialises against a previous DRM presenter (a relaunch's outgoing
+            // drastic-nano, the home's hand-off baton). The RG DS Plus kernel has
+            // CONFIG_DRM_IGNORE_IOTCL_PERMIT=y, so SETCRTC and the atomic commits work without
+            // master and a holder that is not presenting is passive: waiting for it is pure
+            // latency (a launch from the SurfaceFlinger-hosted home sat 4 s black on one). Those
+            // presenters all keep sys.gammaos.nano.drm_active at 1 (drastic-nano never clears it
+            // on exit, and the park holds it up for the baton), and sys.gammaos.nano.parked is 1
+            // for as long as a DRM home waits to take the panels back; only with both at 0 is the
+            // holder passive, and the wait is capped. The gate is read once per process: a failed
+            // attempt below writes it back as 0, which setupDisplay's retries must not read as
+            // "nobody presenting".
+            static int sGateAtStart = -1;
+            if (sGateAtStart < 0) sGateAtStart = property_get_bool("sys.gammaos.nano.drm_active", false) ? 1 : 0;
+            const int kPassiveMasterWaitMs = 300;
+            int waitMs = masterWaitMs;
+            bool passiveCap = false;
+            if (waitMs > kPassiveMasterWaitMs && sGateAtStart == 0 &&
+                !property_get_bool("sys.gammaos.nano.parked", false)) {
+                char dev[PROPERTY_VALUE_MAX] = {};
+                property_get("ro.gammaos.device", dev, "");
+                if (strcmp(dev, "anbernicrgdsplus") == 0) {
+                    waitMs = kPassiveMasterWaitMs;
+                    passiveCap = true;
+                }
+            }
             int rc = -1, lastErrno = 0;
             for (;;) {
                 rc = ioctl(fd, DRM_IOCTL_SET_MASTER, 0);
                 if (rc == 0) break;
                 lastErrno = errno;
-                if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0 > kMasterWaitMs) break;
+                if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0 > waitMs) break;
                 usleep(20000);
             }
             if (rc == 0) {
                 ALOGW("NanoMenu DRM splash: became DRM master after %lldms",
                       (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0));
+            } else if (passiveCap) {
+                ALOGW("NanoMenu DRM splash: DRM master still held after %dms (errno %d %s) with no DRM "
+                      "presenter active; treating the holder as passive and carrying on without master",
+                      waitMs, lastErrno, strerror(lastErrno));
             } else {
                 ALOGE("NanoMenu DRM splash: could NOT become DRM master within %dms "
                       "(errno %d %s); another client (SurfaceFlinger?) holds it, "
                       "modesets will fail and the home falls back to the SF path",
-                      kMasterWaitMs, lastErrno, strerror(lastErrno));
+                      waitMs, lastErrno, strerror(lastErrno));
             }
         }
     }
