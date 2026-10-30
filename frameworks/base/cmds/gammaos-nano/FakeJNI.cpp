@@ -19,6 +19,7 @@
 #include <cstdint>
 #include <cstdlib>
 #include <errno.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -506,6 +507,27 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     // See redirectFuseToDirect. Pure O_RDONLY only; writes are never rewritten.
     if ((flags & O_ACCMODE) == O_RDONLY && !(flags & O_CREAT)) {
         std::string direct = redirectFuseToDirect(realPath);
+        // The savestates dir under the private root is a symlink into the FUSE view
+        // (drastic_assets::seedRoot), so the string prefix above never matches it and a
+        // state load (the slot 9 autoload: 2.2 MB, a 1 s stall before the first emulated
+        // frame) read every page through the MediaProvider daemon, with no passthrough.
+        // Resolve the link for a .dss and give that path the same redirect and the same
+        // regular-file / readable / same-size checks. Only states: a .sav is small, gains
+        // nothing, and is also opened read-write, so its reads stay on the same FUSE view as
+        // its writes. Writes are never redirected, and the autosave is fsynced and renamed
+        // through FUSE before the next launch reads it.
+        if (direct == realPath) {
+            const char* base = baseNameOf(realPath);
+            const size_t bl = strlen(base);
+            if (bl > 4 && strcmp(base + bl - 4, ".dss") == 0) {
+                char rp[PATH_MAX];
+                if (realpath(realPath.c_str(), rp)) {
+                    const std::string resolved = rp;
+                    const std::string d2 = redirectFuseToDirect(resolved);
+                    if (d2 != resolved) direct = d2;   // only when the resolved path really maps to the direct fs
+                }
+            }
+        }
         if (direct != realPath) {
             ALOGI("FakeJNI: read-only open redirected to direct fs: \"%s\" -> \"%s\"",
                   realPath.c_str(), direct.c_str());

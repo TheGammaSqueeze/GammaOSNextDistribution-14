@@ -57,6 +57,10 @@
 #include <condition_variable>
 #include <atomic>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/resource.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <signal.h>
@@ -120,6 +124,7 @@ constexpr int kSmallLayersMax = 512;
 constexpr int kDirLayers = 64, kDirBigLayers = 2;   // 64 small RGBA layers (16 MB): Mario Kart slot 0 needs about 45 entries
 static bool sBigPool = false, sDirPool = false, sDirBigPool = false;   // pool storage created (ensurePool)
 static void ensurePool(bool direct, bool big);
+static void resetProgU();   // clear the per-program uniform location table (see ProgU)
 
 struct Upload { bool big; bool direct; bool dbg; int layer, palRow, w, h; std::vector<uint8_t> data; uint8_t pal[256 * 4]; };
 static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHits = 0;   // polygon logging on the dumped frame
@@ -186,6 +191,7 @@ struct Job {
     uint32_t presentSeqAtQueue = 0;   // presents seen when the job was queued (decoupled: run after the next one)
     int64_t kickUs = 0;               // when the emulator queued the job (latency census)
     uint32_t seq = 0;                 // kick sequence number (the compositor's lag rule)
+    int pow15 = -1;                   // POWCNT1 bit 15 at the kick: which screen the engine's 3D layer belongs to (parity-matched reads)
     bool edge = false;
     uint32_t edgeTbl[8] = {};
     size_t verts = 0;
@@ -219,7 +225,7 @@ struct Gpu3d {
     // Lag rule state (g.mtx): the sequence of the newest finished job, the finished job before it,
     // the sequence of the job kicked this frame, and the lag mode the compositor reads with.
     uint32_t latestSeq = 0; uint8_t* prevTarget = nullptr; uint32_t prevSeq = 0; uint32_t kickSeq = 0;
-    struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
+    struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; int pow15 = -1; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
     uint8_t* bufE = nullptr;        // fifth decoupled buffer: with the lag rule two finished frames stay readable
     uint8_t* bufF = nullptr;        // sixth: the buffer the lag rule would read right now stays protected as well
     std::atomic<uint32_t> curSeq{0}; std::atomic<int> lagMode{0}; uint32_t lagMissWin = 0, lagClean = 0, lagRuleEnters = 0;
@@ -943,10 +949,111 @@ bool ensureSsaaBuffers() {
     return true;
 }
 
+// A zeroed range of layers in the texture array bound on the active unit, in a few uploads
+// instead of one per layer: the old loop was 128 calls for the atlas plus 512 for its palette
+// rows, inside a 237 ms 'tex' stall mid-race on the 1 GB Plus. The source is a private read-only
+// anonymous mapping, which reads as the shared zero page: it adds nothing to the resident set (a
+// std::vector would memset and commit all of it on a device that cannot spare that), and it is
+// at most 4 MB, so a driver that stages a client-memory upload stages no more than that.
+static void zeroLayers(int w, int h, int bytesPerTexel, GLenum fmt, int firstLayer, int count) {
+    if (count <= 0) return;
+    const size_t layerBytes = (size_t)w * h * bytesPerTexel;
+    const int perCall = (int)std::max<size_t>(1, std::min<size_t>((size_t)count, ((size_t)4 << 20) / layerBytes));
+    const size_t mapBytes = layerBytes * perCall;
+    void* m = mmap(nullptr, mapBytes, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (m == MAP_FAILED) {   // the one-layer loop this replaced
+        std::vector<uint8_t> z(layerBytes, 0);
+        for (int l = 0; l < count; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, firstLayer + l, w, h, 1, fmt, GL_UNSIGNED_BYTE, z.data());
+        return;
+    }
+    for (int l = 0; l < count; l += perCall)
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, firstLayer + l, w, h, std::min(perCall, count - l), fmt, GL_UNSIGNED_BYTE, m);
+    munmap(m, mapBytes);
+}
+
+// Per-game pool hint. The big and direct-colour pools and the atlas growth stall the GL thread
+// for 100 to 350 ms the first time a game needs them (Mario Kart: the direct pool at the race
+// start, the atlas growth to 256 layers mid-race), because Mali commits the memory while the
+// frame being drawn waits. What a game needed once it needs again, so the GL thread records it
+// per ROM in a one-line file (written off the GL thread) and the next session's GL init creates
+// exactly those pools while the CPU rasterizer still covers the frames. A game that never needed
+// a pool never gets one, so the memory ceiling stays what it was and only the moment moves. A
+// missing or unreadable file means the lazy path as before; sys gpu3d_pool_hint 0 turns it off.
+struct PoolHint { int small = kSmallLayers; bool dir = false, dirBig = false, big = false; };
+static PoolHint gPoolHint;           // the file's contents merged with what this process has needed (GL thread, and the writer thread under the mutex)
+static std::mutex gPoolHintMtx;
+static std::string gPoolHintPath;    // set by gpu3dSetPoolHint before the GL thread exists; empty = no hint file
+static bool gPoolHintLoaded = false;
+
+// GL thread, once per process (a resolution rebuild keeps the merged state in memory).
+static void loadPoolHint() {
+    if (gPoolHintLoaded) return;
+    gPoolHintLoaded = true;
+    if (gPoolHintPath.empty()) return;
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_pool_hint", 1) == 0) { gPoolHintPath.clear(); return; }
+    FILE* f = fopen(gPoolHintPath.c_str(), "re");
+    if (!f) return;
+    char buf[128] = {};
+    const size_t n = fread(buf, 1, sizeof buf - 1, f);
+    fclose(f);
+    int small = 0, dir = 0, dirBig = 0, big = 0;
+    if (n == 0 || sscanf(buf, "small=%d dir=%d dirbig=%d big=%d", &small, &dir, &dirBig, &big) != 4 ||
+        (small != 128 && small != 256 && small != 512) || small > kSmallLayersMax ||
+        (unsigned)dir > 1u || (unsigned)dirBig > 1u || (unsigned)big > 1u) {
+        ALOGW("gpu3d: pool hint %s unreadable, pools stay lazy", gPoolHintPath.c_str());
+        return;
+    }
+    std::lock_guard<std::mutex> lk(gPoolHintMtx);
+    gPoolHint.small = small; gPoolHint.dir = dir != 0; gPoolHint.dirBig = dirBig != 0; gPoolHint.big = big != 0;
+    ALOGI("gpu3d: pool hint: small atlas %d layers, direct pool %d, direct big pool %d, big pool %d", small, dir, dirBig, big);
+}
+
+// Writer thread: one small file, a temporary and a rename so a reader never sees half of it, no
+// fsync (losing it costs a lazy pool, nothing else).
+static void* poolHintWriter(void*) {
+    // Spawned from the GL thread and so inherits its SCHED_FIFO and nice: this is a 40 byte file
+    // on a microSD and must not compete with anything.
+    struct sched_param sp = {};
+    pthread_setschedparam(pthread_self(), SCHED_OTHER, &sp);
+    setpriority(PRIO_PROCESS, 0, 10);
+    static std::mutex writeMtx;
+    std::lock_guard<std::mutex> wl(writeMtx);   // writes go one at a time, each takes the newest state
+    PoolHint h;
+    { std::lock_guard<std::mutex> lk(gPoolHintMtx); h = gPoolHint; }
+    char buf[128];
+    const int len = snprintf(buf, sizeof buf, "small=%d dir=%d dirbig=%d big=%d\n", h.small, h.dir ? 1 : 0, h.dirBig ? 1 : 0, h.big ? 1 : 0);
+    const std::string tmp = gPoolHintPath + ".tmp";
+    const int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0660);
+    if (fd < 0) { ALOGW("gpu3d: pool hint %s not written: errno %d", gPoolHintPath.c_str(), errno); return nullptr; }
+    const bool wrote = write(fd, buf, len) == len;
+    close(fd);
+    if (!wrote || rename(tmp.c_str(), gPoolHintPath.c_str()) != 0) { unlink(tmp.c_str()); ALOGW("gpu3d: pool hint %s not written", gPoolHintPath.c_str()); return nullptr; }
+    ALOGI("gpu3d: pool hint saved: small atlas %d layers, direct pool %d, direct big pool %d, big pool %d", h.small, h.dir ? 1 : 0, h.dirBig ? 1 : 0, h.big ? 1 : 0);
+    return nullptr;
+}
+
+// GL thread: a pool was just created or the atlas just grew. Only a need beyond what the hint
+// already holds is worth a write, so a session that starts from its hint writes nothing.
+static void notePoolHint(bool dir, bool dirBig, bool big, int small) {
+    if (gPoolHintPath.empty()) return;
+    {
+        std::lock_guard<std::mutex> lk(gPoolHintMtx);
+        bool changed = false;
+        if (dir && !gPoolHint.dir) { gPoolHint.dir = true; changed = true; }
+        if (dirBig && !gPoolHint.dirBig) { gPoolHint.dirBig = true; changed = true; }
+        if (big && !gPoolHint.big) { gPoolHint.big = true; changed = true; }
+        if (small > gPoolHint.small && small <= kSmallLayersMax) { gPoolHint.small = small; changed = true; }
+        if (!changed) return;
+    }
+    pthread_t t;
+    if (pthread_create(&t, nullptr, poolHintWriter, nullptr) == 0) pthread_detach(t);
+}
+
 bool initGl() {
     if (g.inited) return true;
     if (g.failed) return false;
     g.failed = true;   // cleared on success
+    resetProgU();      // the programs below are new objects, whatever names the driver hands out
     g.dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (g.dpy == EGL_NO_DISPLAY || !eglInitialize(g.dpy, nullptr, nullptr)) {
         ALOGE("gpu3d: eglInitialize failed 0x%x", eglGetError()); return false;
@@ -1148,9 +1255,15 @@ bool initGl() {
         glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, ifmt, w, h, layers);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     };
-    arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, kSmallLayers);
-    arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, kPalRows);
-    g.smallLayersGl = kSmallLayers; g.palRowsGl = kPalRows;
+    // The atlas starts at the size an earlier session of this game grew it to (the default 128
+    // layers without a hint). The worker-side capacity follows here, before g.inited is
+    // published: the worker hands out no layer until then, and destroyGl writes the same fields.
+    loadPoolHint();
+    PoolHint hint; { std::lock_guard<std::mutex> lk(gPoolHintMtx); hint = gPoolHint; }
+    const int smallInit = hint.small, palInit = hint.small * (kPalRows / kSmallLayers);
+    arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, smallInit);
+    arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, palInit);
+    g.smallLayers = g.smallLayersGl = smallInit; g.palRows = g.palRowsGl = palInit;
     // The big and direct-colour pools (4 + 16 + 8 MB of Mali memory, which nothing can page out)
     // get their storage the first time a game asks for a layer (ensurePool, GL thread); most games
     // never do. Until then the units hold texture objects without storage, which sample as zero.
@@ -1190,6 +1303,13 @@ bool initGl() {
     }
     glActiveTexture(GL_TEXTURE0);
     sBigPool = sDirPool = sDirBigPool = false;
+    // The pools this game needed before get their storage now, while the CPU rasterizer covers
+    // the frames, instead of in the middle of the first race. Only those pools: the others stay
+    // lazy (see ensurePool). ensurePool leaves its unit active.
+    if (hint.dir) ensurePool(true, false);
+    if (hint.dirBig) ensurePool(true, true);
+    if (hint.big) ensurePool(false, true);
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &g.colorTex); glBindTexture(GL_TEXTURE_2D, g.colorTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1329,10 +1449,12 @@ bool initGl() {
         std::vector<uint8_t> z((size_t)kSmall * kSmall, 0);
         glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, g.smallTex);
         for (int l = 0; l < kSmallLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kSmall, kSmall, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
+        zeroLayers(kSmall, kSmall, 1, GL_RED_INTEGER, kSmallLayers, g.smallLayersGl - kSmallLayers);   // a hinted atlas is bigger than the default
         // (the big and direct-colour pools are filled when ensurePool creates them)
         uint8_t pal[1024] = {};
         glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex);
         for (int l = 0; l < kPalRows; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, 256, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+        zeroLayers(256, 1, 4, GL_RGBA, kPalRows, g.palRowsGl - kPalRows);
         for (GLuint fb : { g.fbo }) {   // ssFbo is now allocated lazily and warmed on first SSAA use
             glBindFramebuffer(GL_FRAMEBUFFER, fb);
             glViewport(0, 0, kW, kH);
@@ -1438,7 +1560,9 @@ static bool takeLayer(std::vector<int>& freeList, int& next, int limit, int& out
 // pools, created on the GL thread the first time an upload needs one and zeroed like the eager
 // pools. On the 1 GB Plus the GPU path already costs the emulator about 175 MB over the CPU
 // rasterizer and the kernel pages its working set through zram all session; 28 MB of Mali
-// memory that most games never touch is not paid up front.
+// memory that most games never touch is not paid up front. (A game that needed a pool in an
+// earlier session gets it at GL init instead, see PoolHint: the same memory, committed before
+// the first frame rather than during a race.)
 static void ensurePool(bool direct, bool big) {
     bool& ready = direct ? (big ? sDirBigPool : sDirPool) : sBigPool;
     if (ready) return;
@@ -1446,13 +1570,15 @@ static void ensurePool(bool direct, bool big) {
     const GLuint tex = direct ? (big ? g.dirBigTex : g.dirTex) : g.bigTex;
     const int dim = big ? kBig : kSmall;
     const int layers = direct ? (big ? kDirBigLayers : kDirLayers) : kBigLayers;
+    const int64_t t0 = nowUs();
     glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, tex);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, direct ? GL_RGBA8 : GL_R8UI, dim, dim, layers);
-    std::vector<uint8_t> z((size_t)dim * dim * (direct ? 4 : 1), 0);
-    for (int l = 0; l < layers; l++)
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, dim, dim, 1, direct ? GL_RGBA : GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
+    const int64_t t1 = nowUs();
+    zeroLayers(dim, dim, direct ? 4 : 1, direct ? GL_RGBA : GL_RED_INTEGER, 0, layers);
     ready = true;
-    ALOGI("gpu3d: %s%s texture pool created (%d x %d x %d layers)", direct ? "direct " : "", big ? "big" : "small", dim, dim, layers);
+    notePoolHint(direct && !big, direct && big, !direct, 0);
+    ALOGI("gpu3d: %s%s texture pool created (%d x %d x %d layers) in %.1f ms (storage %.1f, zero fill %.1f)", direct ? "direct " : "", big ? "big" : "small", dim, dim, layers,
+          (nowUs() - t0) / 1000.0, (t1 - t0) / 1000.0, (nowUs() - t1) / 1000.0);
 }
 bool allocLayer(bool big, int& layer, int& pal, bool direct = false) {
     if (direct) {
@@ -1486,20 +1612,26 @@ static void growAtlasIfWanted() {
     if (!looked) { looked = true; pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubData"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataEXT"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataOES"); }
     if (!pCopy) { ALOGW("gpu3d: no glCopyImageSubData, the small texture atlas stays at %d layers", g.smallLayersGl); g.growWant.store(0); return; }
     const int wantPal = want * (kPalRows / kSmallLayers);   // the same ratio the worker uses for g.palRows
+    int64_t usStorage = 0, usFill = 0, usCopy = 0;   // CPU time spent submitting each step (the driver may still be working after it returns)
     auto regrow = [&](GLuint& tex, GLenum unit, GLenum ifmt, GLenum fmt, int w, int h, int oldLayers, int newLayers) {
+        const int64_t a = nowUs();
         GLuint nt = 0; glGenTextures(1, &nt); glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, nt);
         glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, ifmt, w, h, newLayers);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        std::vector<uint8_t> z((size_t)w * h * (ifmt == GL_RGBA8 ? 4 : 1), 0);
-        for (int l = oldLayers; l < newLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, w, h, 1, fmt, GL_UNSIGNED_BYTE, z.data());
+        const int64_t b = nowUs();
+        zeroLayers(w, h, ifmt == GL_RGBA8 ? 4 : 1, fmt, oldLayers, newLayers - oldLayers);
+        const int64_t c = nowUs();
         pCopy(tex, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, nt, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, w, h, oldLayers);
         glDeleteTextures(1, &tex); tex = nt;
+        usStorage += b - a; usFill += c - b; usCopy += nowUs() - c;
     };
     regrow(g.smallTex, GL_TEXTURE0, GL_R8UI, GL_RED_INTEGER, kSmall, kSmall, g.smallLayersGl, want);
     if (wantPal > g.palRowsGl) regrow(g.palTex, GL_TEXTURE1, GL_RGBA8, GL_RGBA, 256, 1, g.palRowsGl, wantPal);
     const GLenum err = glGetError();
-    ALOGI("gpu3d: small texture atlas now %d layers and %d palette rows (was %d / %d), gl error 0x%x", want, wantPal > g.palRowsGl ? wantPal : g.palRowsGl, g.smallLayersGl, g.palRowsGl, err);
+    ALOGI("gpu3d: small texture atlas now %d layers and %d palette rows (was %d / %d), gl error 0x%x, submit %.1f ms (storage %.1f, zero fill %.1f, copy %.1f)", want, wantPal > g.palRowsGl ? wantPal : g.palRowsGl, g.smallLayersGl, g.palRowsGl, err,
+          (usStorage + usFill + usCopy) / 1000.0, usStorage / 1000.0, usFill / 1000.0, usCopy / 1000.0);
     g.smallLayersGl = want; if (wantPal > g.palRowsGl) g.palRowsGl = wantPal;
+    notePoolHint(false, false, false, want);
 }
 // Release both slots of an entry back to the free lists.
 static void releaseEntry(const TexEntry& t) {
@@ -2052,8 +2184,59 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
     }
 }
 
+// Uniform locations a job sets on the programs it draws with, looked up by name once per program
+// instead of once per job (about 20 glGetUniformLocation string lookups on each of the 2 or 3
+// programs a job uses, plus uPass on every program switch and two more in the shadow pass). A
+// location never changes for a linked program; the table is cleared whenever the programs are
+// deleted (destroyGl, initGl), because GL reuses the names. alphaMul is -1 for the programs that
+// never take the alpha lane scale (g.prog and the probe programs), exactly as before, and
+// alphaVal remembers what was last written so an unchanged scale costs no call. The other per-job
+// uniforms are still written every job: warm-up, the shadow pass and the draw loop write some of
+// the same ones, so only their locations are cached.
+struct ProgU {
+    GLuint prog = 0;
+    GLint alphaMul = -1; bool alphaKnown = false; float alphaVal = 0.f;
+    GLint interp = -1, uvOff = -1, vtxShift = -1, dsUv = -1, depthMode = -1, deqTol = -1, frontBias = -1, shadowBias = -1, translZBias = -1, shadowSlope = -1, dbgDepth = -1, attrDepth = -1, noBlend = -1;
+    GLint fog = -1, fogParam = -1, fogTune = -1, fogColor = -1, fogTable = -1, fogDelta = -1;
+    GLint toonR = -1, toonG = -1, toonB = -1, toonHighlight = -1;
+    GLint pass = -1, shadowPass = -1;
+};
+constexpr int kProgUMax = 32;   // 21 programs exist at most
+static ProgU gProgU[kProgUMax]; static int gProgUN = 0;
+static void resetProgU() { gProgUN = 0; for (ProgU& p : gProgU) p = ProgU(); }
+// The programs that take the alpha lane scale (1/31 as a blend factor, 1/255 as the stored 5-bit
+// value): the no-fetch, opaque, vertex-depth and specialised variants and the MSAA shadow pass.
+static bool takesAlphaScale(GLuint pr) {
+    if (!pr) return false;
+    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs)) return true;
+    if (g.progNoFetchVZ && (pr == g.progNoFetchVZ || pr == g.progOpaqueVZ || pr == g.progNoFetchNFVZ || pr == g.progOpaqueNFVZ)) return true;
+    if (g.specOk) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp[a][b][c]) return true;
+    return false;
+}
+static ProgU* progU(GLuint prog) {
+    for (int i = 0; i < gProgUN; i++) if (gProgU[i].prog == prog) return &gProgU[i];
+    static ProgU overflow;   // the table cannot fill; if it ever did, look the names up again on each call
+    ProgU* p = gProgUN < kProgUMax ? &gProgU[gProgUN++] : &(overflow = ProgU());
+    p->prog = prog;
+    if (takesAlphaScale(prog)) p->alphaMul = glGetUniformLocation(prog, "uAlphaMul");
+    p->interp = glGetUniformLocation(prog, "uInterp"); p->uvOff = glGetUniformLocation(prog, "uUvOff");
+    p->vtxShift = glGetUniformLocation(prog, "uVtxShift"); p->dsUv = glGetUniformLocation(prog, "uDsUv");
+    p->depthMode = glGetUniformLocation(prog, "uDepthMode"); p->deqTol = glGetUniformLocation(prog, "uDeqTol");
+    p->frontBias = glGetUniformLocation(prog, "uFrontBias"); p->shadowBias = glGetUniformLocation(prog, "uShadowBias");
+    p->translZBias = glGetUniformLocation(prog, "uTranslZBias"); p->shadowSlope = glGetUniformLocation(prog, "uShadowSlope");
+    p->dbgDepth = glGetUniformLocation(prog, "uDbgDepth"); p->attrDepth = glGetUniformLocation(prog, "uAttrDepth");
+    p->noBlend = glGetUniformLocation(prog, "uNoBlend");
+    p->fog = glGetUniformLocation(prog, "uFog"); p->fogParam = glGetUniformLocation(prog, "uFogParam");
+    p->fogTune = glGetUniformLocation(prog, "uFogTune"); p->fogColor = glGetUniformLocation(prog, "uFogColor");
+    p->fogTable = glGetUniformLocation(prog, "uFogTable"); p->fogDelta = glGetUniformLocation(prog, "uFogDelta");
+    p->toonR = glGetUniformLocation(prog, "uToonR"); p->toonG = glGetUniformLocation(prog, "uToonG");
+    p->toonB = glGetUniformLocation(prog, "uToonB"); p->toonHighlight = glGetUniformLocation(prog, "uToonHighlight");
+    p->pass = glGetUniformLocation(prog, "uPass"); p->shadowPass = glGetUniformLocation(prog, "uShadowPass");
+    return p;
+}
+
 void useProgram(GLuint prog, bool blend) {
-    if (prog != g.curProg) { glUseProgram(prog); g.curProg = prog; g.uPass = glGetUniformLocation(prog, "uPass"); }
+    if (prog != g.curProg) { glUseProgram(prog); g.curProg = prog; g.uPass = progU(prog)->pass; }
     if (blend != g.curBlend) { if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND); g.curBlend = blend; }
 }
 
@@ -2355,10 +2538,10 @@ static void applyMsaaTarget() {
 struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; };
 static std::atomic<Job*> gPendJob{nullptr}; static std::atomic<uint8_t*> gPendTarget{nullptr};
 // Publish a finished job (g.mtx held): the previous newest becomes the "one before" the lag rule may read.
-static void publishLatest(uint8_t* target, uint32_t seq) {
+static void publishLatest(uint8_t* target, uint32_t seq, int pow15) {
     g.prevTarget = g.latest.load(std::memory_order_acquire); g.prevSeq = g.latestSeq;
     g.latest.store(target, std::memory_order_release); g.latestSeq = seq;
-    g.fin[g.finN & 3] = { target, seq }; g.finN++;
+    g.fin[g.finN & 3] = { target, seq, pow15 }; g.finN++;
 }
 // The buffer the compositor reads for kick k (g.mtx held): the newest finished job whose kick is
 // at most k - back. Lag 0 reads back 0 (the job of this kick when it is already done, else the one
@@ -2368,6 +2551,23 @@ static uint8_t* lagRead(uint32_t k, unsigned back) {
     for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + back <= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
     return best ? best : g.latest.load(std::memory_order_acquire);
 }
+// Parity-matched read for a game that swaps the engines between the screens every frame (see
+// gpu3dFrame, sys gpu3d_swap_parity): the newest finished job of the last two kicks that was
+// rendered for the same screen assignment (g.mtx held). Under strict alternation that is the job
+// two kicks back. Never a frame of the other parity: it would land on the wrong screen.
+static uint8_t* parityRead(uint32_t k, int pow15) {
+    uint8_t* best = nullptr; uint32_t bestSeq = 0;
+    for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.pow15 == pow15 && f.seq <= k && f.seq + 2 >= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
+    return best;
+}
+// A job of that screen assignment within the last two kicks that is still queued, rendering or
+// waiting for the scatter helper (g.mtx held): worth a short wait for.
+static bool parityPending(uint32_t k, int pow15) {
+    for (int i = 0; i < g.qCount && i < 2; i++) { const Job* q = g.queue[(g.qHead + i) & 1]; if (q && !q->cancel && q->pow15 == pow15 && q->seq + 2 >= k) return true; }
+    const Job* p = gPendJob.load(std::memory_order_acquire);
+    return p && p->pow15 == pow15 && p->seq + 2 >= k;
+}
+static std::atomic<int> gParityWant{-1};   // the screen assignment the compositor's 3D read must match, -1 = the ordinary read
 static int gPipeline = 1;
 static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
 static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
@@ -2384,7 +2584,7 @@ static void scatterThreadMain() {
         scatterRows(w.src, w.target, 0, kH);
         {
             std::lock_guard<std::mutex> gl(g.mtx);
-            publishLatest(w.target, w.job ? w.job->seq : 0);
+            publishLatest(w.target, w.job ? w.job->seq : 0, w.job ? w.job->pow15 : -1);
             gPendJob.store(nullptr, std::memory_order_release); gPendTarget.store(nullptr, std::memory_order_release);
             g.cvDone.notify_all();
         }
@@ -2666,42 +2866,36 @@ void renderJob(Job& j) {
     glClearDepthf((float)j.clearD / 16777215.0f);
     { const GLenum bufs0[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, bufs0); }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // Per-job uniforms go only to the programs this job draws with (the main, opaque and shadow
+    // programs chosen above); with 18 programs built, setting every one cost about a millisecond
+    // of CPU per job on Mario Kart. That includes the alpha lane scale: it used to be pushed to
+    // all 17 programs that take it, each with its own glUseProgram, although a job draws with two
+    // or three; now an unused program gets it the next time it is used, and none when it is
+    // already holding the value. Locations come from the per-program table (see ProgU).
     // Both no-fetch programs draw in the MSAA path (the opaque stream through progOpaque), so
     // both take the blend-factor alpha scale there; with only progNoFetch set, opaque polygons
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
-    glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progNoFetchNF); glUniform1f(g.uAlphaMulNoFetchNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progOpaqueNF); glUniform1f(g.uAlphaMulOpaqueNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    if (g.progNoFetchVZ) {
-        glUseProgram(g.progNoFetchVZ); glUniform1f(g.uAlphaMulNoFetchVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progOpaqueVZ); glUniform1f(g.uAlphaMulOpaqueVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progNoFetchNFVZ); glUniform1f(g.uAlphaMulNoFetchNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progOpaqueNFVZ); glUniform1f(g.uAlphaMulOpaqueNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    }
-    if (g.specOk) for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) if (g.progSp[vzi][nf][op]) { glUseProgram(g.progSp[vzi][nf][op]); glUniform1f(g.uAlphaMulSp[vzi][nf][op], mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    // Per-job uniforms go only to the programs this job draws with (the main, opaque and shadow
-    // programs chosen above); with 18 programs built, setting every one cost about a millisecond
-    // of CPU per job on Mario Kart.
+    const float alphaWant = mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f;
     GLuint usedProgs[3] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0 };
     for (int ui = 0; ui < 3; ui++) {
         const GLuint pr = usedProgs[ui]; if (!pr) continue;
         bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
         if (dup) continue;
         glUseProgram(pr);
+        ProgU* pu = progU(pr);
+        if (pu->alphaMul >= 0 && (!pu->alphaKnown || pu->alphaVal != alphaWant)) { glUniform1f(pu->alphaMul, alphaWant); pu->alphaKnown = true; pu->alphaVal = alphaWant; }
         { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
-          const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
+          if (pu->interp >= 0) glUniform1i(pu->interp, interp);
           // drastic samples coverage, texcoords and colours at integer pixel positions, GL at the
           // pixel centre. Shifting the vertices half a pixel (uVtxShift, default 2 quarter pixels)
           // moves GL's sample to drastic's for free: Golden Sun 14183 -> 5048 px over 4 levels,
           // Mario Kart 27122 -> 12113, Sonic 568 -> 367. The derivative-based corner sampling
           // (uUvOff bits) did the same for texcoords alone at +3 ms of GPU time a frame; A/B only.
           static int uvoff = 0; if ((g.glFrames & 15) == 0) uvoff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
-          const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
+          if (pu->uvOff >= 0) glUniform1i(pu->uvOff, uvoff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
-          const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f);
-          const GLint lds = glGetUniformLocation(pr, "uDsUv"); if (lds >= 0) glUniform1i(lds, dsJob ? gDsUv : 0); }
+          if (pu->vtxShift >= 0) glUniform2f(pu->vtxShift, vsh * 0.25f, vsh * 0.25f);
+          if (pu->dsUv >= 0) glUniform1i(pu->dsUv, dsJob ? gDsUv : 0); }
         // Depth: W buffered frames interpolate the vertex W perspective correctly (mode 1), Z
         // buffered frames interpolate the 16-bit z (shifted by 9, lib+0x555bc) linearly on screen
         // (mode 2), both through gl_FragDepth so the bias terms apply; see uDepthMode in the shader.
@@ -2710,38 +2904,36 @@ void renderJob(Job& j) {
         // until the bedroom cushion showed the linear rule is the DS's. sys gpu3d_depth_mode overrides.
         { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
           const int dm = dmKnob >= 0 ? dmKnob : (j.wbufDepth ? 1 : 2);
-          const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm);
+          if (pu->depthMode >= 0) glUniform1i(pu->depthMode, dm);
           static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
           const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);
-          const GLint lt = glGetUniformLocation(pr, "uDeqTol"); if (lt >= 0) glUniform1f(lt, tol / 16777215.0f);
-          const GLint lfb = glGetUniformLocation(pr, "uFrontBias"); if (lfb >= 0) glUniform1f(lfb, 0.5f / 16777215.0f);
-          const GLint lsb = glGetUniformLocation(pr, "uShadowBias"); if (lsb >= 0) glUniform1f(lsb, 0.0f);
+          if (pu->deqTol >= 0) glUniform1f(pu->deqTol, tol / 16777215.0f);
+          if (pu->frontBias >= 0) glUniform1f(pu->frontBias, 0.5f / 16777215.0f);
+          if (pu->shadowBias >= 0) glUniform1f(pu->shadowBias, 0.0f);
           static int tzb = -1; if ((g.glFrames & 15) == 0) tzb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_zbias", 512);
-          const GLint ltz = glGetUniformLocation(pr, "uTranslZBias"); if (ltz >= 0) glUniform1f(ltz, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
+          if (pu->translZBias >= 0) glUniform1f(pu->translZBias, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
           static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
-          const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
+          if (pu->shadowSlope >= 0) glUniform1f(pu->shadowSlope, slopeKnob / 10.0f);
           static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
-          const GLint ldd = glGetUniformLocation(pr, "uDbgDepth"); if (ldd >= 0) glUniform1i(ldd, dbgDepth);
-          const GLint lad = glGetUniformLocation(pr, "uAttrDepth"); if (lad >= 0) glUniform1i(lad, (j.edge || g.attrWanted) ? 1 : 0);
-          const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
-        const GLint lf = glGetUniformLocation(pr, "uFog");
-        if (lf < 0) continue;
-        glUniform1i(lf, j.fog);
+          if (pu->dbgDepth >= 0) glUniform1i(pu->dbgDepth, dbgDepth);
+          if (pu->attrDepth >= 0) glUniform1i(pu->attrDepth, (j.edge || g.attrWanted) ? 1 : 0);
+          if (pu->noBlend >= 0) glUniform1i(pu->noBlend, j.noBlend); }
+        if (pu->fog < 0) continue;
+        glUniform1i(pu->fog, j.fog);
         if (j.fog) {
-            glUniform2i(glGetUniformLocation(pr, "uFogParam"), j.fogShift, j.fogOffset);
+            glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);
             { static int fb = 0, ft = 0; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", 0); }
-              glUniform2i(glGetUniformLocation(pr, "uFogTune"), fb, ft); }
-            glUniform4f(glGetUniformLocation(pr, "uFogColor"), (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
-            glUniform1iv(glGetUniformLocation(pr, "uFogTable"), 32, j.fogTable);
-            glUniform1iv(glGetUniformLocation(pr, "uFogDelta"), 32, j.fogDelta);
+              glUniform2i(pu->fogTune, fb, ft); }
+            glUniform4f(pu->fogColor, (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
+            glUniform1iv(pu->fogTable, 32, j.fogTable);
+            glUniform1iv(pu->fogDelta, 32, j.fogDelta);
         }
         if (j.toonUsed) {
-            const GLint lt = glGetUniformLocation(pr, "uToonR");
-            if (lt >= 0) {
-                glUniform1iv(lt, 32, j.toonR);
-                glUniform1iv(glGetUniformLocation(pr, "uToonG"), 32, j.toonG);
-                glUniform1iv(glGetUniformLocation(pr, "uToonB"), 32, j.toonB);
-                glUniform1i(glGetUniformLocation(pr, "uToonHighlight"), j.toonHighlight);
+            if (pu->toonR >= 0) {
+                glUniform1iv(pu->toonR, 32, j.toonR);
+                glUniform1iv(pu->toonG, 32, j.toonG);
+                glUniform1iv(pu->toonB, 32, j.toonB);
+                glUniform1i(pu->toonHighlight, j.toonHighlight);
             }
         }
     }
@@ -2806,7 +2998,7 @@ void renderJob(Job& j) {
         // program writes the fetched value back). Detaching it here split the tile pass.
         const bool fetchId = haveId && g.ss == 3 && g.progShadowMs != 0;
         const GLuint shadowProg = fetchId ? g.progShadowMs : mainProg;
-        const GLint uShadow = glGetUniformLocation(shadowProg, "uShadowPass");
+        const GLint uShadow = progU(shadowProg)->shadowPass;
         // A shadow volume's bottom face is coplanar with the floor it stands on. The DS decides
         // that pair on integer depths, so the whole footprint fails the mask's test and is marked,
         // and the shadow then passes over all of it. Here the two depths are floats a few hundred
@@ -2818,7 +3010,7 @@ void renderJob(Job& j) {
         // is the outcome the DS's integer depths always reach. Moving the shadow polygons toward
         // the camera as well measured worse, so only the mask is biased.
         // sys gpu3d_shadow_bias, in 24-bit depth units, 0 disables it.
-        const GLint uMaskBias = glGetUniformLocation(g.opq, "uShadowBias");
+        const GLint uMaskBias = progU(g.opq)->shadowBias;
         static int shadowBias = -1; if ((g.glFrames & 63) == 0) shadowBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_bias", 1024);
         const float maskBias = (float)shadowBias;
         if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, b2); } }
@@ -3316,6 +3508,7 @@ static void destroyGl() {
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
         delPr(g.edgeProg); delPr(g.resolveProg);
+        resetProgU();   // the names above are free for the driver to hand out again
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
         if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }
         if (g.edgeVao) { glDeleteVertexArrays(1, &g.edgeVao); g.edgeVao = 0; }
@@ -3475,7 +3668,7 @@ void glThreadMain() {
             latCensus(f, ts, nowUs());
             lk.lock();
             g.qHead ^= 1; g.qCount--;
-            if (gPendJob.load(std::memory_order_acquire) != f) publishLatest(f->target, f->seq);
+            if (gPendJob.load(std::memory_order_acquire) != f) publishLatest(f->target, f->seq, f->pow15);
             g.rendering2 = nullptr;
             g.cvDone.notify_all();
         };
@@ -3543,7 +3736,7 @@ void glThreadMain() {
         }
         if (inflight) finish(inflight);   // a synchronous job behind an in-flight one: the older frame publishes first
         g.qHead ^= 1; g.qCount--;
-        if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq);   // a pipelined job is published by the scatter helper
+        if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq, j->pow15);   // a pipelined job is published by the scatter helper
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
@@ -3634,6 +3827,7 @@ extern "C" void gpu3dNotePresent() {
 // Returns true when the frame was rendered on the GPU (drastic's target buffer holds the
 // result and every band is marked complete); false = the caller must run the CPU path.
 extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
+    static uint32_t sFrameCalls = 0; const uint32_t callNo = ++sFrameCalls;   // a gap between two evaluations of the swap state = frames the CPU rasterizer took
     if (!g.threadStarted) {
         g.threadStarted = true;
         { uint8_t* cfg0 = *reinterpret_cast<uint8_t**>(R + 8);
@@ -3797,12 +3991,49 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     const uint32_t modeA = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1b070) >> 16) & 3 : 0;
     const uint32_t modeB = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1c070) >> 16) & 3 : 0;
     const bool capShown = capNow && modeB == 2;
-    if (capShown || swapNow) {
-        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : "display capture shown", modeA, modeB);
+    // Steady alternation (opt-in, RG DS Plus only; sys gpu3d_swap_parity 1, default 0). A game that
+    // swaps every frame (Mario Kart's pre-race line-up) holds the synchronous path for as long as
+    // it does, which serialises the emulator behind the GL job: the compositor waited 11 ms a frame
+    // and emulation fell to 50-57 fps. Instead each screen reads the newest finished 3D frame that
+    // was rendered for the SAME screen assignment, which under strict alternation is the job two
+    // kicks back: every image lands on its own screen, two frames old (the sync path's image is
+    // current). That is added video latency, which the lag rule (gpu3d_lag) records the user does
+    // not accept, hence opt-in until frame dumps against the CPU rasterizer and a user check.
+    // Any miss falls back to the synchronous path and stays there for 120 frames.
+    static int parityKnob = 0, altRun = 0, parityFail = 0; static bool parityPrev = false; static uint32_t parityFrames = 0, parityLastCall = 0;
+    static const bool parityDev = [] { char d[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", d, ""); return strcmp(d, "anbernicrgdsplus") == 0; }();
+    if (parityDev && (g.frame & 63) == 0) parityKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_swap_parity", 0);
+    if (parityLastCall + 1 != callNo) { altRun = 0; parityPrev = false; }   // the CPU rasterizer had frames in between: the finished 3D frames are stale
+    parityLastCall = callNo;
+    altRun = swapNow ? altRun + 1 : 0;
+    if (parityFail > 0) parityFail--;
+    bool parity = parityKnob == 1 && altRun >= 8 && !capShown && gDecoupleWanted && threaded && g.lagMode.load(std::memory_order_relaxed) == 0 && parityFail == 0;
+    uint8_t* parityBuf = nullptr;
+    if (parity) {
+        std::unique_lock<std::mutex> lk(g.mtx);
+        const uint32_t k = g.kickSeq + 1;
+        parityBuf = parityRead(k, pow15);
+        // The same-parity job may still be in the GL queue (a slow job): wait for it, but only a little.
+        if (!parityBuf && parityPending(k, pow15))
+            g.cvDone.wait_for(lk, std::chrono::milliseconds(8), [&] { parityBuf = parityRead(k, pow15); return parityBuf != nullptr || g.quit; });
+        if (!parityBuf) {
+            parity = false; parityFail = 120;
+            ALOGW("gpu3d: no finished 3D frame for screen assignment %d within two kicks (kick %u), synchronous frames for 120 frames", pow15, k);
+        }
+    }
+    if (parity) {
+        if (!parityPrev) { parityFrames = 0; ALOGI("gpu3d: steady engine swap (%d consecutive), parity-matched 3D layer instead of synchronous frames", altRun); }
+        parityFrames++;
+        syncHold = 0;
+    } else if (capShown || swapNow || parityPrev) {
+        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : capShown ? "display capture shown" : "parity-matched 3D layer ended", modeA, modeB);
+        if (parityPrev) ALOGI("gpu3d: parity-matched 3D layer left after %u frames", parityFrames);
         // Short hold: a game that alternates re-arms it every frame; a one-off swap (Pokemon at a
         // battle transition) costs 4 synchronous frames, not 4 seconds at 53 fps (measured).
         syncHold = 4;
     } else if (syncHold) syncHold--;
+    parityPrev = parity;
+    gParityWant.store(parity ? pow15 : -1, std::memory_order_release);
     if ((g.frame % 600) == 3 && capNow && !capShown) ALOGI("gpu3d: capture armed but not displayed (modes A %u B %u), decoupled path kept", modeA, modeB);
     const bool capSync = syncHold > 0;
     const bool decoupled = gDecoupleWanted && threaded && !capSync;
@@ -3821,7 +4052,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // stay on time, and no extra buffer or latency is added. Quality is unchanged (a dropped 3D
     // frame, not a lower-quality one). Off by default until measured.
     static int dropBpKnob = 1; if ((g.frame & 63) == 0) dropBpKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_drop_bp", 1);
-    const bool dropBp = decoupled && g.bufC && dropBpKnob != 0;
+    const bool dropBp = decoupled && g.bufC && dropBpKnob != 0 && !parity;   // parity-matched reads: a dropped job would remove the only frame of one screen assignment
     if (!decoupled || !g.bufC) joinPrevious(capSync);   // the previous GPU frame must be in the buffers before regs/target move on
     else if (!dropBp) waitQueueRoom();
     const int64_t t0 = nowUs();
@@ -3853,8 +4084,8 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         uint8_t* keep[3] = { nullptr, nullptr, nullptr };
         { std::lock_guard<std::mutex> lk(g.mtx); const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
           for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
-          keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
-        uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
+          keep[2] = parityBuf ? parityBuf : lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
+        uint8_t* readBuf = parityBuf ? parityBuf : latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* busy[4] = { nullptr, nullptr, nullptr, nullptr };
         { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; if (g.rendering2) busy[3] = g.rendering2->target; }
         uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
@@ -4067,7 +4298,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
     {
         std::lock_guard<std::mutex> lk(g.mtx);
-        job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; g.curSeq.store(job.seq, std::memory_order_relaxed);
+        job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; job.pow15 = pow15; g.curSeq.store(job.seq, std::memory_order_relaxed);
         if (dropBp && g.qCount >= 2) {
             // Queue full and not stalling: drop the stale queued (non-rendering) 3D frame and take
             // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
@@ -4110,6 +4341,12 @@ extern "C" void gpu3dJoinForDump() {
     std::unique_lock<std::mutex> lk(g.mtx);
     while (g.qCount > 0) g.cvDone.wait(lk);
 }
+// Names the per-ROM pool hint file (see PoolHint). Called once from DrasticRunner::init, before
+// the first gpu3dFrame starts the GL thread, which reads it at GL init.
+extern "C" void gpu3dSetPoolHint(const char* path) {
+    if (!g.threadStarted) gPoolHintPath = path ? path : "";
+}
+
 // A save-state restore replaces drastic's whole texture/palette memory. Our cache keys on the
 // cache-entry pointer plus a content hash, so an entry that lands at the same address with the
 // same hash would keep a pre-restore upload. Drop everything and re-upload on the next frame.
@@ -4131,7 +4368,10 @@ extern "C" void gpu3dLatchRead(uint8_t* R) {
     if (!g.decoupledActive.load(std::memory_order_acquire)) return;
     const uint32_t k = g.curSeq.load(std::memory_order_relaxed);
     uint8_t* rdBuf;
-    { std::lock_guard<std::mutex> lk(g.mtx); rdBuf = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
+    // Parity-matched reads (gpu3dFrame): only a frame rendered for this kick's screen assignment,
+    // else leave the pointer the kick chose. Never a join from here, and never the other parity.
+    const int want = gParityWant.load(std::memory_order_acquire);
+    { std::lock_guard<std::mutex> lk(g.mtx); rdBuf = want >= 0 ? parityRead(k, want) : lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
     if (!rdBuf) return;
     {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
         static uint8_t* sLastRead = nullptr;

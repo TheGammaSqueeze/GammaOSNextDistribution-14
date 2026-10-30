@@ -27,6 +27,7 @@
 #include <sys/auxv.h>
 extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a library's file-backed segments
 extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.cpp: drop the texture cache after a state restore
+extern "C" void gpu3dSetPoolHint(const char* path);            // DrasticGpu3d.cpp: where this game's texture pool hint file lives
 #include <sys/uio.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
@@ -351,6 +352,13 @@ bool DrasticRunner::init(const std::string& cacheDir,
                          int64_t customClockMs) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
+    {   // The GPU rasterizer keeps one tiny hint file per ROM (which texture pools the game needed)
+        // so the next session creates them at GL init instead of mid-game. Only the path is
+        // handed over here; the GL thread reads it later, off the launch path.
+        const size_t slash = romPath.find_last_of('/');
+        const std::string rom = slash == std::string::npos ? romPath : romPath.substr(slash + 1);
+        if (!cacheDir.empty() && !rom.empty()) gpu3dSetPoolHint((cacheDir + "/config/gpu3d_pool_" + rom).c_str());
+    }
     mAutoLoadSlot = autoLoadSlot;
     mCustomClockMs = customClockMs > 0 ? customClockMs : -1;
     mInitialShader = initialShader.empty() ? std::string("None")
