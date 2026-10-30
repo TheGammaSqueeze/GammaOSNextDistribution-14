@@ -4092,6 +4092,22 @@ out:
 		return -1;
 	}
 
+	/*
+	 * fsck -a on an image that needs no fixing exits right after
+	 * f2fs_should_proceed() and never uses the roll-forward records, so
+	 * decide that first. After an unclean shutdown (no CP_UMOUNT_FLAG, the
+	 * normal case for Android /data) record_fsync_data() otherwise reads the
+	 * whole SIT first: 1.6-1.9 s per boot on a 234 GB microSD. The kernel
+	 * replays the fsync data itself when it mounts. If a fix is needed,
+	 * clear fix_on again so the roll-forward scan runs exactly as before
+	 * (no loop_node_chain_fix there); the call below sets it again.
+	 */
+	if (c.func == FSCK && !c.fix_on) {
+		if (!f2fs_should_proceed(sb, get_cp(ckpt_flags)))
+			return 1;
+		c.fix_on = 0;
+	}
+
 	ret = record_fsync_data(sbi);
 	if (ret) {
 		ERR_MSG("record_fsync_data failed\n");
