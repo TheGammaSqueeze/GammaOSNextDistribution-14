@@ -140,3 +140,10 @@ on property:init.svc.cpu_screen_off=running && property:sys.gammaos.nano.keep_au
 
 on property:sys.gammaos.nano.keep_audio=0 && property:sys.screen.state=off && property:persist.gammaos.ultra_low_power_saving_mode=1 && property:sys.gammaos.usb.connected=0 && property:sys.boot_completed=1
     start force_sleep
+
+# RG DS Plus: the vendor 8821cs.ko logs at the Realtek INFO level (H2C dumps, every cfg80211 poll),
+# about three lines a second while connected, which rolls the kernel log over within minutes. Keep
+# warnings, errors and the suspend/resume prints. Every module load resets the parameter to 4; the
+# Wi-Fi HAL sets wlan.driver.status=ok after each load, so it is written again.
+on property:wlan.driver.status=ok && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/module/8821cs/parameters/rtw_drv_log_level 3
