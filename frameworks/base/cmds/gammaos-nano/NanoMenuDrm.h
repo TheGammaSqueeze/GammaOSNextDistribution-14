@@ -80,6 +80,7 @@ struct DrmDisplay {
     uint32_t clCrtcXProp = 0, clCrtcYProp = 0, clCrtcWProp = 0, clCrtcHProp = 0;
     uint32_t clSrcXProp = 0, clSrcYProp = 0, clSrcWProp = 0, clSrcHProp = 0;
     uint32_t clBlendProp = 0, clAlphaProp = 0; uint64_t clBlendNone = 0;
+    uint32_t clRotationProp = 0;
     uint32_t clInFenceProp = 0;
     uint32_t smartCrtcIdProp = 0; // Smart primary CRTC_ID prop (to disable it)
     bool     clConfigured = false;

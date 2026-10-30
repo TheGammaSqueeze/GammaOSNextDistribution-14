@@ -2305,6 +2305,7 @@ static bool drmEnsureClusterPlane(int fd, DrmDisplay& d) {
     d.clInFenceProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "IN_FENCE_FD");
     d.clBlendProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "pixel blend mode");
     d.clAlphaProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "alpha");
+    d.clRotationProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "rotation");
     d.clBlendNone = 0;
     if (d.clBlendProp && !drmFindEnumValue(fd, d.clBlendProp, "None", &d.clBlendNone))
         d.clBlendProp = 0;
@@ -2615,6 +2616,12 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
             // below 1 shows through as a flickering translucent patch.
             if (d.clBlendProp) { props[np] = d.clBlendProp; vals[np++] = d.clBlendNone; }
             if (d.clAlphaProp) { props[np] = d.clAlphaProp; vals[np++] = 0xffff; }
+            // Upright scanout: SurfaceFlinger turns the panel on video port 1 with
+            // the plane's rotation property (persist.gsf.rot.1), and the Cluster
+            // plane keeps it when it moves to the other port. The DS screens are
+            // already turned in GL (sDrmSeamRotCrtc), so a left-over 180 here
+            // showed the bottom screen upside down after some handoffs.
+            if (d.clRotationProp) { props[np] = d.clRotationProp; vals[np++] = DRM_MODE_ROTATE_0; }
             props[np] = d.clSrcXProp;   vals[np++] = 0;
             props[np] = d.clSrcYProp;   vals[np++] = (uint64_t)srcY << 16;
             props[np] = d.clSrcWProp;   vals[np++] = (uint64_t)w << 16;
