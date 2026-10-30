@@ -160,6 +160,11 @@ public:
     // persist.gammaos.nano.drastic_render_scale; 0 = follow the prop). Call before
     // initSurface(). The DRM dual-panel path forces 1 when Half Resolution is off.
     void setFxRenderScale(int scale) { mFxScaleOverride = scale; }
+    // Let Scale2X load shaders/hires/Scale2X.dfx (one pass) at hi-res 3D when the final pass is
+    // exactly 2x the DS texture per screen (see pickShaderFile). Only the AFBC dual-panel
+    // presenter sets it: its final pass is always a full panel half, while the per-slot paths
+    // draw rects of any size. Call before initSurface().
+    void setOnePassScale2x(bool on) { mScale2xOnePassOk = on; }
 
     // Render both DS screens into the offscreen FBO via drastic's
     // renderFrame. Must be called ONCE per frame, BEFORE any
@@ -1095,6 +1100,15 @@ private:
     // faster than it can settle.
     std::chrono::steady_clock::time_point mLastShaderSwap;
     std::atomic<bool> mShaderSwapInFlight{false};
+    // The shader the caller asked for, as its absolute .dfx path (initSurface, setShaderRuntime):
+    // the plain Scale2X.dfx even while its one-pass variant is what is loaded, so the hi-res
+    // toggle can pick the file again. mFxOnePass says the variant is the loaded pass list.
+    std::string mFxDfxPath;
+    bool mFxOnePass = false;
+    bool mScale2xOnePassOk = false;   // see setOnePassScale2x()
+    // The file to fxLoad for dfxPath at the current DS texture and offscreen size: the one-pass
+    // Scale2X variant when it applies, else dfxPath itself.
+    std::string pickShaderFile(const std::string& dfxPath) const;
     // Monotonic swap counter. Logged on every setShaderRuntime call so
     // we can correlate the "crashes after N swaps" mode with the exact
     // fx_ctx state at the moment of failure.

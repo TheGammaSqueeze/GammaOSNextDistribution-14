@@ -1690,8 +1690,13 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
                       "found under %s/shaders or %s/system/shaders",
                       mCacheDir.c_str(), mCacheDir.c_str());
             } else {
+                // sp stays the shader (redimDsTextures and setShaderRuntime start from it);
+                // Scale2X loads its one-pass file when the sizes allow it (pickShaderFile).
+                mFxDfxPath = sp;
+                const std::string loadPath = pickShaderFile(sp);
+                mFxOnePass = (loadPath != sp);
                 jstring shaderJStr =
-                        ((JNIEnv*)mFakeEnv)->NewStringUTF(sp.c_str());
+                        ((JNIEnv*)mFakeEnv)->NewStringUTF(loadPath.c_str());
                 // Pass pos_ptr=0, uv_ptr=192 as byte offsets into
                 // mFxVbo (bound before each fxRender call). Stock
                 // drastic passes (0, 0x8A0) which are offsets into
@@ -1702,7 +1707,7 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
                 int rc = mFxLoad(mFakeEnv, mFakeCls,
                                  (void*)shaderJStr, 0, 192);
                 ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
-                      sp.c_str(), rc);
+                      loadPath.c_str(), rc);
             }
         }
         // fxSetup args from smali (DraSticGlView$j onSurfaceChanged):
@@ -12299,6 +12304,17 @@ void DrasticRunner::redimDsTextures() {
     mFxTexW = newW;
     mFxTexH = newH;
 
+    // Scale2X has a one-pass file for exactly the hi-res size (pickShaderFile): when this toggle
+    // moves the shader in or out of that case, load the other file. setShaderRuntime does the
+    // fxLoad, the fxSetup at the new size and the final-pass patch itself, so it takes the place
+    // of the resequence below. It takes the swap guard too, so give it back first.
+    if (!mFxDfxPath.empty() && (pickShaderFile(mFxDfxPath) != mFxDfxPath) != mFxOnePass) {
+        const std::string path = mFxDfxPath;
+        mShaderSwapInFlight.store(false);
+        if (setShaderRuntime(path)) return;
+        mShaderSwapInFlight.store(true);   // refused: the resequence below keeps the loaded file
+    }
+
     // Re-run fxSetup so drastic's pass-resolution uniforms match the new
     // texture size, then re-assert the final-pass FBO redirect (fxSetup's
     // teardown can reset the final pass.fbo, which would otherwise leave
@@ -12311,6 +12327,35 @@ void DrasticRunner::redimDsTextures() {
 
     mShaderGen.fetch_add(1, std::memory_order_relaxed);
     mShaderSwapInFlight.store(false);
+}
+
+// Scale2X draws its 2x intermediate at the size of a hi-res panel half and then copies it 1:1
+// onto the panel. That is two more full-panel passes per screen, and the second screen's
+// intermediate pass rewrites a texture the first screen's copy is still reading, which makes the
+// driver end the render pass and reload the combined target. When the final pass is exactly twice
+// the hi-res DS texture per screen the copy is the identity, so shaders/hires/Scale2X.dfx runs
+// the same scale2x.dsd as the only pass and writes the panel directly: the same picture. The
+// final pass fills mOffscreenW x mOffscreenH/2 per screen, and the direct AFBC target is the same
+// size. Anything else (native resolution, another scale, the per-slot paths that never opt in)
+// gets the file it asked for.
+std::string DrasticRunner::pickShaderFile(const std::string& dfxPath) const {
+    static const char kPlain[] = "/Scale2X.dfx";
+    const size_t kLen = sizeof(kPlain) - 1;
+    if (!mScale2xOnePassOk || dfxPath.size() <= kLen ||
+        dfxPath.compare(dfxPath.size() - kLen, kLen, kPlain) != 0) return dfxPath;
+    int hiW = 0, hiH = 0;
+    dsTexDims(true, &hiW, &hiH);
+    if (mDsTexW != hiW || mDsTexH != hiH ||
+        mOffscreenW != hiW * 2 || mOffscreenH != hiH * 4) return dfxPath;
+    // The shipped files are links into the system image; a same-named file in the user's shaders
+    // folder replaces the link, and then the user's version is the one to load.
+    const std::string dir = dfxPath.substr(0, dfxPath.size() - kLen);
+    struct stat st;
+    for (const char* f : { "/Scale2X.dfx", "/scale2x.dsd" }) {
+        if (lstat((dir + f).c_str(), &st) != 0 || !S_ISLNK(st.st_mode)) return dfxPath;
+    }
+    const std::string variant = dir + "/hires/Scale2X.dfx";
+    return access(variant.c_str(), R_OK) == 0 ? variant : dfxPath;
 }
 
 bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
@@ -12338,8 +12383,13 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
     }
     mLastShaderSwap = std::chrono::steady_clock::now();
     mSwapCounter++;
-    ALOGI("DrasticRunner::setShaderRuntime[#%d]: \"%s\" begin",
-          mSwapCounter, absDfxPath.c_str());
+    // The file the caller named stays the shader (the saved name, the hi-res toggle's reselect);
+    // what gets loaded may be its one-pass variant (pickShaderFile).
+    mFxDfxPath = absDfxPath;
+    const std::string loadPath = pickShaderFile(absDfxPath);
+    mFxOnePass = (loadPath != absDfxPath);
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: \"%s\" begin%s",
+          mSwapCounter, absDfxPath.c_str(), mFxOnePass ? " (one-pass variant)" : "");
 
     // Pause drastic so the DS producer thread is not racing our GL
     // state mutation. Restore the pause state afterwards; the overlay
@@ -12359,7 +12409,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
     // the "invalid chunk state" aborts seen without this finish.
     glFinish();
 
-    jstring jp = ((JNIEnv*)mFakeEnv)->NewStringUTF(absDfxPath.c_str());
+    jstring jp = ((JNIEnv*)mFakeEnv)->NewStringUTF(loadPath.c_str());
     // Use the same pos_ptr/uv_ptr layout as init (bytes 0 and 192
     // inside mFxVbo). Stock drastic passes (0, 0x8A0) referencing its
     // internal pre-built VBO; we build our own VBO in initSurface so
@@ -12462,7 +12512,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
 
     int rc = mFxLoad(mFakeEnv, mFakeCls, (void*)jp, 0, 192);
     ALOGI("DrasticRunner::setShaderRuntime[#%d]: fxLoad(\"%s\") = %d",
-          mSwapCounter, absDfxPath.c_str(), rc);
+          mSwapCounter, loadPath.c_str(), rc);
 
     dumpFxCtxState("post-fxLoad");
     fbOk = glIsFramebuffer(mOffscreenFbo);

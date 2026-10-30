@@ -1944,6 +1944,17 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         !android::drastic_settings::getBool("persist.gammaos.drastic_nano.drm_half_res", false)) {
         dr->setFxRenderScale(1);
     }
+    // RG DS Plus, AFBC dual-panel: the final pass always fills one panel half of the combined
+    // buffer, which at hi-res 3D is exactly 2x the DS texture, so Scale2X can run as one pass
+    // (the runner checks the sizes and the shipped files). The prop is the A/B switch against
+    // the two-pass file for frame dumps.
+    {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        dr->setOnePassScale2x(hasDualDisplay && android::sDrmAfbcMode &&
+                              strcmp(dev, "anbernicrgdsplus") == 0 &&
+                              android::drastic_settings::getBool("persist.gammaos.drastic_nano.scale2x_one_pass", true));
+    }
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
     dr->setRotationMatrix(android::sDrmRotMat);
 
