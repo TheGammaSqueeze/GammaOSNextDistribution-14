@@ -192,6 +192,10 @@ private:
     // (the replacement device may already exist but inotify IN_CREATE was
     // discarded because the old fd was still in mDevices at the time)
     std::vector<std::string> mPendingRescanPaths;
+
+    // fd whose per-device maps the transformer currently holds (-1: the global
+    // maps or none), so they are not copied again for every input batch.
+    int mMapsFd = -1;
 };
 
 } // namespace gammapad

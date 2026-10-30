@@ -684,6 +684,7 @@ void GamepadManager::rebuildGlobalMaps() {
 
     // Push the global merged maps to the transformer (used as fallback)
     mTransformer->setDeviceMaps(mAbsMap, mKeyMap);
+    mMapsFd = -1;
 
     LOG(INFO) << "Global maps rebuilt: "
               << mDiscoveredAxes.size() << " axes, "
@@ -984,6 +985,7 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
 void GamepadManager::releaseDevice(int fd) {
     auto it = mDevices.find(fd);
     if (it == mDevices.end()) return;
+    if (fd == mMapsFd) mMapsFd = -1;
 
     mForceFeedback->cancelDevice(fd);
 
@@ -1021,8 +1023,10 @@ void GamepadManager::handleInputEvent(int fd) {
     // Set per-device axis/key maps so the transformer uses the correct
     // .kl mapping for this specific controller (different controllers
     // may have different axis layouts even with the same axis codes).
-    if (!devIt->second.absMap.empty() || !devIt->second.keyMap.empty()) {
+    if (fd != mMapsFd &&
+            (!devIt->second.absMap.empty() || !devIt->second.keyMap.empty())) {
         mTransformer->setDeviceMaps(devIt->second.absMap, devIt->second.keyMap);
+        mMapsFd = fd;
     }
 
     bool mouseActive = mMouseMode && mMouseMode->isActive();
