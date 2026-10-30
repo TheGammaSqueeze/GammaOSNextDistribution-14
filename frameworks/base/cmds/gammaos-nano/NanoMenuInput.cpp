@@ -1419,14 +1419,24 @@ bool NanoMenu::enterDrmSleep() {
 // Querying the kernel's actual key bitmap makes SELECT+volume=brightness fire only
 // while SELECT is genuinely held down.
 bool NanoMenu::selectKeyHeld() const {
+    return keyHeldAny({BTN_SELECT});
+}
+
+// Same live bitmap query for any set of keys: true when at least one of them is physically down on
+// a grabbed input device right now (the deferred-launch re-fire uses it to tell whether A is still
+// held before it stamps a launch fade that no key release will ever stamp).
+bool NanoMenu::keyHeldAny(std::initializer_list<int> codes) const {
     const int nlongs = (KEY_MAX + 1 + 8 * (int)sizeof(long) - 1) / (8 * (int)sizeof(long));
     unsigned long bits[nlongs];
     for (int fd : mInputFds) {
         if (fd < 0) continue;
         memset(bits, 0, sizeof(bits));
         if (ioctl(fd, EVIOCGKEY(sizeof(bits)), bits) < 0) continue;
-        if (bits[BTN_SELECT / (8 * sizeof(long))] & (1UL << (BTN_SELECT % (8 * sizeof(long)))))
-            return true;
+        for (int code : codes) {
+            if (code < 0 || code > KEY_MAX) continue;
+            if (bits[code / (8 * sizeof(long))] & (1UL << (code % (8 * sizeof(long)))))
+                return true;
+        }
     }
     return false;
 }
@@ -1504,6 +1514,10 @@ void NanoMenu::ndsTouchFrame() {
     auto scrub = [&](float cam){                       // launcher.scrub: finger owns the camera
         if (cam < 0.0f) cam = 0.0f; if (cam > camMax) cam = camMax;
         mNdsCamera = cam; mNdsScrubbing = true; mNdsFastScroll = false; mDisplayDirty = true;
+        // A scrub that carries another card to the centre (more than half a slot off the selection)
+        // is browsing: drop a launch queued before boot finished, as the D-pad handlers do, instead
+        // of leaving "Starts when ready" under a card the user never chose. A smaller wobble keeps it.
+        if (mLaunchPending && (int)lroundf(cam) != ndsFocusSel()) cancelPendingLaunch();
     };
     auto selStep = [&](int off){                        // nav step + slide (arrows / side-tile tap)
         int cur = ndsFocusSel();

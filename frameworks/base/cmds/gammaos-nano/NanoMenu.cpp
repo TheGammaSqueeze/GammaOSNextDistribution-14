@@ -5032,7 +5032,17 @@ if (sRingPrimedCount >= 2) {
             mLaunchPending = false;
             mShowLaunchBusy = false;
             mLaunchBusyTimer = 0;
+            const bool wasWaiting = mWaitForRelease;
             handleSelect();
+            // A re-fired RetroArch/app launch waits for a select-key release (mWaitForRelease),
+            // but the press that queued it ended long ago, so no release event ever comes: the
+            // home would sit on drop_input=1 with navigation dead until the next A or touch. Stamp
+            // the launch effect here, as the touch and scripted 'enter' paths do. DS and 3DS launches
+            // hand off through their own pending blocks and never set the wait. If A is physically
+            // held right now its release still arrives, so leave the stamp to that handler.
+            if (!wasWaiting && mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0
+                    && !keyHeldAny({KEY_ENTER, BTN_SOUTH}))
+                mLaunchFadeStart = uptimeMillis();
         }
 
         // Adaptive framerate:

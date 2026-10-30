@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <functional>
+#include <initializer_list>
 #include <string>
 #include <vector>
 #include <set>
@@ -376,6 +377,7 @@ private:
     void checkInputHotplug();
     void pollInput();
     bool selectKeyHeld() const;   // live SELECT state via EVIOCGKEY (not the sticky flag)
+    bool keyHeldAny(std::initializer_list<int> codes) const;   // live state of any of these keys via EVIOCGKEY
     // DRM-direct sleep: blank panels + backlights, drive PowerManager
     // suspend, block until a wake (power press or lid open), then
     // re-commit the modeset and restore. Shared by the power short-press

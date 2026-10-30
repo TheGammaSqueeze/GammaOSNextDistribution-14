@@ -912,6 +912,10 @@ float NanoMenu::ndsIntroFall(int off, float f) {
 // selection so the top screen, name box and subsequent nav all agree. The DSi carousel
 // drag only runs at the top level (mPs3Stack empty), so this drives mPs3ItemIdx.
 void NanoMenu::ndsCommitSelect(int slot) {
+    // Touch browsing moves the focus the way the D-pad handlers do, and those drop a launch queued
+    // before boot finished (cancelPendingLaunch). Do the same when the landing really changes the
+    // selection, so the deferred re-fire cannot start a card the user never chose.
+    if (mLaunchPending && slot != ndsFocusSel()) cancelPendingLaunch();
     if (!mPs3Stack.empty()) { mPs3Stack.back().sel = slot; return; }
     if (mNdsAtRoot) { mPs3CatIdx = slot; return; }
     mPs3ItemIdx = slot;
@@ -1058,6 +1062,10 @@ void NanoMenu::ndsNavSelect(bool allowLaunch) {
 // walk up one level: pop a submenu, else leave the category back to the categories root.
 void NanoMenu::ndsNavBack() {
     if (ndsInModal()) { ps3XmbBack(); return; }
+    // Walking up a level (touch back button / swipe down) leaves the card a pre-boot launch was
+    // queued on; the focus indices stay as they were, so the re-fire would otherwise enter the
+    // category and silently drop the launch. The D-pad Back already cancels in handleBack.
+    if (mLaunchPending && (!mPs3Stack.empty() || !mNdsAtRoot)) cancelPendingLaunch();
     if (!mPs3Stack.empty()) {
         ps3XmbBack();
         mNdsCamera = mPs3Stack.empty() ? (float)mPs3ItemIdx : (float)mPs3Stack.back().sel;
