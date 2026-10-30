@@ -2627,7 +2627,10 @@ public final class PowerManagerService extends SystemService
      * Treat ON / ON_SUSPEND as "on"; everything else (incl. DOZE variants) -> "off".
      */
     private void enforceSysScreenStateFromDisplays() {
-        final DisplayManager dm = mContext.getSystemService(DisplayManager.class);
+        // GammaOS Nano: the target follows wakefulness below, so the display query is dead
+        // work there, and it runs under mLock on every power state update.
+        final boolean nano = gammaAllGroupsInNano();
+        final DisplayManager dm = nano ? null : mContext.getSystemService(DisplayManager.class);
         String target = "off";
         if (dm != null) {
             final Display[] displays = dm.getDisplays();
@@ -2647,7 +2650,7 @@ public final class PowerManagerService extends SystemService
         // keeps reporting ON while the device sleeps: sys.screen.state flipped to "on" every
         // few seconds of sleep (the home relit both panels) and stayed "off" after a wake (the
         // home kept its blank sleep frame on lit panels). In nano mode it follows wakefulness.
-        if (gammaAllGroupsInNano()) {
+        if (nano) {
             synchronized (mLock) {
                 target = getGlobalWakefulnessLocked() == WAKEFULNESS_AWAKE ? "on" : "off";
             }
