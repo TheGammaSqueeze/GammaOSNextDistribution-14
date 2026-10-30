@@ -515,6 +515,55 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
     }
 }
 
+// Time of an evdev event in microseconds. drastic-nano never sets EVIOCSCLOCK, so this is
+// CLOCK_REALTIME; only the difference between two events of the same device is used.
+int64_t evTimeUs(const struct input_event& ev) {
+    return (int64_t)ev.time.tv_sec * 1000000LL + ev.time.tv_usec;
+}
+
+// One edge of BACK (or of the Menu action, which shares its state): short release = menu toggle,
+// hold of longBackMs or more = exit. The hold is measured between the press and release events
+// themselves. Input is only drained once per rendered frame, so a stalled frame can drain a
+// press and its release together; timing them at drain time made a real hold look like a
+// tap (menu instead of exit), or a hold near the threshold look like neither.
+void backEdge(InputState* st, bool pressed, const struct input_event& ev,
+              int64_t shortBackMs, int64_t longBackMs, InputActions* out) {
+    if (pressed && !st->backWasDown) {
+        // Still used by the while-held check at the end of pollInputMap.
+        st->backPressStartMs = android::elapsedRealtime();
+        st->backPressEvUs = evTimeUs(ev);
+    }
+    if (!pressed && st->backWasDown) {
+        int64_t held = (evTimeUs(ev) - st->backPressEvUs) / 1000;
+        if (st->backPressEvUs <= 0 || held < 0) {
+            // No usable event times (or the wall clock stepped back during the hold).
+            held = android::elapsedRealtime() - st->backPressStartMs;
+        }
+        if (held >= longBackMs) {
+            out->exitRequested = true;
+        } else if (held < shortBackMs) {
+            out->menuToggle = true;
+        }
+        st->backPressStartMs = 0;
+        st->backPressEvUs = 0;
+    }
+    st->backWasDown = pressed;
+}
+
+// True on the RG DS Plus in nano mode, where the Menu key (gammapad remaps the pad's BTN_MODE
+// to KEY_ALL_APPLICATIONS) belongs to the framework: a tap takes the device back to the
+// launcher and a hold toggles nano's Control Center. Other devices keep the key bindable.
+bool menuKeyIsHome() {
+    static int cached = -1;
+    if (cached < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {0};
+        property_get("ro.gammaos.device", dev, "");
+        cached = (strcmp(dev, "anbernicrgdsplus") == 0 &&
+                  property_get_bool("sys.gammaos.minimal_boot", false)) ? 1 : 0;
+    }
+    return cached == 1;
+}
+
 } // anonymous namespace
 
 void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
@@ -552,6 +601,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         st->dsBtnMask = 0;
         st->backWasDown = false;
         st->backPressStartMs = 0;
+        st->backPressEvUs = 0;
         st->powerWasDown = false;
         st->powerPressStartMs = 0;
         st->hat0xPrev = 0;
@@ -639,19 +689,15 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 }
 
                 if (ev.code == KEY_BACK) {
-                    // Short / long press state tracked via backPressStartMs.
-                    if (pressed && !st->backWasDown) {
-                        st->backPressStartMs = android::elapsedRealtime();
-                    }
-                    if (!pressed && st->backWasDown) {
-                        int64_t held = android::elapsedRealtime() -
-                                       st->backPressStartMs;
-                        if (held < shortBackMs) {
-                            out->menuToggle = true;
-                        }
-                        st->backPressStartMs = 0;
-                    }
-                    st->backWasDown = pressed;
+                    // Short / long press, timed from the event times (see backEdge).
+                    backEdge(st, pressed, ev, shortBackMs, longBackMs, out);
+                    continue;
+                }
+
+                // RG DS Plus: the Menu key is the framework's go-home (PhoneWindowManager
+                // saves and exits through exit_home). Without this it becomes a synthetic
+                // 1204 key that a binding or the remap capture would also act on.
+                if (ev.code == KEY_ALL_APPLICATIONS && menuKeyIsHome()) {
                     continue;
                 }
 
@@ -775,19 +821,8 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // backPressStartMs/backWasDown state so the
                         // shared hold check below fires exitRequested.
                         case 20:
-                            if (pressed && !st->backWasDown) {
-                                st->backPressStartMs =
-                                        android::elapsedRealtime();
-                            }
-                            if (!pressed && st->backWasDown) {
-                                int64_t held = android::elapsedRealtime() -
-                                               st->backPressStartMs;
-                                if (held < shortBackMs) {
-                                    out->menuToggle = true;
-                                }
-                                st->backPressStartMs = 0;
-                            }
-                            st->backWasDown = pressed;
+                            backEdge(st, pressed, ev, shortBackMs,
+                                     longBackMs, out);
                             break;
                         default: break;
                         }

@@ -1242,6 +1242,7 @@ void doSleep(android::drastic_input::InputState* input,
     input->powerHoldFired = false;
     input->backWasDown = false;
     input->backPressStartMs = 0;
+    input->backPressEvUs = 0;
 
     // Restore the session's performance state (mirror of the pre-sleep
     // relax above): RT render thread, deep-idle disabled, perf governors.

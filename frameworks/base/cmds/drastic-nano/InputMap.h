@@ -46,6 +46,9 @@ struct InputState {
     // Short/long-press BACK tracking.
     bool backWasDown = false;
     int64_t backPressStartMs = 0;
+    // The press time taken from the event itself (evdev clock, in us), so the release can
+    // measure the real hold even when one render frame drains the press and the release together.
+    int64_t backPressEvUs = 0;
 
     // Short/long-press POWER tracking (short release = sleep, hold =
     // toggle the in-game menu). powerHoldFired latches the hold action
