@@ -42,6 +42,33 @@ if [ "$1" = "--orient" ]; then
     exit 0
 fi
 
+# RG DS Plus (gammaos.rc, gammaos_esde_gate): publish sys.gammaos.esde_installed so init runs the
+# vendor esde_fix poller only while ES-DE is installed. PackageManager replaces packages.list by
+# rename, which frees the watched inode, so inotifyd exits (D is IN_DELETE_SELF; toybox 0.8.10
+# drops the first mask letter, hence DD). inotifyd - buffers its output, so it is not read. The
+# watch is armed before the 1 s settle and the check. On uninstall init stops esde_fix before its
+# own teardown runs, so the themes bind mount is dropped here.
+if [ "$1" = "--esde-gate" ]; then
+    l=/data/system/packages.list
+    t=/storage/emulated/0/Android/data/org.es_de.frontend/files/themes
+    esde_state() {
+        if grep -q '^org[.]es_de[.]frontend ' "$l" 2>/dev/null; then
+            setprop sys.gammaos.esde_installed 1
+        else
+            setprop sys.gammaos.esde_installed 0
+            mountpoint -q "$t" 2>/dev/null && umount "$t" 2>/dev/null
+        fi
+    }
+    esde_state
+    while :; do
+        inotifyd - "$l:DD" >/dev/null 2>&1 &
+        w=$!
+        sleep 1
+        esde_state
+        wait $w || sleep 5
+    done
+fi
+
 setprop ctl.start media.swcodec
 
 for i in wpa p2p; do

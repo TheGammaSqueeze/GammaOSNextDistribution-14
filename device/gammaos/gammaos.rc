@@ -164,3 +164,21 @@ service gammaos_mp_verify /system/bin/sh -c "sleep 60; /system/bin/cmd package c
 on property:sys.gammaos.nano.ext_storage_ready=1 && property:ro.gammaos.device=anbernicrgdsplus && property:sys.gammaos.minimal_boot=1
     start gammaos_mp_verify
 
+# RG DS Plus: the vendor esde_fix.sh re-checks the ES-DE themes bind mount every 5 s by forking
+# cmd package list, head, sed, awk and mountpoint, about 70 ms of CPU a second, also when ES-DE is
+# not installed. A watcher publishes whether ES-DE is installed (again after every packages.list
+# rewrite) and esde_fix only runs while it is. The watcher starts at boot, which runs in nano and in
+# full mode after post-fs-data has switched init to the default mount namespace (so it sees the
+# mounts of esde_fix) and before boot_completed (so the vendor start of esde_fix is undone at once).
+# Nano never fires zygote-start, so that event cannot be used here.
+service gammaos_esde_gate /system/bin/gammaos-on-boot.sh --esde-gate
+    disabled
+
+on boot && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_esde_gate
+
+on property:init.svc.esde_fix=running && property:sys.gammaos.esde_installed=0 && property:ro.gammaos.device=anbernicrgdsplus
+    stop esde_fix
+
+on property:sys.gammaos.esde_installed=1 && property:sys.boot_completed=1 && property:sys.user.0.ce_available=true && property:persist.sys.device_provisioned=1 && property:ro.gammaos.device=anbernicrgdsplus
+    start esde_fix
