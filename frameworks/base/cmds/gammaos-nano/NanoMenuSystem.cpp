@@ -1084,7 +1084,10 @@ void NanoMenu::prepareShutdown(const char* action) {
     // current from launch, and drastic-nano is saving slot 9 right now).
     if (procCmdlineContains("drastic-nano")) {
         bool resumePower = (!strcmp(action, "reboot") || !strcmp(action, "shutdown"));
-        if (resumePower &&
+        // The game was already left: drastic-nano handed the panels back to this home and is only
+        // finishing its save and exit. Resuming that game on the next boot would be wrong.
+        const bool gameLeft = property_get_bool("sys.gammaos.drastic_nano.panel_free", false);
+        if (resumePower && !gameLeft &&
             property_get_bool("persist.gammaos.nano.quick_resume", true)) {
             // Point Quick Resume at the game actually running: nano_qr_rom.txt can
             // be stale if this DS game was launched with QR off and the user then

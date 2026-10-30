@@ -25,11 +25,13 @@
 #include "NanoMenuPS3Particles.h"
 #include <android-base/properties.h>   // defer heavy home assets during the SetupWizard
 
+#include <fcntl.h>
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <time.h>
+#include <unistd.h>
 #include <vector>
 
 #include <GLES2/gl2.h>
@@ -507,6 +509,18 @@ static uint8_t* readAsset(const char* sub, const char* file, long* sizeOut) {
     fclose(f);
     if (sizeOut) *sizeOut = sz;
     return buf;
+}
+
+void prewarmAssets() {
+    static const char* const kFiles[] = { "wave_geo.bin", "wave_seq2.bin" };
+    for (const char* f : kFiles) {
+        char path[256];
+        if (!resolveAsset("wave", f, path, sizeof(path))) continue;
+        const int fd = open(path, O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        posix_fadvise(fd, 0, 0, POSIX_FADV_WILLNEED);
+        close(fd);
+    }
 }
 
 // 3x3 separable box blur over a 128x128 field (clamped), matching the JS

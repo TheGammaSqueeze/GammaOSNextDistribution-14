@@ -383,6 +383,12 @@ public:
     // thread; the caller should leave a brief window before quitSystem.
     bool saveAutosave();
 
+    // True once the emulator thread has taken a queued save request (the request byte at master+0x4b5
+    // is clear): the state is then serialised into the writer's buffer, so it no longer needs a frame,
+    // the presenter or the panel. The write itself is still running; the caller waits for the file as
+    // before. False on a timeout, or when the vblank hooks (and so the library base) are not installed.
+    bool waitSaveCaptured(int timeoutUs);
+
     // Reset the emulated DS (power cycle). Equivalent to the "Reset"
     // menu action in the real drastic app. Safe to call at any time
     // once init() has succeeded.
@@ -681,7 +687,9 @@ private:
     typedef void (*setAutosaveInterval_t)(void* env, void* cls,
                                           int intervalSeconds);
     typedef void (*setAudioVolume_t)(void* env, void* cls, int vol);
-    typedef int  (*saveState_t)(void* env, void* cls, int slot);
+    // The fourth argument is the blocking flag (libdrastic tests w3 at entry): 0 queues the save for
+    // the emulator thread and returns, non-zero returns once the file is written. Every caller passes it.
+    typedef int  (*saveState_t)(void* env, void* cls, int slot, int blocking);
     typedef int  (*loadState_t)(void* env, void* cls, int slot);
     typedef void (*resetDS_t)  (void* env, void* cls);
 
@@ -1075,6 +1083,7 @@ private:
     bool raArmLoad(uint8_t* buf, size_t len);
     std::thread mPacerThread;
     std::atomic<bool> mPacerRun{false};
+    std::atomic<bool> mPacerExited{false};   // set by pacerThread() when its loop ends (shutdown waits for it)
 
     // Shader-swap throttle / re-entrance guard. The overlay menu's Shader
     // row calls setShaderRuntime on every navLeft/Right, and drastic's

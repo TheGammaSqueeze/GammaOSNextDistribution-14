@@ -13,6 +13,7 @@
 
 #include "FakeJNI.h"
 
+#include <atomic>
 #include <cstring>
 #include <cstdarg>
 #include <cstdint>
@@ -466,9 +467,22 @@ static int ramGetOrCreateLocked(const std::string& real, bool create) {
     return fd;
 }
 
+// See slot9LoadState() in FakeJNI.h.
+static std::atomic<int> sSlot9LoadState{0};
+int slot9LoadState() { return sSlot9LoadState.load(std::memory_order_relaxed); }
+
 static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     std::string realPath = translateVirtualPath(vpath);
     int flags = translateOpenMode(mode);
+
+    // The launch auto-load reads the slot-9 state: note its first open (and whether it opened).
+    const bool slot9Read = (flags & O_ACCMODE) == O_RDONLY && !(flags & O_CREAT) &&
+            realPath.size() >= 6 && realPath.compare(realPath.size() - 6, 6, "_9.dss") == 0;
+    auto noteSlot9 = [&](bool opened) {
+        int expect = 0;
+        if (slot9Read && sSlot9LoadState.compare_exchange_strong(expect, opened ? 1 : 2))
+            ALOGI("FakeJNI: slot 9 state opened for reading (%s)", opened ? "ok" : "failed");
+    };
 
     {
         int slot = 0;
@@ -479,6 +493,7 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
             if (fd < 0 && memfd >= 0) {
                 ALOGW("FakeJNI: ram state reopen failed for \"%s\" errno=%d", realPath.c_str(), errno);
             }
+            noteSlot9(fd >= 0);
             ALOGI("FakeJNI: ram open: \"%s\" mode=%s memfd=%d fd=%d slot=%d", realPath.c_str(),
                   mode ? mode : "(null)", memfd, fd, slot);
             return allocHandle(fd, realPath.c_str());
@@ -515,8 +530,10 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
               mode ? mode : "(null)", errno, strerror(errno));
         // Still return a shim with fd=-1 so drastic can distinguish
         // "file not found" from a hard failure by reading .fileFd.
+        noteSlot9(false);
         return allocHandle(-1, realPath.c_str());
     }
+    noteSlot9(true);
     ALOGI("FakeJNI: open ok: vpath=\"%s\" real=\"%s\" mode=\"%s\" fd=%d",
           vpath, realPath.c_str(), mode ? mode : "(null)", fd);
     return allocHandle(fd, realPath.c_str());

@@ -172,6 +172,32 @@ static int64_t sStgRdMaxNs    = 0;   // max renderDsToOffscreen span (DS upload+
 static int64_t sStgPbMaxNs    = 0;   // max panel-blit span (half-res render to panels)
 static int64_t sPbMark[4] = {0, 0, 0, 0};   // panel blit checkpoints for the hang log (panels, overlay, metrics, bottom)
 
+// The DSi launch hand-off. The parked home keeps its panels on a white frame across the start
+// (sys.gammaos.nano.handoff_argb, read once at start-up): while it is set the splash, the loading
+// frames and the first seconds of the game stay white, and the white then fades out (runLoop).
+static bool sHandoffWhite = false;
+static float sHandoffRgb[2][3] = {{1, 1, 1}, {1, 1, 1}};   // that white as the top / bottom panel shows it (display matrices)
+static int sHandoffAutoLoad = -1;                          // the slot this launch loads (9) or -1: when the game has really started
+
+// The return hand-off of a clean exit to the home (back-hold, the overlay's Exit Game, the framework's
+// exit_home): the slot-9 save starts at the press while the game fades out on both panels (to white
+// under the DSi home theme, which fades in from white, to black otherwise), and a parked home takes
+// the panels back as soon as the save is captured, while the write and the exit still run (runLoop,
+// handPanelToHome). On the RG DS Plus only; persist.gammaos.drastic_nano.exit_handoff=0 switches it
+// off there, =1 turns it on for other devices. The DRM loop only: SurfaceFlinger composes its own.
+static bool returnHandoffEnabled() {
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.gammaos.device", dev, "");
+    return property_get_bool("persist.gammaos.drastic_nano.exit_handoff", strcmp(dev, "anbernicrgdsplus") == 0);
+}
+// The home theme NanoMenu calls mNdsTheme: the DSi menu (Minima wins over it).
+static bool homeThemeIsDsi() {
+    return property_get_int32("persist.gammaos.nano.ndstheme", 0) == 1 &&
+           !property_get_bool("persist.gammaos.nano.minima", false);
+}
+constexpr int64_t kExitFadeMs = 300;       // the game fades to the hand-off colour over this long ...
+constexpr int64_t kExitCapMs  = 700;       // ... and the fade plus its white hold never runs past this
+
 // Once-a-second metrics publishing moved OFF the render thread. property_set is a synchronous
 // round trip to init and ALOGI a write to logd; either can park the caller for tens or hundreds
 // of milliseconds when those services are busy (every panel-blit hang logged so far, 51 to 1588
@@ -819,6 +845,28 @@ void installCrashHandler() {
     sigaction(SIGTERM, &st, nullptr);
 }
 
+// The crash handler from the moment the panels were handed to the home (handPanelToHome): the home is
+// already back and drawing, so a fault in the rest of the save and exit only has to end the session
+// for the home's bookkeeping. crashCleanup would also raise the overlay (show_overlay=1) and clear
+// app_launched, which a DRM home that is already up takes as "the overlay owns the home" and bows out
+// of (the frozen-panel case the disarm rationale above describes).
+void tailCrashCleanup(int sig) {
+    android::drastic_perf::restoreGlobal();
+    property_set(kSessionDoneProp, "1");
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+
+void installTailCrashHandler() {
+    struct sigaction sa{};
+    sa.sa_handler = tailCrashCleanup;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_NODEFER | SA_RESETHAND;
+    // Only where installCrashHandler installed one (crash_tombstone=1 leaves the signals to debuggerd).
+    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.crash_tombstone", false)) return;
+    for (int sig : {SIGBUS, SIGSEGV, SIGABRT, SIGILL, SIGFPE}) sigaction(sig, &sa, nullptr);
+}
+
 // ------------------------------------------------------------------
 // DRM + EGL bootstrap (no SurfaceFlinger)
 // ------------------------------------------------------------------
@@ -1324,7 +1372,69 @@ struct RunLoopResult {
     bool exitToHome;     // back-hold graceful exit: force the slot-9 save then take
                          // the normal return-to-launcher path (raise the overlay /
                          // DRM home). Mirrors RetroArch's back-hold ESC + app close.
+    // The return hand-off (returnHandoffEnabled): runLoop requested the slot-9 save at the exit press
+    // and faded both panels out. main() takes the save from here, with the file as it was before.
+    bool saveWanted = false;       // the autosave gate held at the press
+    bool autosaveIssued = false;   // ... and the request was made
+    bool saveHad = false;
+    time_t saveBeforeM = 0;
+    off_t saveBeforeS = 0;
+    bool exitFaded = false;        // the fade ran through to its held colour: the panels may go to the home
+    uint32_t handoffArgb[2] = {0, 0};   // that colour on the primary / the other panel (display matrices applied)
 };
+
+// The return hand-off's panel half. The game has faded out on both panels and its slot-9 save has been
+// requested; once the emulator has captured it (the request byte clear: the state is in the writer's
+// buffer) the panels, the presenter and DRM master are of no further use to the save. So the panels go
+// onto a plain frame of the faded-to colour with the DRM fd kept (the baton: removing the ring would
+// otherwise turn them black), the ring and its CMA are freed, master is dropped, and the parked home is
+// told with panel_free. It splashes the same colour over the baton and sets panel_taken, and the caller
+// lets go of the baton then (drmBatonReplaced); the home's own ring needs the CMA this frees.
+// Returns true when the panels were handed over (the baton may or may not have held: with a plain stop
+// the panels were dark for a moment, which is the old behaviour). False leaves everything as it was.
+bool handPanelToHome(DrasticRunner& dr, const RunLoopResult& rlr) {
+    if (!android::sDrmActive || android::sDrmFd < 0) return false;
+    if (!property_get_bool("sys.gammaos.nano.parked", false)) return false;   // nobody waits for the panels
+    const int64_t t0 = android::elapsedRealtime();
+    if (rlr.autosaveIssued && !dr.waitSaveCaptured(500 * 1000)) {
+        ALOGW("drastic-nano: the autosave was not captured within 500 ms, keeping the panels until the exit");
+        return false;
+    }
+    const int64_t tCaptured = android::elapsedRealtime();
+    const bool baton = android::drmStopKeepBaton(rlr.handoffArgb[0], rlr.handoffArgb[1]);
+    // From here the home draws and a fault in the tail must not raise the overlay.
+    installTailCrashHandler();
+    property_set("sys.gammaos.drastic_nano.panel_taken", "0");
+    property_set("sys.gammaos.drastic_nano.panel_free", "1");
+    // The session is over for everything that reads it (the framework treats a live session as a game
+    // to exit with the back hold): panel_free first, so the home sees a hand-over, not a session end.
+    property_set("sys.gammaos.drastic_nano.session", "0");
+    // The pages this process locked are no longer worth the pressure: the home faults its own back in.
+    munlockall();
+    // The per-game performance mode has done its job: the home's wake should run on the user's global
+    // mode, not on the game's (a powersave one would stretch it) until this process exits. It is a
+    // no-op when nothing was parked, and the exit tail calls it again harmlessly.
+    android::drastic_perf::restoreGlobal();
+    ALOGI("drastic-nano: panels handed to the home (%s): save captured %lld ms after the loop, panels freed in %lld ms",
+          baton ? "baton held" : "plain stop", (long long)(tCaptured - t0),
+          (long long)(android::elapsedRealtime() - tCaptured));
+    return true;
+}
+
+// The end of the process on the RG DS Plus return path (returnHandoffEnabled, DRM): an explicit, ordered
+// teardown instead of returning from main. Returning ran ~DrasticRunner (pause + quitSystem) and then
+// the static destructors while libdrastic's detached threads (the pacer, the emulator, the GPU 3D
+// rasteriser) were still running, and one of them locking a destroyed global mutex was the SIGABRT init
+// reported ('received signal 6') after most exits. Everything the process owed has been done by now
+// (the save fsynced, the properties set, the crash handler disarmed): stop the pacer, pause and quit
+// the core as the destructor would (quitSystem writes the backup/ files), flush, and leave without
+// running the static destructors.
+[[noreturn]] static void exitCleanly(DrasticRunner& dr) {
+    dr.shutdown();
+    android::drastic_settings::flush();
+    fflush(nullptr);
+    _exit(0);
+}
 
 // Debug screenshot. When sys.gammaos.drastic_nano.shot=1, read back the bound
 // framebuffers and write them as PPMs to /data. The standard VOP framebuffer
@@ -2293,7 +2403,89 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
     });
 
-    while (!exitRequested) {
+    // DSi launch hand-off (sHandoffWhite): the home's white wash ran on into a white splash and a
+    // white loading frame, and the white stays over the game, with a quiet pulse, until the game has
+    // really started, so the fresh boot glimpse, the freeze of the slot-9 load and the first black
+    // frames are never seen. Then it fades out over 16 frames. The game renders underneath as usual
+    // (the emulator is paced by those frames), the menu, HUD and toasts draw over the white, and the
+    // cover gives up after 8 s (a game that never starts shows what it has, as without it).
+    constexpr int64_t kCoverMaxMs = 8000, kCoverFadeMs = 267;
+    constexpr uint32_t kCoverSteadyFrames = 10;   // emulated frames that count as "running"
+    bool coverDone = !sHandoffWhite;
+    int64_t coverFadeT0 = 0, coverReadyMs = 0;
+    const int64_t coverT0 = android::elapsedRealtime();
+    const uint32_t coverBaseFrames = dr->emuFrameCount();
+    bool coverSlotSeen = false;
+    uint32_t coverSlotFrames = 0;
+    // True once the game is there. A fresh boot (no state to load): it has run a few frames. The
+    // launch auto-load of slot 9: libdrastic booted the ROM, then opened the state (FakeJNI notes
+    // that open) and the emulator stands still while it loads; the game is back once it has run a
+    // few frames past that open. Emulated frames, not presented ones: the loop presents every vblank
+    // whether or not the game produced anything.
+    auto gameStarted = [&](int64_t now) -> bool {
+        if (now - coverT0 > kCoverMaxMs) return true;
+        if (!dr->isFrameReady()) return false;
+        if (!dr->vblankPacingInstalled()) {
+            // This libdrastic build has no emulated-frame counter: a first frame and a moment.
+            if (coverReadyMs == 0) coverReadyMs = now;
+            return now - coverReadyMs >= 2500;
+        }
+        const uint32_t ef = dr->emuFrameCount();
+        if (sHandoffAutoLoad == 9) {
+            if (!coverSlotSeen && android::fakejni::slot9LoadState() != 0) {
+                coverSlotSeen = true;
+                coverSlotFrames = ef;
+            }
+            if (coverSlotSeen) return ef - coverSlotFrames >= kCoverSteadyFrames;
+            // The state was never opened: it is not being loaded, and the fresh boot is the game.
+            return ef - coverBaseFrames >= 240;
+        }
+        return ef - coverBaseFrames >= kCoverSteadyFrames;
+    };
+    // The cover on the pass gfx has begun: white at `a`, three grey dots in the middle breathing
+    // one after the other. The middle is the same under any panel rotation.
+    auto drawCover = [&](float a, int64_t now) {
+        const float vw = (float)gfx.viewportW(), vh = (float)gfx.viewportH();
+        gfx.fillRect(0.0f, 0.0f, vw, vh, android::drastic_gfx::rgba(1.0f, 1.0f, 1.0f, a));
+        const float step = (vw < vh ? vw : vh) * 0.04f;
+        const float r = step * 0.26f;
+        for (int i = 0; i < 3; i++) {
+            const float ph = (float)(now % 1500) / 1500.0f - (float)i * 0.14f;
+            const float k = 0.5f - 0.5f * cosf(ph * 6.2831853f);
+            const float rr = r * (0.85f + 0.3f * k);
+            const float cx = vw * 0.5f + (float)(i - 1) * step, cy = vh * 0.5f;
+            gfx.roundedRect(cx - rr, cy - rr, rr * 2.0f, rr * 2.0f, rr,
+                            android::drastic_gfx::rgba(0.30f, 0.32f, 0.37f, a * (0.22f + 0.5f * k)));
+        }
+    };
+
+    // The return hand-off's exit fade (returnHandoffEnabled): from the moment a clean exit to the home
+    // is pressed the loop keeps presenting, the game under a rising layer of the hand-off colour on
+    // both panels, input and the menu dead, until that colour has been on screen for a few frames.
+    // exitFadeT0 is the press (0 = no fade); the fade only ever starts for the clean exits (see below).
+    const bool exitFadeAllowed = returnHandoffEnabled();
+    const bool exitFadeWhite = exitFadeAllowed && homeThemeIsDsi();
+    int64_t exitFadeT0 = 0;
+    int exitWhiteFrames = 0;
+
+    while (!exitRequested || exitFadeT0 != 0) {
+        const bool exiting = exitFadeT0 != 0;
+        if (exiting) {
+            // A shutdown request during the fade: the caller issues the power action, so leave at once
+            // and let the tail save as it does for any external quit (the save is already queued).
+            if (gTermRequested || property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+                property_set("sys.gammaos.drastic_nano.quit", "0");
+                ALOGI("drastic-nano: external quit / SIGTERM during the exit fade, saving and exiting");
+                result.quitShutdown = true;
+                break;
+            }
+            // The colour has held for more frames than the oldest slot the presenter can still be
+            // scanning (ringDepth, present age at most 2), or the fade ran out of time.
+            if (exitWhiteFrames >= ringDepth || android::elapsedRealtime() - exitFadeT0 >= kExitCapMs) {
+                result.exitFaded = exitWhiteFrames > 0;
+                break;
+            }
+        }
         // A suspend cycle this session did not run itself (the deep-sleep tile, the
         // home, the vendor sleep script): resume leaves both CRTCs active with no
         // planes attached and every flip fails with EINVAL until the modeset is
@@ -2318,12 +2510,14 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             audioBoostDeadlineMs = android::elapsedRealtime() + gap;
         }
         android::drastic_input::InputActions actions{};
-        android::drastic_input::pollInputMap(
-                &input,
-                overlay.isOpen(),
-                overlay.isCapturingKey(),
-                kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
-        qrChainNoteUserInput();
+        if (!exiting) {
+            android::drastic_input::pollInputMap(
+                    &input,
+                    overlay.isOpen(),
+                    overlay.isCapturingKey(),
+                    kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
+            qrChainNoteUserInput();
+        }
         // Short power press = system sleep. Handled before the overlay
         // update so a sleep press while the menu is open does not also
         // feed the menu; the menu's pause state is preserved across the
@@ -2346,18 +2540,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         // Automation hook, same as the SF path: sys.gammaos.drastic_nano.menu=1
         // toggles the overlay once (headless menu screenshots).
-        if (property_get_bool("sys.gammaos.drastic_nano.menu", false)) {
+        if (!exiting && property_get_bool("sys.gammaos.drastic_nano.menu", false)) {
             property_set("sys.gammaos.drastic_nano.menu", "0");
             actions.menuToggle = true;
         }
         // Automation hook: sys.gammaos.drastic_nano.quickload=1 raises the quick-load action
         // once, so the overlay's real save-state path (the same one the hotkey drives) can be
         // exercised without the physical button.
-        if (property_get_bool("sys.gammaos.drastic_nano.quickload", false)) {
+        if (!exiting && property_get_bool("sys.gammaos.drastic_nano.quickload", false)) {
             property_set("sys.gammaos.drastic_nano.quickload", "0");
             actions.actQuickLoad = true;
         }
-        overlay.update(actions, &input);
+        if (!exiting) overlay.update(actions, &input);   // dead during the exit fade: the save is queued
 
         // Publish overlay state to the fast-input thread. On an open->close
         // edge, signal it to re-apply prefs so live control remaps (done while
@@ -2426,71 +2620,115 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // brightness). The SF system sliders never show on the DRM path.
         if (actions.volAdjust != 0)    overlay.onVolumeAdjust(actions.volAdjust);
         if (actions.brightAdjust != 0) overlay.onBrightnessAdjust(actions.brightAdjust);
-        if (actions.exitRequested) {
-            ALOGW("drastic-nano: long-press BACK, exiting");
-            exitRequested = true;
+        // Exit requests are read only while no exit fade is running (one request is enough, and the
+        // fade must not trip over the flags it was started from).
+        if (!exiting) {
+            if (actions.exitRequested) {
+                ALOGW("drastic-nano: long-press BACK, exiting");
+                exitRequested = true;
+            }
+            if (overlay.exitAppRequested()) {
+                ALOGI("drastic-nano: exit requested from overlay menu");
+                exitRequested = true;
+            }
+            if (overlay.relaunchRequested()) {
+                ALOGI("drastic-nano: relaunch requested by overlay");
+                result.relaunchRequested = true;
+                exitRequested = true;
+            }
+            if (overlay.restartFreshRequested()) {
+                ALOGI("drastic-nano: restart-game (fresh relaunch) requested");
+                result.restartFresh = true;
+                result.relaunchRequested = true;  // reuse the relaunch handshake
+                exitRequested = true;
+            }
+            if (raInited && ra.takeHardcoreRestart()) {
+                // Hardcore was just enabled: restart the game fresh into hardcore
+                // (RA convention). Reuse the same fresh-relaunch handshake as
+                // "Restart Game"; the relaunched process reads ra_hardcore=1 and
+                // boots into hardcore. The teardown frees the RA bottom-panel
+                // textures first, so the GL/DRM context teardown stays clean.
+                ALOGI("drastic-nano: hardcore enabled, restarting fresh into hardcore");
+                result.restartFresh = true;
+                result.relaunchRequested = true;
+                exitRequested = true;
+            }
+            // Power off / reboot: from the overlay menu rows or the ~5s power-button
+            // hold. Break with the power action set so the exit tail saves slot 9
+            // (and arms Quick Resume) then powers the device down instead of
+            // returning to the XMB.
+            if (actions.powerOffRequested || overlay.powerOffRequested()) {
+                ALOGI("drastic-nano: power off requested (save + shutdown)");
+                result.powerOffAfter = true;
+                exitRequested = true;
+            }
+            if (overlay.rebootRequested()) {
+                ALOGI("drastic-nano: reboot requested (save + reboot)");
+                result.rebootAfter = true;
+                exitRequested = true;
+            }
+            // External graceful-quit channel: nano / the framework ShutdownThread set
+            // sys.gammaos.drastic_nano.quit=1 to ask for a clean save + exit (the
+            // caller then issues the power action). A SIGTERM stop at device shutdown
+            // breaks here too so slot 9 is saved rather than killed mid-session.
+            if (gTermRequested ||
+                property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+                property_set("sys.gammaos.drastic_nano.quit", "0");
+                ALOGI("drastic-nano: external quit / SIGTERM, saving and exiting");
+                result.quitShutdown = true;
+                exitRequested = true;
+            }
+            // Back-hold graceful exit (see the SF loop for the rationale): force the
+            // slot-9 save and return to the launcher instead of handing a power action
+            // to the caller.
+            if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false)) {
+                property_set("sys.gammaos.drastic_nano.exit_home", "0");
+                ALOGI("drastic-nano: back-hold exit-to-home, saving and returning");
+                result.exitToHome = true;
+                exitRequested = true;
+            }
         }
-        if (overlay.exitAppRequested()) {
-            ALOGI("drastic-nano: exit requested from overlay menu");
-            exitRequested = true;
+        // A clean exit to the home with the return hand-off on (returnHandoffEnabled): not a relaunch,
+        // a power action or an external quit, which keep the plain exit below. The slot-9 save is
+        // requested now, at the press, instead of after the loop's teardown, and the game fades to the
+        // hand-off colour on both panels while it is written (the fade itself is in the render section
+        // below). Same predicate as the tail's: Restart Game never saves, a plain back-hold saves when
+        // Auto Load is on, and the framework's exit_home always does.
+        if (exitRequested && !exiting) {
+            if (exitFadeAllowed && !result.relaunchRequested && !result.restartFresh &&
+                !result.powerOffAfter && !result.rebootAfter && !result.quitShutdown) {
+                ALOGI("drastic-nano: exit to home: saving at the press, fading out to %s",
+                      exitFadeWhite ? "white" : "black");
+                // The emulator keeps running for the save: silence it for good before it does, with the
+                // output device stopped so its decaying tail never reaches the speaker.
+                drasticQuiesceAudio();
+                dr->setVolumeRuntime(0);
+                dr->setRunAhead(0, 1);   // no replay burst or slot redirect over the autosave slot
+                overlay.close();         // a menu that was open unpauses the emulator, which the save needs
+                coverDone = true;        // the launch cover has nothing left to say
+                result.saveWanted = result.exitToHome ||
+                        android::drastic_settings::getBool("persist.gammaos.drastic_nano.autoload", true);
+                if (result.saveWanted) {
+                    // The file as it is now: the tail decides the save is done when it has changed.
+                    const std::string slot9 = slot9Stem(savestatesDir, romPath) + ".dss";
+                    struct stat before {};
+                    result.saveHad = (stat(slot9.c_str(), &before) == 0);
+                    result.saveBeforeM = result.saveHad ? before.st_mtime : 0;
+                    result.saveBeforeS = result.saveHad ? before.st_size : 0;
+                    result.autosaveIssued = dr->saveAutosave();
+                }
+                // The held colour as each panel shows it: the AFBC combined buffer is one panel install
+                // for both halves, so the bottom half takes the top's matrix there (bindBottomPass).
+                const uint32_t holdArgb = exitFadeWhite ? 0xFFFFFFFFu : 0xFF000000u;
+                result.handoffArgb[0] = android::drmTintArgb(sColorTop, holdArgb);
+                result.handoffArgb[1] = android::drmTintArgb(
+                        (android::sDrmAfbcMode && hasDualDisplay) ? sColorTop : sColorBottom, holdArgb);
+                exitFadeT0 = android::elapsedRealtime();
+            } else {
+                drasticQuiesceAudio();
+                break;
+            }
         }
-        if (overlay.relaunchRequested()) {
-            ALOGI("drastic-nano: relaunch requested by overlay");
-            result.relaunchRequested = true;
-            exitRequested = true;
-        }
-        if (overlay.restartFreshRequested()) {
-            ALOGI("drastic-nano: restart-game (fresh relaunch) requested");
-            result.restartFresh = true;
-            result.relaunchRequested = true;  // reuse the relaunch handshake
-            exitRequested = true;
-        }
-        if (raInited && ra.takeHardcoreRestart()) {
-            // Hardcore was just enabled: restart the game fresh into hardcore
-            // (RA convention). Reuse the same fresh-relaunch handshake as
-            // "Restart Game"; the relaunched process reads ra_hardcore=1 and
-            // boots into hardcore. The teardown frees the RA bottom-panel
-            // textures first, so the GL/DRM context teardown stays clean.
-            ALOGI("drastic-nano: hardcore enabled, restarting fresh into hardcore");
-            result.restartFresh = true;
-            result.relaunchRequested = true;
-            exitRequested = true;
-        }
-        // Power off / reboot: from the overlay menu rows or the ~5s power-button
-        // hold. Break with the power action set so the exit tail saves slot 9
-        // (and arms Quick Resume) then powers the device down instead of
-        // returning to the XMB.
-        if (actions.powerOffRequested || overlay.powerOffRequested()) {
-            ALOGI("drastic-nano: power off requested (save + shutdown)");
-            result.powerOffAfter = true;
-            exitRequested = true;
-        }
-        if (overlay.rebootRequested()) {
-            ALOGI("drastic-nano: reboot requested (save + reboot)");
-            result.rebootAfter = true;
-            exitRequested = true;
-        }
-        // External graceful-quit channel: nano / the framework ShutdownThread set
-        // sys.gammaos.drastic_nano.quit=1 to ask for a clean save + exit (the
-        // caller then issues the power action). A SIGTERM stop at device shutdown
-        // breaks here too so slot 9 is saved rather than killed mid-session.
-        if (gTermRequested ||
-            property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
-            property_set("sys.gammaos.drastic_nano.quit", "0");
-            ALOGI("drastic-nano: external quit / SIGTERM, saving and exiting");
-            result.quitShutdown = true;
-            exitRequested = true;
-        }
-        // Back-hold graceful exit (see the SF loop for the rationale): force the
-        // slot-9 save and return to the launcher instead of handing a power action
-        // to the caller.
-        if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false)) {
-            property_set("sys.gammaos.drastic_nano.exit_home", "0");
-            ALOGI("drastic-nano: back-hold exit-to-home, saving and returning");
-            result.exitToHome = true;
-            exitRequested = true;
-        }
-        if (exitRequested) { drasticQuiesceAudio(); break; }
 
         // External load-state channel (optimization/testing): set
         // sys.gammaos.drastic_nano.load_state=<slot 0..8> to reload that
@@ -2499,7 +2737,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // repeatable measurement without touching the emulation loop otherwise.
         {
             char ls[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.gammaos.drastic_nano.load_state", ls, "");
+            if (exitFadeT0 == 0) property_get("sys.gammaos.drastic_nano.load_state", ls, "");   // not over a queued exit save (also on the press iteration)
             if (ls[0]) {
                 int slot = atoi(ls);
                 property_set("sys.gammaos.drastic_nano.load_state", "");
@@ -2523,7 +2761,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // control scene for repeatable measurements.
         {
             char ss[PROPERTY_VALUE_MAX] = {};
-            property_get("sys.gammaos.drastic_nano.save_state", ss, "");
+            if (exitFadeT0 == 0) property_get("sys.gammaos.drastic_nano.save_state", ss, "");   // same: the press iteration queued the slot-9 save above
             if (ss[0]) {
                 int slot = atoi(ss);
                 property_set("sys.gammaos.drastic_nano.save_state", "");
@@ -2579,7 +2817,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     int frames = property_get_int32("sys.gammaos.drastic_nano.runahead_frames", -1);
                     if (frames < 0) { frames = android::drastic_settings::getInt("persist.gammaos.drastic_nano.runahead_frames", 1); if (frames > 1) frames = 1; }   // shipped depth is one frame; the sys override may test deeper
                     const bool allow = !ffWant && !overlay.isOpen() && !ra.hardcoreRestrictionsActive() &&
-                                       dr->vblankPacingInstalled();
+                                       dr->vblankPacingInstalled() && exitFadeT0 == 0;   // never over the exit save (also on the press iteration)
                     dr->setRunAhead(allow ? mode : 0, frames);
                     static int64_t sRaLogUs = 0;
                     if (dr->runAheadMode() && nowRa - sRaLogUs > 5000000) {
@@ -3451,12 +3689,53 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             gfx.setColorMatrix(sColorTop);
         };
 
+        // The launch cover (see gameStarted): drawn first on each panel so the menu, HUD, toasts,
+        // keyboard and touch cursor that follow draw over it. An open menu ends it at once.
+        float coverA = 0.0f;
+        const int64_t coverNow = coverDone ? 0 : android::elapsedRealtime();
+        if (!coverDone) {
+            if (overlay.isOpen()) {
+                coverDone = true;
+            } else {
+                if (coverFadeT0 == 0 && gameStarted(coverNow)) {
+                    coverFadeT0 = coverNow;
+                    ALOGI("drastic-nano: game started (%lld ms after the loop began), fading the launch cover",
+                          (long long)(coverNow - coverT0));
+                }
+                coverA = coverFadeT0 == 0 ? 1.0f : 1.0f - (float)(coverNow - coverFadeT0) / (float)kCoverFadeMs;
+                if (coverA <= 0.0f) { coverA = 0.0f; coverDone = true; }
+            }
+        }
+        if (coverA > 0.0f && hasDualDisplay) {
+            bindBottomPass();
+            gfx.beginFrame();
+            drawCover(coverA, coverNow);
+            gfx.endFrame();
+            endBottomPass();
+        }
+
+        // The exit fade (see exitFadeT0): the hand-off colour over everything else on each panel, drawn
+        // last in each pass below. It rises over kExitFadeMs by the clock, so a slow frame skips ahead
+        // rather than stretching it; frames drawn at full strength are counted for the hold.
+        float exitA = 0.0f;
+        if (exiting) {
+            exitA = (float)(android::elapsedRealtime() - exitFadeT0) / (float)kExitFadeMs;
+            if (exitA > 1.0f) exitA = 1.0f;
+            if (exitA >= 1.0f) exitWhiteFrames++;
+        }
+        const float exitC = exitFadeWhite ? 1.0f : 0.0f;
+        auto drawExitFill = [&]() {
+            gfx.fillRect(0.0f, 0.0f, (float)gfx.viewportW(), (float)gfx.viewportH(),
+                         android::drastic_gfx::rgba(exitC, exitC, exitC, exitA));
+        };
+
         // Composite the overlay onto the primary panel. Drawing
         // happens even when the menu is closed so toast messages
         // (e.g. from quick save/load hotkeys) still appear.
         sPbMark[0] = android::elapsedRealtimeNano();   // panel renders done
         bindPrimaryPass();
         gfx.beginFrame();
+        if (coverA > 0.0f) drawCover(coverA, coverNow);
         overlay.draw(gfx);
         sPbMark[1] = android::elapsedRealtimeNano();   // overlay drawn
         if (input.cursorMode && !overlay.isOpen() && !hasDualDisplay) {
@@ -3589,6 +3868,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.fps_counter", false))
                 drawFpsHud(gfx, sFpsDisplay, sEmuFps, dr->fastForwardActive());
         }
+        if (exitA > 0.0f) drawExitFill();
         gfx.endFrame();
         // Debug screenshot: latch the request now (primTgt is bound and holds
         // the DS top screen + overlay), capture the bottom panel after the OSK
@@ -3697,6 +3977,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             drastic_nano::Rect cbr{0.0f, 0.0f, (float)gfx.viewportW(), (float)gfx.viewportH()};
             drawTouchCursor(gfx, cbr, input.cursorX, input.cursorY,
                             (input.dsBtnMask & DrasticRunner::kDsBtnA) != 0);
+            gfx.endFrame();
+            endBottomPass();
+        }
+        // The bottom panel's exit fade over its keyboard, panel or cursor: a pass of its own every
+        // frame of the fade, whatever the passes above drew.
+        if (exitA > 0.0f && hasDualDisplay) {
+            bindBottomPass();
+            gfx.beginFrame();
+            drawExitFill();
             gfx.endFrame();
             endBottomPass();
         }
@@ -5217,6 +5506,18 @@ int main(int argc, char** argv) {
     ALOGI("drastic-nano: starting (argc=%d)", argc);
     initDrasticLocale();
 
+    // The parked home's white hand-off (NanoMenu::drasticParkSession): one launch only, so it is
+    // cleared as soon as it is read. Only plain white is supported; anything else starts dark.
+    {
+        char hv[PROPERTY_VALUE_MAX] = {};
+        property_get("sys.gammaos.nano.handoff_argb", hv, "");
+        if (hv[0]) {
+            property_set("sys.gammaos.nano.handoff_argb", "");
+            sHandoffWhite = (strtoul(hv, nullptr, 16) & 0xffffffu) == 0xffffffu;
+            ALOGI("drastic-nano: launch hand-off colour '%s' -> %s", hv, sHandoffWhite ? "white" : "ignored");
+        }
+    }
+
     // "Match DraStic's own folder": read the optional data-dir override BEFORE anything touches the
     // data dir (ensureDrasticWritableDirs / lookupDrasticUid / FakeJNI cache root all read
     // gDrasticDataDir). An absolute path in persist.gammaos.drastic.data_dir points drastic-nano at
@@ -5452,7 +5753,22 @@ int main(int argc, char** argv) {
             // Opt into the AFBC combined-buffer path (rk356x + Low Latency): only
             // drastic-nano renders both DS screens into the one 2x-tall buffer.
             android::sDrmAfbcClient = true;
+            // The splash buffers are filled with the hand-off white as each panel shows it (the
+            // display matrices applied to white, as the home's own frame was); every later splash
+            // (a rescan, a relaunch) is dark again.
+            if (sHandoffWhite) {
+                android::colormatrix::Matrix top, bottom;
+                android::colormatrix::pollScreen(android::colormatrix::kTop, &top);
+                android::colormatrix::pollScreen(android::colormatrix::kBottom, &bottom);
+                android::gDrmSplashArgb = android::drmTintArgb(top.m, 0xFFFFFFFFu);
+                android::gDrmSplashArgbSec = android::drmTintArgb(bottom.m, 0xFFFFFFFFu);
+                for (int c = 0; c < 3; c++) {
+                    sHandoffRgb[0][c] = (float)((android::gDrmSplashArgb >> (16 - 8 * c)) & 0xff) / 255.0f;
+                    sHandoffRgb[1][c] = (float)((android::gDrmSplashArgbSec >> (16 - 8 * c)) & 0xff) / 255.0f;
+                }
+            }
             drmUp = setupDisplay(&dpy);
+            android::gDrmSplashArgb = android::gDrmSplashArgbSec = 0xFF1A0D0D;
             if (drmUp) {
                 ALOGI("drastic-nano: DRM backend up (%dx%d)", dpy.width, dpy.height);
             }
@@ -5515,6 +5831,7 @@ int main(int argc, char** argv) {
             }
         }
     }
+    if (!drmUp) sHandoffWhite = false;   // the white hand-off is the DRM panel's; SurfaceFlinger composes its own
     if (!drmUp && !sfMode) {
         ALOGE("drastic-nano: no display backend (DRM and SF both unavailable)");
         property_set(kSessionDoneProp, "1");
@@ -5528,6 +5845,8 @@ int main(int argc, char** argv) {
     // creates its own OverlayGfx.
     android::drastic_load::LoadingScreen loadScr;
     loadScr.init(sfMode ? sfBackend.get() : nullptr, dpy.width, dpy.height);
+    // The home's white launch hand-off: the extraction / import frames are white too.
+    if (sHandoffWhite && !sfMode) loadScr.setLight(sHandoffRgb[0], sHandoffRgb[1]);
 
     // ---- Zipped ROM -> file-backed .nds, with an on-screen progress bar ----
     // A zipped .nds handed to libdrastic decompresses whole into ANONYMOUS
@@ -5937,7 +6256,10 @@ int main(int argc, char** argv) {
     // a blank panel either. It runs on the render thread (dr.init is blocking),
     // so this is a single static frame that persists until the loop's first
     // present -- kBusy draws the bare track, never a frozen marquee.
-    loadScr.frame("Loading game...", android::drastic_load::kBusy);
+    // On the white hand-off it is a bare white frame (no overlay, no fonts: those are what made this
+    // frame take 80 ms); the run loop keeps the white up with a quiet pulse until the game is there.
+    if (sHandoffWhite && !sfMode) loadScr.blankFrame();
+    else loadScr.frame("Loading game...", android::drastic_load::kBusy);
     // Lock drastic's frame pacing and audio rate to the panel refresh on the
     // DRM path (installed only if the library bytes match; see DrasticRunner).
     if (!sfMode) {
@@ -6008,6 +6330,7 @@ int main(int argc, char** argv) {
     // its own OverlayGfx. Its last frame stays on the panel until the loop's
     // first present overwrites it.
     loadScr.shutdown();
+    sHandoffAutoLoad = autoLoadSlot;   // the run loop's launch cover waits for this load
 
     RunLoopResult rlr = sfMode
             ? runLoopSf(sfBackend.get(), &dr, prefs, appUid, appGid,
@@ -6018,6 +6341,7 @@ int main(int argc, char** argv) {
     // behind them. The DRM teardown below is guarded by sDrmActive and no-ops on
     // the SF path.
     if (sfMode && sfBackend) sfBackend->teardown();
+    const bool cleanTeardown = !sfMode && returnHandoffEnabled();   // see exitCleanly
 
     // Leave real-time scheduling before the teardown. The presenter, the flip
     // thread and (on the AFBC path) drastic's emulator and rasterizer workers
@@ -6068,20 +6392,49 @@ int main(int argc, char** argv) {
     // Silence the game the moment the exit starts: the autosave below needs the
     // emulator to keep running a few frames, but nobody should hear them.
     dr.setVolumeRuntime(0);
-    if (!rlr.restartFresh &&
-        (forceSlot9 ||
-         android::drastic_settings::getBool("persist.gammaos.drastic_nano.autoload", true))) {
+
+    // The return hand-off (runLoop's exit fade): the panels already show the held colour and the save
+    // was requested at the press, so as soon as the emulator has captured it the panels go to the
+    // parked home, and the write, the fsync and the exit run beside the home's wake. A save that was
+    // wanted but could not be started keeps the panels to the end, as before.
+    bool batonHeld = false, panelsHanded = false;
+    int64_t batonT0 = 0;
+    if (rlr.exitFaded && !sfMode && (!rlr.saveWanted || rlr.autosaveIssued) &&
+        !rlr.relaunchRequested && !qrPowerAction) {
+        batonT0 = android::elapsedRealtime();
+        if (handPanelToHome(dr, rlr)) {
+            panelsHanded = true;
+            batonHeld = android::drmBatonActive();
+        }
+    }
+    // The baton has done its job once the home's splash is on the panels (drmBatonReplaced is the
+    // kernel's word on that, panel_taken the home's): let go of its fd and frame.
+    auto batonTaken = [&]() {
+        return android::drmBatonReplaced() || property_get_bool("sys.gammaos.drastic_nano.panel_taken", false);
+    };
+
+    // The request was made at the press when runLoop's exit fade ran; the gate and the "before" stat
+    // are then the ones taken at that moment (the file may already have changed since).
+    const bool saveEarly = rlr.autosaveIssued;
+    if (saveEarly ||
+        (!rlr.restartFresh &&
+         (forceSlot9 ||
+          android::drastic_settings::getBool("persist.gammaos.drastic_nano.autoload", true)))) {
         const std::string slot9 = slot9Stem(savestatesDir, romPath) + ".dss";
-        struct stat before {};
-        bool had = (stat(slot9.c_str(), &before) == 0);
-        time_t beforeM = had ? before.st_mtime : 0;
-        off_t  beforeS = had ? before.st_size  : 0;
-        if (dr.saveAutosave()) {
-            // The save is queued to drastic's worker thread and the core writes the
-            // .dss in place (no atomic temp+rename), so we must NOT let the power
-            // action proceed until the write has fully finished: cutting power
-            // mid-write leaves a truncated state that the next boot auto-loads and
-            // crashes on (and, with auto-load on, keeps crashing every launch). Wait
+        bool had = rlr.saveHad;
+        time_t beforeM = rlr.saveBeforeM;
+        off_t  beforeS = rlr.saveBeforeS;
+        if (!saveEarly) {
+            struct stat before {};
+            had = (stat(slot9.c_str(), &before) == 0);
+            beforeM = had ? before.st_mtime : 0;
+            beforeS = had ? before.st_size  : 0;
+        }
+        if (saveEarly || dr.saveAutosave()) {
+            // The save is queued to drastic's worker thread. The core serialises the state into a
+            // memory file and the slot file is replaced by a rename of a complete sibling (FakeJNI,
+            // ramMaterialize), so the slot never holds a half-written state; but a power action must
+            // still not proceed until that write has finished, and the next launch must find it. Wait
             // for the file to (a) change from its prior mtime/size, (b) reach a
             // plausible minimum size, and (c) hold that size steady across several
             // consecutive polls (write complete, not still growing). Typically this
@@ -6094,6 +6447,7 @@ int main(int argc, char** argv) {
             bool stable = false;
             for (int i = 0; i < 120; i++) {   // upper bound ~6s to observe a stable write
                 usleep(50 * 1000);
+                if (batonHeld && batonTaken()) { android::drmBatonRelease(); batonHeld = false; }
                 struct stat now {};
                 if (stat(slot9.c_str(), &now) == 0 &&
                     (!had || now.st_mtime != beforeM || now.st_size != beforeS) &&
@@ -6126,6 +6480,17 @@ int main(int argc, char** argv) {
                 ALOGW("drastic-nano: autosave slot 9 never stabilized; leaving prior state, next boot may quarantine it");
             }
         }
+    }
+
+    // A save that finished before the home's splash did (or none was wanted): the panels stay on the
+    // baton a little longer, never past kBatonMaxMs, and then it goes whether or not the home came.
+    if (batonHeld) {
+        constexpr int64_t kBatonMaxMs = 2500;
+        while (!batonTaken() && android::elapsedRealtime() - batonT0 < kBatonMaxMs) usleep(10 * 1000);
+        ALOGI("drastic-nano: baton %s after %lld ms", batonTaken() ? "replaced by the home" : "released unclaimed",
+              (long long)(android::elapsedRealtime() - batonT0));
+        android::drmBatonRelease();
+        batonHeld = false;
     }
 
     // DrasticRunner destructor -> shutdown() -> pauseSystem +
@@ -6265,6 +6630,7 @@ int main(int argc, char** argv) {
         android::drastic_perf::restoreGlobal();
         ALOGI("drastic-nano: exit (external shutdown quit, caller owns the power action)");
         disarmCrashHandler();
+        if (cleanTeardown) exitCleanly(dr);
         return 0;
     }
 
@@ -6295,8 +6661,31 @@ int main(int argc, char** argv) {
     // SF was never stopped, so with that launcher state set the session_done
     // trigger brings nano back up on the XMB.
     android::drastic_perf::restoreGlobal();
-    property_set(kSessionDoneProp, "1");
+    // Handed over to a running home: it is up and the session is already cleared (handPanelToHome),
+    // so session_done would only fire the rule that resets the launch flags (the next game, or an app,
+    // may have been started in this tail's last seconds) and starts the home again, which is running.
+    // A home that is not running (it died since) still gets the trigger that brings it back, unless it
+    // is gone because it left for an app launch: the home waits for this process before it leaves
+    // (NanoMenu::drasticTailWaitBeforeLaunch), so that is only a launch whose wait ran out; then the
+    // rule would reset the launch flags under the app and start a home over it. A launch is told by
+    // nano_retroarch (every launch sets it, only that rule clears it) with menu_active down (the home
+    // sets it again once it is back and drawing).
+    bool skipDone = false;
+    if (panelsHanded) {
+        char homeSvc[PROPERTY_VALUE_MAX] = {};
+        property_get("init.svc.gammaos-nano", homeSvc, "");
+        if (strcmp(homeSvc, "running") == 0) {
+            ALOGI("drastic-nano: the home is running, session_done not needed");
+            skipDone = true;
+        } else if (property_get_bool("service.bootanim.nano_retroarch", false) &&
+                   !property_get_bool("sys.gammaos.nano.menu_active", false)) {
+            ALOGI("drastic-nano: the home left for an app launch, session_done would start it over the app");
+            skipDone = true;
+        }
+    }
+    if (!skipDone) property_set(kSessionDoneProp, "1");
     ALOGI("drastic-nano: exit");
     disarmCrashHandler();
+    if (cleanTeardown) exitCleanly(dr);
     return 0;
 }

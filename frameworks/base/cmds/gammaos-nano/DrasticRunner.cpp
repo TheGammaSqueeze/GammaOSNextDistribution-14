@@ -5085,6 +5085,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     mprotect(flipPg, ps, PROT_READ | PROT_EXEC);
     mPaceInstalled = true;
     gVblankPeriodUs.store((int64_t)llround(1000000.0 / mPanelHz));
+    mPacerExited.store(false);
     mPacerRun.store(true);
     mPacerThread = std::thread([this] { pacerThread(); });
     mPacerThread.detach();
@@ -7471,6 +7472,7 @@ void DrasticRunner::pacerThread() {
         gPaceCv.notify_all();
         audioLeadExtraTick(target);
     }
+    mPacerExited.store(true);   // nothing of this object is touched past here (shutdown() waits for it)
 }
 
 // Waits for the emulated frame of THIS period. drastic's per-screen ready
@@ -8843,8 +8845,9 @@ bool DrasticRunner::saveAutosave() {
     // Slot 9 is drastic's reserved autosave slot (what the
     // drastic-android-mod auto-resumes from). saveStateSlot refuses 9
     // on purpose; this path is the sanctioned exception used on a
-    // graceful exit.
-    int rc = mSaveState(mFakeEnv, mFakeCls, 9);
+    // graceful exit. Explicitly the non-blocking form: the library tests the fourth argument, which
+    // this call used to leave to whatever the caller's register held.
+    int rc = mSaveState(mFakeEnv, mFakeCls, 9, 0);
     ALOGI("DrasticRunner::saveAutosave (slot 9) = %d", rc);
     return true;
 }
@@ -10102,6 +10105,15 @@ bool DrasticRunner::ramStateSave(RamStateTiming* t, int timeoutUs) {
         if (fd >= 0 && fstat(fd, &st) == 0) t->bytes = (size_t)st.st_size;
     }
     return ok;
+}
+
+// The request byte is what the JNI sets and the emulator thread clears once it has serialised the state
+// into the writer's buffer (see the notes above kRaMasterOff): from then on the save needs neither a
+// frame nor the panel, only the writer thread and the file system.
+bool DrasticRunner::waitSaveCaptured(int timeoutUs) {
+    // mPaceInstalled: the offsets are only trusted on a library whose bytes the hook install matched.
+    if (!mInitialized || !mArm64Base || !mPaceInstalled) return false;
+    return raPollZero(mArm64Base + kRaMasterOff + kRaSaveReqOff, timeoutUs);
 }
 
 bool DrasticRunner::ramStateLoad(int64_t* loadUs, int timeoutUs) {
@@ -12477,6 +12489,18 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
 }
 
 void DrasticRunner::shutdown() {
+    // The pacer is a detached thread that ticks the emulator through the file-scope pacing mutexes and
+    // reads members of this object; nothing ever stopped it, so it outlived the process's static
+    // destructors and locked a destroyed mutex (init reported 'received signal 6'). Stop it first:
+    // pacing off also makes the emulator thread's frame wait return at once, so the pause below does
+    // not sit on 50 ms free-run timeouts. The wait is bounded, a stuck pacer must never hang the exit.
+    gPaceOn.store(false);
+    mPacerRun.store(false);
+    { std::lock_guard<std::mutex> l(gPaceMu); }
+    gPaceCv.notify_all();
+    { std::lock_guard<std::mutex> l(gRaPokeMu); }
+    gRaPokeCv.notify_all();
+    for (int i = 0; i < 20 && mPaceInstalled && !mPacerExited.load(); i++) usleep(2000);
     aaCloseSink();   // release the exclusive MMAP stream before drastic's own teardown
     // Stop the background pixel-pull thread FIRST so it unblocks
     // from getScreenBuffers and stops calling into drastic state

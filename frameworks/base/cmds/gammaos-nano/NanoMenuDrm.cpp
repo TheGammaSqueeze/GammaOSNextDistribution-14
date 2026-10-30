@@ -596,7 +596,11 @@ void drmPaceWithoutVsync() {
 // Create and map a double-buffered dumb buffer pair for a DRM CRTC. Shared
 // by drmEarlySplash (first-pass enumeration) and drmRescanDisplays (late
 // re-probe for displays that weren't ready at splash time).
-bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
+uint32_t gDrmSplashArgb = 0xFF1A0D0D;
+uint32_t gDrmSplashArgbSec = 0xFF1A0D0D;
+
+bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out, uint32_t argb) {
+    if (argb == 0) argb = gDrmSplashArgb;
     struct drm_mode_create_dumb create = {};
     create.width = w; create.height = h; create.bpp = 32;
     if (ioctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) != 0) return false;
@@ -609,9 +613,9 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
                        MAP_SHARED, fd, mapReq.offset);
     if (mapped == MAP_FAILED) return false;
 
-    // Fill with dark background so the display isn't garbage on first scanout
+    // Fill with dark background (or the hand-off colour) so the display isn't garbage on first scanout
     uint32_t* px = (uint32_t*)mapped;
-    for (uint32_t i = 0; i < w * h; i++) px[i] = 0xFF1A0D0D;
+    for (uint32_t i = 0; i < w * h; i++) px[i] = argb;
 
     struct drm_mode_fb_cmd fbCmd = {};
     fbCmd.width = w; fbCmd.height = h;
@@ -1014,9 +1018,17 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     if (!crtc.mode_valid) return false;
 
     uint32_t w = crtc.mode.hdisplay, h = crtc.mode.vdisplay;
+    // The panel that becomes the primary one (drmEarlySplash picks it after the enumeration, by
+    // persist.gammaos.nano.primary_display) takes gDrmSplashArgb, the other gDrmSplashArgbSec; both
+    // are the same dark colour unless drastic-nano set a hand-off colour per panel.
+    uint32_t splashArgb = gDrmSplashArgb;
+    if (gDrmSplashArgbSec != gDrmSplashArgb) {
+        const int wantPrim = property_get_int32("persist.gammaos.nano.primary_display", 0);
+        if ((int)sDrmDisplays.size() != (wantPrim > 0 ? wantPrim : 0)) splashArgb = gDrmSplashArgbSec;
+    }
     DrmBuffer buf0, buf1;
-    if (!drmCreateDumbBuffer(fd, w, h, &buf0)) return false;
-    if (!drmCreateDumbBuffer(fd, w, h, &buf1)) {
+    if (!drmCreateDumbBuffer(fd, w, h, &buf0, splashArgb)) return false;
+    if (!drmCreateDumbBuffer(fd, w, h, &buf1, splashArgb)) {
         munmap(buf0.mapped, buf0.size);
         return false;
     }
@@ -4065,9 +4077,96 @@ void drmPushFrame(uint32_t glWidth, uint32_t glHeight) {
 // Teardown
 // ---------------------------------------------------------------------------
 
-// Stop DRM direct rendering (HWC has taken over)
-void drmStop() {
-    if (!sDrmActive) return;
+// Keep-the-colour hand-off. Removing a framebuffer that is on a plane (RMFB, or closing the fd that
+// owns it) switches that plane off, and VOP2 then scans its black background: the home's white launch
+// wash would turn black the moment the ring is freed, and stay black until drastic-nano's splash.
+// So, before the ring goes, each panel is moved onto one of its own plain dumb buffers (the splash
+// buffer nano already has), and that buffer and the DRM fd are kept after master is dropped. A
+// same-mode SETCRTC by the next master (drastic-nano's splash) then replaces the frame on the panel
+// without a modeset, and the baton is let go once it did (drmBatonReplaced / drmBatonRelease).
+struct DrmBatonFb { uint32_t crtcId = 0, fbId = 0, handle = 0; };
+static int sBatonFd = -1;
+static std::vector<DrmBatonFb> sBaton;
+static int64_t sBatonFirstReplacedMs = 0;
+
+// The panels onto their plain frames, with the ring still scanned until each SETCRTC lands (it is a
+// blocking commit). Runs before any ring slot is released. argbSec, when set, is the other (non
+// primary) panel's colour; both go through this process's display colour matrix when it has one.
+static bool drmBatonCommit(uint32_t argb, uint32_t argbSec) {
+    if (sDrmFd < 0 || sDrmDisplays.empty()) return false;
+    for (const auto& d : sDrmDisplays) {
+        if (!d.buffers[0].mapped || !d.buffers[0].fbId || !d.buffers[0].pitch || !d.w || !d.h) return false;
+    }
+    // A flip still in flight would make the SETCRTC EBUSY.
+    drmFlipThreadWaitIdle();
+    drmDrainPageFlipEvents();
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        DrmBuffer& b = d.buffers[0];
+        // The primary ring scans the primary panel, the secondary ring the other one; the GL passes
+        // put their colour through that ring's display matrix, so the frame does too.
+        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+        const uint32_t want = (!isPrimary && argbSec) ? argbSec : argb;
+        const uint32_t px = sDrmColorIdentity ? want : drmTintArgb(sDrmColorM[isPrimary ? 0 : 1], want);
+        for (uint32_t y = 0; y < d.h; y++) {
+            uint32_t* row = (uint32_t*)((uint8_t*)b.mapped + (size_t)y * b.pitch);
+            for (uint32_t x = 0; x < d.w; x++) row[x] = px;
+        }
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = d.crtcId;
+        crtc.fb_id = b.fbId;
+        crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+        crtc.count_connectors = 1;
+        crtc.mode = d.mode;
+        crtc.mode_valid = 1;
+        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+        if (rc != 0 && errno == EINVAL) rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode, b.fbId, d.w, d.h);
+        if (rc != 0) {
+            ALOGW("NanoMenu DRM baton: crtc %u SETCRTC failed: %s", d.crtcId, strerror(errno));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool drmBatonActive() { return sBatonFd >= 0; }
+
+bool drmBatonReplaced() {
+    if (sBatonFd < 0) return true;
+    size_t replaced = 0;
+    for (const auto& b : sBaton) {
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = b.crtcId;
+        // A failed query cannot tell, and waiting on it would only hold the frame: count it as replaced.
+        if (ioctl(sBatonFd, DRM_IOCTL_MODE_GETCRTC, &crtc) != 0 || crtc.fb_id != b.fbId) replaced++;
+    }
+    if (replaced == sBaton.size()) return true;
+    // The next master brings its panels up one after the other (about 20 ms apart): give the last one
+    // a moment rather than blanking it by releasing its frame early.
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    if (replaced == 0) { sBatonFirstReplacedMs = 0; return false; }
+    if (sBatonFirstReplacedMs == 0) sBatonFirstReplacedMs = now;
+    return now - sBatonFirstReplacedMs >= 300;
+}
+
+void drmBatonRelease() {
+    if (sBatonFd < 0) return;
+    for (const auto& b : sBaton) {
+        if (b.fbId) { uint32_t fbId = b.fbId; ioctl(sBatonFd, DRM_IOCTL_MODE_RMFB, &fbId); }
+        if (b.handle) { struct drm_gem_close gc = {}; gc.handle = b.handle; ioctl(sBatonFd, DRM_IOCTL_GEM_CLOSE, &gc); }
+    }
+    sBaton.clear();
+    close(sBatonFd);
+    sBatonFd = -1;
+    sBatonFirstReplacedMs = 0;
+    ALOGW("NanoMenu DRM baton: released");
+}
+
+// Stop DRM direct rendering (HWC has taken over). With keepBaton the panels are first moved onto a
+// plain frame of colour batonArgb and the fd is kept (see above); returns false when that failed
+// (the stop is then the plain one).
+static bool drmStopImpl(bool keepBaton, uint32_t batonArgb, uint32_t batonArgbSec) {
+    if (!sDrmActive) return false;
     sDrmActive = false;
     // The SurfaceFlinger composition gate (sys.gammaos.nano.drm_active) is
     // released at the END, once master is dropped: SF cycles the composer's
@@ -4094,6 +4193,12 @@ void drmStop() {
 
     // Rebind default framebuffer before destroying FBOs
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Park hand-off: the panels onto their plain frames while the ring is still intact (the ring
+    // goes off the planes with the commit, so freeing it below disables nothing). On a failure the
+    // stop carries on as a plain drmStop(); a panel that did get its frame then goes dark with the rest.
+    const bool batonKept = keepBaton && drmBatonCommit(batonArgb, batonArgbSec);
+    if (keepBaton && !batonKept) ALOGW("NanoMenu DRM baton: not available, stopping plainly");
 
     // Release all ring slots. sAhbTarget / sAhbTargetSecondary are refs to
     // slot 0 so they tear down with the ring. The EGLDisplay is retrieved
@@ -4153,9 +4258,28 @@ void drmStop() {
         for (int i = 0; i < 2; i++) {
             DrmBuffer& buf = d.buffers[i];
             if (buf.mapped) { munmap(buf.mapped, buf.size); buf.mapped = nullptr; }
+            // A plain stop leaves the buffers to the fd's close; with the fd kept, the second buffer
+            // (never scanned) goes now and the first stays on the panel as the baton.
+            if (batonKept && i == 1) {
+                if (buf.fbId) { uint32_t fbId = buf.fbId; ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &fbId); }
+                if (buf.handle) { struct drm_gem_close gc = {}; gc.handle = buf.handle; ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc); }
+            }
         }
+        if (batonKept) sBaton.push_back({d.crtcId, d.buffers[0].fbId, d.buffers[0].handle});
     }
     sDrmDisplays.clear();
+    if (batonKept) {
+        // Master goes, the fd stays: the frames keep scanning, and the next master (drastic-nano) can
+        // still open its own fd and take master. drm_active stays 1: opening the SurfaceFlinger gate
+        // here would have it cycle HWC power and take the panels from the baton; drastic-nano's
+        // drmEarlySplash writes the gate itself, and the park's wake path clears it.
+        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        sBatonFd = sDrmFd;
+        sDrmFd = -1;
+        sBatonFirstReplacedMs = 0;
+        ALOGW("NanoMenu DRM baton: %zu panel(s) held on the hand-off colour 0x%08x", sBaton.size(), batonArgb);
+        return true;
+    }
     if (sDrmFd >= 0) {
         ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
         close(sDrmFd);
@@ -4164,7 +4288,11 @@ void drmStop() {
     // Now HWC can own the display: release the SurfaceFlinger composition gate.
     // Mirrors the set at drmEarlySplash().
     property_set("sys.gammaos.nano.drm_active", "0");
+    return false;
 }
+
+void drmStop() { drmStopImpl(false, 0, 0); }
+bool drmStopKeepBaton(uint32_t argb, uint32_t argbSec) { return drmStopImpl(true, argb, argbSec); }
 
 // Take the panel back for a home that PARKED in-process while drastic-nano ran
 // the session (NanoMenu::drasticParkSession). drmStop() dropped master, freed
@@ -4186,7 +4314,7 @@ void drmRememberInstallMatrix() {
     sParkSaved = true;
 }
 
-bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs, uint32_t splashArgb) {
     // The matrix initShaders() computed (rotation + user flips + the PRIME
     // Y-flip drmSetupZeroCopy() folded in) is what this context draws with.
     // drmStop() resets it to identity, so the caller records it with
@@ -4217,11 +4345,22 @@ bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
     sDrmRotMat[0] = rot[0]; sDrmRotMat[1] = rot[1]; sDrmRotMat[2] = rot[2]; sDrmRotMat[3] = rot[3];
     sDrmGlRotation = glRot;
     sDrmYFlipForPrime = yFlip;
+    // The splash frame in the colour the home's first frames start from (the DSi theme's return fades
+    // in from white), seen through this process's display matrices like every frame it draws. Only
+    // for this call: any later splash (a rescan) is dark again.
+    if (splashArgb) {
+        gDrmSplashArgb = sDrmColorIdentity ? splashArgb : drmTintArgb(sDrmColorM[0], splashArgb);
+        gDrmSplashArgbSec = sDrmColorIdentity ? splashArgb : drmTintArgb(sDrmColorM[1], splashArgb);
+    }
     drmEarlySplash(fd);
+    if (splashArgb) gDrmSplashArgb = gDrmSplashArgbSec = 0xFF1A0D0D;
     if (!sDrmActive) {
         ALOGE("NanoMenu DRM: re-splash found no displays after the drastic session");
         return false;
     }
+    // The splash is on the panels: a drastic-nano still holding the baton (its fd and the frame it
+    // left) lets go, and its own planes with it.
+    property_set("sys.gammaos.drastic_nano.panel_taken", "1");
     drmSetupZeroCopy(eglDpy);
     // drmSetupZeroCopy only touches the matrix when it applies the PRIME flip
     // for the first time; restore explicitly in case anything reset it.

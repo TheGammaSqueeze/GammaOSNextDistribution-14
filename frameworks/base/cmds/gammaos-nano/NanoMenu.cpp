@@ -4673,6 +4673,7 @@ if (sRingPrimedCount >= 2) {
                 property_set("sys.gammaos.nano.show_overlay", "0");
             }
             property_set("sys.gammaos.nano.drop_input", "1");
+            drasticTailWaitBeforeLaunch();   // a drastic-nano still saving after the return hand-off
             property_set("sys.gammaos.azahar_nano.start", "1");
             _exit(0);
         }
@@ -4806,6 +4807,9 @@ if (sRingPrimedCount >= 2) {
                 property_set("sys.gammaos.nano.app_launched", "0");
                 property_set("sys.gammaos.nano.show_overlay", "0");
             }
+            // With the park off after a hand-off, the old drastic-nano may still be saving: start=1 would
+            // be a no-op for init and the new game would not come up.
+            drasticTailWaitBeforeLaunch();
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }
@@ -6235,6 +6239,11 @@ if (sRingPrimedCount >= 2) {
 
     // GammaOS: Clear menu_active flag so DualStack can re-enable when app launches.
     property_set("sys.gammaos.nano.menu_active", "0");
+
+    // Leaving the loop for a launch (an app, RetroArch, the bootanim.exit the framework raises once
+    // the app's window draws) right after a game exit: drastic-nano may still be saving. Hold the
+    // panel and this process until it is gone (the return hand-off, NanoMenuDrasticPark.cpp).
+    if (!exitPending()) drasticTailWaitBeforeLaunch();
 
     // GammaOS: Hand displays to SurfaceFlinger now that XMB is done.
     //

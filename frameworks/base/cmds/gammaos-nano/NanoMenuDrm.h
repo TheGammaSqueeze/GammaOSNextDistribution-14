@@ -274,7 +274,26 @@ extern int64_t sDrmRescanDeadlineNs;
 EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha = false);
 int drmCrtcSlot(uint32_t crtcId);
 void drmPaceWithoutVsync();
-bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);
+// argb is the fill (0 = gDrmSplashArgb).
+bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out, uint32_t argb = 0);
+// The colour drmEarlySplash fills its dumb buffers with (0xAARRGGBB, the panel's scanout is XRGB):
+// the first panel's and the other panel's. Dark by default. drastic-nano sets them from the home's
+// white launch hand-off (so its splash stays white) just before drmEarlySplash and puts them back
+// after, so a rescan or a relaunch splash stays dark.
+extern uint32_t gDrmSplashArgb;
+extern uint32_t gDrmSplashArgbSec;
+// `argb` seen through a display colour matrix (twelve values, column-major 3x3 then the offset, the
+// layout of drmSetColorMatrix): the same transform the GL passes apply to a colour.
+inline uint32_t drmTintArgb(const float m[12], uint32_t argb) {
+    const float r = (float)((argb >> 16) & 0xff) / 255.0f;
+    const float g = (float)((argb >> 8) & 0xff) / 255.0f;
+    const float b = (float)(argb & 0xff) / 255.0f;
+    auto q = [](float v) -> uint32_t { return (uint32_t)((v < 0.0f ? 0.0f : v > 1.0f ? 1.0f : v) * 255.0f + 0.5f); };
+    const uint32_t R = q(m[0] * r + m[3] * g + m[6] * b + m[9]);
+    const uint32_t G = q(m[1] * r + m[4] * g + m[7] * b + m[10]);
+    const uint32_t B = q(m[2] * r + m[5] * g + m[8] * b + m[11]);
+    return (argb & 0xff000000u) | (R << 16) | (G << 8) | B;
+}
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
 void drmRescanDisplays();
 void drmEarlySplash(int existingFd = -1);
@@ -355,6 +374,19 @@ inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
 }
 void drmPushFrame(uint32_t glWidth, uint32_t glHeight);
 void drmStop();
+// drmStop() for the parked home's hand-off to drastic-nano, without the black gap: first every
+// panel is switched to a plain `argb` frame (seen through the display colour matrix, so it matches
+// the home's own tinted white), then the ring is torn down and master dropped as drmStop() does,
+// but the DRM fd and those frames are kept (the "baton") so removing the ring leaves the panels lit.
+// sys.gammaos.nano.drm_active is left alone (SurfaceFlinger must not cycle HWC power in the gap).
+// Returns false when the baton could not be set up; the call is then a plain drmStop().
+bool drmStopKeepBaton(uint32_t argb, uint32_t argbSec = 0);   // argbSec: the non primary panel's colour, when it differs
+bool drmBatonActive();
+// True once drastic-nano's own frame has replaced the baton on the panels (a panel's grace period of
+// 300 ms after the first one counts as replaced), polled on the baton fd, which needs no master.
+bool drmBatonReplaced();
+// Frees the baton frames and closes the fd; idempotent. A frame still on a panel goes dark then.
+void drmBatonRelease();
 
 // Build the logical->panel "install" transform that the XMB applies in
 // NanoMenu::initShaders(), derived purely from the DRM orientation + user
@@ -388,7 +420,7 @@ bool drmSuspendCycleDetected();
 void drmSuspendMarkSeen();
 // Parked home: take DRM master back after drastic-nano exited and rebuild the ring.
 void drmRememberInstallMatrix();   // call before drmStop() when the home will park
-bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs);
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs, uint32_t splashArgb = 0);   // splashArgb: the splash frame's colour (0 = dark)
 
 } // namespace android
 

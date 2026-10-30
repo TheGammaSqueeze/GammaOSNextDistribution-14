@@ -387,7 +387,11 @@ private:
     // takes the panel back on the same EGL context and resumes this menu state.
     bool drasticParkEnabled() const;
     bool drasticParkSession();
-    void drasticParkPageOutAll();   // park: every mapping to zram, file-backed included
+    void drasticParkPageOutAll(int pass);   // park: pass 0 the anonymous mappings to zram, pass 1 the file-backed ones
+    // After a return hand-off drastic-nano may still be saving while this home is back on screen: wait
+    // (bounded) for that process to be gone before the home leaves for anything but a DS game, so the
+    // launch does not overlap it or have its session_done start a home over the launched app.
+    void drasticTailWaitBeforeLaunch();
     std::atomic<bool> mDrasticParked{false};
     // CPU clock/governor while the screen is off: drop to powersave on screen-off and
     // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).
