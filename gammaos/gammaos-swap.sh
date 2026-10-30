@@ -73,9 +73,16 @@ if [ -z "$avail_kb" ]; then
     avail_kb=$(df -k /data 2>/dev/null | awk 'NR==2 {print $4}')
 fi
 if [ -n "$avail_kb" ]; then
-    # If the file already exists at have_bytes we reclaim it, so the net cost is
-    # the difference; be conservative and just check the full requested size.
-    need_kb=$((size_mb * 1024 + 512 * 1024))
+    # An inactive swap file (always the case at boot) is reused or replaced, so only the growth
+    # plus the headroom has to be free. Counting its whole size again deleted a working file at
+    # boot once /data had less than size + 512 MB free. An active file is not credited: if the
+    # swapoff below fails, rm only unlinks it and its blocks stay in use. expr: have_bytes is
+    # 64-bit; expr exits 1 for a result of 0, so only its output is used.
+    have_kb=0
+    if ! is_active; then
+        have_kb=$(expr "$have_bytes" / 1024)
+    fi
+    need_kb=$(expr "$size_mb" \* 1024 + 524288 - "${have_kb:-0}")
     if [ "$avail_kb" -lt "$need_kb" ]; then
         log_i "not enough free space for ${size_mb}MB swap (avail ${avail_kb}KB), leaving swap off"
         teardown
