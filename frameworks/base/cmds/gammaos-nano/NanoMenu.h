@@ -5014,7 +5014,9 @@ private:
     // CC is up with no bottom app, the bottom panel while a bottom app runs, and cleared (-1) when the CC is
     // not active. The framework (RootWindowContainer) honours the pin only if that display has a focused app.
     void   ccSetFocusDisplay(int disp);
-    int    mCcFocusDisplay = -1;           // last value written to sys.gammaos.nano.focus.display
+    int    mCcFocusDisplay = -1;           // last value written to sys.gammaos.nano.focus.display (the prop
+                                           // itself is compared too: PhoneWindowManager's Menu exit writes it)
+    bool   ccMenuExitInflight();           // PhoneWindowManager's Menu exit is releasing drop_input for its ESC
     // Focus RING: a ~1s glowing edge pulse on the screen that just took the controller (SF/app mode
     // only). Stamped in ccSetFocusDisplay on a real focus change; driven by uptimeMillis() so it is
     // independent of which park branch renders (mFrameDt is not refreshed on the bottom-app branch).
@@ -5041,7 +5043,9 @@ private:
     // or a grid-launched bottom app (which normally hides the CC). Toggled by ccPollAllAppsKey() draining the
     // gamepad key device in the park loop; folded into controlCenterActive() and the bottom-app park branch.
     bool   mCcForceVisible = false;        // KEY_ALL_APPLICATIONS override: keep the CC shown over an app
+    int64_t mCcMenuDownUs = 0;             // RG DS Plus: evdev time (us) of the Menu key press, 0 = not down
     bool   ccPollAllAppsKey();             // drain the key device; true on a KEY_ALL_APPLICATIONS down-edge
+                                           // (on the RG DS Plus: on the release of a Menu hold of 600 ms or more)
     // BACK-hold summon: PhoneWindowManager writes sys.gammaos.nano.cc.summon=1 instead of exiting when
     // the grid-launched bottom app has focus; the park loop consumes it like a KEY_ALL_APPLICATIONS
     // down-edge (force-visible on), and the secondary layer fades and rises in over the app.

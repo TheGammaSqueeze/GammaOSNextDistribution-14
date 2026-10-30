@@ -4484,6 +4484,12 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
     //    Dropping these here left the overlay/wallpaper-home XMB unable to change the
     //    real output volume (the nano slider moved but the speaker did not). PWM eats
     //    them (clears ACTION_PASS_TO_USER) so the app behind never sees them.
+    //  - NOTIFICATION (83): the RG DS Plus Menu key (gammapad remaps the pad's BTN_MODE to
+    //    KEY_ALL_APPLICATIONS, which Generic.kl maps to NOTIFICATION). A tap takes the device
+    //    back to the launcher from every context, including with the overlay XMB up over a
+    //    game or the Control Center showing, where drop_input is set. PhoneWindowManager
+    //    consumes the key (no wake, no queueing) and the dispatch-time drop below still keeps
+    //    it from the app.
     // GammaOS swivel/slide trigger: let the configured slide KEY reach interceptKeyBeforeQueueing
     // even while nano owns input, so PhoneWindowManager can run its framework-owned slide actions
     // (screenoff/wake/launch). Rotate and the PSP clock are driven by nano's own evdev reader; the
@@ -4495,8 +4501,13 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
             android::base::GetBoolProperty("persist.gammaos.rotate.enabled", false)
             && android::base::GetIntProperty("persist.gammaos.rotate.key_type", 1) == 1 /* EV_KEY */
             && args.scanCode == android::base::GetIntProperty("persist.gammaos.rotate.key_code", 88);
+    static const bool gammaRgDsPlus =
+            android::base::GetProperty("ro.gammaos.device", "") == "anbernicrgdsplus";
+    const bool gammaMenuHomeKey = args.keyCode == 83 /* AKEYCODE_NOTIFICATION */ && gammaRgDsPlus &&
+            android::base::GetBoolProperty("sys.gammaos.minimal_boot", false);
     if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
             && !gammaSlideKey
+            && !gammaMenuHomeKey
             && args.keyCode != 4 /* AKEYCODE_BACK */
             && args.keyCode != 26 /* AKEYCODE_POWER */
             && args.keyCode != 24 /* AKEYCODE_VOLUME_UP */

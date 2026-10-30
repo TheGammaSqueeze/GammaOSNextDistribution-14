@@ -4401,7 +4401,11 @@ if (sRingPrimedCount >= 2) {
                         if (la[0] && (dualstackHas(la) || primaryScreenHas(la))) ccOccludesBottomApp = true;
                     }
                     int wantDrop = ccOccludesBottomApp ? 1 : 0;
-                    if (property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
+                    // Not while PhoneWindowManager's Menu exit has drop_input released for its ESC (it flags
+                    // that in sys.gammaos.nano.menu_exit_inflight for a moment): raising it here would make
+                    // InputDispatcher drop the ESC at dispatch. Reconciled as usual once the flag is gone.
+                    if (!ccMenuExitInflight()
+                            && property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
                         property_set("sys.gammaos.nano.drop_input", wantDrop ? "1" : "0");
                     // Pin the CC's bottom panel (display cc.bottomdisplay) to its natural rotation while the CC
                     // renders on it: DisplayRotation honours sys.gammaos.nano.cc.active. Without this, launching an

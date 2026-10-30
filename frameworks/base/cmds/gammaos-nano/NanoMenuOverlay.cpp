@@ -387,6 +387,9 @@ void NanoMenu::overlayShow() {
     // Raising the full XMB/overlay ends any KEY_ALL_APPLICATIONS force-visible CC session: dropping back to
     // the app should not silently re-show the CC over it (the override is per-summon, not sticky).
     mCcForceVisible = false;
+    // A Menu press drained while the overlay is up must not pair with a release seen later by the
+    // park loop's ccPollAllAppsKey.
+    mCcMenuDownUs = 0;
 
     // Clear any stale SELECT-held on the app->menu raise. Emulators (RetroArch/DraStic) EVIOCGRAB
     // the pad and the RetroArch back-override synthesizes a BTN_SELECT (via sendevent) while the

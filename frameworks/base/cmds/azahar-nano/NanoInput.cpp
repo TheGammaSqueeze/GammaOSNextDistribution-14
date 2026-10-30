@@ -52,6 +52,11 @@ int64_t backHoldNs() {
     return ms * 1000000LL;
 }
 
+// A Menu press shorter than this is a tap (back to the launcher); this long or more is a hold, which
+// belongs to nano's Control Center. Same value as PhoneWindowManager.NANO_MENU_HOLD_MS and
+// NanoControlCenter.cpp.
+constexpr int64_t kMenuHoldUs = 600000;
+
 } // namespace
 
 bool NanoInput::start(const InputCallbacks& cb, bool dualPanel, int defaultPanel) {
@@ -63,6 +68,10 @@ bool NanoInput::start(const InputCallbacks& cb, bool dualPanel, int defaultPanel
     char v[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.cc.touchdev", v, "");
     mBottomTouchName = v;
+    // The Menu key goes home only on the RG DS Plus in nano mode; elsewhere 204 stays unused here.
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.gammaos.device", dev, "");
+    mMenuHome = !strcmp(dev, "anbernicrgdsplus") && property_get_bool("sys.gammaos.minimal_boot", false);
     mInotify = inotify_init1(IN_NONBLOCK | IN_CLOEXEC);
     if (mInotify >= 0) {
         inotify_add_watch(mInotify, "/dev/input", IN_CREATE | IN_DELETE | IN_ATTRIB);
@@ -249,6 +258,25 @@ void NanoInput::logCStick() {
         ALOGI("input: right stick -> C-stick %.2f %.2f", mRx, -mRy);
 }
 
+// The Menu tap/hold is timed from the events' own timestamps, so this thread being late cannot turn a
+// hold into a tap. They are the evdev stamps of this fd (CLOCK_REALTIME, nothing sets EVIOCSCLOCK), and
+// only the press and release of one hold are compared, never against nano's Control Center or
+// PhoneWindowManager, which time the same press from their own stamps. A hold does
+// nothing here; a tap takes the game home through the same exit as the Back hold (the in-game
+// saves persist, no save state is written).
+bool NanoInput::handleMenuKey(const input_event& e) {
+    if (!mMenuHome || e.type != EV_KEY || e.code != KEY_ALL_APPLICATIONS) return false;
+    const int64_t us = (int64_t)e.time.tv_sec * 1000000LL + e.time.tv_usec;
+    if (e.value == 1) {
+        mMenuDownUs = us;
+    } else if (e.value == 0) {
+        // No press seen (it fell in the sleep park) means no tap.
+        if (mMenuDownUs > 0 && us - mMenuDownUs < kMenuHoldUs && mCb.exitRequest) mCb.exitRequest();
+        mMenuDownUs = 0;
+    }
+    return true;
+}
+
 void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) {
     if (type == EV_KEY) {
         const bool pressed = value != 0;
@@ -401,6 +429,7 @@ void NanoInput::loop() {
             mBackDownNs = 0;
             mBackLongFired = false;
             mBackCombo = false;
+            mMenuDownUs = 0;
             ALOGI("azahar-nano: input %s", parked ? "parked for the sleep" : "live again");
         }
         // Long press of the back key -> exit.
@@ -434,10 +463,14 @@ void NanoInput::loop() {
                         // sleep must not stay pressed); the lid still reaches the shell
                         const bool release = evs[k].type == EV_KEY && evs[k].value == 0;
                         if (!release && !(n.lid && evs[k].type == EV_SW)) continue;
-                        if (release && n.pad) handlePad(n, evs[k].type, evs[k].code, evs[k].value);
+                        if (release && n.pad && !handleMenuKey(evs[k])) {
+                            handlePad(n, evs[k].type, evs[k].code, evs[k].value);
+                        }
                         if (release) continue;
                     }
-                    if (n.pad) handlePad(n, evs[k].type, evs[k].code, evs[k].value);
+                    if (n.pad && !handleMenuKey(evs[k])) {
+                        handlePad(n, evs[k].type, evs[k].code, evs[k].value);
+                    }
                     if (n.touch) handleTouch(n, evs[k].type, evs[k].code, evs[k].value);
                     if (n.lid && evs[k].type == EV_SW && evs[k].code == SW_LID) {
                         const bool closed = evs[k].value != 0;

@@ -7,6 +7,8 @@
 // of the Back/Home key requests exit.
 #pragma once
 
+#include <linux/input.h>
+
 #include <atomic>
 #include <cstdint>
 #include <functional>
@@ -75,6 +77,8 @@ private:
     void scan();
     void loop();
     void handlePad(Node& n, uint16_t type, uint16_t code, int32_t value);
+    // RG DS Plus Menu key; true when the event was that key and has been dealt with.
+    bool handleMenuKey(const input_event& e);
     void handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value);
     enum Dir { kLeft, kRight, kUp, kDown };
     bool swapActive();
@@ -107,6 +111,12 @@ private:
     std::atomic<int64_t> mBackHoldNs{400LL * 1000000LL};   // see backHoldNs (NanoInput.cpp)
     bool mBackLongFired = false;
     bool mBackCombo = false;  // this Back press was used as a combo modifier
+    // RG DS Plus in nano mode: the Menu key (KEY_ALL_APPLICATIONS, gammapad's remap of BTN_MODE).
+    // A tap returns to the launcher, like the Back hold; a hold of 600 ms or more is nano's
+    // Control Center key and does nothing here. mMenuDownUs is the press time from the event
+    // itself (us), 0 when the key is not down.
+    bool mMenuHome = false;
+    int64_t mMenuDownUs = 0;
 };
 
 } // namespace azahar_nano

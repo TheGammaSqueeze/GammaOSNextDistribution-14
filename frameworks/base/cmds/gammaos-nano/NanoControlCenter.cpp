@@ -1435,10 +1435,16 @@ bool NanoMenu::ccPollTopTapDown() {
 // and report whether KEY_ALL_APPLICATIONS, or the device's own toggle key (persist.gammaos.nano.cc.keycode,
 // an evdev code: the RP Duo Lite's BTN_MODE 316), was pressed this poll. The device's own key only counts
 // while an app runs on the bottom screen (the Control Center shown over it, hidden again on the next
-// press); otherwise the press stays the game's, and PhoneWindowManager swallows it for the app only then. The park loop toggles mCcForceVisible on a
-// down-edge to summon/dismiss the Control Center over any running app (a dual-stack app or a grid-launched
-// bottom app). nano holds its own un-grabbed fd, so this peek does not steal the key from the framework -
-// and code 204 is unmapped in the keylayouts, so the framework does nothing with it regardless. Non-blocking;
+// press); otherwise the press stays the game's, and PhoneWindowManager swallows it for the app only then. The park loop toggles mCcForceVisible when
+// this reports a press, to summon/dismiss the Control Center over any running app (a dual-stack app or a
+// grid-launched bottom app). nano holds its own un-grabbed fd, so this peek does not steal the key from the
+// framework. Generic.kl maps 204 to KEYCODE_NOTIFICATION, which PhoneWindowManager consumes (there is no
+// SystemUI in nano), so the framework never acts on it as a panel toggle. On the RG DS Plus 204 is the Menu key:
+// a press shorter than 600 ms is PhoneWindowManager's go-home, and only a longer hold toggles the Control
+// Center, on the release. Each side times only its own press and release, never one side's stamp against the
+// other's: here that is the evdev stamp of nano's fd (CLOCK_REALTIME, nothing sets EVIOCSCLOCK on it);
+// PhoneWindowManager uses the KeyEvent times (CLOCK_MONOTONIC). So one press does one of the two, never both,
+// unless the wall clock steps during the press. Other devices toggle on the down-edge as before. Non-blocking;
 // drains the fd to empty each call so a session-long backlog cannot replay a stale press.
 bool NanoMenu::ccPollAllAppsKey() {
     char dev[PROPERTY_VALUE_MAX] = {};
@@ -1447,12 +1453,35 @@ bool NanoMenu::ccPollAllAppsKey() {
     for (const auto& kv : mInputFdNames) if (kv.second == dev) { kfd = kv.first; break; }
     if (kfd < 0) return false;
     static const int kAllApps = 204;   // KEY_ALL_APPLICATIONS (may be absent from older input headers)
+    // Hold needed on the Menu key; the same value as PhoneWindowManager.NANO_MENU_HOLD_MS.
+    static constexpr int64_t kMenuHoldUs = 600000;
+    // A hold longer than this was not one gesture: the press was eaten by the raised overlay's input
+    // loop, or the device slept in between. It must not toggle the Control Center on a stray release.
+    static constexpr int64_t kMenuHoldMaxUs = 10000000;
     static int sToggleKey = -1;
+    static int sMenuHold = -1;
     if (sToggleKey < 0) sToggleKey = property_get_int32("persist.gammaos.nano.cc.keycode", 0);
+    if (sMenuHold < 0) {
+        char devName[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", devName, "");
+        sMenuHold = !strcmp(devName, "anbernicrgdsplus") ? 1 : 0;
+    }
     bool pressed = false;
     struct input_event ev;
     while (read(kfd, &ev, sizeof(ev)) == sizeof(ev)) {
-        if (ev.type != EV_KEY || ev.value != 1) continue;
+        if (ev.type != EV_KEY) continue;
+        if (sMenuHold && ev.code == kAllApps) {
+            const int64_t us = (int64_t)ev.time.tv_sec * 1000000LL + ev.time.tv_usec;
+            if (ev.value == 1) {
+                mCcMenuDownUs = us;
+            } else if (ev.value == 0) {
+                const int64_t held = us - mCcMenuDownUs;
+                if (mCcMenuDownUs > 0 && held >= kMenuHoldUs && held <= kMenuHoldMaxUs) pressed = true;
+                mCcMenuDownUs = 0;
+            }
+            continue;
+        }
+        if (ev.value != 1) continue;
         if (ev.code == kAllApps) pressed = true;
         else if (sToggleKey > 0 && ev.code == sToggleKey && !mCcBottomApp.empty()) pressed = true;
     }
@@ -1479,13 +1508,31 @@ bool NanoMenu::ccPollSummonProp() {
     return true;
 }
 
+// PhoneWindowManager's RG DS Plus Menu exit sets sys.gammaos.nano.menu_exit_inflight to a deadline
+// (uptimeMillis, CLOCK_MONOTONIC like nowMs()) while it releases drop_input and injects its ESC. The park
+// loop must not raise drop_input again in that time: InputDispatcher re-checks it when it dispatches the ESC
+// and would drop it. Absent, "0" or past (also when it lies implausibly far ahead, i.e. not ours) is false,
+// so nothing changes when the framework does not set it.
+bool NanoMenu::ccMenuExitInflight() {
+    static constexpr int64_t kMaxAheadMs = 10000;   // PhoneWindowManager's safety timeout is 4 s
+    char v[PROPERTY_VALUE_MAX] = {};
+    if (property_get("sys.gammaos.nano.menu_exit_inflight", v, "") <= 0) return false;
+    const int64_t deadline = (int64_t)strtoll(v, nullptr, 10);
+    if (deadline <= 0) return false;
+    const int64_t left = deadline - nowMs();
+    return left > 0 && left <= kMaxAheadMs;
+}
+
 // Pin the controller-focused panel. Writes sys.gammaos.nano.focus.display (top display id, bottom
 // display id, or -1 to clear) only when it changes; the framework's WM poll picks it up within ~200ms
 // and RootWindowContainer forces focus to that display (if it has a focused app). The Control Center
 // never takes focus itself - callers only ever pass the top display when the CC is up with no bottom
 // app, the bottom display while a bottom app runs, or -1 when the CC is not active.
 void NanoMenu::ccSetFocusDisplay(int disp) {
-    if (disp == mCcFocusDisplay) return;
+    // The cache alone can go stale: PhoneWindowManager pins the top display behind nano's back for the
+    // RG DS Plus Menu exit and, if the game does not quit, nothing else puts the pin back. So the live prop
+    // is compared too, and a bottom touch can take the controller back (unset reads as -1, no pin).
+    if (disp == mCcFocusDisplay && disp == property_get_int32("sys.gammaos.nano.focus.display", -1)) return;
     mCcFocusDisplay = disp;
     // Pulse a focus ring on the screen that just took the controller. Only for a real panel (>=0), so
     // releasing the pin (-1, CC not active) does not flash a ring. Gated so it can be turned off.
