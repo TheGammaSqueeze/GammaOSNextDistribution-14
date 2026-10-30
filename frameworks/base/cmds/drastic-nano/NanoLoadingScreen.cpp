@@ -58,7 +58,11 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
     if (!mGfx) mGfx = new OverlayGfx();
     if (!mGfxInited || mGfxW != logicalW || mGfxH != logicalH) {
         mGfx->shutdown();
-        if (!mGfx->init(logicalW, logicalH, rot ? rot : kIdentityMat)) return;
+        // The labels are Latin ("Loading game...") unless the import prompt is
+        // localized; the script faces load by themselves on the first glyph the
+        // Latin ones lack, so the common frame skips reading the CJK collection.
+        if (!mGfx->init(logicalW, logicalH, rot ? rot : kIdentityMat,
+                        /*lazyScriptFaces=*/true)) return;
         mGfxInited = true;
         mGfxW = logicalW;
         mGfxH = logicalH;

@@ -5838,6 +5838,30 @@ int main(int argc, char** argv) {
         return 6;
     }
 
+    // Open libdrastic on a helper while the loading screen, the prefs and the panel refresh
+    // probe run here. Mapping and relocating libdrastic_arm64.so pulls in the whole libOpenSLES
+    // closure (libwilhelm, libandroid_runtime, libhwui, libpdfium, the media stack): about a
+    // second on the RG DS Plus and nearly all of DrasticRunner::init. init's own dlopen calls
+    // then only take another reference on the same handles, so its patches and its error
+    // handling are unchanged (a failed preload simply fails again there, with its own dlerror).
+    // Started after mlockall, so the closure is not pinned, and after setupDisplay, so the GL
+    // driver is already loaded and EGL has no dlopen left to wait for the linker lock. Joined
+    // right before dr.init; the handles stay open until the process exits, like init's.
+    std::thread dlPreload([libsDir] {
+        pthread_setname_np(pthread_self(), "dn-dlpreload");
+        const int64_t t0 = android::elapsedRealtime();
+        void* cpu = dlopen((libsDir + "/libdrastic_cpu.so").c_str(), RTLD_NOW);
+        void* arm = dlopen((libsDir + "/libdrastic_arm64.so").c_str(), RTLD_NOW);
+        ALOGI("drastic-nano: libdrastic preloaded cpu=%d arm64=%d in %lld ms",
+              cpu != nullptr, arm != nullptr, (long long)(android::elapsedRealtime() - t0));
+    });
+    // A joinable std::thread that is destroyed aborts the process: whatever returns from here
+    // on finds the helper joined.
+    struct JoinGuard {
+        std::thread& t;
+        ~JoinGuard() { if (t.joinable()) t.join(); }
+    } dlPreloadGuard{dlPreload};
+
     // The display backend is up and the EGL context is current: from here until
     // the render loop's first frame we can draw a loading screen instead of
     // leaving the panel blank. One instance serves the zip extraction below and
@@ -6279,27 +6303,37 @@ int main(int argc, char** argv) {
         property_get("sys.gammaos.drastic_nano.emu_rt", v, "");
         if (!v[0]) property_set("sys.gammaos.drastic_nano.emu_rt", "2");
     }
-    {
-        // Back-hold timeout = the system long-press timeout (see gBackHoldMs).
-        int64_t ms = android::drastic_settings::getInt("persist.gammaos.drastic_nano.back_hold_ms", 0);
-        if (ms <= 0) {
+    // Back-hold timeout = the system long-press timeout (see gBackHoldMs). Unless a property
+    // pins it, it comes from `settings get`, a subprocess (sh, cmd, binder) that took 144 ms on
+    // the render thread. It runs on a helper while dr.init works and is read back right after
+    // dr.init, so gBackHoldMs is set before anything polls the back key (the run loops and the
+    // input thread start later) and before a failed init can return with the helper still running.
+    int64_t backHoldMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.back_hold_ms", 0);
+    int64_t polledHoldMs = 0;
+    std::thread longPressQuery;
+    if (backHoldMs <= 0) {
+        longPressQuery = std::thread([&polledHoldMs] {
+            pthread_setname_np(pthread_self(), "dn-lpquery");
+            // The render thread's SCHED_FIFO 80 is inherited, and so would be the subprocess's:
+            // not worth taking CPU from dr.init's library load and the game's own threads.
+            sched_param sp = {};
+            sched_setscheduler(0, SCHED_OTHER, &sp);
             FILE* pf = popen("settings get secure long_press_timeout 2>/dev/null", "r");
-            if (pf) { char b[32] = {0}; if (fgets(b, sizeof(b), pf)) ms = atol(b); pclose(pf); }
-        }
-        if (ms < 250 || ms > 5000) ms = 400;
-        gBackHoldMs = ms;
-        ALOGI("drastic-nano: back hold to exit = %lld ms", (long long)gBackHoldMs);
-        // A quit / exit request left behind by a previous session (the framework
-        // raised exit_home while no drastic-nano was running to consume it) must
-        // not end this one on its first frame.
-        if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false) ||
-            property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
-            ALOGW("drastic-nano: stale exit_home/quit request from before this session, ignored");
-            property_set("sys.gammaos.drastic_nano.exit_home", "0");
-            property_set("sys.gammaos.drastic_nano.quit", "0");
-        }
+            if (pf) { char b[32] = {0}; if (fgets(b, sizeof(b), pf)) polledHoldMs = atol(b); pclose(pf); }
+        });
     }
-    if (!dr.init(gDrasticDataDir, romPath, libsDir,
+    // A quit / exit request left behind by a previous session (the framework
+    // raised exit_home while no drastic-nano was running to consume it) must
+    // not end this one on its first frame.
+    if (property_get_bool("sys.gammaos.drastic_nano.exit_home", false) ||
+        property_get_bool("sys.gammaos.drastic_nano.quit", false)) {
+        ALOGW("drastic-nano: stale exit_home/quit request from before this session, ignored");
+        property_set("sys.gammaos.drastic_nano.exit_home", "0");
+        property_set("sys.gammaos.drastic_nano.quit", "0");
+    }
+    // The libdrastic preload (above) must be done: init's own dlopen calls then return at once.
+    dlPreload.join();
+    const bool drInitOk = dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
                  /*autosaveIntervalSeconds=*/0,
@@ -6312,7 +6346,15 @@ int main(int argc, char** argv) {
                  /*firmwareNick=*/prefs.firmwareNick,
                  // DraSticEmuActivity.run: the custom clock only when enabled and set.
                  /*customClockMs=*/(prefs.customClockEnable && prefs.customClockMs != 0)
-                                       ? prefs.customClockMs : -1)) {
+                                       ? prefs.customClockMs : -1);
+    if (longPressQuery.joinable()) {
+        longPressQuery.join();
+        backHoldMs = polledHoldMs;
+    }
+    if (backHoldMs < 250 || backHoldMs > 5000) backHoldMs = 400;
+    gBackHoldMs = backHoldMs;
+    ALOGI("drastic-nano: back hold to exit = %lld ms", (long long)gBackHoldMs);
+    if (!drInitOk) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
         android::drastic_perf::restoreGlobal();
         property_set(kSessionDoneProp, "1");

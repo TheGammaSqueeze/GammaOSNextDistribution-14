@@ -49,7 +49,15 @@ public:
     // (drastic-nano passes the panel dimensions of its primary AHB
     // target). The 2x2 rotation matrix is the same one the runner
     // uses (sDrmRotMat), column-major.
-    bool init(int viewportW, int viewportH, const float rotMat[4]);
+    // lazyScriptFaces: open the CJK/Arabic/Thai/Hebrew faces only when a glyph
+    // is asked for that the Rodin/Roboto/DroidSans faces do not have, instead of
+    // in init. For short-lived renderers that show Latin text (the loading
+    // screen): the CJK collection alone costs tens of ms on a cold SD card.
+    // The face order, and so the glyph chosen for every codepoint, is the same
+    // as with the eager load. Long-lived overlays keep the default so no face is
+    // read from the card mid-game.
+    bool init(int viewportW, int viewportH, const float rotMat[4],
+              bool lazyScriptFaces = false);
 
     // Release all GL resources. Safe to call more than once.
     void shutdown();
@@ -174,9 +182,12 @@ private:
     // Primary (Rodin/theme) face plus script-fallback faces (CJK/Arabic/Thai/
     // Hebrew), mirroring gammaos-nano's chain so overlay text renders every
     // translated locale instead of tofu boxes for glyphs the primary lacks.
+    // Mutable because faceForCp (const, on the glyph path) appends the script
+    // faces on first need when init was asked to defer them.
     static const int kMaxFtFaces = 10;
-    void* mFtFaces[kMaxFtFaces] = {};
-    int   mFtNumFaces = 0;
+    mutable void* mFtFaces[kMaxFtFaces] = {};
+    mutable int   mFtNumFaces = 0;
+    mutable bool  mScriptFacesPending = false;
     int   mFontPx = 18;        // base pixel height
     int   mAscent = 0;
     int   mLineH  = 0;
@@ -218,6 +229,10 @@ private:
     // Pick the first loaded face that has a glyph for this codepoint (script
     // fallback), or the primary face if none does. Returns an FT_Face (void*).
     void* faceForCp(uint32_t cp) const;
+    // Open one font file as the next face in the chain, at the base pixel size.
+    void loadFace(const char* path) const;
+    // Append the CJK/Arabic/Thai/Hebrew faces (the tail of the chain).
+    void loadScriptFaces() const;
 };
 
 } // namespace drastic_gfx
