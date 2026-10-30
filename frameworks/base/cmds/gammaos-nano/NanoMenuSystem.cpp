@@ -42,7 +42,8 @@
 
 #include <cutils/properties.h>
 #include <utils/Log.h>
-#include <sys/stat.h>   // isLaunchReady FUSE-mount probe
+#include <utils/SystemClock.h>   // elapsedRealtime() / uptimeMillis() for the DSi boot progress bar
+#include <sys/stat.h>
 
 #include "NanoBacklight.h"
 #include "NanoI18n.h"
@@ -459,6 +460,130 @@ bool NanoMenu::isLaunchReady() const {
     return isPrimaryStorageReady();
 }
 
+// ---------------------------------------------------------------------------
+// DSi cold-boot progress bar
+//
+// The bar in the bottom screen's name balloon (renderNdsCarousel) walks through six boot
+// milestones that are cheap to observe as properties. Its 100 % point is ext_storage_ready
+// together with boot_completed, the two signals isLaunchReady() waits for, so a queued launch
+// fires as the bar completes. Each milestone's share of the bar comes from the times learned on
+// earlier boots of the same build (nano_bootprog.txt); the defaults are one boot of the RG DS Plus.
+// Between milestones the bar eases toward the next one's learned time and never passes 92 % of
+// that stretch, so a slow boot makes it creep instead of finishing early, and it never moves back.
+// ---------------------------------------------------------------------------
+
+namespace {
+struct BpMs { const char* prop; const char* want; int32_t defMs; };
+const BpMs kBpMs[6] = {   // defaults: boot2 on the RG DS Plus, CLOCK_BOOTTIME ms
+    {"init.svc.zygote", "running", 18413},
+    {"sys.system_server.start_count", nullptr, 28255},
+    {"sys.boot_completed", "1", 49990},
+    {"sys.user.0.ce_available", "true", 51530},
+    {"sys.gammaos.nano.home_launching", "1", 58300},
+    {"sys.gammaos.nano.ext_storage_ready", "1", 65840} };
+constexpr const char* kBpHist = "/data/system/nano_bootprog.txt";
+bool bpReached(const BpMs& m) {
+    char v[PROPERTY_VALUE_MAX] = {}; property_get(m.prop, v, "");
+    return m.want ? strcmp(v, m.want) == 0 : v[0] != '\0';
+}
+}  // namespace
+
+// true = the file is from this build, so its times are used and updated by this boot.
+bool NanoMenu::bootProgLoad() {
+    char build[PROPERTY_VALUE_MAX] = {}; property_get("ro.build.date.utc", build, "0");
+    FILE* f = fopen(kBpHist, "re"); if (!f) return false;
+    long long b = 0; int32_t t[6]; int ver = 0;
+    int n = fscanf(f, "%d %lld %d %d %d %d %d %d", &ver, &b, &t[0], &t[1], &t[2], &t[3], &t[4], &t[5]);
+    fclose(f);
+    if (n != 8 || ver != 1 || b != atoll(build)) return false;
+    for (int i = 0; i < 6; i++) if (t[i] < 2000 || t[i] > 600000) return false;
+    for (int i = 0; i < 6; i++) mBootProg.hist[i] = t[i];
+    return true;
+}
+
+// Writes the learned times once a boot has been watched to the end. A boot of another build (the
+// first one after an OTA runs dexopt and is slower) or with no file yet only stamps the file with
+// the defaults, so the next boot is the first to learn.
+void NanoMenu::bootProgSave() {
+    BootProg& b = mBootProg; int32_t out[6];
+    for (int i = 0; i < 6; i++) out[i] = b.hist[i];
+    const float r = b.seen[5] ? (float)b.seen[5] / (float)b.hist[5] : 0.f;
+    if (b.sameBuild && r > 0.5f && r < 2.0f) {   // a suspended or restarted boot is not learned
+        for (int i = 0; i < 6; i++) {
+            // zygote and system_server carry exact start times in properties; the other
+            // milestones count only when nano saw them happen, not found already set at start
+            const bool live = (i <= 1) || b.seen[i] > b.initMs + 300;
+            if (b.seen[i] > 0 && live) {
+                int64_t v = ((int64_t)b.hist[i] + b.seen[i]) / 2;
+                out[i] = (int32_t)(v < 2000 ? 2000 : v > 600000 ? 600000 : v);
+            }
+        }
+    }
+    char build[PROPERTY_VALUE_MAX] = {}; property_get("ro.build.date.utc", build, "0");
+    std::string tmp = std::string(kBpHist) + ".tmp";
+    FILE* f = fopen(tmp.c_str(), "we"); if (!f) return;
+    fprintf(f, "1 %lld %d %d %d %d %d %d\n", atoll(build), out[0], out[1], out[2], out[3], out[4], out[5]);
+    if (fclose(f) == 0) rename(tmp.c_str(), kBpHist); else unlink(tmp.c_str());
+}
+
+// Once per frame from the main loop (render runs once per panel). Returns at once when the bar is
+// off: not the DSi home, not a cold boot, or already faded out.
+void NanoMenu::bootProgTick() {
+    BootProg& b = mBootProg;
+    const int64_t now = elapsedRealtime();
+    if (!b.init) {   // first frame: persist props (theme) and /data are up by the time the loop runs
+        b.init = true; b.initMs = now;
+        b.enabled = mNdsTheme && !mOverlayMode
+            && property_get_bool("sys.gammaos.minimal_boot", false)
+            && !property_get_bool("sys.gammaos.nano.ext_storage_ready", false);   // cold boot only
+        if (!b.enabled) return;
+        for (int i = 0; i < 6; i++) b.hist[i] = kBpMs[i].defMs;
+        b.sameBuild = bootProgLoad();
+    }
+    if (!b.enabled) return;
+    // boot_completed and ext_storage_ready are read every frame, as isLaunchReady() does, so the
+    // times are saved before a queued launch that fires on them hands the screens over; the
+    // other milestones every 250 ms.
+    const bool poll = now - b.lastPollMs >= 250;
+    if (poll) b.lastPollMs = now;
+    for (int i = 0; i < 6; i++) {
+        if (b.seen[i] || (!poll && i != 2 && i != 5) || !bpReached(kBpMs[i])) continue;
+        int64_t t = now;
+        if (i == 0) { int64_t ns = property_get_int64("ro.boottime.zygote", 0); if (ns > 0) t = ns / 1000000; }
+        if (i == 1) { int64_t ms = property_get_int64("sys.system_server.start_elapsed", 0); if (ms > 0) t = ms; }
+        b.seen[i] = t > 0 ? t : 1;
+    }
+    // Storage never published (FUSE or the framework's monitor failed): fade out 45 s after
+    // boot_completed instead of hanging at the cap, and do not learn this boot.
+    if (!b.seen[5] && b.seen[2] && now - b.seen[2] > 45000) b.timedOut = true;
+    const bool stored = b.seen[5] && b.seen[2];   // what isLaunchReady() waits for
+    const bool ready = stored || b.timedOut;
+    float target = b.timedOut ? b.shown : 1.f;   // a timed-out bar fades where it stands
+    if (!ready) {
+        // base = reached milestone with the largest learned time, next = the nearest later one
+        // not reached yet (boot_completed can come before ce_available, so not simply in order)
+        int base = -1, next = -1;
+        for (int i = 0; i < 6; i++) if (b.seen[i] && (base < 0 || b.hist[i] > b.hist[base])) base = i;
+        const float tb = base < 0 ? 0.f : (float)b.hist[base];
+        for (int i = 0; i < 6; i++) if (!b.seen[i] && b.hist[i] > tb && (next < 0 || b.hist[i] < b.hist[next])) next = i;
+        const float tEnd = (float)b.hist[5];
+        const float tn = next < 0 ? tEnd : (float)b.hist[next];
+        const float since = base < 0 ? (float)now : (float)(now - b.seen[base]);
+        const float f = since / fmaxf(500.f, tn - tb);
+        const float g = f < 0.75f ? f : 0.75f + 0.17f * (1.f - expf(-(f - 0.75f) * 3.f));
+        target = fminf(0.99f, (tb + (tn - tb) * g) / tEnd);
+    }
+    if (!b.started) { b.shown = target; b.started = true; }   // honest start, no sweep from 0
+    // Eased, and quick to close the last gap once storage is up: the launch it gates fires then.
+    const float k = 1.f - expf(-mFrameDt / (stored ? 0.1f : 0.25f));
+    b.shown = fmaxf(b.shown, b.shown + (target - b.shown) * k);
+    if (stored && !b.saved) { b.saved = true; bootProgSave(); }
+    if (ready && (b.shown > 0.995f || b.timedOut) && !b.readyMs) b.readyMs = now;
+    b.alpha = b.readyMs ? fmaxf(0.f, fminf(1.f, 1.f - (float)(now - b.readyMs - 250) / 400.f))
+                        : fminf(1.f, b.alpha + mFrameDt / 0.3f);
+    if (b.readyMs && now - b.readyMs > 700) b.enabled = false;
+}
+
 void NanoMenu::showLaunchBusyToast() {
     mBusyLine1.clear(); mBusyLine2.clear();   // fall back to the default "Booting up..." wording
     mShowLaunchBusy = true;
@@ -499,6 +624,11 @@ void NanoMenu::renderLaunchBusyToast() {
             return;
         }
     }
+    // The DSi name balloon on the bottom screen shows the queued launch while its progress bar is
+    // drawn (this or the previous frame, which can be slow during boot); with the bar hidden the
+    // toast is the only notice.
+    if (mLaunchPending && mBusyLine1.empty() && mBootProg.enabled
+            && (int64_t)uptimeMillis() - mBootProg.drawnMs < 250) return;
 
     float sf = fminf((float)mWidth / 1080.0f, (float)mHeight / 720.0f);
     if (sf < 0.5f) sf = 0.5f;

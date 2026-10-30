@@ -1315,6 +1315,24 @@ private:
     int mLaunchBusyTimer;
     bool mLaunchPending;
 
+    // DSi cold-boot progress bar in the bottom screen's name balloon (nano home, DSi theme,
+    // ext_storage_ready still 0 when nano starts). Six boot milestones (CLOCK_BOOTTIME ms,
+    // seen[] = when each was reached, hist[] = their learned times); the last one,
+    // ext_storage_ready, is the 100 % point and the same signal isLaunchReady() waits for.
+    // See bootProgTick().
+    struct BootProg {
+        bool init = false, enabled = false, sameBuild = false;
+        bool started = false, timedOut = false, saved = false;
+        int64_t initMs = 0, lastPollMs = 0, readyMs = 0;
+        int64_t drawnMs = 0;               // uptimeMillis() when the bar was last drawn
+        int64_t seen[6] = {};
+        int32_t hist[6] = {};
+        float shown = 0.f, alpha = 0.f;
+    } mBootProg;
+    void bootProgTick();
+    bool bootProgLoad();
+    void bootProgSave();
+
     // Battery state (cached, refreshed ~1/s from pollBattery())
     int mBatteryPercent;      // -1 if unknown / no battery
     bool mBatteryCharging;    // true when charging or full
@@ -2086,6 +2104,7 @@ private:
     void drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
                          float radLeftDS = 3.0f, float radRightDS = 3.0f,
                          bool flat = false, float fr = 0.0f, float fg = 0.0f, float fb = 0.0f);  // 21-stop favColor pill; per-side corner radii (DS px); flat=grey-rim mode
+    void drawNdsBootProgress(float x, float y, float w, float h, float a);  // cold-boot progress bar in the name balloon (mBootProg.shown)
     void ndsTouchFrame();         // DSi carousel touch: tap a tile / L-R button, drag to scroll (bottom panel)
     void ndsSubmenuTouch();       // DSi submenu list touch: tap a row to enter, tap Back to pop
     void ndsPickerTouch();        // DSi picker list touch (Time Zone / System Language): tap a row to pick

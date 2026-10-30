@@ -5012,6 +5012,8 @@ if (sRingPrimedCount >= 2) {
         // even on a first boot where the setup wizard render branch never runs the audio ticks.
         // Without this, card0 can stay owned by our engine and all system audio dies after setup.
         nanoDirectHandoffTick();
+        // DSi cold-boot progress bar: advance it once per frame (render() runs once per panel).
+        bootProgTick();
 
         // GammaOS Nano: re-fire a deferred game/app launch as soon as
         // the system is far enough through boot to accept it. The

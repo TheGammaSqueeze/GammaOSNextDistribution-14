@@ -1904,5 +1904,6 @@
  "%d games": "Игр: %d",
  "3DS Theme": "Тема 3DS",
  "These are deep system settings. GammaOS exposes every option the underlying ROM contains, and the same ROM runs on many devices, so not every option applies to yours. Do not expect a feature such as BFI to work if your display is not actually 120 Hz, and do not expect miracles. Changing the wrong setting can break the system very badly. You use these settings at your own risk: no support is provided and no bug report is accepted for problems they cause.": "Это глубокие системные настройки. GammaOS показывает все параметры, которые содержит базовая прошивка, а одна и та же прошивка работает на многих устройствах, поэтому не каждый параметр применим к вашему. Не ждите, что функция вроде BFI заработает, если ваш экран на самом деле не 120 Гц, и не ждите чудес. Неверная настройка может серьёзно сломать систему. Вы используете эти настройки на свой страх и риск: поддержка не предоставляется, и отчёты об ошибках из-за вызванных ими проблем не принимаются.",
- "I Understand": "Понятно"
+ "I Understand": "Понятно",
+ "Starts when ready": "Запустится, когда будет готово"
 }

@@ -2592,6 +2592,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // apps, games and drill-in groups (which have no value anyway).
         l2 = (nameItem && !nameItem->value.empty() && nameItem->kind == PS3_DATA_LEAF)
                  ? nameItem->value : ndsCtxTitle;
+        // Cold-boot progress (see bootProgTick): a bar under the text, and while a game press is
+        // queued the second line says so in place of the toast. Side panels, pickers and settings
+        // lists return earlier, so only the carousel balloon shows it, and not during a launch.
+        const bool bp = mBootProg.enabled && mBootProg.alpha > 0.004f && ndsLaunchOriginMs() == 0;
+        if (bp && mLaunchPending) l2 = trDyn("Starts when ready");
         if (l1.empty()) { l1 = l2; l2.clear(); }
         if (l1.empty()) l1 = "GammaOS";
         if (!l2.empty() && l2 == l1) l2.clear();
@@ -2608,6 +2613,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         float y1 = l2.empty() ? Y(31.0f) : Y(22.0f);
         drawLine(l1, y1, 1.0f);
         if (!l2.empty()) drawLine(l2, Y(40.0f), 1.0f);
+        if (bp) drawNdsBootProgress(X(40.0f), Y(60.0f), X(216.0f) - X(40.0f), S(4.0f), ca * mBootProg.alpha);
       }
 
       // down-tab: the name box's balloon tail, drawn OVER the name box bottom (launcher._drawTab).
@@ -2754,6 +2760,27 @@ void NanoMenu::drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
         float insR = cornerInset(yc, radR);              // right corner inset (independent per side)
         drawQuad(x0 + insL, y0 + (float)r * rowH, wpx - insL - insR, rowH + 0.6f, R, G, B, 1.0f);
     }
+}
+
+// The cold-boot progress bar in the DSi name balloon, built from the parts the balloon and the
+// scrollbar already use: a recessed track in the balloon's own bevel greys (so the dark variant
+// follows ndsPal()) filled with the favColour pill's p4 / p7 / p11 stops (dark edge, body, top
+// specular), which follow the Colour accent through ndsRecolor. The fill is mBootProg.shown and
+// never narrower than the pill's own height, so the bar reads as a bar from the first frame.
+// Stamps drawnMs: renderLaunchBusyToast leaves the queued-launch notice to the balloon only
+// while this actually ran.
+void NanoMenu::drawNdsBootProgress(float x, float y, float w, float h, float a) {
+    mBootProg.drawnMs = (int64_t)uptimeMillis();
+    NdsPal p = ndsPal(); const float r = h * 0.5f;
+    drawRoundedRect(x, y, w, h, r, p.bevel1, p.bevel1, p.bevel1, a);                             // recessed edge
+    drawRoundedRect(x, y + h * 0.2f, w, h * 0.8f, r * 0.8f, p.bevel3, p.bevel3, p.bevel3, a);   // track
+    float c[3][3] = {{0.475f,0.796f,0.984f},{0.094f,0.443f,0.984f},{0.000f,0.220f,0.827f}};     // p11 / p7 / p4
+    for (auto& v : c) ndsRecolor(v[0], v[1], v[2]);
+    const float fw = fmaxf(h, w * fminf(1.0f, mBootProg.shown));
+    drawRoundedRect(x, y, fw, h, r, c[2][0], c[2][1], c[2][2], a);                               // dark edge
+    drawRoundedRect(x, y, fw, h * 0.8f, r * 0.8f, c[1][0], c[1][1], c[1][2], a);                 // body
+    if (fw > 2.0f * r)
+        drawQuad(x + r, y + h * 0.15f, fw - 2.0f * r, h * 0.25f, c[0][0], c[0][1], c[0][2], 0.9f * a);   // specular
 }
 
 // A scrollbar L/R arrow button: the exact 21-stop favColour gradient pill with a white
