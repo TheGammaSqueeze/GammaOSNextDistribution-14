@@ -1318,7 +1318,9 @@ bool NanoMenu::enterDrmSleep() {
     if (keepAudio) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
-        property_set("sys.gammaos.nano.keep_audio", "0");
+        // keep_audio is cleared below, once PowerManager is awake: keep_audio=0 while
+        // sys.screen.state still reads "off" restarts the vendor force_sleep (gammaos.rc),
+        // whose heartbeat LED and raw 'echo mem' would hit the device that is waking up.
     }
     // Restore BT LPM to the boot state we found it in, so BT-enable behaviour is
     // byte-identical to shipping outside of nano's suspend window.
@@ -1399,6 +1401,7 @@ bool NanoMenu::enterDrmSleep() {
     }
     // Framework now holds its own display suspend-blocker (or we hit the cap).
     // Drop our bridge.
+    if (keepAudio) property_set("sys.gammaos.nano.keep_audio", "0");
     if (wokeWakelock) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
