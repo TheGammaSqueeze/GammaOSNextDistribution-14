@@ -22,6 +22,14 @@
 TAG="joypad-uevent-fixup"
 log -t "$TAG" -p i "starting"
 
+# RG DS Plus: ueventd creates every input node at coldboot (event3 is the
+# rk817 headset). A re-emitted "add" only recreates the joypad node gammapad
+# has hidden, which gammapad, the home and InputReader then each re-handle.
+if [ "$(getprop ro.gammaos.device)" = "anbernicrgdsplus" ]; then
+    log -t "$TAG" -p i "not needed on this device, exit"
+    exit 0
+fi
+
 # 30 s budget. The check loop sleeps 1 s between iterations and aborts
 # as soon as /dev/input/event3 (TRIMUI Player1's evdev node) exists.
 DEADLINE=$(($(date +%s) + 30))
