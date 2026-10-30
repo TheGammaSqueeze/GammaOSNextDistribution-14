@@ -2202,6 +2202,10 @@ private:
     int  mNdsNumIdx  = -1;        // mFtFaces index of dsvecnum.ttf (digits), -1 = not loaded
     int  mEsdeDefaultFace = -1;  // mFtFaces index of Akrobat (ES-DE default for no-fontPath text), -1 = UI font
     bool mNdsFontPref = false;    // when true, ensureGlyph tries the DSVec faces first
+    // Largest size a mono glyph is rasterised at. Beyond it the quad is stretched from this size,
+    // which blurs it. The DSi theme draws its 80 px watermark and 120 px readout well past the
+    // 64 px master, so it gets a higher cap (colour emoji stay normalised to mFontSize).
+    int glyphRasterCap() const { return mNdsFontPref ? 128 : mFontSize; }
     // ES-DE theme fonts: a text element carries a fontPath (e.g. Art Book Next's Mulish); the
     // ES-DE renderer resolves it to an mFtFaces index via esdeFontFace() and passes that as the
     // preferFace to drawText/measureText so the glyph is rasterised from the theme's own typeface
@@ -2276,6 +2280,20 @@ private:
     // into its own slot (SA_NDS_FAN) so it can cross-fade with the boxart in the mint panel.
     GLuint mNdsFanTex = 0; int mNdsFanW = 0, mNdsFanH = 0;
     std::string mNdsFanPath;      // fanart path currently loaded into mNdsFanTex ("" = none)
+    // The cover shown big on the DSi top screen: decoded once more at the size it is drawn (the
+    // 256 px tile cache would be stretched ~1.9x). [0] = the focused ROM, [1] = the one that just
+    // left focus, kept for the 220 ms game-to-game dissolve. rom is set when the cover is asked for
+    // (tex stays 0 until it lands), so a failed decode is not retried every frame.
+    struct NdsHiBox { GLuint tex = 0; int w = 0, h = 0; float ar = 1.0f; std::string rom; };
+    NdsHiBox mNdsHiBox[2];
+    int mNdsArtFitW = 0, mNdsArtFitH = 0;   // box the hi-res cover/fanart were asked for (a layout change re-asks)
+    // The focused item's system glyph re-decoded at 256 px for the top screen's 288 px icon (the
+    // shared icon textures are 128 px). One entry; mNdsTopHiIdx is the mIconTextures slot it is for.
+    GLuint mNdsTopHiTex = 0; int mNdsTopHiIdx = -1;
+    GLuint ndsTopHiIcon(GLuint baseTex);   // hi-res copy of an mIconTextures glyph, or baseTex
+    void ndsHiBoxFocus(const std::string& rom, const std::string& boxFile, int fitW, int fitH);
+    void ndsHiBoxFree();
+    void ndsHiBoxDrop(const std::string& rom);   // one ROM's cover changed or was removed
     std::string mNdsPreviewRom;   // ROM path the preview art is currently focused on
     float mNdsPreviewT0 = -1.0f;  // mEffectTime the current preview began (drives the box<->fan cross-fade)
     std::string mNdsPrevPreviewRom;  // outgoing game held for the game-to-game preview dissolve
@@ -3732,7 +3750,7 @@ private:
     void scraperArtTick();               // per-frame: toggle cache + free-on-leave-Game + saDrainArt (both themes)
     // Decode scraped art to a GL texture via stb_image (AImageDecoder silently
     // fails on the scrape PNGs on this device; stb_image works, same as the cinfo
-    // bg). maxDim>0 downscales (nearest) to bound VRAM. Render thread only.
+    // bg). maxDim>0 downscales (area average) to bound VRAM. Render thread only.
     GLuint scraperDecodeTex(const std::string& path, int maxDim, float* outAR);
     // ---- async scraper-art decode (mirrors the photo-viewer worker) ----------
     // ONE worker for ALL scraper art (boxart icons + hover fanart + Information
@@ -3740,10 +3758,12 @@ private:
     // the render thread, so opening a Game system or Information never hitches.
     // Lazy-started on the first request; fully stopped+joined (zero threads/CPU at
     // idle) by scraperFreeBoxart on leaving Game / occlusion / the 96-cache backstop.
-    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN, SA_CART_BOX };
-    struct SaDecReq { std::string path; int maxDim = 0; int target = 0; std::string key; uint64_t gen = 0; };
+    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN, SA_CART_BOX, SA_NDS_BOX };
+    // fitW/fitH > 0: shrink (never enlarge) to fit inside that box, keeping the aspect, instead of
+    // capping the long side at maxDim. fill = the result reaches the box on its limiting axis.
+    struct SaDecReq { std::string path; int maxDim = 0; int fitW = 0, fitH = 0; int target = 0; std::string key; uint64_t gen = 0; };
     struct SaDecRes { std::string path; int target = 0; std::string key; int w = 0, h = 0; float ar = 1.0f;
-                      uint64_t gen = 0; std::vector<uint8_t> px; };
+                      bool fill = false; uint64_t gen = 0; std::vector<uint8_t> px; };
     std::thread mSaDecThread;
     std::mutex mSaDecMutex;
     std::condition_variable mSaDecCv;
@@ -3754,11 +3774,18 @@ private:
     std::atomic<bool> mSaDecStarted{false};
     std::atomic<uint64_t> mSaDecGen{0};          // bumped on teardown to drop stale results
     bool scraperDecodeRGBACpu(const std::string& path, int maxDim, int* outW, int* outH,
-                              float* outAR, std::vector<uint8_t>& out);   // GL-free
+                              float* outAR, std::vector<uint8_t>& out,
+                              int fitW = 0, int fitH = 0);   // GL-free
     void saStartArtWorker();
     void saStopArtWorker();
     void saArtThreadFunc();
-    void saRequestArt(const std::string& path, int maxDim, int target, const std::string& key);
+    void saRequestArt(const std::string& path, int maxDim, int target, const std::string& key,
+                      int fitW = 0, int fitH = 0);
+    // The focused cover / fanart the DSi top screen wants right now ("" = none). Requests for any
+    // other path are dropped before decoding, so a fast scroll does not queue a full-size decode per
+    // focus step. Guarded by mSaDecMutex.
+    std::string mSaWantNdsBox, mSaWantNdsFan;
+    void saWantNdsArt(const std::string& box, const std::string& fan);
     void saDrainArt();                           // render thread: upload + route results
     // persistence + lazy load
     int64_t musicConfigStamp() const;

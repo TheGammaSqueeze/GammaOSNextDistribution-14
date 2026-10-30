@@ -541,6 +541,7 @@ void NanoMenu::overlayCaptureBackground() {
 
 void NanoMenu::initIconTextures() {
     memset(mIconTextures, 0, sizeof(mIconTextures));
+    mNdsTopHiTex = 0; mNdsTopHiIdx = -1;   // a copy of a glyph from the old set: forget it (the GL names go with the context)
     int fileLoaded = 0, embeddedLoaded = 0;
     // Right-size the console icons to this panel: they are drawn at ITEM_ICON_SIZE
     // virtual px, so a 256 source is oversized on a small panel. iconTexCap keeps
@@ -565,6 +566,36 @@ void NanoMenu::initIconTextures() {
         ALOGE("NanoMenu: failed to load icon %d from file or embedded data", i);
     }
     ALOGD("NanoMenu: loaded %d file + %d embedded icon textures", fileLoaded, embeddedLoaded);
+}
+
+// The DSi top screen draws the focused item's icon at 288 px, but the shared system glyphs are
+// right-sized for the XMB (128 px on this panel), so they were magnified 2.25x. The focused one is
+// decoded again at up to 256 px (its source size) and drawn from that instead: 1.125x. One cached
+// entry, so a single 256 KB texture and a PNG decode when the focus moves to another glyph; it is
+// freed with the scraper art (scraperFreeBoxart). A texture that is not one of the shared glyphs,
+// or one that fails to decode, comes back unchanged. So does every glyph on a panel whose shared
+// set is already at 256 px (initIconTextures): the copy would be identical.
+GLuint NanoMenu::ndsTopHiIcon(GLuint baseTex) {
+    if (!baseTex) return baseTex;
+    int idx = -1;
+    for (int i = 0; i < 21; i++) if (mIconTextures[i] == baseTex) { idx = i; break; }
+    if (idx < 0) return baseTex;
+    if (ps3::iconTexCap(mWidth, mHeight, ps3::ITEM_ICON_SIZE, 256) >= 256) return baseTex;
+    if (idx == mNdsTopHiIdx) return mNdsTopHiTex ? mNdsTopHiTex : baseTex;   // a failed decode is not retried every frame
+    if (mNdsTopHiTex) { glDeleteTextures(1, &mNdsTopHiTex); mNdsTopHiTex = 0; }
+    mNdsTopHiIdx = idx;
+    const bool mono = (idx != 14);   // PICO-8 keeps its colours (same rule as initIconTextures)
+    GLuint tex = 0;
+    if (kIconPngNames[idx]) {
+        const std::string pngPath = std::string(kIconPngDir) + "/" + kIconPngNames[idx];
+        if (!loadPngAsAlphaTexture(pngPath.c_str(), &tex, mono, 256)) tex = 0;
+    }
+    if (!tex) {
+        const EmbeddedIcon& icon = kEmbeddedIcons[idx];
+        if (!loadPngFromMemory(icon.data, icon.size, &tex, mono, 256)) tex = 0;
+    }
+    mNdsTopHiTex = tex;
+    return tex ? tex : baseTex;
 }
 
 void NanoMenu::drawIcon(int iconIdx, float x, float y, float size,
@@ -833,6 +864,22 @@ void NanoMenu::ensureNdsAssets() {
     else if (sk[0] == '0' || sk[0] == 'f' || (sk[0] == 'o' && sk[1] == 'f')) mNdsStackMode = 2;
     else mNdsStackMode = 0;
     mNdsTexLoaded = true;
+}
+
+// 1x firmware pixel art (the launch sparkle ring, the unknown-battery sprite) drawn at an exact
+// whole-number scale is a clean NEAREST blow-up: every source pixel becomes one square block. With
+// bilinear it gets a ramp as wide as the scale across each pixel edge, which reads as out of focus.
+// At any other scale NEAREST would give uneven pixel widths (worse than the blur), so the filter is
+// chosen per draw from the scale actually in use and the texture stays LINEAR there.
+static inline bool ndsIsWholeScale(float scale) {
+    return scale >= 1.0f && fabsf(scale - roundf(scale)) < 0.001f;
+}
+static void ndsPixelFilter(GLuint tex, bool nearest) {
+    const GLint f = nearest ? GL_NEAREST : GL_LINEAR;
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, tex);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, f);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, f);
 }
 
 // The 36 sparkle-ring frames (launcher_d cell_53..88) played during a game launch.
@@ -2430,7 +2477,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                     float box = S(44.0f), cxt = dcx, cyt = Y(114.0f) + S(yoffDS);
                     float bw = box, bh = box;
                     if (bar >= 1.0f) bh = box / bar; else bw = box * bar;
-                    drawIconTex(bt, cxt - bw * 0.5f, cyt - bh * 0.5f, bw, bh, 1.0f, 1.0f, 1.0f, 1.0f);
+                    drawIconTex(bt, floorf(cxt - bw * 0.5f), floorf(cyt - bh * 0.5f), bw, bh, 1.0f, 1.0f, 1.0f, 1.0f);
                     return;
                 }
             }
@@ -2509,7 +2556,11 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     if (launchFx) {
         int rf = (int)(lFrames - 3.0f);
         if (rf >= 0 && rf <= 35 && mNdsRingTex[rf]) {       // 128x144 cell, origin baked at (64,72)
-            drawIconTex(mNdsRingTex[rf], X(128.0f - 64.0f), Y(114.0f - 72.0f), S(128.0f), S(144.0f), 1.0f, 1.0f, 1.0f, 1.0f);
+            const bool ringPx = ndsIsWholeScale(scale);   // 4.0 on the RG DS Plus panels: 1x firmware pixels at exactly 4x
+            ndsPixelFilter(mNdsRingTex[rf], ringPx);
+            float rgx = X(128.0f - 64.0f), rgy = Y(114.0f - 72.0f);
+            if (ringPx) { rgx = floorf(rgx); rgy = floorf(rgy); }   // whole-pixel origin so the blocks stay square
+            drawIconTex(mNdsRingTex[rf], rgx, rgy, S(128.0f), S(144.0f), 1.0f, 1.0f, 1.0f, 1.0f);
         }
     }
     // centre-chrome visibility: the blue frame + START + name box hide entirely during a
@@ -3411,7 +3462,13 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
       pollBattery();
       { int pct = mBatteryPercent;
         if (pct < 0) {                                   // unknown: static full sprite fallback
-            if (mNdsBattTex) drawIconTex(mNdsBattTex, X(235.0f), Y(5.0f), S(17.0f), S(11.0f), 1.0f, 1.0f, 1.0f, 1.0f);
+            if (mNdsBattTex) {
+                const bool battPx = ndsIsWholeScale(scale);   // 1x sprite: blocks at a whole scale, LINEAR otherwise
+                ndsPixelFilter(mNdsBattTex, battPx);
+                float bgx = X(235.0f), bgy = Y(5.0f);
+                if (battPx) { bgx = floorf(bgx); bgy = floorf(bgy); }
+                drawIconTex(mNdsBattTex, bgx, bgy, S(17.0f), S(11.0f), 1.0f, 1.0f, 1.0f, 1.0f);
+            }
         } else {
             if (pct > 100) pct = 100;
             float bx = X(236.0f), by = Y(6.0f), bw = S(12.5f), bh = S(9.0f);
@@ -3555,25 +3612,47 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             romPath = mXmbRecent[selItem->a].romPath;
     }
     GLuint boxTex = 0; float boxAR = 1.0f, fanAR = 1.0f; GLuint fanTex = 0;
+    int boxTexW = 0, boxTexH = 0;                   // set when boxTex was cut to draw size (below)
+    // The rect the cover / fanart are contain-fitted into. Known up front because the big cover and
+    // the fanart are decoded to fit it, so they are drawn about 1:1 instead of stretched.
+    const float ax = X(24.0f), ay = Y(31.0f), aw = X(234.0f) - X(24.0f), ah = Y(154.0f) - Y(31.0f);
+    const int fitW = (int)ceilf(aw), fitH = (int)ceilf(ah);
+    if (fitW != mNdsArtFitW || fitH != mNdsArtFitH) {   // the panel layout changed: decode both again at the new size
+        mNdsArtFitW = fitW; mNdsArtFitH = fitH;
+        ndsHiBoxFree();
+        if (mNdsFanTex) { glDeleteTextures(1, &mNdsFanTex); mNdsFanTex = 0; mNdsFanW = mNdsFanH = 0; }
+        mNdsFanPath.clear();
+    }
     // A PICO-8 cart's label is its cover even with Boxart off, as the tile shows it.
     const bool boxOn = scraperBoxartEnabled();
     if (!romPath.empty() && (boxOn || romUsesCartArt(romPath))) {
         boxTex = romBoxartTex(romPath, &boxAR);   // async; 0 until the cover lands
         const ScrapeEntry* se = scrapeEntryFor(romPath);
         std::string fanFile = (se && boxOn && scraperFanartEnabled()) ? se->fan : std::string();
+        // The tile cache holds covers at 256 px, far under the ~490 px they are shown at here, so the
+        // focused cover is decoded once more at the draw size. A PICO-8 label keeps its pixel art.
+        const std::string hiBoxFile = (se && boxOn && !romUsesCartArt(romPath)) ? se->box : std::string();
+        saWantNdsArt(hiBoxFile, fanFile);          // before the requests, so they are not dropped as stale
+        ndsHiBoxFocus(romPath, hiBoxFile, fitW, fitH);
+        if (mNdsHiBox[0].tex && mNdsHiBox[0].rom == romPath) {
+            boxTex = mNdsHiBox[0].tex; boxAR = mNdsHiBox[0].ar;
+            boxTexW = mNdsHiBox[0].w; boxTexH = mNdsHiBox[0].h;
+        }
         if (!fanFile.empty()) {
             if (mNdsFanPath != fanFile) {          // focus changed to a game with fanart: (re)load it
                 mNdsFanPath = fanFile;
                 if (mNdsFanTex) { glDeleteTextures(1, &mNdsFanTex); mNdsFanTex = 0; mNdsFanW = mNdsFanH = 0; }
-                saRequestArt(fanFile, 1024, SA_NDS_FAN, "");
+                saRequestArt(fanFile, 0, SA_NDS_FAN, "", fitW, fitH);
             }
             fanTex = mNdsFanTex; fanAR = (mNdsFanH > 0) ? (float)mNdsFanW / (float)mNdsFanH : 1.0f;
         } else if (!mNdsFanPath.empty()) {          // game without fanart: drop the old preview art
             mNdsFanPath.clear();
             if (mNdsFanTex) { glDeleteTextures(1, &mNdsFanTex); mNdsFanTex = 0; mNdsFanW = mNdsFanH = 0; }
         }
-    } else if (!mNdsFanPath.empty()) {              // left games entirely: clear the preview fanart focus
-        mNdsFanPath.clear();
+    } else {
+        saWantNdsArt(std::string(), std::string());
+        ndsHiBoxFocus(std::string(), std::string(), fitW, fitH);   // no game focused: drop the big cover
+        if (!mNdsFanPath.empty()) mNdsFanPath.clear();             // left games entirely: clear the preview fanart focus
     }
     // Re-arm the cross-fade phase when the focused ROM changes; and on a game->game
     // change, hold the outgoing game's cover so the preview DISSOLVES between the two
@@ -3597,12 +3676,20 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         else mDisplayDirty = true;
     }
     // Outgoing game's cover (still cached until Game is left), drawn under the new art.
-    GLuint oldBoxTex = 0; float oldBoxAR = 1.0f; bool oldBoxPixel = false;
+    GLuint oldBoxTex = 0; float oldBoxAR = 1.0f; bool oldBoxPixel = false; int oldBoxW = 0, oldBoxH = 0;
     if (gt < 1.0f && !mNdsPrevPreviewRom.empty()) {
-        auto itc = mRomBoxartCache.find(mNdsPrevPreviewRom);
-        if (itc != mRomBoxartCache.end()) {
-            oldBoxTex = itc->second.tex; oldBoxAR = itc->second.ar; oldBoxPixel = itc->second.pixel;
+        const NdsHiBox& ob = mNdsHiBox[1];           // its big cover, if it had landed, so the fade-out is as sharp as it was
+        if (ob.tex && ob.rom == mNdsPrevPreviewRom) {
+            oldBoxTex = ob.tex; oldBoxAR = ob.ar; oldBoxW = ob.w; oldBoxH = ob.h;
+        } else {
+            auto itc = mRomBoxartCache.find(mNdsPrevPreviewRom);
+            if (itc != mRomBoxartCache.end()) {
+                oldBoxTex = itc->second.tex; oldBoxAR = itc->second.ar; oldBoxPixel = itc->second.pixel;
+            }
         }
+    } else if (mNdsHiBox[1].tex || !mNdsHiBox[1].rom.empty()) {   // dissolve over: the outgoing cover is no longer needed
+        if (mNdsHiBox[1].tex) glDeleteTextures(1, &mNdsHiBox[1].tex);
+        mNdsHiBox[1] = NdsHiBox();
     }
     bool boxPixel = false;
     if (boxTex) { auto itc = mRomBoxartCache.find(romPath); boxPixel = itc != mRomBoxartCache.end() && itc->second.pixel; }
@@ -3624,8 +3711,10 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
         // user: do not expand the green canvas). Contain-fit inside this rect, with a bit
         // of top margin so it clears the panel frame. During a game->game switch the
         // outgoing cover fades out (1-gt) while the incoming art fades in (gt).
-        float ax = X(24.0f), ay = Y(31.0f), aw = X(234.0f) - X(24.0f), ah = Y(154.0f) - Y(31.0f);
-        auto drawContain = [&](GLuint tex, float ar, float alpha, bool pixel) {
+        // (ax, ay, aw, ah: the rect fixed above, where the art was requested)
+        // tw/th: the texture's pixel size when it was already cut to this rect. Such a texture is
+        // drawn at that exact size on a whole-pixel origin, so it maps texel for texel.
+        auto drawContain = [&](GLuint tex, float ar, float alpha, bool pixel, int tw = 0, int th = 0) {
             if (!tex || alpha <= 0.001f) return;
             if (pixel) {
                 // PICO-8 cart label: the size of the icon it replaces (S(72), the focused-item
@@ -3637,12 +3726,15 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             }
             float bw = aw, bh = ah;
             if (ar >= aw / ah) bh = aw / ar; else bw = ah * ar;   // contain-fit
-            float bx = ax + (aw - bw) * 0.5f, by = ay + (ah - bh) * 0.5f;
+            if (tw > 0 && th > 0 && fabsf(bw - (float)tw) < 1.5f && fabsf(bh - (float)th) < 1.5f) {
+                bw = (float)tw; bh = (float)th;
+            }
+            const float bx = floorf(ax + (aw - bw) * 0.5f), by = floorf(ay + (ah - bh) * 0.5f);
             drawIconTex(tex, bx, by, bw, bh, 1.0f, 1.0f, 1.0f, alpha);
         };
-        if (oldBoxTex) drawContain(oldBoxTex, oldBoxAR, 1.0f - gt, oldBoxPixel);
-        if (boxTex) drawContain(boxTex, boxAR, (1.0f - xf) * gt, boxPixel);
-        if (fanTex) drawContain(fanTex, fanAR, (boxTex ? xf : 1.0f) * gt, false);
+        if (oldBoxTex) drawContain(oldBoxTex, oldBoxAR, 1.0f - gt, oldBoxPixel, oldBoxW, oldBoxH);
+        if (boxTex) drawContain(boxTex, boxAR, (1.0f - xf) * gt, boxPixel, boxTexW, boxTexH);
+        if (fanTex) drawContain(fanTex, fanAR, (boxTex ? xf : 1.0f) * gt, false, mNdsFanW, mNdsFanH);
         // game name below the art, cross-faded like the rest of the DSi selection text.
         // Long titles (e.g. "Tobu Tobu Girl Deluxe") are kept inside the panel by shrinking
         // the caption to fit one line, and word-wrapping to two shrink-to-fit lines only once
@@ -3707,10 +3799,23 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             // glyph as a last resort. Only in the plain-label case so settings value/description
             // readouts keep their space; game boxart/fanart is the if-branch above, untouched.
             { const float isz = S(72.0f); const float ixI = cx - isz * 0.5f; const float iyI = Y(46.0f);
-              if (hlIconTex) {
-                  if (hlOwnTint)      drawIconTex(hlIconTex, ixI, iyI, isz, isz, hlIconR, hlIconG, hlIconB, 1.0f);   // item's own colour (red loveheart)
-                  else if (hlNmapTex) drawIconTex(hlIconTex, ixI, iyI, isz, isz, tpal.glyphR, tpal.glyphG, tpal.glyphB, 1.0f);   // flat glyph (theme-tinted)
-                  else                drawIconTex(hlIconTex, ixI, iyI, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);        // colour art (game/app)
+              // A DS game without a cover (or before its cover lands) shows its own cartridge icon,
+              // as its tile does: the 32x32 banner at a whole-number scale (9x at 288 px) with
+              // NEAREST, centred on the same box as the glyph it replaces so the text stays put.
+              std::string dsRom; GLuint bannerTex = 0;
+              if (selItem && (selItem->kind == PS3_ROM || selItem->kind == PS3_RECENT) && ndsIsDsRomItem(*selItem, &dsRom))
+                  bannerTex = ndsBannerTex(dsRom);
+              if (bannerTex) {
+                  int k = (int)lroundf(isz / 32.0f); if (k < 1) k = 1;
+                  const float side = 32.0f * (float)k;
+                  drawIconTex(bannerTex, floorf(ixI + (isz - side) * 0.5f), floorf(iyI + (isz - side) * 0.5f), side, side, 1.0f, 1.0f, 1.0f, 1.0f);
+              } else if (hlIconTex) {
+                  // The shared system glyphs are 128 px textures; shown at 288 px that is a 2.25x
+                  // bilinear blow-up. The focused one is re-decoded at 256 px (one cached entry).
+                  const GLuint iconTex = ndsTopHiIcon(hlIconTex);
+                  if (hlOwnTint)      drawIconTex(iconTex, ixI, iyI, isz, isz, hlIconR, hlIconG, hlIconB, 1.0f);   // item's own colour (red loveheart)
+                  else if (hlNmapTex) drawIconTex(iconTex, ixI, iyI, isz, isz, tpal.glyphR, tpal.glyphG, tpal.glyphB, 1.0f);   // flat glyph (theme-tinted)
+                  else                drawIconTex(iconTex, ixI, iyI, isz, isz, 1.0f, 1.0f, 1.0f, 1.0f);        // colour art (game/app)
               } }
               // No glass fallback on the DSi top panel: glass is XMB-only (see the carousel tile).
             drawCtx(head, Y(132.0f), 1.0f, tpal.headR, tpal.headG, tpal.headB);   // #3b766d (hard-swap), below the icon
@@ -4455,7 +4560,7 @@ int NanoMenu::esdeFontFace(const std::string& path) {
 
 const GlyphInfo* NanoMenu::ensureGlyph(uint32_t cp, int rasterPx, int preferFace, float fracEm) {
     if (rasterPx < 6) rasterPx = 6;
-    if (rasterPx > mFontSize) rasterPx = mFontSize;   // upscale beyond the master in drawText
+    if (rasterPx > glyphRasterCap()) rasterPx = glyphRasterCap();   // upscale beyond the cap in drawText
     if (preferFace < 0 || preferFace >= mFtNumFaces) preferFace = -1;
     // ES-DE renders glyphs at the FRACTIONAL em (FT_Set_Char_Size), only meaningful for a non-upscaled
     // mono glyph; drop it once the raster is clamped to the master (upscale/color take the integer path).
@@ -4694,8 +4799,13 @@ float NanoMenu::measureText(const char* str, float scale, int preferFace) {
     float displayEm = (float)FONT_CHAR_H * scale;
     int rasterPx = (int)lroundf(displayEm);
     if (rasterPx < 6) rasterPx = 6;
-    if (rasterPx > mFontSize) rasterPx = mFontSize;
-    float strResidual = (displayEm > (float)mFontSize) ? (displayEm / (float)mFontSize) : 1.0f;
+    const int rasterCap = glyphRasterCap();
+    if (rasterPx > rasterCap) rasterPx = rasterCap;
+    float strResidual = (displayEm > (float)rasterCap) ? (displayEm / (float)rasterCap) : 1.0f;
+    // A colour glyph is always drawn at displayEm / mFontSize of its master strike, so past the
+    // master its share of the width scales with the raster size (rasterPx / mFontSize) here and
+    // with strResidual on top. Only the raised cap can put rasterPx above mFontSize.
+    const float colorScale = (rasterPx > mFontSize) ? (float)rasterPx / (float)mFontSize : 1.0f;
     // Width cache keyed by raster size + string (advances now differ per size).
     // drawList measures every visible label AND value every frame, so this keeps
     // the UTF-8 decode + per-glyph walk off the steady-state path.
@@ -4721,7 +4831,7 @@ float NanoMenu::measureText(const char* str, float scale, int preferFace) {
         else if ((b0 & 0xF8) == 0xF0) { cp = ((b0 & 0x07) << 18) | ((p[1] & 0x3F) << 12) | ((p[2] & 0x3F) << 6) | (p[3] & 0x3F); p += 4; }
         else { p++; continue; }
         const GlyphInfo* gi = ensureGlyph(cp, rasterPx, preferFace, mEsdeTheme ? displayEm : 0.0f);
-        if (gi) unit += gi->advance * gi->scaleW;
+        if (gi) unit += gi->advance * gi->scaleW * (gi->color ? colorScale : 1.0f);
     }
     // Copy, not move: moving out of the reusable buffer would surrender the
     // capacity this reuse exists to keep. The map owns a string either way, so
@@ -4765,6 +4875,13 @@ static inline void emitGlyph(int n, float x0, float y0, float x1, float y1,
     }
 }
 
+// Quad scale of one glyph. A colour emoji is always normalised to the master strike (mFontSize); a
+// mono glyph is drawn 1:1 up to the raster cap and only stretched past it.
+static inline float glyphResidual(bool color, float displayEm, int master, int cap) {
+    return color ? displayEm / (float)master
+                 : (displayEm > (float)cap ? displayEm / (float)cap : 1.0f);
+}
+
 void NanoMenu::drawText(const char* str, float px, float py, float scale,
                         float r, float g, float b, float a, int preferFace) {
     if (!str || !*str || mFtNumFaces == 0) return;
@@ -4777,7 +4894,8 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
     float displayEm = (float)FONT_CHAR_H * scale;   // device-px em height
     int rasterPx = (int)lroundf(displayEm);
     if (rasterPx < 6) rasterPx = 6;
-    if (rasterPx > mFontSize) rasterPx = mFontSize;
+    const int rasterCap = glyphRasterCap();
+    if (rasterPx > rasterCap) rasterPx = rasterCap;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
     float baseline = py + displayEm * 0.8f;
     float off = fmaxf(1.0f, scale * 0.4f) * mTextOutlineWidthMul;
@@ -4803,9 +4921,8 @@ void NanoMenu::drawText(const char* str, float px, float py, float scale,
         if (!git) continue;
         const GlyphInfo& gi = *git;
         // residual = 1.0 for crisp 1:1 mono at its rasterized size; > 1 only when
-        // the text is bigger than the master (upscaled) or a color emoji strike.
-        float residual = (gi.color || displayEm > (float)mFontSize)
-                       ? (displayEm / (float)mFontSize) : 1.0f;
+        // the text is bigger than the raster cap (upscaled) or a color emoji strike.
+        const float residual = glyphResidual(gi.color, displayEm, mFontSize, rasterCap);
         if (gi.bmpW == 0 || gi.bmpH == 0) {
             curX += gi.advance * gi.scaleW * residual;
             continue;
@@ -4938,7 +5055,8 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
     float displayEm = (float)FONT_CHAR_H * scale;
     int rasterPx = (int)lroundf(displayEm);
     if (rasterPx < 6) rasterPx = 6;
-    if (rasterPx > mFontSize) rasterPx = mFontSize;
+    const int rasterCap = glyphRasterCap();
+    if (rasterPx > rasterCap) rasterPx = rasterCap;
     float invW = 2.0f / mWidth, invH = 2.0f / mHeight;
     // Pass 1: resolve glyphs ONCE (the expensive UTF-8 decode + cache lookup).
     const GlyphInfo* gl[TEXT_MAX_CHARS];
@@ -4995,8 +5113,7 @@ void NanoMenu::drawTextGlow(const char* str, float px, float py, float scale,
         bool isCenter = (taps[t].dx == 0.0f && taps[t].dy == 0.0f);
         for (int i = 0; i < nG; i++) {
             const GlyphInfo& gi = *gl[i];
-            float residual = (gi.color || displayEm > (float)mFontSize)
-                           ? (displayEm / (float)mFontSize) : 1.0f;
+            const float residual = glyphResidual(gi.color, displayEm, mFontSize, rasterCap);
             if (gi.bmpW == 0 || gi.bmpH == 0) { curX += gi.advance * gi.scaleW * residual; continue; }
             float gw = gi.bmpW * gi.scaleW * residual;
             float gh = gi.bmpH * gi.scaleH * residual;
