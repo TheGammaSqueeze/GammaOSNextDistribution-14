@@ -410,6 +410,7 @@ void NanoMenu::pollControlCenterStats() {
         gCcShellInflight.load(std::memory_order_acquire) == 0 &&
         !sCc.volFresh.load(std::memory_order_acquire) && !sCc.volBusy.exchange(true)) {
         std::thread([]{
+            nanoThreadNormalPriority();   // spawned from the FIFO 80 / nice -20 render thread; popen children inherit it
             ccReadVolume();     // popen off the render thread -> sVol*
             ccReadWifi();       // popen off the render thread -> sWifiOn
             sCc.volFresh.store(true, std::memory_order_release);
