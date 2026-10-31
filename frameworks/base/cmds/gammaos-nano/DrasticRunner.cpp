@@ -5572,6 +5572,84 @@ static inline int aaTarget() { return gAaTargetFrames + gAaTargetBoost.load(std:
 //            // ring level the controller holds (sys audio_aaudio_target)
 static int gAaBurst = 0, gAaBufFrames = 0, gAaBufCap = 0, gAaSharing = -1, gAaPerf = -1, gAaRateGot = 0;
 static inline uint32_t aaLevel() { return gAaHead.load(std::memory_order_acquire) - gAaTail.load(std::memory_order_acquire); }
+// Edge envelopes of the sink. The callback used to step from the last sample straight to digital
+// zero when the ring ran dry (a menu open pauses the emulator, a state load leaves a gap) and from
+// zero straight to the waveform when it refilled: a broadband click at music level. The fast-forward
+// mute did the same to the mixer volume (100 -> 0 -> 100). Three pieces, all in the callback, so the
+// producer side and the ring contents stay as they were:
+//  - an announced gain (gAaMutePause from pauseToggle, gAaMuteFf from the fast-forward toggle) that
+//    slews over 5 ms, so a pause fades the real waveform that is still in the ring before it drains;
+//  - a hold fade for gaps nobody announced (state load, a late chunk, a flush): the last frame played
+//    decays to zero over 5 ms instead of dropping;
+//  - a 2.7 ms ramp-in on the first frames after a gap, crossfaded with what is left of the hold fade.
+// While the ring is fed and the gain is at unity the callback is the plain copy, sample for sample.
+// persist.gammaos.drastic_nano.aa_declick 0 restores the plain copy and the zero fill (and the
+// mixer-volume FF mute); it defaults on for the RG DS Plus only and is read once.
+enum { kAaHold = 240, kAaIn = 128, kAaUnity = 32768, kAaGStep = 137 };   // 5 ms hold fade, 2.7 ms ramp-in, Q15 unity, unity / 240 rounded up
+static std::atomic<int> gAaDeclick{-1};                 // -1 not read yet, 0 off, 1 on
+static std::atomic<int> gAaMutePause{0}, gAaMuteFf{0};  // announced mutes: the emulator pause, the fast-forward mute
+static std::atomic<bool> gAaFfMutedInSink{false};       // the FF-on went through gAaMuteFf, so FF-off clears it instead of restoring a volume
+static bool aaDeclickOn() {
+    int v = gAaDeclick.load(std::memory_order_relaxed);
+    if (v < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        v = android::drastic_settings::getInt("persist.gammaos.drastic_nano.aa_declick", strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0 ? 1 : 0;
+        gAaDeclick.store(v, std::memory_order_relaxed);
+    }
+    return v != 0;
+}
+// Plain statics, not thread_local: one callback thread exists at a time (a reopen closes the old
+// stream first) and the state has to survive the move to a new thread.
+struct AaEdge {
+    int lastL, lastR;   // the last frame emitted, the start of a hold fade
+    int holdL, holdR;   // what the running hold fade decays from (fixed for the whole fade)
+    int holdN;          // hold fade frames left, kAaHold at its start, 0 = none
+    int inN;            // ramp-in frames done, kAaIn = settled (0 = in a gap or just reset)
+    int gain;           // current sink gain, Q15
+};
+static AaEdge sAaEdge = {0, 0, 0, 0, 0, 0, kAaUnity};
+// Renders the n frames of one callback, avail of them from the ring (frames tail .. tail+avail-1)
+// and the rest without data. jumped: the flush moved the tail, so what played before does not join
+// what plays now.
+static void aaEdgeRender(int16_t* out, uint32_t tail, uint32_t avail, uint32_t n, bool jumped) {
+    AaEdge& e = sAaEdge;
+    const int tgt = (gAaMutePause.load(std::memory_order_relaxed) | gAaMuteFf.load(std::memory_order_relaxed)) ? 0 : kAaUnity;   // read once per callback
+    if (jumped) { e.holdL = e.lastL; e.holdR = e.lastR; e.holdN = kAaHold; e.inN = 0; }
+    uint32_t i = 0;
+    if (e.inN == kAaIn && e.holdN == 0 && e.gain == kAaUnity && tgt == kAaUnity) {   // steady play: the plain copy, only the last frame is noted
+        for (; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+        if (avail) { e.lastL = out[avail * 2 - 2]; e.lastR = out[avail * 2 - 1]; }
+    }
+    for (; i < n; i++) {
+        if (e.gain < tgt) { e.gain += kAaGStep; if (e.gain > tgt) e.gain = tgt; }
+        else if (e.gain > tgt) { e.gain -= kAaGStep; if (e.gain < tgt) e.gain = tgt; }
+        else if (i >= avail && e.holdN == 0 && e.inN == 0) {   // dry, faded out and the gain settled: plain silence for the rest
+            memset(out + i * 2, 0, (size_t)(n - i) * 4); e.lastL = 0; e.lastR = 0; break;
+        }
+        int l, r;
+        if (i < avail) {
+            const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2;
+            l = gAaRing[k]; r = gAaRing[k + 1];
+            if (e.gain != kAaUnity) { l = (l * e.gain) >> 15; r = (r * e.gain) >> 15; }
+            if (e.inN < kAaIn || e.holdN > 0) {
+                // The new audio ramps in while what is left of the hold fade ramps out (weights inN and
+                // (kAaIn - inN) of kAaIn), so there is no step when data returns and no overshoot.
+                const int h = e.holdN * (kAaIn - e.inN);
+                l = (l * e.inN + e.holdL * h / kAaHold) / kAaIn;
+                r = (r * e.inN + e.holdR * h / kAaHold) / kAaIn;
+            }
+            if (e.inN < kAaIn) e.inN++;
+            if (e.holdN > 0) e.holdN--;
+        } else {
+            if (e.inN > 0) { e.holdL = e.lastL; e.holdR = e.lastR; e.holdN = kAaHold; e.inN = 0; }   // the first dry frame: fade from what was last played
+            l = e.holdL * e.holdN / kAaHold; r = e.holdR * e.holdN / kAaHold;
+            if (e.holdN > 0) e.holdN--;
+        }
+        out[i * 2] = (int16_t)l; out[i * 2 + 1] = (int16_t)r;
+        e.lastL = l; e.lastR = r;
+    }
+}
 static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* audioData, int32_t numFrames) {
     gAaCallbacks.fetch_add(1, std::memory_order_relaxed);
     {   // The HAL's mmap buffer is 10 ms (5 ms x 2): a callback later than one period lets the DMA replay
@@ -5593,15 +5671,23 @@ static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* 
     }
     int16_t* out = static_cast<int16_t*>(audioData);
     uint32_t tail = gAaTail.load(std::memory_order_relaxed);
+    bool jumped = false;
     if (gAaFlushArmed.exchange(0, std::memory_order_acq_rel)) {   // a burst overfilled the ring: keep only the newest audio
         const uint32_t to = gAaFlushTo.load(std::memory_order_relaxed);
-        if ((int32_t)(to - tail) > 0) tail = to;
+        if ((int32_t)(to - tail) > 0) { tail = to; jumped = true; }
     }
-    uint32_t avail = gAaHead.load(std::memory_order_acquire) - tail;
+    const uint32_t head = gAaHead.load(std::memory_order_acquire);
+    uint32_t avail = head - tail;
     uint32_t n = (uint32_t)numFrames; if (avail > n) avail = n;
-    for (uint32_t i = 0; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+    const bool declick = gAaDeclick.load(std::memory_order_relaxed) > 0;   // primed by aaOpen before the stream starts
+    const bool shaped = declick && head != 0;   // silence before the first chunk has no edge to shape
+    if (shaped) aaEdgeRender(out, tail, avail, n, jumped);
+    else {
+        for (uint32_t i = 0; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+        if (declick) { sAaEdge.inN = 0; sAaEdge.holdN = 0; sAaEdge.lastL = 0; sAaEdge.lastR = 0; }   // before the first chunk and after a reopen: the first audio ramps in
+    }
     if (avail < n) {
-        memset(out + avail * 2, 0, (size_t)(n - avail) * 4);
+        if (!shaped) memset(out + avail * 2, 0, (size_t)(n - avail) * 4);
         if (gAaHead.load(std::memory_order_relaxed) != 0) {   // silence before the first chunk is not an underrun
             gAaXruns.fetch_add(1, std::memory_order_relaxed); gAaUnderFrames.fetch_add(n - avail, std::memory_order_relaxed);
             // The emulator was late with a chunk: hold more audio for a while (one burst per underrun
@@ -5650,11 +5736,12 @@ static int aaOpen() {
     AAudioStream_setBufferSizeInFrames(st, gAaBurst * (bursts < 1 ? 1 : bursts));
     gAaBufFrames = AAudioStream_getBufferSizeInFrames(st); gAaBufCap = AAudioStream_getBufferCapacityInFrames(st); gAaSharing = AAudioStream_getSharingMode(st); gAaPerf = AAudioStream_getPerformanceMode(st); gAaRateGot = AAudioStream_getSampleRate(st);
     gAaTargetFrames = property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_target", 720);
+    aaDeclickOn();   // reads the kill switch now, so the callback only ever sees the settled value
     r = AAudioStream_requestStart(st);
     if (r != AAUDIO_OK) { ALOGW("DrasticRunner: AAudio start failed %d", r); AAudioStream_close(st); return 0; }
     gAaStream = st;
-    ALOGI("DrasticRunner: AAudio sink open: rate %d, burst %d, buffer %d of %d frames, sharing %s, perf %s, ring target %d frames",
-          gAaRateGot, gAaBurst, gAaBufFrames, gAaBufCap, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED", gAaPerf == AAUDIO_PERFORMANCE_MODE_LOW_LATENCY ? "LOW_LATENCY" : "other", gAaTargetFrames);
+    ALOGI("DrasticRunner: AAudio sink open: rate %d, burst %d, buffer %d of %d frames, sharing %s, perf %s, ring target %d frames, declick %d",
+          gAaRateGot, gAaBurst, gAaBufFrames, gAaBufCap, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED", gAaPerf == AAUDIO_PERFORMANCE_MODE_LOW_LATENCY ? "LOW_LATENCY" : "other", gAaTargetFrames, gAaDeclick.load(std::memory_order_relaxed));
     return 1;
 }
 // Ring keeper, one decision per vblank in either pacing mode: +1 = run one extra emulated frame,
@@ -5671,6 +5758,7 @@ static void aaCloseSink() {
     AAudioStream* st = gAaStream;
     if (!st) return;
     gAaudioSink.store(0, std::memory_order_release);
+    gAaMuteFf.store(0, std::memory_order_release);   // the FF mute lives in the sink: without one it must not stay set
     gAaStream = nullptr;
     AAudioStream_requestStop(st);
     aaudio_stream_state_t next = AAUDIO_STREAM_STATE_UNINITIALIZED;
@@ -6339,6 +6427,7 @@ static void raAudioSubmitHookBody(uint8_t* ctx) {
                     // returns, restores drastic's own player. Chunks drop while it works, the same as
                     // during the first open; the sink no longer stays dead for the rest of the session.
                     gAaudioSink.store(0, std::memory_order_release); gAaOpenState.store(0);
+                    gAaMuteFf.store(0, std::memory_order_release);   // see aaCloseSink
                     ALOGW("DrasticRunner: AAudio sink reopen failed, the opener thread retries");
                     aaStartOpener();
                     ctx[0x40027] = 1; sAaSetSkip = true;
@@ -8851,6 +8940,10 @@ void DrasticRunner::pauseToggle(bool pause) {
     if (!mInitialized || !mPauseSystem) return;
     if (pause == mPaused) return;
     const int64_t t0 = android::elapsedRealtimeNano();
+    // Announce the pause to the AAudio sink first: the ring still holds 15 to 30 ms of the real
+    // waveform, which the sink fades out over 5 ms before it drains (and fades back in once the
+    // emulator feeds it again). It follows mPaused, so every resume path clears it.
+    if (aaDeclickOn()) gAaMutePause.store(pause ? 1 : 0, std::memory_order_release);
     mPauseSystem(mFakeEnv, mFakeCls, pause ? 1 : 0);
     mPaused = pause;
     ALOGI("DrasticRunner::pauseToggle: paused=%d (%.1f ms)", pause ? 1 : 0,
@@ -12274,13 +12367,23 @@ void DrasticRunner::setFastForward(bool on) {
     // skip and amplifies the perceived choppiness. Mute it on FF and
     // restore the user's exact volume on release (what mGBA/Dolphin/RA
     // all do). Keep the engine running -- only zero the volume. Gated by
-    // persist.gammaos.drastic_nano.ff_mute (default 1).
+    // persist.gammaos.drastic_nano.ff_mute (default 1). With the AAudio
+    // sink up the mute is the sink's own 5 ms gain ramp (gAaMuteFf) and
+    // the mixer volume stays untouched, so neither edge steps; without it
+    // (OpenSL, or aa_declick 0) the volume goes to 0 and back as before.
     if (mSetAudioVolume) {
         if (on) {
             if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_mute", 1)) {
-                mPreFfVolume = mCurVolume;
-                setVolumeRuntime(0);
+                if (gAaudioSink.load(std::memory_order_acquire) && aaDeclickOn()) {
+                    gAaFfMutedInSink.store(true, std::memory_order_relaxed);
+                    gAaMuteFf.store(1, std::memory_order_release);
+                } else {
+                    mPreFfVolume = mCurVolume;
+                    setVolumeRuntime(0);
+                }
             }
+        } else if (gAaFfMutedInSink.exchange(false, std::memory_order_relaxed)) {
+            gAaMuteFf.store(0, std::memory_order_release);   // also right when the sink went away meanwhile: the volume was never lowered
         } else if (mPreFfVolume >= 0) {
             setVolumeRuntime(mPreFfVolume);
             mPreFfVolume = -1;
