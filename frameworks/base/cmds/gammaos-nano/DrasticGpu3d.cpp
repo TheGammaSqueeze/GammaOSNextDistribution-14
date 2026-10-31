@@ -243,6 +243,15 @@ struct Gpu3d {
     // the sequence of the job kicked this frame, and the lag mode the compositor reads with.
     uint32_t latestSeq = 0; uint8_t* prevTarget = nullptr; uint32_t prevSeq = 0; uint32_t kickSeq = 0;
     struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; int pow15 = -1; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
+    // Parity mode (sys gpu3d_swap_parity, g.mtx): while a game swaps the engines between the screens
+    // every frame, each screen assignment (POWCNT1 bit 15) keeps its own newest finished frame. That
+    // buffer is what the compositor shows for the assignment and is not reused as a target for as
+    // long as it is the newest of its assignment, however old it gets.
+    struct ParHold { uint8_t* t = nullptr; uint32_t seq = 0; } parHold[2]; bool parityOn = false;
+    uint32_t parDropQ = 0, parDropNew = 0;   // parity mode: queued jobs replaced / new jobs shed instead of waiting for the GL thread
+    // Texture uploads of jobs that were shed (g.mtx): they are newer than every job already queued and
+    // older than the next one that is, so that next job runs them first (see the queue block).
+    std::vector<Upload> parCarry;
     uint8_t* bufE = nullptr;        // fifth decoupled buffer: with the lag rule two finished frames stay readable
     uint8_t* bufF = nullptr;        // sixth: the buffer the lag rule would read right now stays protected as well
     std::atomic<uint32_t> curSeq{0}; std::atomic<int> lagMode{0}; uint32_t lagMissWin = 0, lagClean = 0, lagRuleEnters = 0;
@@ -1664,6 +1673,7 @@ void resetAtlas() {
     g.texCache.clear(); g.smallNext = g.bigNext = g.palNext = g.dirNext = g.dirBigNext = 0;
     g.freeSmall.clear(); g.freeBig.clear(); g.freePal.clear(); g.freeDir.clear(); g.freeDirBig.clear();
     g.atlasGen++;
+    { std::lock_guard<std::mutex> lk(g.mtx); g.parCarry.clear(); }   // the layers it names are gone (callers hold no g.mtx)
 }
 static bool takeLayer(std::vector<int>& freeList, int& next, int limit, int& out) {
     if (!freeList.empty()) { out = freeList.back(); freeList.pop_back(); return true; }
@@ -2707,6 +2717,8 @@ static void publishLatest(uint8_t* target, uint32_t seq, int pow15) {
     g.prevTarget = g.latest.load(std::memory_order_acquire); g.prevSeq = g.latestSeq;
     g.latest.store(target, std::memory_order_release); g.latestSeq = seq;
     g.fin[g.finN & 3] = { target, seq, pow15 }; g.finN++;
+    // Parity mode: the finished job becomes the frame its own screen assignment shows from now on.
+    if (g.parityOn && target && (pow15 == 0 || pow15 == 1) && seq >= g.parHold[pow15].seq) g.parHold[pow15] = { target, seq };
 }
 // The buffer the compositor reads for kick k (g.mtx held): the newest finished job whose kick is
 // at most k - back. Lag 0 reads back 0 (the job of this kick when it is already done, else the one
@@ -2716,23 +2728,38 @@ static uint8_t* lagRead(uint32_t k, unsigned back) {
     for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + back <= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
     return best ? best : g.latest.load(std::memory_order_acquire);
 }
-// Parity-matched read for a game that swaps the engines between the screens every frame (see
-// gpu3dFrame, sys gpu3d_swap_parity): the newest finished job of the last two kicks that was
-// rendered for the same screen assignment (g.mtx held). Under strict alternation that is the job
-// two kicks back. Never a frame of the other parity: it would land on the wrong screen.
-static uint8_t* parityRead(uint32_t k, int pow15) {
-    uint8_t* best = nullptr; uint32_t bestSeq = 0;
-    for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.pow15 == pow15 && f.seq <= k && f.seq + 2 >= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
-    return best;
+// ---- Parity mode (see gpu3dFrame, sys gpu3d_swap_parity) ----
+// The buffer the compositor shows for a screen assignment (g.mtx held): the newest finished job
+// rendered for exactly that assignment, whatever its age. Never a frame of the other assignment:
+// it would land on the wrong screen. Null outside a parity session.
+static uint8_t* parityRead(int pow15) {
+    return g.parityOn && (pow15 == 0 || pow15 == 1) ? g.parHold[pow15].t : nullptr;
 }
-// A job of that screen assignment within the last two kicks that is still queued, rendering or
-// waiting for the scatter helper (g.mtx held): worth a short wait for.
-static bool parityPending(uint32_t k, int pow15) {
-    for (int i = 0; i < g.qCount && i < 2; i++) { const Job* q = g.queue[(g.qHead + i) & 1]; if (q && !q->cancel && q->pow15 == pow15 && q->seq + 2 >= k) return true; }
-    const Job* p = gPendJob.load(std::memory_order_acquire);
-    return p && p->pow15 == pow15 && p->seq + 2 >= k;
+static void parityEnd() {   // g.mtx held
+    g.parityOn = false; g.parHold[0] = Gpu3d::ParHold(); g.parHold[1] = Gpu3d::ParHold();
+}
+// Start a parity session (g.mtx held). The two newest finished jobs must be the frames of the last
+// two kicks, one per screen assignment, in different buffers, with nothing queued or waiting for
+// its scatter, and both published after this alternation began (finMin). They are the synchronous
+// frames of the alternation so far, nothing has written their buffers since, and they become the
+// frames the two screens show first. Returns null when the session started, else why it did not
+// (the caller logs that now and then: a session that never engages must be told apart from one
+// that engages and works).
+static const char* paritySeed(uint32_t k, unsigned finMin) {
+    if (g.qCount > 0) return "a job is still queued or rendering";
+    if (gPendJob.load(std::memory_order_acquire)) return "a finished job is still waiting for its scatter";
+    if (g.finN < 2 || g.finN < finMin + 2) return "fewer than two jobs finished since the alternation began";
+    const auto& a = g.fin[(g.finN - 1) & 3]; const auto& b = g.fin[(g.finN - 2) & 3];
+    if (!a.t || !b.t) return "a finished job has no buffer";
+    if (a.t == b.t) return "the last two finished jobs share a buffer";
+    if ((unsigned)a.pow15 > 1u || (unsigned)b.pow15 > 1u || a.pow15 == b.pow15) return "the last two finished jobs are not one per screen assignment";
+    if (a.seq + 4 < k || b.seq + 4 < k) return "the last two finished jobs are more than four kicks old";
+    g.parHold[a.pow15] = { a.t, a.seq }; g.parHold[b.pow15] = { b.t, b.seq };
+    g.parityOn = true; g.parDropQ = g.parDropNew = 0;
+    return nullptr;
 }
 static std::atomic<int> gParityWant{-1};   // the screen assignment the compositor's 3D read must match, -1 = the ordinary read
+static std::atomic<uint32_t> gParRead{0}, gParAgeSum{0}, gParAgeMax{0};   // parity mode census: composites, and the age in kicks of the 3D frame shown (written by the compositor, read and cleared by the worker)
 static int gPipeline = 1;
 static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
 static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
@@ -3944,6 +3971,25 @@ void glThreadMain() {
 
 static bool gDecoupleWanted = false;   // decoupled mode selected (knob or the 4x setting)
 
+// Cancel every queued job the GL thread has not started (g.mtx held; the GL thread reads `cancel` under
+// g.mtx before it marks a job rendering) and keep their texture uploads: texFor counted them as uploaded
+// already, so they would be lost with the job. They go to the front of g.parCarry, oldest job first: they
+// are older than whatever the carry holds (see the queue block), and the sync job the caller queues next
+// runs the carry ahead of its own uploads.
+static void cancelQueuedKeepUploads() {
+    size_t at = 0;
+    for (int i = 0; i < g.qCount; i++) {
+        Job* q = g.queue[(g.qHead + i) & 1];
+        if (q == g.rendering || q == g.rendering2) continue;
+        q->cancel = true;
+        if (q->uploads.empty()) continue;
+        g.bpUploadsCarried += (uint32_t)q->uploads.size();
+        g.parCarry.insert(g.parCarry.begin() + at, std::make_move_iterator(q->uploads.begin()), std::make_move_iterator(q->uploads.end()));
+        at += q->uploads.size();
+        q->uploads.clear();
+    }
+}
+
 // Worker side: block until the GL thread has finished every queued job. Also leaves the
 // decoupled mode (the CPU rasterizer or the progressive path takes over from here).
 void joinPrevious(bool cancelQueued = false) {
@@ -3951,8 +3997,8 @@ void joinPrevious(bool cancelQueued = false) {
     std::unique_lock<std::mutex> lk(g.mtx);
     // A synchronous frame after an engine swap: the queued decoupled frame (not yet rendering)
     // would show on the wrong screen anyway, and rendering it first cost 40 to 60 ms of GL time
-    // at the transition. Drop it.
-    if (cancelQueued) for (int i = 0; i < g.qCount; i++) { Job* q = g.queue[(g.qHead + i) & 1]; if (q != g.rendering && q != g.rendering2) q->cancel = true; }
+    // at the transition. Drop it; its texture uploads ride along with the synchronous frame.
+    if (cancelQueued) cancelQueuedKeepUploads();
     // A queued decoupled job may be sitting in its present wait (up to 16 ms): the frame that
     // needs this join (a synchronous frame after an engine swap) cannot afford it. Measured on
     // Pokemon: the swap frame ran past the 40 ms band wait and drained the audio queue (960
@@ -3962,6 +4008,8 @@ void joinPrevious(bool cancelQueued = false) {
     g.joinWanted = false;
     g.latest.store(nullptr, std::memory_order_release);
     g.decoupledActive.store(false, std::memory_order_release);
+    parityEnd();   // the decoupled session is over: the CPU rasterizer or a synchronous frame may now write the buffers a parity hold kept
+    gParityWant.store(-1, std::memory_order_release);
     g.sumWaitUs += nowUs() - t0;
 }
 // Decoupled mode: wait only until the GL queue has room (at most one job running or queued).
@@ -3970,6 +4018,17 @@ static void waitQueueRoom() {
     std::unique_lock<std::mutex> lk(g.mtx);
     while (g.qCount >= 2) g.cvDone.wait(lk);
     g.sumRoomUs += nowUs() - t0;
+}
+// The four decoupled output buffers beyond drastic's own bufA/bufB (allocated on first use).
+// Returns whether all of them exist.
+static bool decoupledBufs() {
+    uint8_t** bufs[4] = { &g.bufC, &g.bufD, &g.bufE, &g.bufF };
+    for (uint8_t** b : bufs) {
+        if (*b) continue;
+        void* m = nullptr;
+        if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); *b = (uint8_t*)m; }
+    }
+    return g.bufC && g.bufD && g.bufE && g.bufF;
 }
 
 }  // namespace
@@ -4081,7 +4140,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             if (retryFrames > 0 && ++g.backoffElapsed >= (uint32_t)retryFrames) {
                 g.backoffFrames = 0; g.backoffElapsed = 0; g.emaUs = 0.f; ALOGI("gpu3d: retrying the GPU path");
             } else { joinPrevious(); return false; }
-        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && ++g.overBudget >= 30) {
+        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && !g.parityOn && ++g.overBudget >= 30) {   // parity mode sheds jobs instead of waiting, so a slow job there is no reason to shed MSAA or leave the GPU path
             // Heavy-scene fallback ladder. On the MSAA supersampling path (ss 3), a scene that
             // cannot hold 60 at 4x sheds to 2x (still supersampled, same resolution) and STAYS at
             // 2x: 2x on the GPU is a smaller quality step than the CPU rasterizer (native, no
@@ -4176,7 +4235,8 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // master+0x1b374): a frame late, the layer lands on the other screen. Both cases are games
     // that alternate views every frame (Mario Kart's pre-race line-up flickered between the two
     // cameras), so any capture or swap holds the synchronous path a few frames; a game that
-    // keeps doing it stays synchronous.
+    // keeps doing it stays synchronous, except on the RG DS Plus, where a steady swap switches
+    // to parity mode (below).
     static uint32_t syncHold = 0; static int lastPow15 = -1;
     const uint8_t* master = *reinterpret_cast<uint8_t* const*>(R);
     const int pow15 = master ? (*reinterpret_cast<const uint16_t*>(master + 0x1b374) >> 15) & 1 : 0;
@@ -4189,58 +4249,82 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     const uint32_t modeA = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1b070) >> 16) & 3 : 0;
     const uint32_t modeB = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1c070) >> 16) & 3 : 0;
     const bool capShown = capNow && modeB == 2;
-    // Steady alternation (opt-in, RG DS Plus only; sys gpu3d_swap_parity 1, default 0). A game that
-    // swaps every frame (Mario Kart's pre-race line-up) holds the synchronous path for as long as
-    // it does, which serialises the emulator behind the GL job: the compositor waited 11 ms a frame
-    // and emulation fell to 50-57 fps. Instead each screen reads the newest finished 3D frame that
-    // was rendered for the SAME screen assignment, which under strict alternation is the job two
-    // kicks back: every image lands on its own screen, two frames old (the sync path's image is
-    // current). That is added video latency, which the lag rule (gpu3d_lag) records the user does
-    // not accept, hence opt-in until frame dumps against the CPU rasterizer and a user check.
-    // Any miss falls back to the synchronous path and stays there for 120 frames.
-    static int parityKnob = 0, altRun = 0, parityFail = 0; static bool parityPrev = false; static uint32_t parityFrames = 0, parityLastCall = 0;
+    // Steady alternation: parity mode (RG DS Plus only; sys gpu3d_swap_parity, default 1, 0 = the
+    // synchronous path). A game that swaps the engines every frame (Mario Kart's course intro and
+    // pre-race line-up) used to hold the synchronous path for as long as it did, which serialises
+    // the emulator behind the GL job: the job needs 15 to 19 ms there, a frame is 16.7, so the
+    // compositor waited every frame, emulation fell to 39-55 fps, the audio queue ran dry and the
+    // AAudio stream underran (the stutter before every race).
+    // Parity mode never blocks the emulator on the GL thread. Each screen assignment (POWCNT1 bit
+    // 15) keeps the newest finished 3D frame that was rendered for ITS assignment (g.parHold), and
+    // the compositor shows that one: a frame rendered for one screen is never shown on the other.
+    // Under strict alternation that is the job two kicks back; when the GL thread is late the
+    // screen keeps showing its last frame (3 to 6 kicks old) instead of waiting for a newer one.
+    // Added video latency, against the synchronous path's current image, exists only inside these
+    // swap scenes: Mario Kart's intro camera and line-up are cut scenes that take no player input.
+    // When the GL queue is full the kick sheds a job (queue time, below) instead of waiting, always
+    // one whose screen assignment another job in flight still covers, so neither screen starves.
+    // A late frame never ends the mode. Ending it takes a display capture shown on the other
+    // engine, the end of the alternation (no swap for 4 kicks) or a change of the configuration
+    // (the knob, hi-res 3D, fast forward, the CPU rasterizer, the lag rule), each of which joins
+    // the GL queue and goes back to synchronous frames for a few kicks. The leaving kick keeps the
+    // holds and the screen assignment's read until joinPrevious has drained the queue (it ends the
+    // session), so the composites during that join still show the frame of their own screen.
+    // The shed logic at queue time assumes the GL thread takes one job at a time (sys gpu3d_pipe2
+    // 0, the default): with the two-in-flight pipeline a queued job the GL thread has already picked
+    // is also never replaced (it is shed instead), but parity mode has not been measured with it, so
+    // parityOk requires the pipeline off (switching it on ends a running session like any other change).
+    static int parityKnob = -1, altRun = 0, swapIdle = 0, seedFails = 0; static uint32_t parityFrames = 0, parityLastCall = 0; static unsigned runFin = 0; static bool pipe2On = false;
     static const bool parityDev = [] { char d[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", d, ""); return strcmp(d, "anbernicrgdsplus") == 0; }();
-    if (parityDev && (g.frame & 63) == 0) parityKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_swap_parity", 0);
-    if (parityLastCall + 1 != callNo) { altRun = 0; parityPrev = false; }   // the CPU rasterizer had frames in between: the finished 3D frames are stale
+    if (parityDev && (parityKnob < 0 || (g.frame & 63) == 0)) { parityKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_swap_parity", 1); pipe2On = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipe2", 0) != 0; }
+    const bool parityGap = parityLastCall + 1 != callNo;   // the CPU rasterizer had frames in between: the finished 3D frames are stale
     parityLastCall = callNo;
+    if (parityGap) altRun = 0;
     altRun = swapNow ? altRun + 1 : 0;
-    if (parityFail > 0) parityFail--;
-    bool parity = parityKnob == 1 && altRun >= 8 && !capShown && gDecoupleWanted && threaded && g.lagMode.load(std::memory_order_relaxed) == 0 && parityFail == 0;
-    uint8_t* parityBuf = nullptr;
-    if (parity) {
-        std::unique_lock<std::mutex> lk(g.mtx);
-        const uint32_t k = g.kickSeq + 1;
-        parityBuf = parityRead(k, pow15);
-        // The same-parity job may still be in the GL queue (a slow job): wait for it, but only a little.
-        if (!parityBuf && parityPending(k, pow15))
-            g.cvDone.wait_for(lk, std::chrono::milliseconds(8), [&] { parityBuf = parityRead(k, pow15); return parityBuf != nullptr || g.quit; });
-        if (!parityBuf) {
-            parity = false; parityFail = 120;
-            ALOGW("gpu3d: no finished 3D frame for screen assignment %d within two kicks (kick %u), synchronous frames for 120 frames", pow15, k);
+    swapIdle = swapNow ? 0 : (swapIdle < 1000 ? swapIdle + 1 : swapIdle);
+    if (altRun == 1) { std::lock_guard<std::mutex> lk(g.mtx); runFin = g.finN; }   // the session needs two jobs finished since the alternation began
+    if (altRun == 0) seedFails = 0;
+    // Not with gpu3d_pipe2: the shed logic and the hold / exclusion lists assume one job at a time in the GL thread (see above).
+    const bool parityOk = parityKnob == 1 && !pipe2On && !parityGap && !capShown && gDecoupleWanted && threaded && g.lagMode.load(std::memory_order_relaxed) == 0;
+    bool parity = false, parityStart = false, parityLeft = false; uint8_t* parityBuf = nullptr;
+    if (parityOk && altRun >= 8) decoupledBufs();   // before the lock: the session needs all four extra buffers (two holds, running, queued, scattering, and this job's target)
+    {
+        std::lock_guard<std::mutex> lk(g.mtx);
+        if (g.parityOn) {
+            // Stay while the configuration allows it and the game is still alternating (a frame or two
+            // without a swap is harmless: each kick still reads the frame of its own assignment).
+            if (parityOk && swapIdle <= 3 && g.parHold[pow15].t) { parity = true; parityBuf = g.parHold[pow15].t; }
+            else parityLeft = true;   // joinPrevious below ends the session once the queue has drained
+        } else if (parityOk && altRun >= 8) {
+            const char* why = (g.bufC && g.bufD && g.bufE && g.bufF) ? paritySeed(g.kickSeq + 1, runFin) : "the extra output buffers are not allocated";
+            if (!why) { parity = true; parityStart = true; parityBuf = g.parHold[pow15].t; }
+            else if (++seedFails % 120 == 0)
+                ALOGI("gpu3d: parity mode has not engaged after %d tries during a steady engine swap (%d consecutive): %s (queued %d, scatter pending %d, finished %u, since the swap began %u, kick %u)",
+                      seedFails, altRun, why, g.qCount, gPendJob.load(std::memory_order_acquire) ? 1 : 0, g.finN, g.finN - runFin, g.kickSeq + 1);
         }
     }
+    if (parityStart) g.overBudget = 0;   // the swap scene's own history starts here
     if (parity) {
-        if (!parityPrev) { parityFrames = 0; ALOGI("gpu3d: steady engine swap (%d consecutive), parity-matched 3D layer instead of synchronous frames", altRun); }
+        if (parityStart) { parityFrames = 0; (void)gParRead.exchange(0, std::memory_order_relaxed); (void)gParAgeSum.exchange(0, std::memory_order_relaxed); (void)gParAgeMax.exchange(0, std::memory_order_relaxed); ALOGI("gpu3d: steady engine swap (%d consecutive), parity mode: each screen shows the newest finished 3D frame rendered for it, the emulator no longer waits for the GL thread", altRun); }
         parityFrames++;
         syncHold = 0;
-    } else if (capShown || swapNow || parityPrev) {
-        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : capShown ? "display capture shown" : "parity-matched 3D layer ended", modeA, modeB);
-        if (parityPrev) ALOGI("gpu3d: parity-matched 3D layer left after %u frames", parityFrames);
+        if (parityFrames % 600 == 0) {
+            const uint32_t n = gParRead.exchange(0, std::memory_order_relaxed), sum = gParAgeSum.exchange(0, std::memory_order_relaxed), mx = gParAgeMax.exchange(0, std::memory_order_relaxed);
+            ALOGI("gpu3d: parity mode: %u composites, the 3D frame shown was %.1f kicks old on average (max %u), jobs shed while the GL thread was behind: %u queued, %u new (this session)",
+                  n, n ? (double)sum / n : 0.0, mx, g.parDropQ, g.parDropNew);
+        }
+    } else if (capShown || swapNow || parityLeft) {
+        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : capShown ? "display capture shown" : "parity mode ended", modeA, modeB);
+        if (parityLeft) ALOGI("gpu3d: parity mode left after %u frames (jobs shed: %u queued, %u new)", parityFrames, g.parDropQ, g.parDropNew);
         // Short hold: a game that alternates re-arms it every frame; a one-off swap (Pokemon at a
         // battle transition) costs 4 synchronous frames, not 4 seconds at 53 fps (measured).
         syncHold = 4;
     } else if (syncHold) syncHold--;
-    parityPrev = parity;
-    gParityWant.store(parity ? pow15 : -1, std::memory_order_release);
+    gParityWant.store(parity || parityLeft ? pow15 : -1, std::memory_order_release);   // the leaving kick keeps it through the join: the newest finished frame could be the other screen's
     if ((g.frame % 600) == 3 && capNow && !capShown) ALOGI("gpu3d: capture armed but not displayed (modes A %u B %u), decoupled path kept", modeA, modeB);
     const bool capSync = syncHold > 0;
     const bool decoupled = gDecoupleWanted && threaded && !capSync;
-    if (decoupled) {
-        if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
-        if (!g.bufD) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufD = (uint8_t*)m; } }
-        if (!g.bufE) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufE = (uint8_t*)m; } }
-        if (!g.bufF) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufF = (uint8_t*)m; } }
-    }
+    if (decoupled) decoupledBufs();
     // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
     // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
     // composite, and that late frame is the dropped vblank. gpu3d_drop_bp routes it differently:
@@ -4250,8 +4334,18 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // stay on time, and no extra buffer or latency is added. Quality is unchanged (a dropped 3D
     // frame, not a lower-quality one). Off by default until measured.
     static int dropBpKnob = 1; if ((g.frame & 63) == 0) dropBpKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_drop_bp", 1);
-    const bool dropBp = decoupled && g.bufC && dropBpKnob != 0 && !parity;   // parity-matched reads: a dropped job would remove the only frame of one screen assignment
-    if (!decoupled || !g.bufC) joinPrevious(capSync);   // the previous GPU frame must be in the buffers before regs/target move on
+    // Parity mode always sheds instead of waiting: a shed job never reaches a screen, and the frame
+    // each screen shows is kept in g.parHold, so dropping loses no screen assignment's only frame.
+    const bool dropBp = decoupled && g.bufC && (dropBpKnob != 0 || parity);
+    // The kick that leaves parity mode cancels every queued job: rendering one that carries texture
+    // uploads first held the join (and the emulator) for up to about 36 ms, and the end of a swap scene is
+    // where a new set of textures arrives. The uploads move to g.parCarry and the synchronous job of this
+    // kick runs them (cancelQueuedKeepUploads).
+    if (parityLeft) {
+        std::lock_guard<std::mutex> lk(g.mtx);
+        cancelQueuedKeepUploads();
+    }
+    if (!decoupled || !g.bufC) joinPrevious(capSync && !parityLeft);   // the previous GPU frame must be in the buffers before regs/target move on
     else if (!dropBp) waitQueueRoom();
     const int64_t t0 = nowUs();
     gStage = 1;
@@ -4273,20 +4367,41 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // Read pointer: the newest finished frame (the CPU rasterizer's last frame before the
         // first GPU frame lands). Write buffer: one of the three that is neither read now nor
         // the target of the job still in the GL queue.
-        uint8_t* latest = g.latest.load(std::memory_order_acquire);
         // What the compositor may read at this frame's latch and the next: the finished jobs of the
         // last two kicks, and the buffer the lag rule would read right now (after a back-pressure
         // drop that is an older one: it was left off this list and the next job rendered into the
         // buffer being composed, a tear across the 3D layer on Pokemon White 2's title). Six buffers
         // make the exclusion always fit.
+        // Everything that takes a buffer is read in ONE critical section: the finished frames, the
+        // queued and rendering jobs and the frame waiting for its scatter. The scatter helper
+        // publishes (and clears the pending target) under g.mtx, and the GL thread stores the pending
+        // target before it pops the job under g.mtx, so a snapshot of all of them always finds a
+        // buffer either in flight (queued, rendering, pending scatter) or finished. Reading them in
+        // separate sections let a job that was published in between fall in none of the lists, and
+        // the next target was the buffer a hold or the lag rule was about to read (parity mode: the
+        // other screen's 3D frame, torn while the scatter ran).
+        uint8_t* latest = nullptr;
         uint8_t* keep[3] = { nullptr, nullptr, nullptr };
-        { std::lock_guard<std::mutex> lk(g.mtx); const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
-          for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
-          keep[2] = parityBuf ? parityBuf : lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
-        uint8_t* readBuf = parityBuf ? parityBuf : latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* busy[4] = { nullptr, nullptr, nullptr, nullptr };
-        { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; if (g.rendering2) busy[3] = g.rendering2->target; }
-        uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
+        uint8_t* pendT = nullptr;
+        { std::lock_guard<std::mutex> lk(g.mtx);
+          latest = g.latest.load(std::memory_order_acquire);
+          if (parity) {
+              // Parity mode: the compositor reads only the frame each screen assignment holds, so
+              // those two are what must survive, however old (in flight: running, queued, scattering,
+              // all excluded below; two holds plus three in flight plus this target fill the six).
+              keep[0] = g.parHold[0].t; keep[1] = g.parHold[1].t;
+              if (g.parHold[pow15].t) parityBuf = g.parHold[pow15].t;   // the hold may have moved on since the kick began
+          } else {
+              const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
+              for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
+              keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0);
+          }
+          for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target;
+          if (g.rendering) busy[2] = g.rendering->target;
+          if (g.rendering2) busy[3] = g.rendering2->target;
+          pendT = gPendTarget.load(std::memory_order_acquire); }
+        uint8_t* readBuf = parityBuf ? parityBuf : latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* cands[6] = { bufA, bufB, g.bufC, g.bufD, g.bufE, g.bufF };
         target = nullptr;
         for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != busy[3] && c != pendT && c != keep[0] && c != keep[1] && c != keep[2]) { target = c; break; }
@@ -4494,22 +4609,59 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if ((g.frame % 300) == 2) ALOGI("gpu3d: policy: nowait %d, ss %d, decoupled %d, prevDrawn %p target %p, early mask %03x, queue room wait %.2f ms avg, present wait %.2f ms avg (%u timeouts, %u skipped as not fitting)", nowaitBands, g.ss, useDecoupled ? 1 : 0, prevDrawn, target, earlyMask, g.sumRoomUs / 300000.0, g.sumPresentWaitUs / 300000.0, g.presentWaitTimeouts, g.presentWaitSkips);
     if ((g.frame % 300) == 2 && g.bpDrops) { ALOGI("gpu3d: back-pressure drops %u (cumulative), texture uploads carried over %u", g.bpDrops, g.bpUploadsCarried); }
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
+    bool shedNew = false;   // parity mode: this job was not queued (see below)
     {
         std::lock_guard<std::mutex> lk(g.mtx);
         job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; job.pow15 = pow15; g.curSeq.store(job.seq, std::memory_order_relaxed);
+        // Uploads of jobs that were shed before (g.parCarry) run ahead of the next job that really
+        // queues: they are newer than every job already queued, so that job is the first one that
+        // may sample what they wrote, and its own uploads come after them.
+        auto takeCarry = [&] {
+            if (g.parCarry.empty()) return;
+            job.uploads.insert(job.uploads.begin(), std::make_move_iterator(g.parCarry.begin()), std::make_move_iterator(g.parCarry.end()));
+            g.parCarry.clear();
+        };
         if (dropBp && g.qCount >= 2) {
             // Queue full and not stalling: drop the stale queued (non-rendering) 3D frame and take
             // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
             // never rendered, its buffer is free for reuse, and the emulator does not wait.
             const int ws = (g.qHead + 1) & 1;
-            if (g.queue[ws] != g.rendering) {
-                Job* old = g.queue[ws]; old->cancel = true;
+            Job* const qj = g.queue[ws];
+            // A queued job the GL thread already has in hand cannot be replaced: with sys gpu3d_pipe2 it
+            // takes the second slot's job (g.pending) and waits for the present before it marks it
+            // rendering, and the worker would then pop the replacement unrendered together with its
+            // uploads. Without the pipeline the second slot is never in hand while the queue is full.
+            const bool qjTaken = qj == g.rendering || qj == g.rendering2 || qj == g.pending;
+            // Parity mode, running job R and queued job Q against this new job N. Replacing Q is right
+            // when Q is not the only job of its screen assignment (same assignment as N, or as R). If it
+            // is, while R already covers N's, replacing Q would leave the other screen without a job in
+            // flight, and with a GL thread that needs two kicks a job that screen would never be updated
+            // again.
+            const bool qOnlyOfItsScreen = parity && qj->pow15 != pow15 && g.queue[g.qHead]->pow15 == pow15;
+            if (qjTaken || qOnlyOfItsScreen) {
+                // Shed N instead: it is never rendered and R's frame stays its screen's newest. Its
+                // texture uploads must still land, and they are newer than Q, which is already queued
+                // and was built without them, so they wait in g.parCarry for the next job that queues
+                // (Q must not sample what N re-uploaded: if N reused an atlas layer Q draws from, Q
+                // would show N's texels).
+                if (!job.uploads.empty()) {
+                    g.bpUploadsCarried += (uint32_t)job.uploads.size();
+                    g.parCarry.insert(g.parCarry.end(), std::make_move_iterator(job.uploads.begin()), std::make_move_iterator(job.uploads.end()));
+                    job.uploads.clear();
+                }
+                g.bpDrops++; if (parity) g.parDropNew++;
+                shedNew = true;
+            } else {
+                Job* old = qj; old->cancel = true;
+                if (parity) g.parDropQ++;
                 // The dropped job's texture uploads must still land: texFor already marked those
                 // entries as uploaded, so nothing would ever upload them again and their layer and
                 // palette row would stay zero (a pal16 texel then decodes to opaque black; Pokemon
                 // White 2's title model drew black feet for half a minute after a state load, when
                 // the new scene's uploads coincide with the drops of a heavy scene). Carry them over
-                // ahead of this job's own uploads so a re-upload of the same layer still wins.
+                // ahead of this job's own uploads so a re-upload of the same layer still wins. Shed
+                // uploads that came after the dropped job was queued sit between the two.
+                takeCarry();
                 if (!old->uploads.empty()) {
                     g.bpUploadsCarried += (uint32_t)old->uploads.size();
                     job.uploads.insert(job.uploads.begin(), std::make_move_iterator(old->uploads.begin()), std::make_move_iterator(old->uploads.end()));
@@ -4517,11 +4669,14 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
                 }
                 g.queue[ws] = &job; g.bpDrops++;
             }
-            else { g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++; }   // both slots rendering: cannot happen, fall back
         } else {
+            takeCarry();
             g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++;
         }
     }
+    // A shed job never renders, so its target is not "the last drawn" frame: put the previous one back
+    // (the library's frame reuse and the next synchronous frame copy from it).
+    if (shedNew) *reinterpret_cast<uint8_t**>(regs + 40) = prevDrawn;
     g.cvSubmit.notify_one();
     if (earlyMask) gpu3dSetBandMask(earlyMask);
     (void)t0;
@@ -4566,11 +4721,19 @@ extern "C" void gpu3dLatchRead(uint8_t* R) {
     if (!g.decoupledActive.load(std::memory_order_acquire)) return;
     const uint32_t k = g.curSeq.load(std::memory_order_relaxed);
     uint8_t* rdBuf;
-    // Parity-matched reads (gpu3dFrame): only a frame rendered for this kick's screen assignment,
-    // else leave the pointer the kick chose. Never a join from here, and never the other parity.
+    // Parity mode (gpu3dFrame): the newest finished frame rendered for this kick's screen assignment,
+    // however old, else leave the pointer the kick chose (also a held frame of that assignment).
+    // Never a join from here, and never a frame of the other assignment.
     const int want = gParityWant.load(std::memory_order_acquire);
-    { std::lock_guard<std::mutex> lk(g.mtx); rdBuf = want >= 0 ? parityRead(k, want) : lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
+    uint32_t parAge = 0;
+    { std::lock_guard<std::mutex> lk(g.mtx);
+      if (want >= 0) { rdBuf = parityRead(want); if (rdBuf && k > g.parHold[want].seq) parAge = k - g.parHold[want].seq; }
+      else rdBuf = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
     if (!rdBuf) return;
+    if (want >= 0) {   // census: how many kicks old the shown 3D frame is (the worker logs and clears it)
+        gParRead.fetch_add(1, std::memory_order_relaxed); gParAgeSum.fetch_add(parAge, std::memory_order_relaxed);
+        if (parAge > gParAgeMax.load(std::memory_order_relaxed)) gParAgeMax.store(parAge, std::memory_order_relaxed);
+    }
     {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
         static uint8_t* sLastRead = nullptr;
         if (rdBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);
