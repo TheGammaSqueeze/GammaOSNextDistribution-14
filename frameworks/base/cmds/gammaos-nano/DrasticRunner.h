@@ -163,7 +163,8 @@ public:
     // Let Scale2X load shaders/hires/Scale2X.dfx (one pass) at hi-res 3D when the final pass is
     // exactly 2x the DS texture per screen (see pickShaderFile). Only the AFBC dual-panel
     // presenter sets it: its final pass is always a full panel half, while the per-slot paths
-    // draw rects of any size. Call before initSurface().
+    // draw rects of any size. drastic-nano keeps it off by default (the one-pass file measured
+    // slower on the device, see main.cpp). Call before initSurface().
     void setOnePassScale2x(bool on) { mScale2xOnePassOk = on; }
 
     // Render both DS screens into the offscreen FBO via drastic's

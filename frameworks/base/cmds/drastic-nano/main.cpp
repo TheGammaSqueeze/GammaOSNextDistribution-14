@@ -1958,14 +1958,18 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     }
     // RG DS Plus, AFBC dual-panel: the final pass always fills one panel half of the combined
     // buffer, which at hi-res 3D is exactly 2x the DS texture, so Scale2X can run as one pass
-    // (the runner checks the sizes and the shipped files). The prop is the A/B switch against
-    // the two-pass file for frame dumps.
+    // (the runner checks the sizes and the shipped files). Off by default: on the device the
+    // one-pass file was slower than the two-pass one (Mario Kart race, Scale2X: the 3D layer got
+    // 31-36 new frames per 60 composites with a 27 ms GL thread, against 47-54 new frames and
+    // about 20 ms with the two-pass file). Dropping the intermediate pass did not save GPU time
+    // on this Mali-G52; the premise that the intermediate size costs the time was wrong. The
+    // code stays for later A/B tests: setprop persist.gammaos.drastic_nano.scale2x_one_pass 1.
     {
         char dev[PROPERTY_VALUE_MAX] = {};
         property_get("ro.gammaos.device", dev, "");
         dr->setOnePassScale2x(hasDualDisplay && android::sDrmAfbcMode &&
                               strcmp(dev, "anbernicrgdsplus") == 0 &&
-                              android::drastic_settings::getBool("persist.gammaos.drastic_nano.scale2x_one_pass", true));
+                              android::drastic_settings::getBool("persist.gammaos.drastic_nano.scale2x_one_pass", false));
     }
     dr->initSurface(dpy->width, dpy->height, hasDualDisplay);
     dr->setRotationMatrix(android::sDrmRotMat);
