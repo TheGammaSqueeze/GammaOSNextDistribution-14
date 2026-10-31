@@ -87,6 +87,7 @@
 #include <android/binder_manager.h>
 #include <utils/Timers.h>
 #include <cutils/properties.h>
+#include <gui/SurfaceComposerClient.h>   // the empty transaction that wakes SurfaceFlinger at the exit
 #include <system/thread_defs.h>
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
@@ -189,6 +190,17 @@ static bool returnHandoffEnabled() {
     char dev[PROPERTY_VALUE_MAX] = {};
     property_get("ro.gammaos.device", dev, "");
     return property_get_bool("persist.gammaos.drastic_nano.exit_handoff", strcmp(dev, "anbernicrgdsplus") == 0);
+}
+// The early SurfaceFlinger gate of a plain exit to a parked SurfaceFlinger-hosted home (main(), right
+// after the DRM fd is closed): SurfaceFlinger power-cycles both panels in the composer, about 2 s of its
+// main thread, when drm_active falls, and only sees that in a commit. Left to the home's wake the cycle
+// ran after the home's first frame with nothing presenting; opened at the exit it overlaps this process's
+// tail and the home's wake. On the RG DS Plus only; persist.gammaos.drastic_nano.early_sf_gate=0
+// switches it off there, =1 turns it on for other devices.
+static bool earlySfGateEnabled() {
+    char dev[PROPERTY_VALUE_MAX] = {};
+    property_get("ro.gammaos.device", dev, "");
+    return property_get_bool("persist.gammaos.drastic_nano.early_sf_gate", strcmp(dev, "anbernicrgdsplus") == 0);
 }
 // The home theme NanoMenu calls mNdsTheme: the DSi menu (Minima wins over it).
 static bool homeThemeIsDsi() {
@@ -6587,6 +6599,24 @@ int main(int argc, char** argv) {
         close(android::sDrmFd);
         android::sDrmFd = -1;
         android::sDrmActive = false;
+        // A plain return to a parked SurfaceFlinger home (the park sets home_sf, only for a home that
+        // is not DRM): the panels are free now, so open SurfaceFlinger's gate here and kick a commit
+        // (an empty transaction still schedules one) for it to see the edge and cycle the composer's
+        // power while this tail and the home's wake run, not after the home's first frame. Not for a
+        // relaunch (the next instance starts within 600 ms and must find the gate shut and the
+        // composer idle), a power action (nothing to show), a home that is no longer running (a DRM
+        // home may come back in its place), nor with the kill switch off. A crash or a kill never
+        // gets here: the home opens the gate at its wake as before.
+        if (!sfMode && !rlr.relaunchRequested && !qrPowerAction &&
+            property_get_bool("sys.gammaos.drastic_nano.home_sf", false) && earlySfGateEnabled()) {
+            char homeSvc[PROPERTY_VALUE_MAX] = {};
+            property_get("init.svc.gammaos-nano", homeSvc, "");
+            if (strcmp(homeSvc, "running") == 0) {
+                property_set("sys.gammaos.nano.drm_active", "0");
+                android::SurfaceComposerClient::Transaction().apply();
+                ALOGI("drastic-nano: SF home waiting, SurfaceFlinger gate opened at the exit");
+            }
+        }
     }
 
     // Clear the one-shot Quick Resume marker so an in-session relaunch (Restart

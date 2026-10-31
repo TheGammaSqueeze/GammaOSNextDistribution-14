@@ -1262,12 +1262,13 @@ void drmEarlySplash(int existingFd, int masterWaitMs) {
             // CONFIG_DRM_IGNORE_IOTCL_PERMIT=y, so SETCRTC and the atomic commits work without
             // master and a holder that is not presenting is passive: waiting for it is pure
             // latency (a launch from the SurfaceFlinger-hosted home sat 4 s black on one). Those
-            // presenters all keep sys.gammaos.nano.drm_active at 1 (drastic-nano never clears it
-            // on exit, and the park holds it up for the baton), and sys.gammaos.nano.parked is 1
-            // for as long as a DRM home waits to take the panels back; only with both at 0 is the
-            // holder passive, and the wait is capped. The gate is read once per process: a failed
-            // attempt below writes it back as 0, which setupDisplay's retries must not read as
-            // "nobody presenting".
+            // presenters all keep sys.gammaos.nano.drm_active at 1 (drastic-nano clears it on exit
+            // only on a plain return to a parked SurfaceFlinger home, never on a relaunch or with
+            // a DRM home waiting, and the park holds it up for the baton), and
+            // sys.gammaos.nano.parked is 1 for as long as a DRM home waits to take the panels
+            // back; only with both at 0 is the holder passive, and the wait is capped. The gate
+            // is read once per process: a failed attempt below writes it back as 0, which
+            // setupDisplay's retries must not read as "nobody presenting".
             static int sGateAtStart = -1;
             if (sGateAtStart < 0) sGateAtStart = property_get_bool("sys.gammaos.nano.drm_active", false) ? 1 : 0;
             const int kPassiveMasterWaitMs = 300;

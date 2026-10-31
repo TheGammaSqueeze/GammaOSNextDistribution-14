@@ -298,6 +298,7 @@ bool NanoMenu::drasticParkSession() {
             ALOGW("NanoMenu: init has no start=2 rule; falling back to the cold hand-off");
             property_set("sys.gammaos.nano.handoff_argb", "");
             property_set("sys.gammaos.nano.parked", "0");
+            property_set("sys.gammaos.drastic_nano.home_sf", "0");   // this home is stopped, nobody is parked
             property_set("sys.gammaos.drastic_nano.start", "1");
             for (;;) sleep(1);   // init stops this service
         }
@@ -305,6 +306,12 @@ bool NanoMenu::drasticParkSession() {
     if (batonWanted) property_set("sys.gammaos.nano.handoff_argb", "ffffffff");
     // Tells drastic-nano a home is waiting to take the panels back (it hands them over early only then).
     if (drmHome) property_set("sys.gammaos.nano.parked", "1");
+    // Tells drastic-nano a SurfaceFlinger-hosted home is parked, so on a plain exit it opens the
+    // SurfaceFlinger gate at once: the composer's power cycle of both panels (about 2 s) then runs
+    // while the game is torn down and the home wakes, not after the home's first frame. Never set
+    // for the DRM home, whose panels are taken back through DRM master and must not be cycled.
+    // Cleared at the wake below, in the fallback above and by the home's start and init's cold rules.
+    if (!drmHome) property_set("sys.gammaos.drastic_nano.home_sf", "1");
     fireStart();
 
     // GPU memory the game cannot page out: the wave keyframe VBO and the glass
@@ -504,6 +511,8 @@ bool NanoMenu::drasticParkSession() {
     // SurfaceFlinger cycle the composer's power and take them.
     if (!(drmHome && earlyHandOff)) property_set("sys.gammaos.nano.drm_active", "0");
     property_set("sys.gammaos.nano.parked", "0");
+    // The session is over (clean exit, crash or kill alike): no later exit may read a stale flag.
+    property_set("sys.gammaos.drastic_nano.home_sf", "0");
     // No hand-off frame or colour may outlive the session (a drastic-nano that never started would
     // have left them); both are no-ops when drastic-nano took them.
     drmBatonRelease();

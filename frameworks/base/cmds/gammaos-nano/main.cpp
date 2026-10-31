@@ -1332,6 +1332,9 @@ int main(int argc, char** argv) {
     ALOGI("GammaOS Nano starting... (earlyDrmFd=%d)", gEarlyDrmFd);
 
     property_set("sys.gammaos.nano.drm_active", "0");
+    // A home that died while parked leaves the SurfaceFlinger-home flag up; this one may be a DRM
+    // home, whose panels drastic-nano's exit must not hand to the composer's power cycle.
+    property_set("sys.gammaos.drastic_nano.home_sf", "0");
 
     // SYNCHRONOUSLY patch libdrastic_arm64.so in the cache BEFORE
     // any other drastic work. The patch short-circuits drastic's

@@ -41,6 +41,9 @@ on property:sys.gammaos.drastic_nano.start=1
     setprop sys.gammaos.drastic_nano.panel_free 0
     setprop sys.gammaos.drastic_nano.panel_taken 0
     setprop sys.gammaos.nano.parked 0
+    # The home is stopped here, so no SurfaceFlinger home is parked any more (see main.cpp, the
+    # early SurfaceFlinger gate at the exit); the restarted home may be a DRM home.
+    setprop sys.gammaos.drastic_nano.home_sf 0
     setprop sys.gammaos.drastic_nano.start 0
     setprop sys.gammaos.drastic_nano.session_done 0
     # Stop gammaos-nano explicitly. In the production XMB flow the
@@ -92,6 +95,7 @@ on property:sys.gammaos.drastic_nano.start_sf=1
     setprop sys.gammaos.drastic_nano.panel_free 0
     setprop sys.gammaos.drastic_nano.panel_taken 0
     setprop sys.gammaos.nano.parked 0
+    setprop sys.gammaos.drastic_nano.home_sf 0
     setprop sys.gammaos.drastic_nano.start_sf 0
     setprop sys.gammaos.drastic_nano.session_done 0
     start drastic-nano
