@@ -5574,10 +5574,15 @@ if (sRingPrimedCount >= 2) {
         }
 
         // Check every ~0.5s if an external trigger requested exit
-        int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
-        if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;   // idle ticks are 100 ms apart: check every tick
+        int exitCheckInterval = animating ? 30 : 5; // 30 frames at 16 ms (~0.5 s), or 5 frames at 16.7 ms (~83 ms)
+        // Idle ticks are 50 ms apart (the idle wait is capped for the ambiance restart): the cheap
+        // triggers below run on every tick. The SurfaceFlinger binder calls have their own 0.5 s gate.
+        if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;
         if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
+            // Uptime stamp of the last SurfaceFlinger binder pass of this block (gate further down);
+            // the brightness block zeroes it when an app has just exited.
+            static int64_t sSfSvcMs = 0;
             // Test hook: sys.gammaos.nano.direct_test=<wav> plays that file through the direct
             // ALSA engine right now (the path the boot chime and the pre-boot menu audio use), so
             // the card choice can be checked on a booted device without a reboot. Self-clears.
@@ -5646,6 +5651,9 @@ if (sRingPrimedCount >= 2) {
                         property_get_bool("sys.gammaos.nano.app_launched", false) ? 1 : 0;
                 bool appJustExited = (sPrevAppLaunched == 1 && appNow == 0);
                 sPrevAppLaunched = appNow;
+                // Display state is most likely to have drifted right after an app: let the
+                // SurfaceFlinger checks below run on this very tick, not up to 0.5 s later.
+                if (appJustExited) sSfSvcMs = 0;
 
                 int want = property_get_int32("persist.gammaos.nano.brightness", -1);
                 if (want > 0 && want <= 255 && want != mBrightness) {
@@ -5843,13 +5851,29 @@ if (sRingPrimedCount >= 2) {
                 ALOGW("NanoMenu DRM: resumed from suspend, re-committing the modeset");
                 drmResumeRecommit();
             }
+            // The three SurfaceFlinger sections below (primary layer stack, secondary power mode,
+            // secondary layer stack and rotation) run at most every 0.5 s, on the active and the
+            // idle path alike. The block around them runs every 50 to 83 ms, and on the
+            // SurfaceFlinger-hosted home that was 20 detached threads a second, each a binder call
+            // that woke SurfaceFlinger's main thread and logged "Setting power mode". The cheap
+            // triggers above keep their tick latency. An app exit zeroes the stamp (brightness
+            // block) so the first check after it is not delayed. persist.gammaos.nano.sf_svc_gate=0
+            // brings back the per-tick cadence; it defaults to on for the RG DS Plus only.
+            static const bool sfGate = [] {
+                char dev[PROPERTY_VALUE_MAX] = {};
+                property_get("ro.gammaos.device", dev, "");
+                return property_get_bool("persist.gammaos.nano.sf_svc_gate", strcmp(dev, "anbernicrgdsplus") == 0);
+            }();
+            const int64_t sfNow = (int64_t)android::uptimeMillis();
+            const bool sfDue = !sfGate || sfNow - sSfSvcMs >= 500;
+            if (sfDue) sSfSvcMs = sfNow;
             // GammaOS Nano: Keep the surface's layer stack in sync with the
             // chosen display. SurfaceFlinger's initial layerStack for the display
             // can change once DisplayManagerService finishes assigning logical
             // display IDs (e.g. port 1 starts at layerStack=1 but becomes 2). We
             // re-query and re-apply here so the NanoMenu surface follows the
             // chosen physical display even after DMS reassigns.
-            if (mDisplayToken != nullptr && mFlingerSurfaceControl != nullptr) {
+            if (sfDue && mDisplayToken != nullptr && mFlingerSurfaceControl != nullptr) {
                 ui::DisplayState cur;
                 if (SurfaceComposerClient::getDisplayState(mDisplayToken, &cur)
                         == NO_ERROR
@@ -5885,7 +5909,7 @@ if (sRingPrimedCount >= 2) {
             // time.
             {
                 static std::atomic<bool> sPowerBusy{false};
-                if (!mSecondaryDisplayTokens.empty() && !sPowerBusy.exchange(true)) {
+                if (sfDue && !mSecondaryDisplayTokens.empty() && !sPowerBusy.exchange(true)) {
                     std::vector<sp<IBinder>> tokens(mSecondaryDisplayTokens.begin(), mSecondaryDisplayTokens.end());
                     std::thread([tokens]() {
                         nanoThreadNormalPriority();
@@ -5895,7 +5919,7 @@ if (sRingPrimedCount >= 2) {
                     }).detach();
                 }
             }
-            for (size_t i = 0; i < mSecondaryDisplayTokens.size(); i++) {
+            for (size_t i = 0; sfDue && i < mSecondaryDisplayTokens.size(); i++) {
                 const sp<IBinder>& token = mSecondaryDisplayTokens[i];
                 if (token == nullptr) continue;
                 ui::DisplayState state;
