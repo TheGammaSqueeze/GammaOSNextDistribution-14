@@ -5833,6 +5833,85 @@ static void aaApplyGammaEq(int16_t* x, size_t frames) {
     for (size_t i = 0; i < n; i++) { float v = tmp[i] * 32768.0f; v = v > 32767.0f ? 32767.0f : (v < -32768.0f ? -32768.0f : v); x[i] = (int16_t)lrintf(v); }
     gAaEqFrames.fetch_add((uint32_t)frames, std::memory_order_relaxed);
 }
+// Sink resampler. The MMAP stream only takes 48 kHz and drastic hands over 44.1 kHz (735 frames per
+// emulated frame; a few chunks at launch come at the 32.8 kHz native mix rate). The old 2-tap linear
+// interpolation rolls the top end off (-1.5 dB at 10 kHz, -4 dB at 16 kHz) and lets the spectral
+// images through: the 34.1 kHz image of a 10 kHz tone is only 23 dB down and folds back to 13.9 kHz,
+// a faint grain on chimes and hi-hats that stock, which plays 44.1 kHz end to end, does not have.
+// This is a 16-tap Kaiser-windowed sinc (beta 7, cutoff at the input's Nyquist): flat within 0.1 dB up
+// to 16 kHz (-0.3 dB at 18 kHz), images about 65 dB or more down for tones up to 16 kHz. 256 phases
+// with linear interpolation between neighbouring phase rows (the coefficient error stays under -94 dB
+// even in the worst case) and one 64-byte row per tap set, so the 16 MACs per channel vectorise. About
+// 26k MACs per 800-frame chunk. The trim on the step and the ring controller in the hook feed it as
+// before.
+// persist.gammaos.drastic_nano.aa_resample 0 restores the linear interpolation; it defaults on for the
+// RG DS Plus only and is read once.
+static constexpr int kAaSincTaps = 16, kAaSincHalf = kAaSincTaps / 2, kAaSincPhases = 256, kAaSincMaxIn = 8192;
+static float sAaSincTab[kAaSincPhases + 1][kAaSincTaps];                 // row p: the kernel at fractional position p / 256 (row 256 = 1.0, the next integer)
+static float sAaSincL[kAaSincTaps + kAaSincMaxIn], sAaSincR[kAaSincTaps + kAaSincMaxIn];   // [last 16 input frames of the previous chunks | this chunk], per channel
+static bool sAaSincReady = false;
+static bool aaSincOn() {
+    static std::atomic<int> sOn{-1};   // -1 not read yet
+    int v = sOn.load(std::memory_order_relaxed);
+    if (v < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        v = android::drastic_settings::getInt("persist.gammaos.drastic_nano.aa_resample", strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0 ? 1 : 0;
+        sOn.store(v, std::memory_order_relaxed);
+    }
+    return v != 0;
+}
+static double aaBesselI0(double x) {
+    double s = 1.0, t = 1.0;
+    for (int k = 1; k < 64 && t > 1e-12 * s; k++) { const double h = x / (2.0 * k); t *= h * h; s += t; }
+    return s;
+}
+static void aaSincInit() {
+    const double beta = 7.0, i0Beta = aaBesselI0(beta);
+    for (int p = 0; p <= kAaSincPhases; p++) {
+        const double frac = (double)p / kAaSincPhases;
+        double v[kAaSincTaps], sum = 0.0;
+        for (int k = 0; k < kAaSincTaps; k++) {
+            const double x = (double)(k - (kAaSincHalf - 1)) - frac;   // tap k reads input frame floor(centre) + k - 7
+            const double r = x / kAaSincHalf;
+            const double w = fabs(r) >= 1.0 ? 0.0 : aaBesselI0(beta * sqrt(1.0 - r * r)) / i0Beta;
+            const double s = fabs(x) < 1e-9 ? 1.0 : sin(M_PI * x) / (M_PI * x);
+            v[k] = s * w; sum += v[k];
+        }
+        for (int k = 0; k < kAaSincTaps; k++) sAaSincTab[p][k] = (float)(v[k] / sum);   // unity gain at DC for every phase
+    }
+    sAaSincReady = true;
+    ALOGI("DrasticRunner: AAudio sink: %d-tap Kaiser sinc resampler, %d phases", kAaSincTaps, kAaSincPhases);
+}
+// Resamples the n interleaved stereo frames in[] (n <= kAaSincMaxIn) into out[] at `step` input frames
+// per output frame, at most maxOut frames. pos is the next output's centre in input frames relative to
+// in[0]; it may be negative, down to -8, and leaves advanced. Every output needs the 8 frames after its
+// centre, so the ones near the end of the chunk wait for the next call (pos then comes back negative)
+// and the stream runs about 8 input frames (0.2 ms at 44.1 kHz) late: chunk edges are as exact as the
+// middle. Returns the frames produced.
+static uint32_t aaSincRun(const int16_t* in, uint32_t n, double& pos, double step, uint32_t maxOut, int16_t* out) {
+    if (!sAaSincReady) aaSincInit();
+    for (uint32_t i = 0; i < n; i++) { sAaSincL[kAaSincTaps + i] = (float)in[i * 2]; sAaSincR[kAaSincTaps + i] = (float)in[i * 2 + 1]; }
+    if (pos < -(double)kAaSincHalf) pos = -(double)kAaSincHalf;   // a chunk that stopped on maxOut: older audio than the history reaches is dropped
+    const double lim = (double)n - kAaSincHalf;
+    uint32_t produced = 0;
+    while (pos < lim && produced < maxOut) {
+        const int i0 = (int)floor(pos);
+        const double ph = (pos - (double)i0) * kAaSincPhases;   // 0 .. 256
+        int p = (int)ph; float t = (float)(ph - (double)p);
+        if (p >= kAaSincPhases) { p = kAaSincPhases - 1; t = 1.0f; }   // pos - i0 rounded up to 1.0
+        const float* a = sAaSincTab[p]; const float* b = sAaSincTab[p + 1];
+        const float* xl = &sAaSincL[i0 + kAaSincTaps - (kAaSincHalf - 1)]; const float* xr = &sAaSincR[i0 + kAaSincTaps - (kAaSincHalf - 1)];
+        float l = 0.0f, r = 0.0f;
+        for (int k = 0; k < kAaSincTaps; k++) { const float w = a[k] + (b[k] - a[k]) * t; l += xl[k] * w; r += xr[k] * w; }
+        const long vl = lrintf(l), vr = lrintf(r);
+        out[produced * 2] = (int16_t)(vl > 32767 ? 32767 : (vl < -32768 ? -32768 : vl));
+        out[produced * 2 + 1] = (int16_t)(vr > 32767 ? 32767 : (vr < -32768 ? -32768 : vr));
+        produced++; pos += step;
+    }
+    memmove(sAaSincL, sAaSincL + n, kAaSincTaps * sizeof(float)); memmove(sAaSincR, sAaSincR + n, kAaSincTaps * sizeof(float));   // the new history
+    return produced;
+}
 // drastic's SLPlayItf lives at .bss +0x3c7d030 (its stop routine at +0x1e320 calls vtable[0] on it
 // with SL_PLAYSTATE_STOPPED). Stop the real player once, then hand drastic a copy of the interface
 // whose SetPlayState does nothing, so its restart after a state load cannot bring the OpenSL track
@@ -6465,19 +6544,29 @@ static void raAudioSubmitHookBody(uint8_t* ctx) {
             }
             double pos = sPhase; uint32_t produced = 0;
             static int16_t stage[4096 * 2];
-            while (pos < (double)fin && produced < room && produced < 4096) {
-                const int i = (int)floor(pos); const double fr = pos - i;
-                const int16_t* a = (i < 0) ? sLast : &in[(size_t)i * 2];
-                const int16_t* b = (i + 1 < (int)fin) ? &in[(size_t)(i + 1) * 2] : &in[(size_t)(fin - 1) * 2];
-                for (int ch = 0; ch < 2; ch++) { const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr); stage[produced * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); }
-                produced++; pos += step;
+            uint32_t used = fin;                 // input frames this chunk accounts for
+            double lim = (double)fin;            // the position past which the rest of the chunk is not resampled yet
+            if (aaSincOn()) {
+                // Windowed sinc: an output needs the 8 frames after its centre, so the last few wait for
+                // the next chunk (lim sits 8 frames before the end) and pos comes back negative then.
+                used = fin > (uint32_t)kAaSincMaxIn ? (uint32_t)kAaSincMaxIn : fin;
+                lim = (double)used - (double)kAaSincHalf;
+                produced = aaSincRun(in, used, pos, step, room < 4096 ? room : 4096, stage);
+            } else {
+                while (pos < (double)fin && produced < room && produced < 4096) {
+                    const int i = (int)floor(pos); const double fr = pos - i;
+                    const int16_t* a = (i < 0) ? sLast : &in[(size_t)i * 2];
+                    const int16_t* b = (i + 1 < (int)fin) ? &in[(size_t)(i + 1) * 2] : &in[(size_t)(fin - 1) * 2];
+                    for (int ch = 0; ch < 2; ch++) { const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr); stage[produced * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); }
+                    produced++; pos += step;
+                }
             }
             aaApplyGammaEq(stage, produced);
             for (uint32_t j = 0; j < produced; j++, head++) { const uint32_t k = (head & (kAaRingFrames - 1)) * 2; gAaRing[k] = stage[j * 2]; gAaRing[k + 1] = stage[j * 2 + 1]; }
-            if (pos < (double)fin) gAaOverflowFrames.fetch_add((uint32_t)((fin - pos) / step), std::memory_order_relaxed);
+            if (pos < lim) gAaOverflowFrames.fetch_add((uint32_t)((lim - pos) / step), std::memory_order_relaxed);
             gAaHead.store(head, std::memory_order_release);
             sLast[0] = in[(size_t)(fin - 1) * 2]; sLast[1] = in[(size_t)(fin - 1) * 2 + 1];
-            sPhase = pos - (double)fin;
+            sPhase = pos - (double)used;
             // Let the submit run (microphone open + pump) but skip its output enqueue: see aaSoundOffFlag.
             if (uint32_t* f = aaSoundOffFlag()) { sAaOutOffSaved = *f; *f = 1; sAaOutOffSet = true; }
             else { ctx[0x40027] = 1; sAaSetSkip = true; }   // no library base yet: fall back to the discard byte
