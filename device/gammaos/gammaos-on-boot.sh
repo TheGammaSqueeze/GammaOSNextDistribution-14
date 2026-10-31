@@ -69,6 +69,46 @@ if [ "$1" = "--esde-gate" ]; then
     done
 fi
 
+# RG DS Plus (gammaos.rc, gammaos_irq_spread): the GIC sends every device IRQ to the first CPU of
+# its affinity mask, so on this SoC the GPU job/mmu/gpu IRQs, the VOP flip IRQ, audio DMA, the
+# joypad ADC, the PMIC/touch I2C and the microSD host all run on CPU0 and queue behind each other.
+# The vendor init.rk356x.rc pins "IRQ 38" to CPU1 for the VOP, but IRQ numbers change with the
+# kernel: on 6.1.172 IRQ 38 is the IEP and the VOP is IRQ 42, so that pin hits nothing. Find the
+# IRQs by device name in /proc/interrupts instead: the VOP goes to CPU1 (the vendor's intent) and
+# the three GPU IRQs to CPU2. CPU3 stays free of IRQs because the drastic-nano emulator thread
+# settles on it during a game (about 100% of its time in a Mario Kart trace; the background cpusets
+# also leave it alone), and everything else stays on CPU0, next to the AAudio thread. A
+# fixed map, not irqbalance, so it cannot fight the thread placement. Suspend takes CPU1-3 offline
+# and the kernel then moves the IRQs pinned to them back to the online CPUs for good, so gammaos.rc
+# runs this at every boot and screen on. It only writes an IRQ whose affinity differs, so a repeat
+# run changes nothing. persist.gammaos.irq_spread=0 turns it off (pins already set stay until the
+# next suspend or reboot). A missing IRQ or a failed write is skipped, never fatal.
+if [ "$1" = "--irq-spread" ]; then
+    [ "$(getprop persist.gammaos.irq_spread 1)" = 0 ] && exit 0
+    pinned=""
+    failed=""
+    while read -r n rest; do
+        case "$n" in
+            [0-9]*:) n=${n%:} ;;
+            *) continue ;;
+        esac
+        case "$rest" in
+            *fe040000.vop*) cpu=1 ;;
+            *fde60000.gpu*) cpu=2 ;;
+            *) continue ;;
+        esac
+        f=/proc/irq/$n/smp_affinity_list
+        [ "$(cat "$f" 2>/dev/null)" = "$cpu" ] && continue
+        if { echo "$cpu" > "$f"; } 2>/dev/null; then
+            pinned="$pinned $n->cpu$cpu"
+        else
+            failed="$failed $n"
+        fi
+    done < /proc/interrupts
+    [ -n "$pinned$failed" ] && log -t gammaos_irq_spread "pinned:${pinned:- none}${failed:+ failed:$failed}"
+    exit 0
+fi
+
 setprop ctl.start media.swcodec
 
 for i in wpa p2p; do

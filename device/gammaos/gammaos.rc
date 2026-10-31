@@ -177,6 +177,21 @@ service gammaos_esde_gate /system/bin/gammaos-on-boot.sh --esde-gate
 on boot && property:ro.gammaos.device=anbernicrgdsplus
     start gammaos_esde_gate
 
+# RG DS Plus: every device IRQ runs on CPU0, and the vendor init.rk356x.rc pin that should move the
+# VOP IRQ to CPU1 names IRQ 38, which is the IEP on kernel 6.1. The script finds the VOP and GPU IRQs
+# by name and pins them (VOP to CPU1, GPU to CPU2; CPU3 stays free for the emulator thread). Suspend
+# resets the pins (the secondary CPUs go offline), so it runs again at every screen on. The
+# persist.gammaos.irq_spread=0 kill switch is read by the script.
+service gammaos_irq_spread /system/bin/gammaos-on-boot.sh --irq-spread
+    oneshot
+    disabled
+
+on boot && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_irq_spread
+
+on property:sys.screen.state=on && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_irq_spread
+
 on property:init.svc.esde_fix=running && property:sys.gammaos.esde_installed=0 && property:ro.gammaos.device=anbernicrgdsplus
     stop esde_fix
 
