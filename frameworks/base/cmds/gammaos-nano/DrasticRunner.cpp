@@ -3262,6 +3262,11 @@ std::atomic<uint32_t> gPresLate{0};
 std::atomic<int> gEmuCpuPct{0};          // emulator thread CPU share over the last second (percent of one core)
 std::atomic<int> gEmuCpuLightSecs{0};    // consecutive seconds with a light emulator thread
 std::atomic<uint32_t> gFlipHookCount{0};
+// Counts hooks that ran to their end for a frame meant for the panel (slot
+// toggle, front pin and staging copy done), parked run-ahead loads included,
+// hidden replay frames not. Bumped with release just before the wake, so a
+// presenter that sees a new value (acquire) also sees the toggled slot.
+std::atomic<uint32_t> gFlipDoneSeq{0};
 std::mutex gFlipMu; std::condition_variable gFlipCv;
 // Zero-copy slot swap, executed by the emulator thread inside the slot-flip
 // hook (a frame boundary): copy the current slot contents into the dma-buf
@@ -3650,6 +3655,8 @@ extern "C" void drasticSlotFlipHook() {
         if (gRaReadyMask) *gRaReadyMask = 0;
         return;
     }
+    // The presenter's toggle wait looks at this instead of the frame's age.
+    gFlipDoneSeq.fetch_add(1, std::memory_order_release);
     // Wake the consumer: it waits on this instead of polling the ready
     // mask (the polling cost ~100 context switches per frame).
     { std::lock_guard<std::mutex> lk(gFlipMu); }
@@ -7512,6 +7519,37 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     volatile uint8_t* mask = mArm64Base + 0x3f2db80;
     const auto t0 = std::chrono::steady_clock::now();
     const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(t0.time_since_epoch()).count();
+    // The mask can be set a few microseconds before the slot-flip hook has
+    // toggled the slot. The old test for that window (the frame finished
+    // within the last 1.5 ms) never passed for a frame that was ready early,
+    // which under the lock is nearly every frame: all 40 sleeps ran and the
+    // render started 2.6 ms after the vblank. Instead wait only while no hook
+    // has run to its end since the last time the mask was cleared here (the
+    // marker is taken at every clear, so a dropped or hidden frame's hook
+    // cannot pass for the next frame's). persist.gammaos.drastic_nano.flip_seq_spin
+    // 0 brings the age test back; it defaults on for the RG DS Plus only.
+    static uint32_t sFlipSeqAtClear = 0;
+    static const bool sSeqSpin = [] {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        return android::drastic_settings::getInt("persist.gammaos.drastic_nano.flip_seq_spin",
+                strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0;
+    }();
+    auto markCleared = [&] { sFlipSeqAtClear = gFlipDoneSeq.load(std::memory_order_acquire); };
+    auto spinForToggle = [&] {
+        int i = 0;
+        for (; i < 40 && (sSeqSpin ? gFlipDoneSeq.load(std::memory_order_acquire) == sFlipSeqAtClear
+                                   : gProducerDoneUs.load() < nowUs - 1500); i++) usleep(50);
+        // Rate of the spin for the A/B: frames that slept at all and the sleeps in total.
+        static int64_t sSpinLogUs = 0; static uint32_t sFrames = 0, sSpun = 0, sSleeps = 0;
+        sFrames++; if (i) { sSpun++; sSleeps += i; }
+        if (!sSpinLogUs) sSpinLogUs = nowUs;
+        if (nowUs - sSpinLogUs >= 10000000) {
+            ALOGI("PACE toggle spin 10 s (%s): %u frames, %u waited, %u sleeps",
+                  sSeqSpin ? "hook sequence" : "frame age", sFrames, sSpun, sSleeps);
+            sSpinLogUs = nowUs; sFrames = sSpun = sSleeps = 0;
+        }
+    };
     // With the lock off (bypass for a heavy scene, fast-forward, or not
     // wanted) the emulator runs on its own timer and is not phase-aligned
     // with our vblank: waiting here would stall the presenter by up to the
@@ -7523,7 +7561,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         // here chained the presenter to the emulator's flips and made it miss
         // every other vblank, an uneven 1 or 2 refresh hold per frame).
         if (mFastForwardOn && gFfStageWant.load(std::memory_order_relaxed) && gFfStagePub.load(std::memory_order_acquire) >= 2) {
-            if (*mask != 0) { *mask = 0; gRaFreshVisible.store(true); }
+            if (*mask != 0) { *mask = 0; markCleared(); gRaFreshVisible.store(true); }
             return true;
         }
         if (*mask == 0 && mPaceInstalled) {
@@ -7537,8 +7575,9 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
             }
         }
         if (*mask != 0) {
-            for (int i = 0; i < 40 && gProducerDoneUs.load() < nowUs - 1500; i++) usleep(50);
+            spinForToggle();
             *mask = 0;
+            markCleared();
             gRaFreshVisible.store(true);
             gLastFrameUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count());
@@ -7546,7 +7585,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         return true;   // never a pacing miss while the lock is off
     }
     bool dropped = false;
-    if (gRaBurst.load()) *mask = 0;   // never present a replay frame
+    if (gRaBurst.load()) { *mask = 0; markCleared(); }   // never present a replay frame
     // Right after a replay burst the shown frame is legitimately late; do
     // not judge it stale (that would drop it and creep the lead).
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
@@ -7567,6 +7606,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     if (mLastWaitImmediate && !afterBurst && gSteadyFrames.load() >= 120 &&
         nowUs - gProducerDoneUs.load() > staleUs) {
         *mask = 0;
+        markCleared();
         dropped = true;
         mLastWaitImmediate = false;
         static int sDropLog = 0;
@@ -7581,7 +7621,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         std::unique_lock<std::mutex> lk(gFlipMu);
         const int64_t deadline = nowUs + timeoutUs;
         while (*mask == 0 || gRaBurst.load()) {
-            if (gRaBurst.load()) *mask = 0;
+            if (gRaBurst.load()) { *mask = 0; markCleared(); }
             const int64_t now2 = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count();
             if (now2 >= deadline) return dropped;
@@ -7589,8 +7629,10 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         }
         lk.unlock();
         // The hook fires after the producer's slot toggle; if the mask was
-        // already set at entry we may be ahead of the toggle by microseconds.
-        for (int i = 0; i < 40 && gProducerDoneUs.load() < nowUs - 1500; i++) usleep(50);
+        // already set at entry we may be ahead of the toggle by microseconds
+        // (spinForToggle returns at once when a hook has finished since the
+        // last clear, which is the normal case for a frame that was ready early).
+        spinForToggle();
         // Waited into the next period: the frame meant for this vblank was
         // gone (a hiccup consumed it) and we just took the next vblank's, so
         // every following flip would land a vblank late for as long as the
@@ -7617,6 +7659,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         }
     }
     *mask = 0;
+    markCleared();
     gRaFreshVisible.store(true);
     if (gSteadyFrames.fetch_add(1) == 0) ALOGW("PACE first emulated frame");
     gLastFrameUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
