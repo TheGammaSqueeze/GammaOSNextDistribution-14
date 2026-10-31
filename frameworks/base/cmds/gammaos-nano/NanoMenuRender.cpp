@@ -2898,9 +2898,17 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
     const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     mPs3DlgClosing = false;
-    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
-    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
-    const float ap = mPs3DlgAnim;
+    // The page is drawn once per panel (top = part 1, bottom = part 2) in the same frame, so the fade
+    // advances once per frame (keyed on the render heartbeat, like drawNdsEffectBackdrop) and both
+    // screens share one ap at its intended speed, instead of the ramp running twice per frame.
+    const uint64_t hb = (uint64_t)mRenderHeartbeat.load(std::memory_order_relaxed);
+    if (mPs3DlgAnimHb != hb) {
+        mPs3DlgAnimHb = hb;
+        mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
+        if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f;
+    }
+    if (mPs3DlgAnim < 1.0f) mDisplayDirty = true;
+    const float ap = mPs3DlgAnim;   // fades the page CONTENT only; the canvas stays at full alpha
 
     float scale = rh / 192.0f;
     if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
@@ -3017,17 +3025,23 @@ void NanoMenu::renderNdsInfoPage(float rx, float ry, float rw, float rh, int par
         return;
     }
 
-    // light upper-screen background + side edge shading (matches renderNdsTop).
-    drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
-    { float ec = fmaxf(1.0f, S(1.0f));
-      drawQuad(X(0.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f);
-      drawQuad(X(255.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f); }
-    // mint canvas: procedural bevel -> white inset -> mint field (no photo_U camera glyph).
+    // Top half (part 1): the SAME backdrop the home top screen shows (Background Effect, wallpaper
+    // or the flat field with its edge columns), so Info does not cut to a flat field. The bottom
+    // half and the single-screen page replace the carousel, so they paint the opaque field and
+    // edge columns; drawNdsEffectBackdrop is not used there because its per-frame guard would skip
+    // the draw after the carousel already did one and the carousel would show through.
+    if (part == 1) {
+        drawNdsTopBackdrop(rx, ry, rw, rh, scale, ip);
+    } else {
+        drawQuad(rx, ry, rw, rh, ip.topBg, ip.topBg, ip.topBg, 1.0f);
+        { float ec = fmaxf(1.0f, S(1.0f));
+          drawQuad(X(0.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f);
+          drawQuad(X(255.0f), ry, ec, rh, ip.edgeShadow, ip.edgeShadow, ip.edgeShadow, 1.0f); }
+    }
+    // mint canvas: the home top screen's own canvas (procedural bevel -> white inset -> mint field,
+    // no photo_U camera glyph), at full alpha so it stays put while only the content below fades in.
     const float cvL = 18.0f, cvT = 18.0f, cvRr = 240.0f, cvB = 188.0f;
-    { float px = X(cvL), pw = X(cvRr) - X(cvL), py = Y(cvT), ph = Y(cvB) - Y(cvT);
-      drawRoundedRect(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), ip.mintBevel, ip.mintBevel, ip.mintBevel, ap);
-      drawRoundedRect(px, py, pw, ph, S(3), ip.mintInset, ip.mintInset, ip.mintInset, ap);
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), ip.mintR, ip.mintG, ip.mintB, ap); }
+    drawNdsMintCanvas(X(cvL), Y(cvT), X(cvRr) - X(cvL), Y(cvB) - Y(cvT), scale, ip);
     // Faint scraped fanart CONTAINED inside the mint field (fit-inside, never overflowing the
     // green canvas), like the PS3 info backdrop.
     if (wantSummary && mPs3DlgFanTex && mPs3DlgFanW > 0 && mPs3DlgFanH > 0) {
@@ -3503,6 +3517,47 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
 }
 
 
+// The DSi top screen's backdrop in the device-px rect (rx,ry,rw,rh) at DS scale `scale`: the
+// Background Effect (Theme Settings), else the custom wallpaper (a looping video on the top
+// panel, else a still), else the flat #f6f6f6 field with the #dbdbdb edge columns. The opaque
+// fill is skipped in a translucent in-game overlay so the darkened live app shows through (the
+// overlay scrim), like the PS3 XMB overlay (user request); the opaque post-game launcher and the
+// home keep it. Shared by renderNdsTop and the game Information page's top half, so opening Info
+// keeps the backdrop the home was showing instead of cutting to the flat field.
+void NanoMenu::drawNdsTopBackdrop(float rx, float ry, float rw, float rh, float scale, const NdsPal& p) {
+    if (mOverlayMode && !mOverlayWallpaper) return;
+    if (ndsEffectActive()) {
+        // Background Effect (Theme Settings): the effect replaces the wallpaper / flat field.
+        drawNdsEffectBackdrop();
+    } else if (wallpaperActive(mRenderingPanel)) {
+        // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
+        // light field: a looping video on the top panel, else a still. The chrome still draws over it.
+        if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
+            drawWallpaperFill(mRenderingPanel);
+    } else {
+        const float cx = rx + rw * 0.5f;
+        auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };   // centred DS-x -> px
+        drawQuad(rx, ry, rw, rh, p.topBg, p.topBg, p.topBg, 1.0f);
+        const float ec = fmaxf(1.0f, scale);
+        drawQuad(X(0.0f), ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
+        drawQuad(X(255.0f), ry, ec, rh, p.edgeShadow, p.edgeShadow, p.edgeShadow, 1.0f);
+    }
+}
+
+// The DSi top screen's mint photo canvas. (px,py,pw,ph) is the field's outer rect (DS x18..240,
+// y18..188) in device px at DS scale `scale`; the bevel ring sits 2 DS px outside it. The bevel and
+// inset are drawn as RINGS (not nested fills) so the field's interior is never painted by them,
+// and the mint field itself is 85 percent opaque (user request): a custom wallpaper or Background
+// Effect shows through the canvas while the frame stays opaque. Always drawn at full alpha: the
+// home top screen and the game Information page share it, so Info opens onto the identical canvas
+// and only its content fades in.
+void NanoMenu::drawNdsMintCanvas(float px, float py, float pw, float ph, float scale, const NdsPal& p) {
+    auto S = [&](float v){ return v * scale; };
+    drawRoundedRing(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), S(2), p.mintBevel, p.mintBevel, p.mintBevel, 1.0f);   // grey bevel ring
+    drawRoundedRing(px, py, pw, ph, S(3), S(3), p.mintInset, p.mintInset, p.mintInset, 1.0f);                                // white inset ring
+    drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), p.mintR, p.mintG, p.mintB, 0.85f);                    // mint field, 85 percent
+}
+
 // The DSi top screen drawn into a device-px rect: the light upper-screen background, the
 // status bar (username left, date + time and battery right, per topscreen.js) and a content
 // panel. The firmware top screen shows a photo/camera widget; the GammaOS adaptation shows
@@ -3542,27 +3597,10 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
 
     auto X = [&](float dx){ return cx + (dx - 128.0f) * scale; };   // centred DS-x -> px
 
-    // light DSi upper-screen background (#f6f6f6) + #dbdbdb edge columns. Skip the opaque fill in
-    // a translucent in-game overlay so the darkened live app shows through (the overlay scrim),
-    // like the PS3 XMB overlay (user request); the opaque post-game launcher + home keep it.
-    const bool ndsTopScrim = mOverlayMode && !mOverlayWallpaper;
+    // light DSi upper-screen background (#f6f6f6) + #dbdbdb edge columns, or the Background Effect /
+    // custom wallpaper (see drawNdsTopBackdrop, which the game Information page shares).
     NdsPal tpal = ndsTopPal();
-    if (!ndsTopScrim) {
-        if (ndsEffectActive()) {
-            // Background Effect (Theme Settings): the effect replaces the wallpaper / flat field.
-            drawNdsEffectBackdrop();
-        } else if (wallpaperActive(mRenderingPanel)) {
-            // Custom wallpaper fills the whole DSi top screen behind all the chrome, replacing the flat
-            // light field: a looping video on the top panel, else a still. The chrome still draws over it.
-            if (!(mRenderingPanel == 0 && drawTopVideoWallpaper()))
-                drawWallpaperFill(mRenderingPanel);
-        } else {
-            drawQuad(rx, ry, rw, rh, tpal.topBg, tpal.topBg, tpal.topBg, 1.0f);
-            float ec = fmaxf(1.0f, S(1.0f));
-            drawQuad(X(0.0f), ry, ec, rh, tpal.edgeShadow, tpal.edgeShadow, tpal.edgeShadow, 1.0f);
-            drawQuad(X(255.0f), ry, ec, rh, tpal.edgeShadow, tpal.edgeShadow, tpal.edgeShadow, 1.0f);
-        }
-    }
+    drawNdsTopBackdrop(rx, ry, rw, rh, scale, tpal);
 
     // ---- photo panel (DSi bg_photo_u, topscreen.js:58): the REAL firmware panel - a
     // beveled grey+white frame around a mint field - blitted from photo_U cropped to its
@@ -3570,16 +3608,11 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // the correct 4:3 proportions the procedural mint rect was missing. GammaOS overlays
     // the current category + selected item in the same DSi teal. ----
     // Draw the mint canvas PROCEDURALLY (grey bevel -> white inset -> mint field), the same
-    // camera-glyph-free frame renderNdsInfoPage uses, instead of blitting photo_U (which has a
-    // firmware CAMERA glyph baked into the mint field). The highlighted card's own icon is drawn
-    // into this clean field below, so the camera never shows through for non-game items.
-    { float px = X(18.0f), pw = X(240.0f) - X(18.0f), py = Y(18.0f), ph = Y(188.0f) - Y(18.0f);
-      // The bevel and inset are drawn as RINGS (not nested fills) so the field's interior is never
-      // painted by them, and the mint field itself is 85 percent opaque (user request): a custom
-      // wallpaper or Background Effect shows through the canvas while the frame stays opaque.
-      drawRoundedRing(px - S(2), py - S(2), pw + S(4), ph + S(4), S(4), S(2), tpal.mintBevel, tpal.mintBevel, tpal.mintBevel, 1.0f);   // grey bevel ring
-      drawRoundedRing(px, py, pw, ph, S(3), S(3), tpal.mintInset, tpal.mintInset, tpal.mintInset, 1.0f);                                // white inset ring
-      drawRoundedRect(px + S(3), py + S(3), pw - S(6), ph - S(6), S(2), tpal.mintR, tpal.mintG, tpal.mintB, 0.85f); } // mint field, 85 percent
+    // camera-glyph-free frame renderNdsInfoPage uses (both call drawNdsMintCanvas), instead of
+    // blitting photo_U (which has a firmware CAMERA glyph baked into the mint field). The
+    // highlighted card's own icon is drawn into this clean field below, so the camera never shows
+    // through for non-game items.
+    drawNdsMintCanvas(X(18.0f), Y(18.0f), X(240.0f) - X(18.0f), Y(188.0f) - Y(18.0f), scale, tpal);
     // panel content: current category (head) + selected item (sub), DSi teal, centred.
     // Top screen shows the current level / parent context (head) + the focused selection (sub).
     // The focused item follows the SAME hard-swap selection as the bottom name box

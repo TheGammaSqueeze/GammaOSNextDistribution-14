@@ -2080,6 +2080,8 @@ private:
     NdsPal ndsTopPal() const;                                       // ndsPal() with the mint canvas + teal text recoloured to a non-Original accent
     bool   ndsEffectActive() const { return mNdsTheme && mCurrentEffect != 0; }   // a Background Effect replaces the DSi wallpaper/field
     void   drawNdsEffectBackdrop();                                 // render the effect (via its FBO) full-panel once per frame per panel
+    void   drawNdsTopBackdrop(float rx, float ry, float rw, float rh, float scale, const NdsPal& p);   // DSi top-screen backdrop: effect, else wallpaper, else flat field + edge columns (none in an in-game scrim); shared by renderNdsTop and the Information page
+    void   drawNdsMintCanvas(float px, float py, float pw, float ph, float scale, const NdsPal& p);    // DSi top-screen mint canvas (bevel + inset rings, 85 percent mint field) at full alpha; shared by renderNdsTop and the Information page
     bool   ndsFxOverlayReady() const;                               // this panel's effect texture was rendered this frame
     void   ndsFxOverlay(float x, float y, float w, float h, float alpha);   // re-blit the effect over a chrome band (= chrome at 1-alpha)
     void   drawRoundedRing(float x, float y, float w, float h, float radius, float thick,
@@ -2369,8 +2371,9 @@ private:
     int    mPs3DlgSel = 0;
     int    mPs3DlgOrigSel = 0;     // value at open, for revert on cancel
     float  mPs3DlgAnim = 0.0f;     // open slide/fade 0->1
-    bool   mPs3DlgClosing = false; // side-panel dismiss fade-out in flight (kind 1)
-    float  mPs3DlgCloseAnim = 0.0f;// close fade alpha 1->0 (reverse of mPs3DlgAnim)
+    uint64_t mPs3DlgAnimHb = ~0ULL;// heartbeat of the last DSi Information page ramp step (top + bottom share one step per frame)
+    bool   mPs3DlgClosing = false; // dismiss animation in flight (kind 1 side panel; DSi kind-0 message box / side panel)
+    float  mPs3DlgCloseAnim = 0.0f;// close alpha 1->0 (reverse of mPs3DlgAnim)
     bool   mPs3DlgBlurValid = false;
     const Ps3SettingBinding* mPs3DlgBinding = nullptr;  // active settings-bound chooser (else null)
     std::unordered_map<std::string, std::string> mPs3BindCache;  // cached bound values by leaf label
