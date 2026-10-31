@@ -2246,7 +2246,8 @@ private:
     // DSi-styled modal overlays for the stacked-carousel nav (user redesign): the option
     // menu + list/slider choosers render as the DSi System Settings glossy list (side panel),
     // and confirm dialogs (System Update, exit settings) render as the DSi message box.
-    void   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list
+    bool   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list; false = drew nothing (its close just finished)
+    void   drawNdsSideFadeIn(float rx, float ry, float rw, float rh);   // black quad fading out after a side panel closed (carousel or list underneath)
     void   renderNdsDialog(float rx, float ry, float rw, float rh);     // Yes/No confirm -> DSi message box
     // DSi-styled full-screen picker list (System Language / Time Zone): the dense scrollable
     // glossy-button list from the web Country/Language screens, replacing the XMB language list
@@ -2270,6 +2271,8 @@ private:
     // fades in from black on every submenu enter or Back, masking the instant stack switch.
     int    mNdsPrevStackDepth = -1;
     int64_t mNdsSubTransStart = 0; // uptimeMillis the current enter/back transition began (0 = none)
+    int64_t mNdsSideFadeInT0 = 0;  // uptimeMillis the carousel/list began fading in from black after a side panel closed (0 = none)
+    bool    mNdsSidePanelShown = false; // renderNdsSidePanel drew the last pass: its falling edge starts the fade above
     int    mNdsTransDir = 0;       // +1 = drilled down (cards fall in from top), -1 = backed up (rise from bottom)
     int    mNdsSubDownSel = 0;     // submenu selection at touch-down (vertical drag-scroll anchor)
     // DSi list momentum scroll + draggable scrollbar (web launcher.js scrub/fling model, 1:1): the

@@ -1564,7 +1564,9 @@ void NanoMenu::renderNdsPickerList(float rx, float ry, float rw, float rh, const
 // pulled from whichever modal is active - the option menu (mPs3OptLabels, or its open
 // submenu) or a dialog chooser (mPs3DlgOptions); D-pad nav is delegated to the XMB handlers
 // (ndsInModal), this only restyles + drives touch (ndsSidePanelTouch). Replaces the carousel.
-void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
+// Returns false when it drew nothing because the close animation just finished; the caller then
+// draws the carousel or list in the same frame and fades it in from black (drawNdsSideFadeIn).
+bool NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
     setUiBlend();
     ensureNdsAssets();
     const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
@@ -1572,7 +1574,7 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
 
     // Open/close fade (ap 0..1). renderXmbOpt/renderPs3Dialog are NOT called in the DSi path,
     // so tick + resolve the animation here (else a close would never clear). A close fades to
-    // black then pops back to the carousel next frame.
+    // black, then returns false and the caller brings the carousel or list back up from black.
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
     const bool optSrc = (mPs3OptActive || mPs3OptClosing);
     float ap;
@@ -1582,7 +1584,7 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
             if (mPs3OptAnim > 0.999f) mPs3OptAnim = 1.0f; ap = mPs3OptAnim;
         } else {
             mPs3OptCloseAnim -= mPs3OptCloseAnim * (1.0f - expf(-13.0f * dt));
-            if (mPs3OptCloseAnim < 0.02f) { mPs3OptCloseAnim = 0.0f; mPs3OptClosing = false; mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return; }
+            if (mPs3OptCloseAnim < 0.02f) { mPs3OptCloseAnim = 0.0f; mPs3OptClosing = false; mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return false; }
             ap = mPs3OptCloseAnim;
         }
     } else {
@@ -1591,7 +1593,7 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
             if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; ap = mPs3DlgAnim;
         } else {
             mPs3DlgCloseAnim -= mPs3DlgCloseAnim * (1.0f - expf(-13.0f * dt));
-            if (mPs3DlgCloseAnim < 0.02f) { mPs3DlgCloseAnim = 0.0f; mPs3DlgClosing = false; mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return; }
+            if (mPs3DlgCloseAnim < 0.02f) { mPs3DlgCloseAnim = 0.0f; mPs3DlgClosing = false; mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont; return false; }
             ap = mPs3DlgCloseAnim;
         }
     }
@@ -1733,6 +1735,21 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
     if (ap < 0.999f) drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 1.0f - ap);   // fade in/out from black
     mTextOutlineMode = ndsPrevOutline;
     mNdsFontPref = ndsPrevFont;
+    return true;
+}
+
+// The carousel or settings list brightening from black for ~140ms after a side panel (Options
+// menu / chooser) closed: the panel's own close fade ends near black, so this picks the same
+// black up and the screen never pops from dark to full brightness. Drawn over the finished
+// carousel/list, but before the dialog dispatch and the photo banner so a confirm box and the
+// 'setting changed' pill stay crisp. A launch in flight owns the screen (white wash), so it
+// cancels the fade instead.
+void NanoMenu::drawNdsSideFadeIn(float rx, float ry, float rw, float rh) {
+    if (mNdsSideFadeInT0 == 0) return;
+    if (ndsLaunchOriginMs() > 0) { mNdsSideFadeInT0 = 0; return; }
+    float a = 1.0f - (float)((int64_t)uptimeMillis() - mNdsSideFadeInT0) / 140.0f;
+    if (a > 0.0f) { drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, a); mDisplayDirty = true; }
+    else mNdsSideFadeInT0 = 0;
 }
 
 // DSi message-box DIALOG (user redesign): confirmations like System Update or "exit settings"
@@ -2032,11 +2049,30 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // Modal overlays (user redesign): the Triangle option menu and the list/slider choosers
     // replace the carousel with the DSi settings-options side panel; confirm dialogs are drawn
     // OVER the carousel at the end of this function (renderNdsDialog). Side panels return early.
-    if (mPs3OptActive || mPs3OptClosing ||
-        ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel())) {
-        renderNdsSidePanel(rx, ry, rw, rh);
-        drawPhotoBanner();   // setting-change / sort confirmation pill, over the DSi side panel
-        return;
+    // Once a panel's close has finished it draws nothing (returns false): the carousel or list
+    // below is drawn in that same frame, so there is no bare black frame, and it brightens from
+    // black over ~140ms (drawNdsSideFadeIn) instead of popping in. The fade is stamped on the
+    // panel-shown -> not-shown edge, so a side-panel list that closes at once fades back in too.
+    {
+        auto sideWanted = [&]() {
+            return mPs3OptActive || mPs3OptClosing ||
+                   ((mPs3DlgActive || mPs3DlgClosing) && ndsDlgIsSidePanel());
+        };
+        bool drewPanel = false;
+        if (sideWanted()) {
+            if (!mNdsSidePanelShown) mNdsSideFadeInT0 = 0;   // a panel opening ends a fade still running
+            drewPanel = renderNdsSidePanel(rx, ry, rw, rh);
+            // Options -> chooser hand-off: the Options close just finished but a chooser took over,
+            // so draw it now rather than a carousel frame in between.
+            if (!drewPanel && sideWanted()) drewPanel = renderNdsSidePanel(rx, ry, rw, rh);
+        }
+        if (drewPanel) {
+            mNdsSidePanelShown = true;
+            drawPhotoBanner();   // setting-change / sort confirmation pill, over the DSi side panel
+            return;
+        }
+        if (mNdsSidePanelShown && ndsLaunchOriginMs() == 0) mNdsSideFadeInT0 = (int64_t)uptimeMillis();
+        mNdsSidePanelShown = false;
     }
     // DSi enter/back transition: stamp a fade whenever the nav depth changes (root -> category
     // -> submenu), so the new level fades in from black (settings.js fadeIn). The full stacked
@@ -2056,6 +2092,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // renderNdsSubmenu draws it; app/game/media levels fall through to the carousel below.
     if (ndsCurLevelIsList()) {
         renderNdsSubmenu(rx, ry, rw, rh);
+        drawNdsSideFadeIn(rx, ry, rw, rh);   // a side panel just closed onto this list: brighten it from black
         // A confirm/info dialog (kind-0) opened FROM a settings list must still draw: this list path
         // returns before the carousel's dialog dispatch below, so a dialog opened here (System
         // Information, IPTV/Radio disclaimer, Restore/Format confirms) would set mPs3DlgActive but
@@ -2193,6 +2230,7 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // intro clears and while not launching. introFrame counts 60fps frames; done at 78. ----
     if (mNdsIntroStart == 0 && !mPs3BootActive && !ndsLaunching) {
         mNdsIntroStart = (int64_t)uptimeMillis();
+        mNdsSideFadeInT0 = 0;                             // the entrance has its own fade-in; a stale panel edge must not add one
         mNdsCamera = (float)sel;                          // start the cascade settled on the selection
     }
     float introFrame = (mNdsIntroStart > 0)
@@ -2750,6 +2788,9 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     }
 
     // (the enter/back transition is now the card drop/rise above, not a black fade.)
+    // A side panel just closed onto this carousel: brighten it from black. Drawn before the
+    // info page / dialog below and the photo banner, so a confirm box and the pill stay crisp.
+    drawNdsSideFadeIn(rx, ry, rw, rh);
     // A game Information page: on a device that HAS a top panel (dual, or auto-stacked single),
     // the top screen shows the cover + metadata summary and THIS (bottom) screen shows the full
     // description with L/R pagination in the bottom corners. On a true single non-stacked panel
