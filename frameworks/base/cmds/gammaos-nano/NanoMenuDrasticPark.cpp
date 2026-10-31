@@ -24,6 +24,7 @@
 #include "NanoMenuPS3Bg.h"
 #include "NanoBacklight.h"
 
+#include <algorithm>
 #include <dirent.h>
 #include <linux/input.h>
 #include <malloc.h>
@@ -371,14 +372,22 @@ bool NanoMenu::drasticParkSession() {
     // The panels hold the white frame until drastic-nano's splash has replaced it, which happens
     // about 600 ms after the trigger, well before the ring it allocates later. Then the frame (3 MB
     // per panel) and the fd go, so they never compete with that ring for CMA. If it does not show
-    // within 5 s (it died, or fell back to SurfaceFlinger) the frame goes anyway and SurfaceFlinger
-    // gets its gate back, which is where a plain stop leaves it. A drastic-nano that ends before its
-    // splash (session_done, or its process seen and gone) does not keep the poll for the full 5 s.
+    // within 5 s of the trigger and its process is nowhere to be seen (it never started, or fell back
+    // to SurfaceFlinger) the frame goes anyway and SurfaceFlinger gets its gate back, which is where
+    // a plain stop leaves it. Once the process is seen the wait follows it instead, up to 20 s: its
+    // splash can be late when its start-up is slow (the first launch after an image update used to
+    // spend seconds merging the user's cheat database before it asked for the panel), and giving
+    // up on a live process only turned the panels black until it got there. A drastic-nano that
+    // ends before its splash (session_done, or its process seen and gone) does not keep the poll.
+    // sys.gammaos.nano.baton_max_ms sets the cap for a live process (5000 is the old behaviour).
     if (batonHeld) {
         const int64_t b0 = uptimeMillis();
         bool handedOver = false, ended = false;
         int batonPid = -1, polls = 0;
-        while (uptimeMillis() - b0 < 5000) {
+        const int64_t liveMaxMs = std::min<int64_t>(60000, std::max<int64_t>(5000,
+                property_get_int32("sys.gammaos.nano.baton_max_ms", 20000)));
+        int64_t limitMs = 5000;
+        while (uptimeMillis() - b0 < limitMs) {
             char sess[PROPERTY_VALUE_MAX] = {};
             property_get("sys.gammaos.drastic_nano.session", sess, "");
             if (drmBatonReplaced() || strcmp(sess, "1") == 0) { handedOver = true; break; }
@@ -386,7 +395,10 @@ bool NanoMenu::drasticParkSession() {
             // The /proc walk that finds the process runs every 100 ms until it is seen (it is not up yet
             // for the first few hundred ms); afterwards only that pid's comm is read.
             if (batonPid <= 0) {
-                if (polls++ % 5 == 0) batonPid = findProcess("drastic-nano");
+                if (polls++ % 5 == 0) {
+                    batonPid = findProcess("drastic-nano");
+                    if (batonPid > 0) limitMs = liveMaxMs;
+                }
             } else if (!pidAlive(batonPid, "drastic-nano")) {
                 ended = true;
                 break;
@@ -396,7 +408,8 @@ bool NanoMenu::drasticParkSession() {
         drmBatonRelease();
         if (!handedOver) {
             if (ended) ALOGW("NanoMenu: drastic-nano ended before it replaced the hand-off frame");
-            else ALOGW("NanoMenu: drastic-nano did not replace the hand-off frame within 5 s");
+            else ALOGW("NanoMenu: drastic-nano did not replace the hand-off frame within %lld ms",
+                       (long long)(uptimeMillis() - b0));
             property_set("sys.gammaos.nano.drm_active", "0");
             property_set("sys.gammaos.nano.handoff_argb", "");
         } else {

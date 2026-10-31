@@ -5692,11 +5692,38 @@ int main(int argc, char** argv) {
     // Our own root is built from the system assets on every launch (cheap when
     // warm); seedRoot also creates the user data folder (wherever the user chose)
     // and links backup/ and savestates/ into it.
-    if (!android::drastic_assets::seedRoot(gDrasticDataDir)) {
+    //
+    // The cheat merge is left out of seedRoot and runs on a helper beside the display bring-up. After
+    // every image update it rebuilds the merged usrcheat.dat from the user's cheat database (tens of
+    // megabytes, seconds on the RG DS Plus), and done inline it kept the panels dark for those seconds:
+    // the home's white hand-off frame was released after 5 s and the splash only came once seedRoot
+    // returned. It is joined right before dr.init, the first thing that reads usrcheat.dat.
+    // persist.gammaos.drastic_nano.cheat_merge_async=0 merges inside seedRoot as before.
+    const bool cheatMergeAsync = property_get_bool("persist.gammaos.drastic_nano.cheat_merge_async", true);
+    if (!android::drastic_assets::seedRoot(gDrasticDataDir, /*mergeCheatsNow=*/!cheatMergeAsync)) {
         ALOGE("drastic-nano: could not seed %s from %s", gDrasticDataDir.c_str(),
               android::drastic_assets::systemDir().c_str());
         return 3;
     }
+    // A joinable std::thread that is destroyed aborts the process: whatever returns from here
+    // on finds the helpers joined.
+    struct JoinGuard {
+        std::thread& t;
+        ~JoinGuard() { if (t.joinable()) t.join(); }
+    };
+    std::thread cheatMerge;
+    if (cheatMergeAsync) {
+        cheatMerge = std::thread([root = gDrasticDataDir] {
+            pthread_setname_np(pthread_self(), "dn-cheatmerge");
+            // The render thread's SCHED_FIFO 80 and nice -20 are inherited. The merge is plain
+            // background work for the display bring-up, which runs at FIFO 80 beside it.
+            sched_param sp = {};
+            sched_setscheduler(0, SCHED_OTHER, &sp);
+            setpriority(PRIO_PROCESS, (id_t)syscall(SYS_gettid), 0);
+            android::drastic_assets::mergeCheats(root);
+        });
+    }
+    JoinGuard cheatMergeGuard{cheatMerge};
 
     // libdrastic: the copy shipped in /system. The installed APK is only a
     // fallback for an image that predates the system copy.
@@ -5894,12 +5921,7 @@ int main(int argc, char** argv) {
         ALOGI("drastic-nano: libdrastic preloaded cpu=%d arm64=%d in %lld ms",
               cpu != nullptr, arm != nullptr, (long long)(android::elapsedRealtime() - t0));
     });
-    // A joinable std::thread that is destroyed aborts the process: whatever returns from here
-    // on finds the helper joined.
-    struct JoinGuard {
-        std::thread& t;
-        ~JoinGuard() { if (t.joinable()) t.join(); }
-    } dlPreloadGuard{dlPreload};
+    JoinGuard dlPreloadGuard{dlPreload};
 
     // The display backend is up and the EGL context is current: from here until
     // the render loop's first frame we can draw a loading screen instead of
@@ -6372,6 +6394,13 @@ int main(int argc, char** argv) {
     }
     // The libdrastic preload (above) must be done: init's own dlopen calls then return at once.
     dlPreload.join();
+    // libdrastic opens <root>/usrcheat.dat while it loads the ROM: the cheat merge has to have landed
+    // by now. On the hand-off the panels already show the white loading frame.
+    if (cheatMerge.joinable()) {
+        const int64_t j0 = android::elapsedRealtime();
+        cheatMerge.join();
+        ALOGI("drastic-nano: waited %lld ms for the cheat merge", (long long)(android::elapsedRealtime() - j0));
+    }
     const bool drInitOk = dr.init(gDrasticDataDir, romPath, libsDir,
                  /*soundEnabled=*/prefs.soundEnabled,
                  /*configBitsOverride=*/userBits,
