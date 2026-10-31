@@ -349,11 +349,16 @@ void OverlayMenu::close() {
 }
 
 void OverlayMenu::toast(const std::string& msg, int64_t ms) {
+    const int64_t now = android::elapsedRealtime();
+    // The fade-in only starts for a toast that appears out of nothing; a new
+    // message replacing one that is still on screen keeps full opacity, so
+    // pressing a hotkey repeatedly does not make the box flicker.
+    if (mToast.empty() || now > mToastUntilMs) mToastStartMs = now;
     // Localize static toast text. Dynamic snprintf'd toasts (e.g. "Saved slot 3")
     // trDyn their format string at the call site instead, since the filled-in
     // value would not match a key; a non-key message here passes through as-is.
     mToast = trDyn(msg.c_str());
-    mToastUntilMs = android::elapsedRealtime() + ms;
+    mToastUntilMs = now + ms;
 }
 
 void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
@@ -1120,8 +1125,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // when the menu isn't visible.
         if (mRunner) {
             if (a.actQuickSave) quickSave(false);
-            // Quick-load is a save-state load, disabled in hardcore.
-            if (a.actQuickLoad && !mRaHardcore) quickLoad(false);
+            // Quick-load is a save-state load, disabled in hardcore; say so
+            // instead of dropping the press silently.
+            if (a.actQuickLoad) {
+                if (mRaHardcore) toast("Quick Load disabled (RetroAchievements hardcore)");
+                else quickLoad(false);
+            }
         }
         return;
     }
@@ -1406,7 +1415,9 @@ void handSlotToApp(const std::string& path, uid_t uid, gid_t gid) {
 
 void OverlayMenu::quickSave(bool fromMenu) {
     if (!mRunner) return;
-    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    // The toasts show on the hotkey path too (the overlay draws them with the
+    // menu closed); only closing the menu is specific to the menu path.
+    if (mQuickBusy.load()) { toast(trDyn("Please wait...")); return; }
     // Keep the slot-0 file this save replaces so the save can be undone.
     const std::string slot0 = slot0Path();
     if (fileExists(slot0) && rename(slot0.c_str(), undoSavePath().c_str()) != 0) {
@@ -1415,7 +1426,8 @@ void OverlayMenu::quickSave(bool fromMenu) {
     if (mRunner->saveStateSlot(0)) {
         mSlotCacheValid = false;
         handSlotToApp(slot0, mAppUid, mAppGid);
-        if (fromMenu) { toast(trDyn("Quick saved")); closeMenu(); }
+        toast(trDyn("Quick saved"));
+        if (fromMenu) closeMenu();
     } else {
         // Put the previous quick save back; nothing was written.
         rename(undoSavePath().c_str(), slot0.c_str());
@@ -1444,9 +1456,9 @@ void OverlayMenu::undoQuickSave() {
 
 void OverlayMenu::quickLoad(bool fromMenu) {
     if (!mRunner) return;
-    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    if (mQuickBusy.load()) { toast(trDyn("Please wait...")); return; }
     const std::string slot0 = slot0Path(), undo = undoLoadPath(), aside = slot0 + ".loadsrc";
-    if (!fileExists(slot0)) { if (fromMenu) toast(trDyn("No quick save yet")); return; }
+    if (!fileExists(slot0)) { toast(trDyn("No quick save yet")); return; }
     // Save the running state first so the load can be undone: drastic only
     // writes by slot number, so move the quick save aside, save the current
     // state into slot 0, and move both files to where they belong.
@@ -1466,8 +1478,9 @@ void OverlayMenu::quickLoad(bool fromMenu) {
     }
     if (!undoPoint) ALOGW("OverlayMenu: quick load without an undo point");
     if (mRunner->requestLoadStateSlot(0)) {
-        if (fromMenu) { toast(trDyn("Quick loaded")); closeMenu(); }
-    } else if (fromMenu) {
+        toast(trDyn("Quick loaded"));
+        if (fromMenu) closeMenu();
+    } else {
         toast(trDyn("Load failed"));
     }
 }
@@ -3907,26 +3920,41 @@ static float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
 }
 
-// Compose a soft scrim + a small dark-band across the top and bottom of
-// the screen. The scrim keeps text readable while the band anchors the
-// category row and footer without reintroducing a hard panel frame.
+// A short message box near the bottom of the screen. It uses the footer hint
+// strip's text size (the same pixel size, so its glyphs are already in the
+// atlas) and shrinks to fit the panel width when a translated message is long.
+// alpha (0..1) is the fade-in/out factor from toastAlpha().
 static void drawToast(drastic_gfx::OverlayGfx& gfx,
-                      const std::string& msg, float sf) {
-    if (msg.empty()) return;
+                      const std::string& msg, float sf, float alpha) {
+    if (msg.empty() || alpha <= 0.0f) return;
     const char* m = trDyn(msg.c_str());
-    float scale = 1.0f * sf;
-    float w = gfx.measure(m, scale) + 28.0f * sf;
-    float h = gfx.fontLineH() * scale + 14.0f * sf;
     float vw = (float)gfx.viewportW();
     float vh = (float)gfx.viewportH();
+    float scale = kFooterScale * sf;
+    float tw = gfx.measure(m, scale);
+    const float maxTw = vw * 0.92f - 28.0f * sf;
+    if (tw > maxTw && tw > 0.0f) {
+        scale *= maxTw / tw;
+        tw = maxTw;
+    }
+    float w = tw + 28.0f * sf;
+    float h = gfx.fontLineH() * scale + 14.0f * sf;
     float x = (vw - w) / 2.0f;
     float y = vh * 0.82f;
-    gfx.fillRect(x, y, w, h, rgba(0.02f, 0.03f, 0.05f, 0.82f));
+    gfx.fillRect(x, y, w, h, rgba(0.02f, 0.03f, 0.05f, 0.82f * alpha));
     gfx.fillRect(x, y + h - 2.0f * sf, w, 2.0f * sf,
-                 rgba(0.40f, 0.75f, 1.0f, 0.9f));
+                 rgba(0.40f, 0.75f, 1.0f, 0.9f * alpha));
     gfx.text(m, x + 14.0f * sf,
              y + (h - gfx.fontLineH() * scale) / 2.0f, scale,
-             rgba(1, 1, 1, 1));
+             rgba(1, 1, 1, alpha));
+}
+
+// 100 ms fade-in from the moment the toast appeared, 150 ms fade-out before
+// it expires; the smaller of the two wins when a toast is shorter than both.
+static float toastAlpha(int64_t now, int64_t startMs, int64_t untilMs) {
+    const float in  = clampf((float)(now - startMs) / 100.0f, 0.0f, 1.0f);
+    const float out = clampf((float)(untilMs - now) / 150.0f, 0.0f, 1.0f);
+    return fminf(in, out);
 }
 
 void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
@@ -3954,9 +3982,9 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
         drawAchievementBanner(gfx, sf);
         // Challenge (primed) and progress (measured) indicators over the game.
         drawRaIndicators(gfx, sf);
-        if (mToast.empty() ||
-            android::elapsedRealtime() > mToastUntilMs) return;
-        drawToast(gfx, mToast, sf);
+        const int64_t now = android::elapsedRealtime();
+        if (mToast.empty() || now > mToastUntilMs) return;
+        drawToast(gfx, mToast, sf, toastAlpha(now, mToastStartMs, mToastUntilMs));
         return;
     }
 
@@ -4011,8 +4039,9 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     drawHud(gfx);
     drawAchievementBanner(gfx, sf);
 
-    if (!mToast.empty() && android::elapsedRealtime() <= mToastUntilMs) {
-        drawToast(gfx, mToast, sf);
+    const int64_t toastNow = android::elapsedRealtime();
+    if (!mToast.empty() && toastNow <= mToastUntilMs) {
+        drawToast(gfx, mToast, sf, toastAlpha(toastNow, mToastStartMs, mToastUntilMs));
     }
 }
 

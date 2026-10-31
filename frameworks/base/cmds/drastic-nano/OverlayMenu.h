@@ -286,6 +286,7 @@ private:
     bool mCaptureKey = false;
     int  mCaptureActionIdx = -1;      // when mCaptureKey: which action
     bool mDirty = false;              // staged edits pending write
+    int64_t mToastStartMs = 0;        // when the visible toast first appeared (fade-in)
     int64_t mToastUntilMs = 0;
     std::string mToast;
 
