@@ -4217,8 +4217,10 @@ public final class SystemServer implements Dumpable {
 
             // Wait for user to select RetroArch, then enable screen (kills overlay).
             new Thread(() -> {
-                while (!"1".equals(SystemProperties.get("service.bootanim.nano_retroarch"))) {
-                    if ("1".equals(SystemProperties.get("service.bootanim.nano_boot"))) {
+                // getInt reads the flags without allocating a String per poll (these props are
+                // only ever "0" or "1").
+                while (SystemProperties.getInt("service.bootanim.nano_retroarch", 0) != 1) {
+                    if (SystemProperties.getInt("service.bootanim.nano_boot", 0) == 1) {
                         Slog.i(TAG, "GammaOS Nano: user chose full boot");
                         return;
                     }
@@ -4278,7 +4280,9 @@ public final class SystemServer implements Dumpable {
                             // Storage service not registered yet: not ready.
                         }
                     }
-                    if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) {
+                    // do_launch is reset to "0" after every use, so a String get() would
+                    // allocate on each of these 25 ms polls.
+                    if (SystemProperties.getInt("sys.gammaos.nano.do_launch", 0) != 1) {
                         try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                         continue;
                     }
@@ -4665,7 +4669,11 @@ public final class SystemServer implements Dumpable {
      */
     private void startNanoDisplayBridge(Context context) {
         final android.content.ContentResolver cr = context.getContentResolver();
-        final String[] last = { null, null };
+        // Last values written to the provider: r, g, b (percent) and reading (0/1). -1 means
+        // "nothing written yet", so the first sync always writes. Kept as ints so a quiet tick
+        // allocates nothing: this runs every 100 ms for the whole uptime, and the String.format
+        // it used to do on every tick was the main steady garbage in system_server's heap.
+        final int[] last = { -1, -1, -1, -1 };
         final Runnable sync = () -> {
             try {
                 int r = SystemProperties.getInt("persist.gammaos.nano.display.cal_r", 100);
@@ -4674,20 +4682,24 @@ public final class SystemServer implements Dumpable {
                 r = Math.max(0, Math.min(100, r));
                 g = Math.max(0, Math.min(100, g));
                 b = Math.max(0, Math.min(100, b));
-                String rgb = String.format(java.util.Locale.US, "%.3f %.3f %.3f",
-                        r / 100f, g / 100f, b / 100f);
-                if (!rgb.equals(last[0])) {
-                    last[0] = rgb;
+                if (r != last[0] || g != last[1] || b != last[2]) {
+                    String rgb = String.format(java.util.Locale.US, "%.3f %.3f %.3f",
+                            r / 100f, g / 100f, b / 100f);
                     lineageos.providers.LineageSettings.System.putString(cr,
                             lineageos.providers.LineageSettings.System.DISPLAY_COLOR_ADJUSTMENT,
                             rgb);
+                    last[0] = r;
+                    last[1] = g;
+                    last[2] = b;
                 }
-                String reading = SystemProperties.get("persist.gammaos.nano.display.reading", "0");
-                if (!reading.equals(last[1])) {
-                    last[1] = reading;
+                int reading =
+                        SystemProperties.getInt("persist.gammaos.nano.display.reading", 0) == 1
+                                ? 1 : 0;
+                if (reading != last[3]) {
                     lineageos.providers.LineageSettings.System.putInt(cr,
                             lineageos.providers.LineageSettings.System.DISPLAY_READING_MODE,
-                            "1".equals(reading) ? 1 : 0);
+                            reading);
+                    last[3] = reading;
                 }
             } catch (Throwable e) {
                 Slog.w(TAG, "GammaOS Nano: display bridge sync failed", e);

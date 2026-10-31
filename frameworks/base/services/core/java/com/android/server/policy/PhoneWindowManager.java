@@ -3778,8 +3778,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Thread nanoEscThread = new Thread(() -> {
             while (true) {
                 try {
-                    if ("1".equals(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.overlay_esc", "0"))) {
+                    if (android.os.SystemProperties.getInt(
+                            "sys.gammaos.nano.overlay_esc", 0) == 1) {
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.overlay_esc", "0");
                         Slog.i(TAG, "GammaOS Nano: overlay requested clean exit, "
