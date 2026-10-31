@@ -67,6 +67,15 @@ public:
               std::string shadersDir);
 
     bool isOpen() const { return mOpen; }
+    // True while the menu is on screen: open, or still fading out after a close.
+    // Only the overlay's own drawing and the bottom-panel passes that follow it key
+    // on this. Input, pause state, pacing and direct render stay on isOpen(): the
+    // game is live again from the moment of the close, the fade only plays over it.
+    bool isVisible() const { return mOpen || mVisA > 0.0f; }
+    // Keep the menu on screen at its current alpha instead of fading it out (the
+    // exit fade runs over it; fading the menu away first would flash the game).
+    // Also implied by any exit, relaunch, restart or power request the menu raised.
+    void holdVisibility(bool on) { mVisHold = on; }
     // True when the menu wants the input layer to route the next key
     // press to capturedAndroidKc (Controls > rebind).
     bool isCapturingKey() const;

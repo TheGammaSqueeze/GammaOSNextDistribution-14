@@ -2724,6 +2724,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                 drasticQuiesceAudio();
                 dr->setVolumeRuntime(0);
                 dr->setRunAhead(0, 1);   // no replay burst or slot redirect over the autosave slot
+                overlay.holdVisibility(true);   // a menu still up stays up under the fade instead of fading out to the game first
                 overlay.close();         // a menu that was open unpauses the emulator, which the save needs
                 coverDone = true;        // the launch cover has nothing left to say
                 result.saveWanted = result.exitToHome ||
@@ -3980,10 +3981,12 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             overlay.drawRaBottomPanel(gfx);
             gfx.endFrame();
             endBottomPass();
-        } else if (!overlay.oskActive() && hasDualDisplay && overlay.isOpen()) {
+        } else if (!overlay.oskActive() && hasDualDisplay && overlay.isVisible()) {
             // Any other overlay section: dim the bottom DS panel with a scrim so
             // the paused game reads as "the menu is open", matching the keyboard
-            // and Achievements passes.
+            // and Achievements passes. Visible, not open: the scrim fades out with
+            // the menu after a close, in step with the top panel (the touch cursor
+            // below waits out those 120 ms).
             bindBottomPass();
             gfx.beginFrame();
             overlay.drawBottomScrim(gfx);

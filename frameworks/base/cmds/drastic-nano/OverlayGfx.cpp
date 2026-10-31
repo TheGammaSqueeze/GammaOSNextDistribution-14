@@ -191,6 +191,7 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4],
     mViewportW = viewportW;
     mViewportH = viewportH;
     mScriptFacesPending = false;
+    mGlobalA = 1.0f;
     for (int i = 0; i < 4; i++) mRot[i] = rotMat[i];
 
     GLuint svs = compile(GL_VERTEX_SHADER,   kSolidVS);
@@ -303,6 +304,7 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4],
 }
 
 void OverlayGfx::shutdown() {
+    mGlobalA = 1.0f;
     mGlyphs.clear();
     if (mAtlasTex) { glDeleteTextures(1, &mAtlasTex); mAtlasTex = 0; }
     mAtlasX = mAtlasY = mAtlasShelfH = 0;
@@ -395,7 +397,7 @@ void OverlayGfx::useProgram(GLuint prog) {
 void OverlayGfx::pushSolidVertex(float x, float y, Color c) {
     mSolidVerts.push_back(x); mSolidVerts.push_back(y);
     mSolidVerts.push_back(c.r); mSolidVerts.push_back(c.g);
-    mSolidVerts.push_back(c.b); mSolidVerts.push_back(c.a);
+    mSolidVerts.push_back(c.b); mSolidVerts.push_back(c.a * mGlobalA);
 }
 
 void OverlayGfx::drawSolidQuad(float x, float y, float w, float h, Color c) {
@@ -494,7 +496,7 @@ void OverlayGfx::roundedRect(float x, float y, float w, float h,
     mCurProgram = mRoundProgram;
     glUniform2f(mRoundLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mRoundLocRot, 1, GL_FALSE, mRot);
-    glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a);
+    glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a * mGlobalA);
     glUniform2f(mRoundLocHalf, hw, hh);
     glUniform1f(mRoundLocRadius, r);
 
@@ -568,7 +570,7 @@ void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
     mCurProgram = mImageProgram;
     glUniform2f(mImgLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mImgLocRot, 1, GL_FALSE, mRot);
-    glUniform1f(mImgLocAlpha, alpha);
+    glUniform1f(mImgLocAlpha, alpha * mGlobalA);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(mImgLocSampler, 0);
     // Drive the sharp-bilinear sampler from the texture's native size and the
@@ -824,7 +826,7 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
         useProgram(mTextProgram);
         glUniform2f(mTextLocViewport, (float)mViewportW, (float)mViewportH);
         glUniformMatrix2fv(mTextLocRot, 1, GL_FALSE, mRot);
-        glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a);
+        glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a * mGlobalA);
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(mTextLocSampler, 0);
         glBindTexture(GL_TEXTURE_2D, mAtlasTex);

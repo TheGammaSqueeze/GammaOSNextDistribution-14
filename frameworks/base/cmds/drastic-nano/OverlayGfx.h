@@ -133,6 +133,24 @@ public:
     // Measure-only variant (no draw). Same math as text().
     float measure(const char* s, float scale) const;
 
+    // Global opacity multiplied into the alpha of everything drawn: solid rects,
+    // outlines, triangles and stars (baked per vertex, so the solid batch stays
+    // valid across a change), rounded rects, text and images. Lets the menu fade
+    // as a whole without every call site knowing about it. 1 by default, clamped
+    // to 0..1. Prefer ScopedAlpha so an early return cannot leave it dimmed for
+    // the OSK, the exit fill or the next frame.
+    void  setGlobalAlpha(float a) { mGlobalA = a < 0.f ? 0.f : (a > 1.f ? 1.f : a); }
+    float globalAlpha() const { return mGlobalA; }
+    struct ScopedAlpha {
+        ScopedAlpha(OverlayGfx& g, float a) : mG(g), mPrev(g.globalAlpha()) { g.setGlobalAlpha(a); }
+        ~ScopedAlpha() { mG.setGlobalAlpha(mPrev); }
+        ScopedAlpha(const ScopedAlpha&) = delete;
+        ScopedAlpha& operator=(const ScopedAlpha&) = delete;
+    private:
+        OverlayGfx& mG;
+        float mPrev;
+    };
+
     // Raster-only mode: text() rasterizes and caches every glyph of the run in
     // the atlas but issues no draw, and the solid/round/image primitives draw
     // nothing. The menu uses it once at start-up to draw every page "blind" so
@@ -211,6 +229,7 @@ private:
     mutable int mAtlasX = 0, mAtlasY = 0, mAtlasShelfH = 0;   // shelf packer cursor
     mutable std::vector<float> mTextVerts;                    // scratch, reused per run
     bool mRasterOnly = false;
+    float mGlobalA = 1.0f;    // see setGlobalAlpha
     GLuint mCurProgram = 0;   // last program this renderer bound (skips redundant re-binds)
 
     void drawSolidQuad(float x, float y, float w, float h, Color c);

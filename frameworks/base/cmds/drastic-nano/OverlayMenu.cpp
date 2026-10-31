@@ -368,6 +368,18 @@ void OverlayMenu::advanceVis(int64_t nowMs) {
 void OverlayMenu::openMenu() {
     if (mOpen) return;
     mOpen = true;
+    // closeMenu leaves the pages as they were so the menu fades out showing what
+    // the user last saw; whatever that was (a confirm prompt, a leaderboard
+    // drill-in) is dropped here instead, so a reopen starts on the plain page.
+    mConfirm = ConfirmPrompt{};
+    mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
+    mRaView = 0;   // single-screen drill-in returns to the achievement list
+    // Fade in. From nothing the first frame already shows part of the way; from a
+    // close still fading out it carries on from the alpha on screen. The clock
+    // restarts at the first drawn frame, so the rows rebuild below is not charged
+    // to the fade.
+    if (mVisA <= 0.0f) mVisA = visEaseOut(kVisFirstP);
+    mVisLastMs = 0;
     // The slot cache stays valid across opens: only this process writes states
     // (menu rows and hotkeys, which invalidate it; the quick slot and its undo
     // files are re-stat'ed in place), and a fresh FUSE stat pass per open cost
@@ -390,15 +402,13 @@ void OverlayMenu::openMenu() {
 }
 
 void OverlayMenu::closeMenu() {
-    mConfirm = ConfirmPrompt{};
     if (!mOpen) return;
     if (mDirty) writePrefsSafe();
     mOpen = false;
     mCaptureKey = false;
     mCaptureActionIdx = -1;
-    // Drop any leaderboard drill-in so reopening starts on the detail/list view.
-    mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
-    mRaView = 0;   // single-screen drill-in returns to the achievement list
+    // The confirm prompt and the Achievements drill-in are left as they are: the
+    // menu fades out over 120 ms still showing them, and openMenu drops them.
     if (mRunner) {
         // Unpause on the worker (see openMenu), then, in the same ordered job:
         // re-assert the live config on the now-running emulator (live changes
@@ -982,6 +992,8 @@ void OverlayMenu::deletePerGameOverride() {
 void OverlayMenu::prewarmGlyphs(drastic_gfx::OverlayGfx& gfx) {
     if (mOpen) return;
     const Section savedSection = mSection;
+    const float savedVisA = mVisA;
+    const int64_t savedVisLastMs = mVisLastMs;
     mOpen = true;
     gfx.setRasterOnly(true);
     for (int sec = 0; sec < (int)kSec_COUNT; sec++) {
@@ -991,6 +1003,8 @@ void OverlayMenu::prewarmGlyphs(drastic_gfx::OverlayGfx& gfx) {
     }
     gfx.setRasterOnly(false);
     mOpen = false;
+    mVisA = savedVisA;   // the blind draws stepped the fade; nothing of it may show
+    mVisLastMs = savedVisLastMs;
     mSection = savedSection;
     rebuildRows();
     mToast.clear();
@@ -1365,12 +1379,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     } else if (!mSingleScreen) {
         // Dual-screen only: left the bottom panel (closed overlay or another
         // section), so drop the drill-in and reset scroll state, matching
-        // closeMenu(). On a single-screen device this branch must NOT run every
+        // openMenu(). On a single-screen device this branch must NOT run every
         // frame -- wantsRaBottomPanel() is always false there, and clobbering
         // mRaOpenLbId each frame would reset the rankings drill-in the moment
         // raSingleAccept opens it (the "Loading rankings..." that never resolves).
         // The single-screen drill-in owns mRaOpenLbId/mRaView via raSingle* and
-        // the tab-switch / closeMenu resets.
+        // the tab-switch / openMenu resets.
         mPrevRaTouch = false;
         mRaOpenLbId = 0;
         mRaBottomScroll = 0.0f;
@@ -4077,7 +4091,12 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     // so the existing small-panel look does not regress.
     sf = scaleForViewport(sf) * kUiShrink;
 
-    if (!mOpen) {
+    // Step the fade once per frame, here; the bottom-panel passes drawn after this
+    // reuse mVisA so both panels fade in step. Nothing to step (and no clock read)
+    // while the menu is closed and gone.
+    if (mOpen || mVisA > 0.0f) advanceVis(android::elapsedRealtime());
+
+    if (!isVisible()) {
         // The volume/brightness HUD and brief toasts still render (and the
         // HUD timers still tick) while the menu is closed -- the user
         // adjusts volume/brightness during gameplay.
@@ -4092,48 +4111,57 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
         return;
     }
 
-    // Full-screen scrim: darker so the overlay dominates and the game
-    // recedes (still faintly visible behind the dark).
-    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.88f));
+    // The menu itself, at the fade's alpha (open: easing in; closed: still easing
+    // out over the game, which is already running again). The scope ends before
+    // the HUD, banner and toast so those stay at full strength, and the scope
+    // restores the alpha on every path out of it. A closing menu only repaints
+    // what it last showed: no input, no row rebuilds, no battery poll.
+    {
+        drastic_gfx::OverlayGfx::ScopedAlpha fade(gfx, mVisA);
 
-    float catBarY = vh * kCatBarTopFrac;
-    drawCategoryBar(gfx, vw, catBarY, sf);
+        // Full-screen scrim: darker so the overlay dominates and the game
+        // recedes (still faintly visible behind the dark).
+        gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.88f));
 
-    refreshBattery();
-    drawBatteryIndicator(gfx, vw, sf);
-    drawTimeIndicator(gfx, vw, sf);
+        float catBarY = vh * kCatBarTopFrac;
+        drawCategoryBar(gfx, vw, catBarY, sf);
 
-    // The list sits below the category title (accent + dots row) and
-    // above the footer. The category block is roughly the title
-    // height, an accent gap, and the dots row.
-    float categoryBlockH = gfx.fontLineH() * kCatActiveSc * sf
-                         + 34.0f * sf;   // accent + dots strip
-    float listTop = catBarY + categoryBlockH;
-    float footerBandH = gfx.fontLineH() * kFooterScale * sf + 18.0f * sf;
-    float listBottom = vh - footerBandH - 12.0f * sf;
+        if (mOpen) refreshBattery();
+        drawBatteryIndicator(gfx, vw, sf);
+        drawTimeIndicator(gfx, vw, sf);
 
-    // In the Achievements section, reserve a band above the footer to show the
-    // selected achievement's description (RetroAchievements sends one per
-    // achievement). Larger text and up to three wrapped lines so it is readable
-    // on small panels (e.g. 640x480).
-    const bool raSubView =
-            (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
+        // The list sits below the category title (accent + dots row) and
+        // above the footer. The category block is roughly the title
+        // height, an accent gap, and the dots row.
+        float categoryBlockH = gfx.fontLineH() * kCatActiveSc * sf
+                             + 34.0f * sf;   // accent + dots strip
+        float listTop = catBarY + categoryBlockH;
+        float footerBandH = gfx.fontLineH() * kFooterScale * sf + 18.0f * sf;
+        float listBottom = vh - footerBandH - 12.0f * sf;
 
-    if (raSubView) {
-        const float cxL = vw * kContentLeftFrac;
-        const float cxR = vw * kContentRightFrac;
-        drawRaSingle(gfx, cxL, listTop, cxR - cxL, listBottom - listTop, sf);
-    } else if (mSection == kSec_Achievements) {
-        // Rich RetroAchievements list (badge + title + description + unlock date
-        // / rarity + points). Each row carries its own description, so there is
-        // no separate detail band and the list gets the full content region.
-        drawAchievementsList(gfx, vw, listTop, listBottom - listTop, sf);
-    } else {
-        drawList(gfx, vw, listTop, listBottom - listTop, sf);
+        // In the Achievements section, reserve a band above the footer to show the
+        // selected achievement's description (RetroAchievements sends one per
+        // achievement). Larger text and up to three wrapped lines so it is readable
+        // on small panels (e.g. 640x480).
+        const bool raSubView =
+                (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
+
+        if (raSubView) {
+            const float cxL = vw * kContentLeftFrac;
+            const float cxR = vw * kContentRightFrac;
+            drawRaSingle(gfx, cxL, listTop, cxR - cxL, listBottom - listTop, sf);
+        } else if (mSection == kSec_Achievements) {
+            // Rich RetroAchievements list (badge + title + description + unlock date
+            // / rarity + points). Each row carries its own description, so there is
+            // no separate detail band and the list gets the full content region.
+            drawAchievementsList(gfx, vw, listTop, listBottom - listTop, sf);
+        } else {
+            drawList(gfx, vw, listTop, listBottom - listTop, sf);
+        }
+
+        drawFooter(gfx, vw, vh, sf);
+        if (mConfirm.active) drawConfirm(gfx, vw, vh, sf);
     }
-
-    drawFooter(gfx, vw, vh, sf);
-    if (mConfirm.active) drawConfirm(gfx, vw, vh, sf);
 
     // The on-screen keyboard is NOT drawn here: it renders on the bottom DS
     // screen (drawOsk, called by main.cpp against the secondary FBO) so it
