@@ -162,6 +162,11 @@ static int gDsUvMin = 16;
 // reads was written by the same job's points, so the old table is dead; a tiled GPU then neither
 // reloads nor writes back the whole 3 MiB table (3 RGBA32I attachments, 128 x 512) per job.
 static bool gRowInv = false;
+// persist gpu3d_fused_scatter (read at GL init, default on only for the RG DS Plus, 0 = the old two
+// passes): the readback scatter applies the DS alpha lanes while it de-interleaves, one trip over
+// the 786 KB frame instead of an in-place alpha pass and a second pass that reads it all again
+// (the frame is larger than the SoC's L3, so the second pass came from DRAM). Same output bytes.
+static bool gFusedScatter = false;
 static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
 static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
 static int gPolyRows = 0;                           // row table rows handed out so far in this job
@@ -1059,6 +1064,11 @@ bool initGl() {
     if (g.failed) return false;
     g.failed = true;   // cleared on success
     resetProgU();      // the programs below are new objects, whatever names the driver hands out
+    {   // The scatter helper is idle here (destroyGl drains it before a rebuild, and it starts only after the first init), so it sees this value through gScMtx with its next job.
+        char fsDev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", fsDev, "");
+        gFusedScatter = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_fused_scatter", strcmp(fsDev, "anbernicrgdsplus") == 0);
+        ALOGI("gpu3d: readback scatter %s", gFusedScatter ? "applies the DS alpha in the same pass" : "keeps the separate alpha pass");
+    }
     g.dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (g.dpy == EGL_NO_DISPLAY || !eglInitialize(g.dpy, nullptr, nullptr)) {
         ALOGE("gpu3d: eglInitialize failed 0x%x", eglGetError()); return false;
@@ -2466,8 +2476,24 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     }
 }
 
+// The alphaToDs lane transform for the fused scatter: a5 = min(a8 + 4, 255) >> 3 in the top byte,
+// the colour bytes untouched. The same operations as alphaToDs' NEON loop below (that loop is kept
+// as it was, so gpu3d_fused_scatter 0 runs the old code), so the bytes match it exactly.
+#if defined(__aarch64__)
+static inline uint32x4_t alphaLaneDs(uint32x4_t v, uint32x4_t four, uint32x4_t ff, uint32x4_t maskC) {
+    const uint32x4_t a = vshrq_n_u32(vminq_u32(vaddq_u32(vshrq_n_u32(v, 24), four), ff), 3);
+    return vorrq_u32(vandq_u32(v, maskC), vshlq_n_u32(a, 24));
+}
+#else
+// Scalar form of the same transform, saturating like the NEON one (a8 of 252..255 gives 31).
+static inline uint32_t alphaPixDs(uint32_t v) {
+    const uint32_t a = std::min((v >> 24) + 4u, 255u) >> 3;
+    return (v & 0x00ffffffu) | (a << 24);
+}
+#endif
+
 // MSAA / GL-blend mode stores alpha as a blend factor (a/31 * 255); the DS layer wants the
-// 5-bit value in the byte: a5 = (a8 + 4) >> 3.
+// 5-bit value in the byte: a5 = min(a8 + 4, 255) >> 3.
 void alphaToDs(uint8_t* buf, int y0, int y1) {
     uint32_t* p = reinterpret_cast<uint32_t*>(buf + (size_t)y0 * kW * 4);
     const size_t n = (size_t)(y1 - y0) * kW;
@@ -2479,16 +2505,34 @@ void alphaToDs(uint8_t* buf, int y0, int y1) {
         vst1q_u32(p + i, vorrq_u32(vandq_u32(v, maskC), vshlq_n_u32(a, 24)));
     }
 #else
-    for (size_t i = 0; i < n; i++) { uint32_t v = p[i]; uint32_t a = (((v >> 24) + 4) >> 3) & 31; p[i] = (v & 0x00ffffffu) | (a << 24); }
+    for (size_t i = 0; i < n; i++) p[i] = alphaPixDs(p[i]);
 #endif
 }
 
 // Scatter rows [y0,y1) of the readback into drastic's output buffer. Hi-res (512 wide): the
 // column de-interleaved layout (even columns of line y in row 2y, odd in row 2y+1, 256 words
 // each). Native (256 wide): one linear 256-word row per line, a straight copy.
-void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) {
+// kAlpha applies the alphaToDs lane transform to every pixel on its way through (the fused
+// scatter, gFusedScatter): the same bytes as alphaToDs followed by the plain scatter, in one
+// pass, and src stays read-only.
+template <bool kAlpha>
+static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int y1) {
+#if defined(__aarch64__)
+    const uint32x4_t four = vdupq_n_u32(4), ff = vdupq_n_u32(255), maskC = vdupq_n_u32(0x00ffffffu);
+#endif
     if (kW == 256) {
-        memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
+        if (!kAlpha) {
+            memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
+            return;
+        }
+        const uint32_t* s = reinterpret_cast<const uint32_t*>(src + (size_t)y0 * 0x400);
+        uint32_t* d = reinterpret_cast<uint32_t*>(target + (size_t)y0 * 0x400);
+        const size_t n = (size_t)(y1 - y0) * 256;   // words; both buffers have a 0x400 byte row pitch
+#if defined(__aarch64__)
+        for (size_t i = 0; i + 4 <= n; i += 4) vst1q_u32(d + i, alphaLaneDs(vld1q_u32(s + i), four, ff, maskC));
+#else
+        for (size_t i = 0; i < n; i++) d[i] = alphaPixDs(s[i]);
+#endif
         return;
     }
     for (int y = y0; y < y1; y++) {
@@ -2498,13 +2542,29 @@ void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) {
 #if defined(__aarch64__)
         for (int x = 0; x < kW; x += 8) {
             uint32x4x2_t p = vld2q_u32(row + x);
+            if (kAlpha) { p.val[0] = alphaLaneDs(p.val[0], four, ff, maskC); p.val[1] = alphaLaneDs(p.val[1], four, ff, maskC); }
             vst1q_u32(even + (x >> 1), p.val[0]);
             vst1q_u32(odd + (x >> 1), p.val[1]);
         }
 #else
-        for (int x = 0; x < kW; x += 2) { even[x >> 1] = row[x]; odd[x >> 1] = row[x + 1]; }
+        for (int x = 0; x < kW; x += 2) {
+            uint32_t a = row[x], b = row[x + 1];
+            if (kAlpha) { a = alphaPixDs(a); b = alphaPixDs(b); }
+            even[x >> 1] = a; odd[x >> 1] = b;
+        }
 #endif
     }
+}
+void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<false>(src, target, y0, y1); }
+void scatterRowsAlpha(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<true>(src, target, y0, y1); }
+
+// The CPU finish of a readback: with a blend-factor alpha (blendAlpha) the DS alpha fix, then the
+// scatter. Fused (gFusedScatter) that is one pass over the frame; with the switch at 0 it is the
+// old pair, alphaToDs in place and then the plain scatter.
+static void finishRows(uint8_t* src, uint8_t* target, int y0, int y1, bool blendAlpha) {
+    if (blendAlpha && gFusedScatter) { scatterRowsAlpha(src, target, y0, y1); return; }
+    if (blendAlpha) alphaToDs(src, y0, y1);
+    scatterRows(src, target, y0, y1);
 }
 
 // GL thread: apply a pending adaptive-MSAA sample-count change (implicit-resolve path only).
@@ -2589,8 +2649,7 @@ static void scatterThreadMain() {
         if (gScQuit) break;
         PendingRb w = gScWork; gScHas = false;
         lk.unlock();
-        if (w.blendAlpha) alphaToDs(w.src, 0, kH);
-        scatterRows(w.src, w.target, 0, kH);
+        finishRows(w.src, w.target, 0, kH, w.blendAlpha);
         {
             std::lock_guard<std::mutex> gl(g.mtx);
             publishLatest(w.target, w.job ? w.job->seq : 0, w.job ? w.job->pow15 : -1);
@@ -3248,8 +3307,7 @@ void renderJob(Job& j) {
             glReadPixels(0, y0, kW, y1 - y0, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data() + (size_t)y0 * kW * 4);
             if (msaa) glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
             const int64_t tc = nowUs(); rbUs += tc - tb;
-            if (g.blendAlpha) alphaToDs(g.readback.data(), y0, y1);
-            scatterRows(g.readback.data(), j.target, y0, y1);
+            finishRows(g.readback.data(), j.target, y0, y1, g.blendAlpha);
             scUs += nowUs() - tc;
             for (int b = b0; b < b1; b++) maskDone |= 1u << b;
             gpu3dSetBandMask(maskDone);
@@ -3453,12 +3511,14 @@ void renderJob(Job& j) {
     if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867 /* QUERY_RESULT_AVAILABLE */, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866 /* QUERY_RESULT */, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; } }
     if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // resolved colour (explicit blit above, or in-tile)
     glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
-    if (g.blendAlpha) alphaToDs(g.readback.data(), 0, kH);
+    if (g.blendAlpha && !gFusedScatter) alphaToDs(g.readback.data(), 0, kH);   // the old separate pass, counted under read
     const int64_t t4 = nowUs();
     g.sumReadUs += t4 - t3;
     const uint8_t* src = g.readback.data();
     uint8_t* target = j.target;
-    scatterRows(src, target, 0, kH);
+    // Fused, the alpha lanes are applied inside the scatter, so their cost counts under scatter time in the stats.
+    if (g.blendAlpha && gFusedScatter) scatterRowsAlpha(src, target, 0, kH);
+    else scatterRows(src, target, 0, kH);
     const int64_t t5 = nowUs();
     g.sumScatterUs += t5 - t4;
     jobEpilogue(j, t0, t1, t2, t3, t4, t5);
