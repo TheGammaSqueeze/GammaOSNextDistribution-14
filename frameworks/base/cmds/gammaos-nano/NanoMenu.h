@@ -132,6 +132,14 @@ void nanoBtLpmSuspendGate(bool screenOff, bool& disabled);
 // loadInstalledApps can honour persist.gammaos.nano.extra_apps (force-show vendor apps).
 std::vector<std::string> nanoPkgListRead(const char* baseProp);
 
+// RG DS Plus Menu tap in the launcher (NanoMenuResume.cpp): what the home launched last, kept in
+// /data/system/nano_last_launch.txt so a restarted home still knows it. sys.gammaos.nano.last_launch
+// is the "something was launched since this boot" gate, so a reboot forgets it. The game record is
+// the ROM path; the app record is the package plus an optional tab-delimited launch intent
+// (Settings, a browser URL). Defined in NanoMenuResume.cpp; safe to call from any thread.
+void nanoResumeNoteGame(const std::string& romPath);
+void nanoResumeNoteApp(const std::string& pkg, const std::string& intent);
+
 // Adapter that lets the shared NanoSliderHud spec draw through NanoMenu's
 // private GL primitives (drawQuad/drawText/measureText). Defined in
 // NanoMenuSystem.cpp; friended so the volume/brightness HUD matches the
@@ -1057,6 +1065,9 @@ private:
     // In-game URL launch: start the chosen browser on the URL via ACTION_VIEW.
     bool overlayLaunchUrl(const std::string& pkg, const std::string& comp,
                           const std::string& url);
+    // RG DS Plus Menu tap (NanoMenuResume.cpp): start an app through the launch intent the home
+    // recorded for it (Settings, a browser URL), as `am start` options.
+    bool overlayLaunchIntent(const std::string& pkg, const std::string& intent);
     // Shared overlay launch primitive: cleanly exit whatever is running (ESC +
     // save-state wait for RetroArch/DraStic, force-stop for other apps), then run
     // the prebuilt `am start ...` command for the new target. Tracks launch_app +
@@ -2183,6 +2194,19 @@ private:
     // short, so there it is deferred to the moment the effect completes (pollInput's exit gate).
     void  armAppLaunchTrigger();
     bool  mLaunchTriggerDeferred = false;
+    // RG DS Plus (persist.gammaos.nano.menu_resume): a short tap of the Menu key while the home is
+    // in front starts the last game or app the home launched, through the same launch the touch
+    // screen uses. A hold is the Control Center's, and a tap while a game runs is the framework's
+    // go-home (PhoneWindowManager), so this only acts with nothing running. NanoMenuResume.cpp.
+    int64_t mMenuTapDownUs = 0;            // evdev time (us) of a fresh Menu press that may still end as a tap, 0 = none
+    bool    mResumeInGameLaunch = false;   // inside launchXmbGame: the emulator it arms is not an "app" to remember
+    bool    menuResumeKey(int fd, int value, int64_t evUs);   // pollInput: a Menu key edge (value 1 press, 0 release); true = consumed
+    bool    menuResumeAllowed();           // the home is idle and in front: nothing modal, launching or running
+    bool    menuResumeLaunch();            // start the last game or app; true when a launch is under way
+    bool    menuResumeDispatch(const Ps3Item& it);   // launch one PS3_RECENT / PS3_ROM / PS3_APP item as the home's own select does
+    bool    menuResumeHopDsi(const Ps3Item& want);   // DSi: put the carousel on the card to launch; false = not found (nav is the caller's to restore)
+    bool    menuResumeLaunchApp(const std::string& pkg, const std::string& intent);   // an app with its own launch intent
+    void    resumeNoteLaunch();            // armAppLaunchTrigger: remember the app being launched
     void  ndsSfxPreload(int which);        // decode a DSi clip ahead of its first trigger (idle)
     void  ndsRestoreReturnPath();          // on the fresh return process, drill back to the launched card
     float mNdsCamera = 3.0f;      // carousel scroll position (slot units, fractional while sliding)

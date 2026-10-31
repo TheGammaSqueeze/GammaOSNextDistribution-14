@@ -1446,6 +1446,7 @@ bool NanoMenu::overlayLaunchPackage(const std::string& pkg) {
     // An app, not a ROM: no launch ROM is left behind from an earlier game (the other app launch
     // paths clear it too; the 3DS theme's suspended title is found by it).
     setLaunchRomPath("");
+    nanoResumeNoteApp(pkg, std::string());   // RG DS Plus Menu tap (NanoMenuResume.cpp): the last app launched
     // Plain app (Applications submenu): start its LAUNCHER activity. Resolve the
     // component and start it with `am start` rather than `monkey` - monkey cannot take
     // a --display flag, which overlayLaunchCommand needs to pin the app to the top panel
@@ -1472,6 +1473,31 @@ bool NanoMenu::overlayLaunchUrl(const std::string& pkg, const std::string& comp,
     if (!comp.empty()) cmd += " -n " + overlayShq(comp);
     else               cmd += " " + overlayShq(pkg);
     cmd += " 2>/dev/null";
+    overlayLaunchCommand(pkg, cmd);
+    return true;
+}
+
+// RG DS Plus Menu tap (NanoMenuResume.cpp) back to an app that the home started through its own launch
+// intent (Settings, a browser URL). The record keeps the tab-delimited tokens the home hand-off gives
+// parseAmIntent, and they are the same options `am start` takes (-n component, -a action, -c category,
+// -d data). Without a component the package is pinned with -p, as parseAmIntent does with launch_app: a
+// bare ACTION_MAIN or SETTINGS intent would otherwise resolve to another app (TvSettings has no LAUNCHER
+// activity, so overlayLaunchPackage cannot start it at all).
+bool NanoMenu::overlayLaunchIntent(const std::string& pkg, const std::string& intent) {
+    if (pkg.empty() || intent.empty()) return false;
+    std::string cmd = "am start";
+    if (intent.find("-n\t") == std::string::npos) cmd += " -p " + overlayShq(pkg);
+    size_t pos = 0;
+    while (pos <= intent.size()) {
+        const size_t tab = intent.find('\t', pos);
+        const std::string tok = intent.substr(pos, tab == std::string::npos ? std::string::npos : tab - pos);
+        if (!tok.empty()) cmd += " " + overlayShq(tok);
+        if (tab == std::string::npos) break;
+        pos = tab + 1;
+    }
+    cmd += " 2>/dev/null";
+    setLaunchRomPath("");
+    nanoResumeNoteApp(pkg, intent);
     overlayLaunchCommand(pkg, cmd);
     return true;
 }
@@ -1884,6 +1910,10 @@ void NanoMenu::overlayLaunchGame() {
     } else if (!coreSoExists(coreSo)) {
         showEmuMissingMsg(romName, false); return;
     }
+    // RG DS Plus Menu tap (NanoMenuResume.cpp): every refusal is behind us, this is the last game
+    // launched. Noted here, ahead of the drastic-nano and azahar-nano hand-offs below that never
+    // return.
+    nanoResumeNoteGame(romPath);
 
     // GammaOS: drastic-nano intercept for the resident overlay launcher. The
     // home XMB reroutes a DS ROM to the drastic-nano binary when

@@ -861,6 +861,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final String NANO_MENU_INFLIGHT_PROP = "sys.gammaos.nano.menu_exit_inflight";
     private static final long NANO_MENU_INFLIGHT_SAFETY_MS = 4000;
     private static final long NANO_MENU_INFLIGHT_TAIL_MS = 500;
+    // sys.gammaos.nano.menu_resume_ms: when a Menu tap with the launcher in front makes nano's home
+    // start the last game or app (NanoMenuResume.cpp), it stamps the time here (uptimeMillis, the
+    // clock nano reads too) before it launches anything. The framework sees the same tap, and by
+    // the time this handler runs the launch may already have set app_launched or started a
+    // drastic-nano session: that app is coming up, not one to leave, so taps are left alone for
+    // this long after the stamp. The stamp is set by nano only and cleared again when its launch
+    // is refused; a reboot clears it too.
+    private static final String NANO_MENU_RESUME_PROP = "sys.gammaos.nano.menu_resume_ms";
+    private static final long NANO_MENU_RESUME_GUARD_MS = 3000;
     private static final boolean GAMMA_MENU_HOME_DEVICE =
             "anbernicrgdsplus".equals(SystemProperties.get("ro.gammaos.device", ""));
     // Event time (ns) of the Menu key down that may still turn into a tap, 0 when there is none.
@@ -2829,6 +2838,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if (mNanoMenuExitPending
                 || (mNanoExitLastMs != 0
                         && nowMs - mNanoExitLastMs < NANO_EXIT_REPEAT_MS)) {
+            return;
+        }
+        // This tap just made nano's home start the last game or app: nothing to leave yet.
+        final long resumeMs = android.os.SystemProperties.getLong(NANO_MENU_RESUME_PROP, 0);
+        if (resumeMs > 0 && nowMs - resumeMs >= 0 && nowMs - resumeMs < NANO_MENU_RESUME_GUARD_MS) {
+            Slog.i(TAG, "GammaOS Nano: Menu tap started the launcher's last item, not leaving it");
             return;
         }
         // azahar-nano reads the key itself and exits through its own path.

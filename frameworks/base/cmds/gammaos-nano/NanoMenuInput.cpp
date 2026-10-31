@@ -2005,6 +2005,7 @@ int NanoMenu::kbdCodeToCp(int code, bool shift) {
 }
 
 void NanoMenu::armAppLaunchTrigger() {
+    resumeNoteLaunch();   // the RG DS Plus Menu tap in the home returns to this app (NanoMenuResume.cpp)
     if (!mOverlayMode && !sDrmActive) { mLaunchTriggerDeferred = true; return; }
     property_set("service.bootanim.nano_retroarch", "1");
 }
@@ -2465,6 +2466,12 @@ void NanoMenu::pollInput() {
                 if (ev.type == EV_KEY) colorPickerHandleKey(ev.code, ev.value);
                 continue;
             }
+            // RG DS Plus Menu key (204, KEY_ALL_APPLICATIONS on the pad): with the home in front a short
+            // tap starts the last game or app (NanoMenuResume.cpp). Before the 3DS block so every
+            // theme gets it. Off, on other pads and for a hold it returns false and nothing changes.
+            if (ev.type == EV_KEY && ev.code == 204 && ev.value != 2
+                && menuResumeKey(fd, ev.value, (int64_t)ev.time.tv_sec * 1000000LL + ev.time.tv_usec))
+                continue;
             // 3DS theme: while its home has the screen, buttons, the D-pad and the circle pad are
             // its held state (NanoMenuCtr.cpp); START, SELECT and system keys stay with nano.
             if (mCtrTheme && (ev.type == EV_KEY || ev.type == EV_ABS) && ctrInputEvent(ev.type, ev.code, ev.value))

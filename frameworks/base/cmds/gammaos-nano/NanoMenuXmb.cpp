@@ -2749,6 +2749,13 @@ void NanoMenu::launchXmbGame() {
     // first was a dead no-op: once an app is behind it the home runs as the resident overlay, so
     // launching from the overlay or after returning to the theme did nothing.
     if (mOverlayMode) { overlayLaunchGame(); return; }
+    // RG DS Plus Menu tap (NanoMenuResume.cpp): this launch notes its own ROM below. For the whole
+    // call the emulator package it arms through armAppLaunchTrigger is not an app to remember.
+    struct ResumeGameScope {
+        bool& flag;
+        explicit ResumeGameScope(bool& f) : flag(f) { flag = true; }
+        ~ResumeGameScope() { flag = false; }
+    } resumeGameScope(mResumeInGameLaunch);
     int sysIdx, gameIdx;
 
     // GammaOS Nano: gate the entire XMB launch path until the system
@@ -2789,6 +2796,7 @@ void NanoMenu::launchXmbGame() {
         } else if (!coreSoExists(re.coreSo)) {
             showEmuMissingMsg(re.displayName, false); return;
         }
+        nanoResumeNoteGame(re.romPath);   // every refusal is behind us: this game is the last one launched
 
         // Move to front of recent list -- only on disk, not in-memory.
         // Modifying the vector causes a visible shuffle during the
@@ -2976,6 +2984,7 @@ void NanoMenu::launchXmbGame() {
     } else if (!coreSoExists(sys.coreSo)) {
         showEmuMissingMsg(sys.name, false); return;
     }
+    nanoResumeNoteGame(romPath);   // every refusal is behind us: this game is the last one launched
 
     if (sys.isStandalone()) {
         std::string fullRomPath = sys.roms[gameIdx];

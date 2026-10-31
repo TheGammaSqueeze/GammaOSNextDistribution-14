@@ -106,6 +106,7 @@ cc_binary {
         "NanoOtaCheck.cpp",
         "NanoMenuOta.cpp",
         "NanoMenuDrasticPark.cpp",
+        "NanoMenuResume.cpp",      // RG DS Plus: Menu tap in the home returns to the last game or app
         "NanoMenuSetupWizard.cpp",
         "NanoMenuStrings.cpp",
         "NanoBtStable.cpp",

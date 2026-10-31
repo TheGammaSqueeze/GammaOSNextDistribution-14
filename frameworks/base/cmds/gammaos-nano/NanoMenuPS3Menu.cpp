@@ -2117,6 +2117,9 @@ void NanoMenu::launchAndroidSettings() {
         // a LEANBACK activity fine; this is the overlay `am start` path, not the RootWindowContainer
         // resolver).
         if (nanoIsAtvBuild()) {
+            // RG DS Plus Menu tap (NanoMenuResume.cpp): the record is the intent the home hand-off uses below.
+            nanoResumeNoteApp("com.android.tv.settings",
+                "-a\tandroid.intent.action.MAIN\t-c\tandroid.intent.category.LEANBACK_LAUNCHER");
             overlayLaunchCommand("com.android.tv.settings",
                 "am start -n com.android.tv.settings/com.android.tv.settings.MainSettings 2>/dev/null");
             return;
@@ -2132,6 +2135,7 @@ void NanoMenu::launchAndroidSettings() {
         }
         std::string pkg = comp.substr(0, comp.find('/'));
         ALOGI("NanoMenu: launching Settings via %s (overlay)", comp.c_str());
+        nanoResumeNoteApp(pkg, "-a\tandroid.settings.SETTINGS");   // RG DS Plus Menu tap: the home hand-off's intent
         overlayLaunchCommand(pkg, "am start -n " + comp + " 2>/dev/null");
         return;
     }
@@ -2171,6 +2175,7 @@ void NanoMenu::launchAndroidSettings() {
         int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
         property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
+        nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap in the home: Settings is an app it can return to
         // Trigger LAST, once the intent file + target props are in place, so the framework hand-off
         // never observes a half-written launch request.
         property_set("service.bootanim.nano_retroarch", "1");
@@ -5632,7 +5637,11 @@ void NanoMenu::launchUrl(const std::string& url) {
     // routinely exceeds the 92-byte property limit.
     std::string intent = "-n\t" + comp + "\t-a\tandroid.intent.action.VIEW\t-d\t" + url;
 
-    if (mOverlayMode) { overlayLaunchUrl(pkg, comp, url); return; }   // in-game: replace the app
+    if (mOverlayMode) {   // in-game: replace the app
+        if (!url.empty()) nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap (NanoMenuResume.cpp): back to this URL
+        overlayLaunchUrl(pkg, comp, url);
+        return;
+    }
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
     property_set("sys.gammaos.nano.launch_app", pkg.c_str());
     property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
@@ -5648,6 +5657,7 @@ void NanoMenu::launchUrl(const std::string& url) {
     property_set("persist.gammaos.nano.qr_core", "");
     property_set("sys.gammaos.nano.return_apps", "1");
     armAppLaunchTrigger();
+    nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap in the home: back to this URL (the note above kept the bare package)
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;   // fade out + exit so the browser is on top
 }

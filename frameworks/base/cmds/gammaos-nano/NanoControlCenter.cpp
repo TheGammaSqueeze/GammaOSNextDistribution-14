@@ -1440,12 +1440,14 @@ bool NanoMenu::ccPollTopTapDown() {
 // grid-launched bottom app). nano holds its own un-grabbed fd, so this peek does not steal the key from the
 // framework. Generic.kl maps 204 to KEYCODE_NOTIFICATION, which PhoneWindowManager consumes (there is no
 // SystemUI in nano), so the framework never acts on it as a panel toggle. On the RG DS Plus 204 is the Menu key:
-// a press shorter than 600 ms is PhoneWindowManager's go-home, and only a longer hold toggles the Control
-// Center, on the release. Each side times only its own press and release, never one side's stamp against the
-// other's: here that is the evdev stamp of nano's fd (CLOCK_REALTIME, nothing sets EVIOCSCLOCK on it);
-// PhoneWindowManager uses the KeyEvent times (CLOCK_MONOTONIC). So one press does one of the two, never both,
-// unless the wall clock steps during the press. Other devices toggle on the down-edge as before. Non-blocking;
-// drains the fd to empty each call so a session-long backlog cannot replay a stale press.
+// a press shorter than 600 ms is PhoneWindowManager's go-home (while the home is in front there is nothing to
+// leave, and the home's own pollInput takes the tap to return to the last game or app: NanoMenuResume.cpp),
+// and only a longer hold toggles the Control Center, on the release. Each side times only its own press and
+// release, never one side's stamp against the other's: here that is the evdev stamp of nano's fd
+// (CLOCK_REALTIME, nothing sets EVIOCSCLOCK on it); PhoneWindowManager uses the KeyEvent times
+// (CLOCK_MONOTONIC). So one press does one of the two, never both, unless the wall clock steps during the
+// press. Other devices toggle on the down-edge as before. Non-blocking; drains the fd to empty each call so a
+// session-long backlog cannot replay a stale press.
 bool NanoMenu::ccPollAllAppsKey() {
     char dev[PROPERTY_VALUE_MAX] = {};
     property_get("persist.gammaos.nano.cc.keydev", dev, "Xbox Wireless Controller");

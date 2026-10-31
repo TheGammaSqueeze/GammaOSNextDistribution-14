@@ -20,6 +20,9 @@ Deep-dive docs for individual subsystems live under `docs/` and are linked as th
 - `NanoMenuShaders.cpp` / `.h` — GLES2 program sources + compilation.
 - `NanoMenuEffects.cpp` — procedural/particle wallpaper effects.
 - `NanoMenuOverlay.cpp` — in-game overlay lifecycle (blur capture, Z-order, translucency).
+- `NanoMenuResume.cpp` — RG DS Plus: a Menu-key tap with the home in front returns to the last
+  game or app the home launched (record in `/data/system/nano_last_launch.txt`, kill switch
+  `persist.gammaos.nano.menu_resume`).
 - `NanoMenuUtils.h` — path/storage inline helpers.
 
 ## PS3 XMB visuals + layout
