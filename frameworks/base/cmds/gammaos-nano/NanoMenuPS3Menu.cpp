@@ -12369,8 +12369,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
     // Side-panel choosers (kind 1) play a fade + reverse-settle close animation on
     // dismiss (whether cancel or confirm). The option/swatch/sel state is left intact
     // so the fading panel still renders; input returns to the menu immediately.
-    // Fullscreen dialogs (kind 0) close instantly as before.
+    // DSi message boxes (kind 0) slide back down the same way; that is flagged at the very end,
+    // once the handlers above are known not to have handed off to another screen. Kind-0
+    // dialogs in the other themes, and the full-screen info pages, close instantly as before.
     if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
+    // Snapshot for that close before the page flags and mNdsInfoPage are cleared below. A box that
+    // never got a frame (anim ~0) has nothing to slide down, so it just closes.
+    const bool ndsBoxClose = mNdsTheme && mPs3DlgKind == 0 && mPs3DlgAnim > 0.02f
+                             && !mPs3DlgGameInfo && !mPs3DlgHelp && !mPs3DlgRomInfo;
+    const int  ndsBoxPage  = mNdsInfoPage;
     // Release the ROM Information page art (page-owned textures) on close. The
     // pending paths are cleared so any late async result is freed by saDrainArt, not
     // routed to a closed page.
@@ -12392,6 +12399,16 @@ void NanoMenu::closePs3Dialog(bool apply) {
         mPs3AppInfoNonce.clear(); mPs3AppInfoScroll = 0;
     }
     mNanoUninstallPending.clear();
+    // The closing flag is only cleared by the DSi renderer, so it is set only when the carousel is
+    // still the screen being drawn. If an accept handler opened the keyboard, a player, a picker,
+    // the Wi-Fi wizard, global search or an option menu, the flag would stay set: the render loop
+    // would never go idle and a ghost box would slide down on the way back.
+    if (ndsBoxClose && !(mOskActive || mPvActive || mMpActive || mVidActive || mPs3TzActive
+                         || mPs3LangActive || mPs3WizActive || mGSearchActive || mPs3OptActive)) {
+        mPs3DlgClosing = true;
+        mPs3DlgCloseAnim = mPs3DlgAnim;
+        mNdsDlgClosePage = ndsBoxPage;
+    }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }

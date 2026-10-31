@@ -2595,13 +2595,15 @@ private:
     // cramped narrow body below. renderNdsInfoPage / renderMinimaInfoPage branch on this.
     bool   mPs3DlgHelp = false;
     int    mNdsInfoPage = 0;               // current description page (L/R paginate)
+    int    mNdsDlgClosePage = 0;           // page a closing paged DSi message box keeps drawing (mNdsInfoPage is already reset)
     int    mNdsInfoPageCount = 1;          // total pages (computed each render; 1 -> hide L/R)
     void   renderNdsInfoPage(float rx, float ry, float rw, float rh, int part);  // 0=full(single) 1=top(cover+meta) 2=bottom(description)
     void   ndsInfoPage(int dir);           // L/R: turn the info page (clamped)
     bool   ndsGameInfoActive() const { return mPs3DlgGameInfo && (mPs3DlgActive || mPs3DlgClosing); }
     // A kind-0 info dialog (single OK, no Yes/No, not a side-panel chooser) whose body overflows
-    // one panel and therefore paginates with L/R (System Information, music tags, ...).
-    bool   ndsDlgInfoPaged() const { return (mPs3DlgActive || mPs3DlgClosing) && !mPs3DlgGameInfo
+    // one panel and therefore paginates with L/R (System Information, music tags, ...). Active only:
+    // while the box slides away (closing) L/R belong to the carousel again.
+    bool   ndsDlgInfoPaged() const { return mPs3DlgActive && !mPs3DlgGameInfo
                                           && !ndsDlgIsSidePanel() && (int)mPs3DlgOptions.size() <= 1
                                           && mNdsInfoPageCount > 1; }
     // App Information page (kind-0 dialog, filled asynchronously): "info" on an app sets

@@ -1739,17 +1739,34 @@ void NanoMenu::renderNdsSidePanel(float rx, float ry, float rw, float rh) {
 // render as the DSi light message box - a rounded panel that slides up, a title, the body
 // text, and glossy Yes/No (or OK) buttons - over the dimmed carousel. Reads mPs3DlgTitle /
 // mPs3DlgBody / mPs3DlgOptions / mPs3DlgSel; D-pad nav is delegated (ps3DlgNav), touch via
-// ndsDialogTouch. kind-0 dialogs close instantly, so only the open slide is animated.
+// ndsDialogTouch. The box slides up on open and back down on close (closePs3Dialog sets
+// mPs3DlgClosing for kind 0) as ONE opaque piece: only the scrim fades, because the glossy
+// buttons have no alpha and would otherwise sit solid on a see-through panel.
 void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     setUiBlend();
     ensureNdsAssets();
     const bool ndsPrevFont = mNdsFontPref; mNdsFontPref = true;
     const int ndsPrevOutline = mTextOutlineMode; mTextOutlineMode = 2;   // DSi menu text is flat (no drop shadow / outline)
     float dt = mFrameDt; if (dt < 0.0f) dt = 0.0f; if (dt > 0.1f) dt = 0.1f;
-    mPs3DlgClosing = false;
-    mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
-    if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
-    const float ap = mPs3DlgAnim, ease = ap * ap * (3.0f - 2.0f * ap);
+    float ap;
+    if (mPs3DlgActive) {
+        mPs3DlgClosing = false;
+        mPs3DlgAnim += (1.0f - mPs3DlgAnim) * (1.0f - expf(-15.0f * dt));
+        if (mPs3DlgAnim > 0.999f) mPs3DlgAnim = 1.0f; else mDisplayDirty = true;
+        ap = mPs3DlgAnim;
+    } else {
+        // Closing: the same ramp in reverse. Below 0.02 the box is fully off the DS area (byOff
+        // below), so dropping it here is not a visible cut.
+        mPs3DlgCloseAnim -= mPs3DlgCloseAnim * (1.0f - expf(-15.0f * dt));
+        if (mPs3DlgCloseAnim < 0.02f) {
+            mPs3DlgCloseAnim = 0.0f; mPs3DlgClosing = false;
+            mTextOutlineMode = ndsPrevOutline; mNdsFontPref = ndsPrevFont;
+            return;
+        }
+        mDisplayDirty = true;
+        ap = mPs3DlgCloseAnim;
+    }
+    const float ease = ap * ap * (3.0f - 2.0f * ap);
 
     float scale = rh / 192.0f;
     if (256.0f * scale > rw + 0.5f) scale = rw / 256.0f;
@@ -1764,8 +1781,10 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     // scrim over the carousel behind.
     drawQuad(rx, ry, rw, rh, 0.0f, 0.0f, 0.0f, 0.42f * ap);
 
-    // panel x16 y18 w224 h156, sliding up from y118 into place.
-    const float byTgt = 18.0f, byOff = 118.0f;
+    // panel x16 y18 w224 h156, sliding up from y192 (just below the DS area) into place. The box is
+    // opaque, so it must start and end fully off-screen: from y118 it would pop in over the lower
+    // ~40% of the screen on the first frame and vanish from there on close.
+    const float byTgt = 18.0f, byOff = 192.0f;
     const float by = byOff + (byTgt - byOff) * ease;
     const float px = X(16.0f), pw = S(224.0f), pyTop = Y(by), ph = S(156.0f);
     // DSi dialog panel: the real msk_dialog_BG sprite (white body + favColour-blue border with
@@ -1776,16 +1795,16 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     static GLuint gDsiDialogTex = 0;
     if (!gDsiDialogTex) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
     if (gDsiDialogTex && ndsAccentIsDefault() && !mNdsDark) {
-        drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, ap);   // colour-preserving blue sprite
+        drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, 1.0f);   // colour-preserving blue sprite
     } else {
         // Non-Original accent, the dark theme, or a missing sprite: a procedural panel with an
         // ACCENT-coloured border around the body (light in the light theme, dark in the dark theme),
         // so the dialog frame follows the Colour setting too. The sprite's own white body cannot be
         // tinted without staining it, hence the rebuild.
         float br, bg, bb; ndsAccentRGB(br, bg, bb);
-        drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f * ap);   // drop shadow
-        drawRoundedRect(px, pyTop, pw, ph, S(6.0f), br, bg, bb, ap);                              // accent border
-        drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), dp.dlgBg, dp.dlgBg, dp.dlgBg, ap);  // body
+        drawRoundedRect(px, pyTop + S(3.0f), pw, ph, S(6.0f), 0.05f, 0.05f, 0.05f, 0.55f);   // drop shadow
+        drawRoundedRect(px, pyTop, pw, ph, S(6.0f), br, bg, bb, 1.0f);                            // accent border
+        drawRoundedRect(px + S(2.0f), pyTop + S(2.0f), pw - S(4.0f), ph - S(4.0f), S(5.0f), dp.dlgBg, dp.dlgBg, dp.dlgBg, 1.0f);  // body
     }
 
     // title: flat DSi ink, no drop shadow (the real DSi message-box title is flat dark grey).
@@ -1795,7 +1814,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
         // (the same size the carousel name-box title was validated at). S(15) read oversized.
         float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(t, fs);
         float tx = cx - tw * 0.5f, ty = Y(by + 54.0f - 18.0f);
-        drawText(t, tx, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
+        drawText(t, tx, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, 1.0f);
     }
     // body text, word-wrapped. A confirm dialog (Yes/No) keeps its short paragraph centred; an
     // info dialog (single OK - System Information, music tags, ...) can be long, so it top-anchors
@@ -1842,22 +1861,26 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
         if (infoStyle && total > maxVis) {
             // paginate: top-anchored body, page number ABOVE the OK button, L/R pills in the
             // bottom corners (flanking the button).
+            // While the box closes, closePs3Dialog has already reset mNdsInfoPage: draw the page
+            // that was up (mNdsDlgClosePage) and leave mNdsInfoPage alone.
             int pages = (total + maxVis - 1) / maxVis; mNdsInfoPageCount = pages;
-            if (mNdsInfoPage < 0) mNdsInfoPage = 0; if (mNdsInfoPage > pages - 1) mNdsInfoPage = pages - 1;
-            int first = mNdsInfoPage * maxVis, last = first + maxVis; if (last > total) last = total;
+            int page = mPs3DlgActive ? mNdsInfoPage : mNdsDlgClosePage;
+            if (page < 0) page = 0; if (page > pages - 1) page = pages - 1;
+            if (mPs3DlgActive) mNdsInfoPage = page;
+            int first = page * maxVis, last = first + maxVis; if (last > total) last = total;
             for (int k = first; k < last; k++) {
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, bodyTopY + (float)(k - first) * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, bodyTopY + (float)(k - first) * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, 1.0f);
             }
-            char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", mNdsInfoPage + 1, pages);
+            char pg[24]; snprintf(pg, sizeof(pg), "%d / %d", page + 1, pages);
             float pf = S(9.0f) / (float)FONT_CHAR_H, pgw = measureText(pg, pf);
-            drawText(pg, cx - pgw * 0.5f, Y(by + 106.0f), pf, dp.dlgInk, dp.dlgInk, dp.dlgInk, 0.72f * ap);   // above the button
+            drawText(pg, cx - pgw * 0.5f, Y(by + 106.0f), pf, dp.dlgInk, dp.dlgInk, dp.dlgInk, 0.72f);   // above the button
             float pillY = Y(by + 132.0f);
-            float lA = (mNdsInfoPage > 0) ? 1.0f : 0.3f, rA = (mNdsInfoPage < pages - 1) ? 1.0f : 0.3f;
+            float lA = (page > 0) ? 1.0f : 0.3f, rA = (page < pages - 1) ? 1.0f : 0.3f;
             auto pill = [&](float dxc, const char* g, float act){
                 float gw = measureText(g, pf);
-                drawRoundedRect(X(dxc) - S(9.0f), pillY - S(1.5f), S(18.0f), S(13.0f), S(3.0f), dp.dlgInk, dp.dlgInk, dp.dlgInk, act * ap);
-                drawText(g, X(dxc) - gw * 0.5f, pillY, pf, dp.dlgBg, dp.dlgBg, dp.dlgBg, act * ap); };
+                drawRoundedRect(X(dxc) - S(9.0f), pillY - S(1.5f), S(18.0f), S(13.0f), S(3.0f), dp.dlgInk, dp.dlgInk, dp.dlgInk, act);
+                drawText(g, X(dxc) - gw * 0.5f, pillY, pf, dp.dlgBg, dp.dlgBg, dp.dlgBg, act); };
             pill(30.0f, "L", lA); pill(226.0f, "R", rA);
         } else if (!infoStyle && total > maxVis) {
             // Long confirm-dialog body (Yes/No, e.g. the IPTV disclaimer): AUTO-SCROLL it as a
@@ -1883,7 +1906,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
                 float ty = bandTop + (float)k * lineH - off;
                 if (ty > bandBot || ty + lineH < bandTop) continue;   // fully outside the band
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, ty, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, 1.0f);
             }
             glDisable(GL_SCISSOR_TEST);
         } else {
@@ -1892,7 +1915,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
             float y0 = Y(by + 82.0f) - blockH * 0.5f;
             for (int k = 0; k < shown; k++) {
                 float tw = measureText(lines[k].c_str(), fs);
-                drawText(lines[k].c_str(), cx - tw * 0.5f, y0 + (float)k * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, ap);
+                drawText(lines[k].c_str(), cx - tw * 0.5f, y0 + (float)k * lineH, fs, dp.dlgInk, dp.dlgInk, dp.dlgInk, 1.0f);
             }
         }
     }
@@ -1910,7 +1933,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
         float bxp = X(84.0f), bwp = S(88.0f);
         drawNdsGlossyBtn(bxp, btnY, bwp, btnH, btnR, true);
         float fs = S(13.0f) / (float)FONT_CHAR_H, tw = measureText(lbl, fs);
-        drawText(lbl, bxp + bwp * 0.5f - tw * 0.5f, btnY + btnH * 0.5f - S(6.5f), fs, 1.0f, 1.0f, 1.0f, ap);
+        drawText(lbl, bxp + bwp * 0.5f - tw * 0.5f, btnY + btnH * 0.5f - S(6.5f), fs, 1.0f, 1.0f, 1.0f, 1.0f);
     } else {
         // Two (or more) buttons laid across the panel; the first two use the canonical DSi slots,
         // any extras stack to the right. Highlight the selected one.
@@ -1923,7 +1946,7 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
             float maxLblW = bwp - S(10.0f);
             if (tw > maxLblW && tw > 0) { fs *= maxLblW / tw; tw = measureText(lbl, fs); }   // shrink to fit the button
             float ic = s ? 1.0f : 0.16f;
-            drawText(lbl, bxp + bwp * 0.5f - tw * 0.5f, btnY + btnH * 0.5f - S(6.5f), fs, ic, ic, ic, ap);
+            drawText(lbl, bxp + bwp * 0.5f - tw * 0.5f, btnY + btnH * 0.5f - S(6.5f), fs, ic, ic, ic, 1.0f);
         }
     }
     mTextOutlineMode = ndsPrevOutline;
