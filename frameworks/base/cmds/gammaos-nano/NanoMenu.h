@@ -146,6 +146,11 @@ void nanoResumeNoteApp(const std::string& pkg, const std::string& intent);
 // drastic-nano overlay 1:1.
 struct NanoMenuSliderBackend;
 
+// DSi vector chrome layer tables (defined in NanoMenuNdsChrome.cpp).
+struct NdsVecLayer;
+struct NdsVecStop;
+struct NdsVecHole;
+
 static const int MAX_PARTICLES = 150;
 static const int NUM_EFFECTS = 22; // total effect IDs (some disabled)
 
@@ -2139,6 +2144,43 @@ private:
                          float radLeftDS = 3.0f, float radRightDS = 3.0f,
                          bool flat = false, float fr = 0.0f, float fg = 0.0f, float fb = 0.0f);  // 21-stop favColor pill; per-side corner radii (DS px); flat=grey-rim mode
     void drawNdsBootProgress(float x, float y, float w, float h, float a);  // cold-boot progress bar in the name balloon (mBootProg.shown)
+    // ---- DSi vector chrome (NanoMenuNdsChrome.cpp) ----
+    // The chrome that came from the firmware as 1x pixel art (the selection frame, the carousel
+    // tiles, the balloon tail and frame notch, the scrollbar arrows / thumb / ticks, the light
+    // message box and the glossy buttons) is drawn as SDF shapes with analytic anti-aliasing at
+    // panel resolution, in the art's own colour bands. persist.gammaos.nano.nds.vector_chrome=0
+    // keeps the sprites and pixel quads; ndsVecInit reads it with the DSi assets and builds the
+    // program, and ndsVecChrome() stays false if that fails, so the old path is the fallback.
+    // ensureNdsAssets runs it before the texture loads and leaves mNdsFrameTex / mNdsTileTex at 0
+    // while ndsVecChrome() is true.
+    struct NdsVecShape {                      // one SDF shape in device px, relative to each instance's centre
+        int   mode = 0;                       // 0 rounded rect, 1 ellipse, 2 triangle
+        float hw = 0.0f, hh = 0.0f;           // rect half size / ellipse semi-axes
+        float r[4] = {0.0f, 0.0f, 0.0f, 0.0f};   // rect corner radii: tl, tr, br, bl
+        float holeX = 0.0f, holeY = 0.0f, holeHw = 0.0f, holeHh = 0.0f, holeR = 0.0f;   // rounded cut-out (holeHw <= 0: none)
+        float cutY = 0.0f, cutK = 0.0f, cutSign = 0.0f;   // keep where cutSign * (y - cutY - cutK * x * x) >= 0 (0: no cut)
+        float tri[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};   // triangle corners
+    };
+    bool mNdsVecChrome = false;
+    bool ndsVecChrome() const { return mNdsVecChrome; }
+    void ndsVecInit();
+    void ndsVecBegin(const NdsVecShape& s);   // flushes the solid batch, uploads the shape
+    void ndsVecAdd(float cx, float cy, const float* stopY, const float* stopRgb, int nStops,
+                   float alpha, bool mirrorX = false);   // one instance; stopY relative to cy, rgb triplets
+    void ndsVecEnd();
+    void ndsVecLayers(const NdsVecLayer* L, int n, const NdsVecStop* stops, const NdsVecHole* holes,
+                      int colour, float tint, float ox, float oy, float sx, float sy,
+                      const float* instX, const float* instY, int nInst, float alpha);
+    void drawNdsVecRect(float x, float y, float w, float h, const float radii[4],
+                        const float* stopY, const float* stopRgb, int nStops, float alpha);   // radii tl,tr,br,bl; stopY absolute
+    void drawNdsVecTri(float x0, float y0, float x1, float y1, float x2, float y2,
+                       float r, float g, float b, float a);
+    void drawNdsVecFrame(float x, float y, float w, float h, float alpha);
+    void drawNdsVecTiles(const float* x, const float* y, int n, float scale, float tint);
+    void drawNdsVecPointer(float ox, float oy, float scale, float alpha);
+    void drawNdsVecDialogBox(float x, float y, float w, float h);
+    void drawNdsVecTicks(const float* bevelX, int nBevel, const float* flatX, const float* anchorX,
+                         float y180, float ux, float uy, bool dark);
     void ndsTouchFrame();         // DSi carousel touch: tap a tile / L-R button, drag to scroll (bottom panel)
     void ndsSubmenuTouch();       // DSi submenu list touch: tap a row to enter, tap Back to pop
     void ndsPickerTouch();        // DSi picker list touch (Time Zone / System Language): tap a row to pick

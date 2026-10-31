@@ -135,6 +135,7 @@ cc_binary {
         "NanoMenuScraper.cpp",
         "NanoMenuMtp.cpp",
         "NanoMenuNdsBanner.cpp",
+        "NanoMenuNdsChrome.cpp",   // DSi theme: the firmware pixel-art chrome as anti-aliased vector shapes
         "NanoNdsBanner.cpp",
         "NanoJson.cpp",
         "NanoI18n.cpp",

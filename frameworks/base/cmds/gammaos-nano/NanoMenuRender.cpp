@@ -841,8 +841,15 @@ void NanoMenu::drawPointerCursor() {
 // the top screen on the top panel and the carousel on the bottom panel separately (later).
 void NanoMenu::ensureNdsAssets() {
     if (mNdsTexLoaded) return;    // one-shot load of the real 4x SVG sprites + the layout mode
-    mNdsFrameTex = ndsLoadTex("nds_frame");   // cell_00 selection frame (transparent centre)
-    mNdsTileTex  = ndsLoadTex("nds_tile");    // tile_white pillow
+    // Vector chrome first: it reads persist.gammaos.nano.nds.vector_chrome and builds its program
+    // once, and it knows right here whether it will draw. The frame and tile sprites (~2.3 MB of
+    // texture) are only the fallback, so they load only when it will not: the property is off or
+    // the program did not build. Every use of them copes with a zero id (renderNdsCarousel).
+    ndsVecInit();
+    if (!mNdsVecChrome) {
+        mNdsFrameTex = ndsLoadTex("nds_frame");   // cell_00 selection frame (transparent centre)
+        mNdsTileTex  = ndsLoadTex("nds_tile");    // tile_white pillow
+    }
     mNdsPhotoTex = ndsLoadTex("nds_photo");   // photo_U top-screen panel (bevel frame + mint field)
     mNdsBattTex  = ndsLoadTex("nds_batt");        // spr_batt_full sprite (only the unknown-level fallback)
     // status-bar glyphs (framework SystemUI vectors -> mono PNGs), EMBEDDED in the binary
@@ -1223,9 +1230,21 @@ void NanoMenu::drawNdsGlossyBtn(float x, float y, float w, float h, float r, boo
     const float (*g)[3] = sel ? blueAcc : grey;
     float sh = fmaxf(1.0f, h * (2.0f / 24.0f));                       // shadow offset ~2 DS px
     drawRoundedRect(x, y + sh, w, h, r, 0.125f, 0.125f, 0.125f, 1.0f); // #202020 drop shadow
-    // face gradient as horizontal bands with circular corner insets (radius r).
     const int rows = 24;
     float rowH = h / (float)rows;
+    if (ndsVecChrome()) {
+        // Vector chrome: the same 12 stops at the rows the band loop below puts them on, as one
+        // anti-aliased rounded rect, so the corners have no row steps.
+        float ys[12], rgb[36];
+        for (int k = 0; k < 12; k++) {
+            ys[k] = y + rowH * 0.5f + (float)k * (h - rowH) / 11.0f;
+            rgb[k * 3] = g[k][0]; rgb[k * 3 + 1] = g[k][1]; rgb[k * 3 + 2] = g[k][2];
+        }
+        const float rad[4] = {r, r, r, r};
+        drawNdsVecRect(x, y, w, h, rad, ys, rgb, 12, 1.0f);
+        return;
+    }
+    // face gradient as horizontal bands with circular corner insets (radius r).
     for (int i = 0; i < rows; i++) {
         float t = (float)i / (float)(rows - 1) * 11.0f;              // across the 12 stops
         int k = (int)t; if (k > 10) k = 10; float f = t - (float)k;
@@ -1262,6 +1281,11 @@ void NanoMenu::drawNdsListScrollbar(float cx, float offY, float scale,
     auto arrow = [&](float ay, int dir){
         drawNdsGlossyBtn(X(sbx), Y(ay), S(sbw), S(aH), S(3.0f), true);
         float acx = X(sbx + 10.0f), acy = Y(ay + 9.0f);
+        if (ndsVecChrome()) {   // anti-aliased triangle (vector chrome)
+            if (dir > 0) drawNdsVecTri(acx, acy - S(4.0f), acx + S(5.0f), acy + S(3.0f), acx - S(5.0f), acy + S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+            else         drawNdsVecTri(acx, acy + S(4.0f), acx + S(5.0f), acy - S(3.0f), acx - S(5.0f), acy - S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
+            return;
+        }
         bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
         if (dir > 0) drawTriangle(acx, acy - S(4.0f), acx + S(5.0f), acy + S(3.0f), acx - S(5.0f), acy + S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
         else         drawTriangle(acx, acy + S(4.0f), acx + S(5.0f), acy - S(3.0f), acx - S(5.0f), acy - S(3.0f), 0.984f, 0.984f, 0.984f, 1.0f);
@@ -1831,8 +1855,10 @@ void NanoMenu::renderNdsDialog(float rx, float ry, float rw, float rh) {
     // The white sprite is skipped in the dark theme (a white body would defeat it): the procedural
     // path below rebuilds the panel with the dark body from the palette.
     static GLuint gDsiDialogTex = 0;
-    if (!gDsiDialogTex) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
-    if (gDsiDialogTex && ndsAccentIsDefault() && !mNdsDark) {
+    if (!gDsiDialogTex && !ndsVecChrome()) gDsiDialogTex = ndsLoadTex("dialog_box_blue");
+    if (ndsVecChrome() && ndsAccentIsDefault() && !mNdsDark) {
+        drawNdsVecDialogBox(px, pyTop, pw, ph);   // the same box as vector shapes: no 4 px corner steps
+    } else if (gDsiDialogTex && ndsAccentIsDefault() && !mNdsDark) {
         drawIconTex(gDsiDialogTex, px, pyTop, pw, ph, 1.0f, 1.0f, 1.0f, 1.0f);   // colour-preserving blue sprite
     } else {
         // Non-Original accent, the dark theme, or a missing sprite: a procedural panel with an
@@ -2168,6 +2194,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     // scrollbar stays inside the carousel (ndsScrollOffY == offY, no split), so the tiles and the
     // scrollbar read as one contiguous list right under the status bar.
     const bool ndsSingleBands = singleFull;
+    // DSi vector chrome (NanoMenuNdsChrome.cpp): frame, tiles, tail + notch, scrollbar shapes.
+    const bool vecChrome = ndsVecChrome();
     float ndsSingleStatusOffY = ry - 2.0f * scale;
     if (ndsSingleBands) {
         scale = rh / (192.0f + 17.0f);                      // reserve a 17 DS-unit strip above the carousel
@@ -2446,7 +2474,24 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                 drawQuad(SBX(cx),        Y(182.0f), SBS(2.0f), S(2.0f), tkEdR,  tkEdG,  tkEdB,  1.0f); // dark bottom centre
             }
         };
-        for (int i = 0; i < nItems; i++) drawTick(i);
+        // The cards wantTick accepts, through drawTick's own filters. Vector chrome draws them as
+        // anti-aliased shapes, grouped by kind so each kind is one instanced draw.
+        auto drawTicks = [&](auto wantTick) {
+            if (!vecChrome) { for (int i = 0; i < nItems; i++) if (wantTick(i)) drawTick(i); return; }
+            float bx[64]; int nb = 0;
+            float flatX = 0.0f, anchorX = 0.0f; bool hasFlat = false, hasAnchor = false;
+            for (int i = 0; i < nItems; i++) {
+                if (!wantTick(i) || (i > 1 && (i % tickEvery) != 0)) continue;
+                float cx = 33.0f + pillStep * (float)i;
+                if (SBX(cx) > SBX(236.0f)) continue;
+                if (i == 0)      { anchorX = SBX(32.0f); hasAnchor = true; }
+                else if (i == 1) { flatX = SBX(cx - 1.0f); hasFlat = true; }
+                else if (nb < 64) bx[nb++] = SBX(cx - 1.0f);
+            }
+            drawNdsVecTicks(bx, nb, hasFlat ? &flatX : nullptr, hasAnchor ? &anchorX : nullptr,
+                            Y(180.0f), SBS(1.0f), S(1.0f), dk);
+        };
+        drawTicks([](int) { return true; });
         // L/R arrow buttons at the track ends (favColor pills + white embossed chevrons)
         // arrows at the thumb height (y171..192, 21 DS) over the full-width rail, with a SQUARE
         // track-facing edge (innerDS=0) so they read as flat ends of the bar; only the outer
@@ -2469,6 +2514,23 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
             float ix = SBX(ixDS), iw = SBS(iwDS), iy = Y(172.0f), ih = S(19.0f);
             if (mNdsThumbHeld) {                                                 // pressed: light-blue translucent
                 drawRoundedRect(ix, iy, iw, ih, S(2.0f), 0.827f, 0.882f, 0.984f, 0.58f);
+            } else if (vecChrome) {
+                // The same gloss rows (below) as one rounded inset: the pill frame's corner pixels
+                // become the window's own anti-aliased corners.
+                static const float kWinBand[7][3] = {   // DS row, rows, grey
+                    {172.0f, 1.0f, 0.890f}, {173.0f, 2.0f, 0.953f}, {175.0f, 9.0f, 0.984f}, {184.0f, 1.0f, 0.890f},
+                    {185.0f, 2.0f, 0.859f}, {187.0f, 2.0f, 0.827f}, {189.0f, 2.0f, 0.859f} };
+                float ys[14], rgb[42]; int nw = 0;
+                for (const auto& b : kWinBand) {
+                    const float v = dk ? 0.30f + b[2] * 0.28f : b[2];
+                    for (int e = 0; e < 2; e++, nw++) {
+                        ys[nw] = Y(e ? b[0] + b[1] - 0.5f : b[0] + 0.5f);
+                        rgb[nw * 3] = rgb[nw * 3 + 1] = rgb[nw * 3 + 2] = v;
+                    }
+                }
+                const float wr = 1.25f * fminf(scale, sbScaleX);
+                const float rad[4] = {wr, wr, wr, wr};
+                drawNdsVecRect(ix, iy, iw, ih, rad, ys, rgb, nw, 1.0f);
             } else {
                 // idle: the EXACT web glossy window (launcher._drawScrollbar), a per-DS-row
                 // gloss ramp e3 / f3 / fb x9 / e3 / db / d3 / db from y172..190, with the blue
@@ -2494,11 +2556,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
                 drawQuad(ix + iw - ec,     Y(190.0f), ec, ec, 0.286f, 0.604f, 0.984f, 1.0f);
             }
             // ticks through the window: redraw the ones under the pill on top (web clips to it).
-            for (int i = 0; i < nItems; i++) {
+            drawTicks([&](int i) {
                 float cxi = 33.0f + pillStep * (float)i;
-                if (cxi + 2.0f < ixDS || cxi - 1.0f > ixDS + iwDS) continue;     // fully outside the window
-                drawTick(i);
-            }
+                return !(cxi + 2.0f < ixDS || cxi - 1.0f > ixDS + iwDS);         // not fully outside the window
+            });
         }
         if (lb) endSolidBatch();   // flush the rail + ticks + pill + gloss as one draw
         // Background Effect active: the track (rail, ticks, thumb) at 85 percent over the live
@@ -2519,8 +2580,12 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
         // The white "jewel case" pillow is dimmed in the dark theme (pal.tile) so the light glyphs
         // read on it instead of light-on-light; identity (white) in the light theme.
         float tt = ndsPal().tile;
-        if (mNdsTileTex) drawIconTex(mNdsTileTex, dcx - S(32), ty, S(64), S(64), tt, tt, tt, 1.0f);   // tile_white sprite
-        else             drawRoundedRect(dcx - S(32), ty, S(64), S(64), S(9), tt, tt, tt, 1.0f);
+        // Vector chrome draws every pillow in one pass before the tile loop (below), so only the
+        // icon is drawn here then.
+        if (!vecChrome) {
+            if (mNdsTileTex) drawIconTex(mNdsTileTex, dcx - S(32), ty, S(64), S(64), tt, tt, tt, 1.0f);   // tile_white sprite
+            else             drawRoundedRect(dcx - S(32), ty, S(64), S(64), S(9), tt, tt, tt, 1.0f);
+        }
         if (!it) return;
         // DSi tile icon (iconTop 98 / iconSize 32, config.js). The DSi draws FLAT icons,
         // not the XMB's relit glass. Games/apps carry a full-colour iconTex (nmapTex==0)
@@ -2634,17 +2699,34 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     }
     int base = (int)floorf(camera);
     int span = (int)(W / (2.0f * fmaxf(1.0f, S(58.0f)))) + 3;        // enough slots to fill the width
-    for (int idx = base - span; idx <= base + span; idx++) {
-        if (nItems == 0 || idx < 0 || idx >= nItems) continue;
-        float dcx = cx + S(slotOffX((float)idx - camera));
-        if (dcx < -S(50.0f) || dcx > W + S(50.0f)) continue;
-        float yoff = transFall;                             // the level-transition card drop/rise
+    // Where card idx sits this frame: device-px centre x and the DS lift; false = not drawn.
+    auto tilePlace = [&](int idx, float& dcx, float& yoff) -> bool {
+        if (nItems == 0 || idx < 0 || idx >= nItems) return false;
+        dcx = cx + S(slotOffX((float)idx - camera));
+        if (dcx < -S(50.0f) || dcx > W + S(50.0f)) return false;
+        yoff = transFall;                                   // the level-transition card drop/rise
         if (introActive) {                                  // spring-fall cascade in from off-top
             float io = ndsIntroFall(idx - centerSlot, introFrame);
-            if (io <= -999.0f) continue;                    // not yet visible
+            if (io <= -999.0f) return false;                // not yet visible
             yoff = io;
         }
         if (launchFx && idx == centerSlot) yoff = -launchRise;   // the launching tile lifts off the top
+        return true;
+    };
+    if (vecChrome) {
+        // Every visible pillow first, layer by layer for the whole row (the pillows never overlap
+        // one another), then the icons in the loop below.
+        float px[64], py[64]; int np = 0;
+        for (int idx = base - span; idx <= base + span && np < 64; idx++) {
+            float dcx = 0.0f, yoff = 0.0f;
+            if (!tilePlace(idx, dcx, yoff)) continue;
+            px[np] = dcx - S(32.0f); py[np] = Y(82.0f) + S(yoff); np++;
+        }
+        drawNdsVecTiles(px, py, np, scale, ndsPal().tile);
+    }
+    for (int idx = base - span; idx <= base + span; idx++) {
+        float dcx = 0.0f, yoff = 0.0f;
+        if (!tilePlace(idx, dcx, yoff)) continue;
         drawTile(dcx, &(*items)[idx], yoff);
     }
     // sparkle ring at the fixed launch origin (128,114): one firmware cell per frame
@@ -2690,8 +2772,13 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
       // Hue-rotate the blue frame sprite toward the Colour accent while keeping its gloss/shadows
       // (value-preserving, like ndsRecolor); identity at "Original". Drawn with a neutral tint so
       // the recoloured texels show verbatim, NOT the old accent/refBlue multiply that blackened them.
-      GLuint frameTex = ndsFrameTexAccented();
-      if (frameTex) {
+      GLuint frameTex = vecChrome ? 0 : ndsFrameTexAccented();
+      if (vecChrome) {
+          // The same frame as vector shapes at panel resolution, accent-rotated per colour band
+          // the way ndsFrameTexAccented rotates the sprite; the settle squash scales the shapes.
+          float fi = S(frameInset);
+          drawNdsVecFrame(cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, cf);
+      } else if (frameTex) {
           // settle squash: inset both sides + shrink the height a touch (web _drawCenterChrome).
           float fi = S(frameInset);
           drawIconTex(frameTex, cx - S(32) + fi, Y(81), S(64) - 2.0f * fi, S(80) - fi, 1.0f, 1.0f, 1.0f, cf);
@@ -2767,7 +2854,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
       // Reconstructed pixel-exact from idle.bot (y73..79): a dark #130 inverted-triangle core
       // flanked by bright #251 bevel edges with AA. Was a flat triangle pair partly hidden under
       // the name box; now the full bevelled tail shows, centred on cx (web x centred on 127.5).
-      { struct TP { short y, x, v; };
+      // Vector chrome draws the tail together with the notch below.
+      if (!vecChrome) { struct TP { short y, x, v; };
         static const TP tab[] = {
           {73,121,251},{73,122,251},{73,123,251},{73,124,130},{73,125,130},{73,126,130},{73,127,130},{73,128,130},{73,129,130},{73,130,130},{73,131,251},{73,132,251},{73,133,251},
           {74,121,211},{74,122,251},{74,123,235},{74,124,162},{74,125,130},{74,126,130},{74,127,130},{74,128,130},{74,129,130},{74,130,162},{74,131,235},{74,132,251},{74,133,211},
@@ -2793,7 +2881,10 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
       // top-centre (launcher._drawFrameNotch, y77..87), pointing at the selected item. Per-
       // pixel exact, drawn over the frame; complementary to the tab (tab = centre, notch =
       // edges then the point). Was entirely missing (the tail met a bare frame edge).
-      { struct NP { short y, x, v; };
+      // Vector chrome: tail and notch as anti-aliased triangles in the same greys (dark-remapped
+      // the same way); the notch layers go first, as the tail's core sits inside the notch's V.
+      if (vecChrome) drawNdsVecPointer(X(0.0f), Y(0.0f), scale, ca);
+      else { struct NP { short y, x, v; };
         static const NP notch[] = {
           {77,120,178},{77,121,81},{77,122,162},{77,123,211},{77,131,211},{77,132,162},{77,133,81},{77,134,178},
           {78,121,105},{78,122,130},{78,123,178},{78,124,251},{78,130,251},{78,131,178},{78,132,130},{78,133,105},
@@ -2885,6 +2976,21 @@ void NanoMenu::drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
         }
         gs = gAcc;
     }
+    if (ndsVecChrome()) {
+        // Vector chrome: the 21 stops on the sub-rows the loop below gives them (stop i is row 4i
+        // of 81) in one anti-aliased rounded rect, so the corners have no row steps.
+        float ys[21], rgb[63];
+        for (int i = 0; i < 21; i++) {
+            ys[i] = y0 + (4.0f * (float)i + 0.5f) * hpx / 81.0f;
+            rgb[i * 3]     = flat ? fr : gs[i][0];
+            rgb[i * 3 + 1] = flat ? fg : gs[i][1];
+            rgb[i * 3 + 2] = flat ? fb : gs[i][2];
+        }
+        const float radL = hpx * (radLeftDS / 21.0f), radR = hpx * (radRightDS / 21.0f);
+        const float rad[4] = {radL, radR, radR, radL};   // tl, tr, br, bl
+        drawNdsVecRect(x0, y0, wpx, hpx, rad, ys, rgb, flat ? 1 : 21, 1.0f);
+        return;
+    }
     // Interpolate the 21 stops across ~4x sub-rows for a SMOOTH gradient (the web uses a
     // real linear gradient; discrete 1-DS-px rows band visibly at panel scale). The corners
     // are a crisp 3-DS-px radius arc (launcher._rrPath ro=3) - NOT the old aggressive
@@ -2961,12 +3067,20 @@ void NanoMenu::drawNdsArrowBtn(float x0, float y0, float wpx, float hpx, int dir
     float gw  = wpx + g;                                      // NOT vertically, so the arrow never pokes
     drawNdsPillGrad(gx0, y0, gw, hpx, radLeftDS, radRightDS, true, 0.412f, 0.412f, 0.412f);   // above/below the bar. grey rim
     drawNdsPillGrad(x0, y0, wpx, hpx, radLeftDS, radRightDS);                                  // blue pill on top
-    bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
     float bx   = x0 + wpx * ((dir < 0 ? 14.0f : 5.0f) / 19.0f);   // base vertical edge
     float tx   = x0 + wpx * ((dir < 0 ?  4.0f : 15.0f) / 19.0f);  // tip toward dir
     float ytop = y0 + hpx * (6.0f  / 21.0f);
     float ymid = y0 + hpx * (10.0f / 21.0f);
     float ybot = y0 + hpx * (14.0f / 21.0f);
+    if (ndsVecChrome()) {
+        // Vector chrome: the whole chevron in the shadow colour, then the white top face over it,
+        // so the anti-aliased seam between the two faces cannot let the pill show through.
+        float ar = 0.573f, ag = 0.859f, ab = 0.984f; ndsRecolor(ar, ag, ab);
+        drawNdsVecTri(bx, ytop, bx, ybot, tx, ymid, ar, ag, ab, 1.0f);
+        drawNdsVecTri(bx, ytop, bx, ymid, tx, ymid, 0.984f, 0.984f, 0.984f, 1.0f);
+        return;
+    }
+    bool lb = !mSolidBatchActive; if (lb) beginSolidBatch();
     drawTriangle(bx, ytop, bx, ymid, tx, ymid, 0.984f, 0.984f, 0.984f, 1.0f);   // white top face
     { float ar = 0.573f, ag = 0.859f, ab = 0.984f; ndsRecolor(ar, ag, ab);      // accent shadow (p12) -> accent
       drawTriangle(bx, ymid, bx, ybot, tx, ymid, ar, ag, ab, 1.0f); }
