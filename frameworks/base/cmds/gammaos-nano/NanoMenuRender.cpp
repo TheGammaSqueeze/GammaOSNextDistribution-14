@@ -3510,11 +3510,16 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
     // carousel (f3/44f), so BOTH screens brighten together on launch (RE'd out/wfa/launch_*). Drawn
     // last, over whatever the top showed (mint panel or the game Information page), exactly as the
     // bottom carousel applies its own launchWhiteAlpha at the end of renderNdsCarousel.
+    // The wash ramps over frames 6..47 (launcher.launchWhiteAlpha: the top screen lags the bottom
+    // by 3f) and holds white until nano exits to the app. It must be applied exactly once per
+    // frame: a second quad would stack to 1-(1-fa)^2 and whiten the top ahead of the bottom. The
+    // generic render() fade is gated off for the NDS theme so each screen washes at its own rate.
     auto ndsTopLaunchWhite = [&]() {
         if (ndsLaunchOriginMs() <= 0) return;
         float lf = (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f);
         float fa = (lf - 6.0f) / 41.0f;
-        if (fa < 0.0f) fa = 0.0f; if (fa > 1.0f) fa = 1.0f;
+        if (fa < 0.0f) fa = 0.0f;
+        if (fa > 1.0f) fa = 1.0f;
         if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     };
     // A game Information page owns the top screen (dual) / this panel (stacked): the cover +
@@ -3938,16 +3943,6 @@ void NanoMenu::renderNdsTop(float rx, float ry, float rw, float rh) {
             if (yLabel)     drawLegend(2, yLabel, true);       // Y
             mFaceLetters = prevFaceLetters;
         }
-    }
-    // launch white-wash (top screen): ramps over frames 6..47 (launcher.launchWhiteAlpha:
-    // the top screen lags the bottom by 3f), holding white until nano exits to the app. The
-    // generic render() fade is gated off for the NDS theme so each screen washes at its own rate.
-    if (ndsLaunchOriginMs() > 0) {
-        float lf = (float)((int64_t)uptimeMillis() - ndsLaunchOriginMs()) / (1000.0f / 60.0f);
-        float fa = (lf - 6.0f) / 41.0f;
-        if (fa < 0.0f) fa = 0.0f;
-        if (fa > 1.0f) fa = 1.0f;
-        if (fa > 0.0f) { drawQuad(rx, ry, rw, rh, 1.0f, 1.0f, 1.0f, fa); mDisplayDirty = true; }
     }
     // Boot hand-off: the TOP screen fades in from white in lock-step with the carousel
     // (both panels dissolve in from the boot's enter-white as the cards drop). Keyed on the
