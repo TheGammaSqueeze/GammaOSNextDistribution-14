@@ -2160,6 +2160,7 @@ private:
     int   ndsFocusCount() const;           // number of cards in the focused carousel
     bool  ndsPlayerActive() const;         // a media player is up -> show the XMB player, not the carousel
     bool  ndsDlgIsSidePanel() const;       // the active dialog is a chooser/slider (list) vs a confirm (buttons)
+    void  ndsDropStaleDlgClose();          // DSi: another modal took the screen mid dialog-close -> drop the close nobody ticks
     void  ndsSaveReturnPath();             // persist the nav path (cat + stack sels) before a launch-exit
     // How long the home holds the exit after a launch is armed (mLaunchFadeStart) so the
     // launch effect can finish on screen: the DSi theme plays a tile lift + sparkle ring +

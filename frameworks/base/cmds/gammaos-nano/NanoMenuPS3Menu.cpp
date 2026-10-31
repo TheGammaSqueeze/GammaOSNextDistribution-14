@@ -12755,6 +12755,8 @@ void NanoMenu::openXmbOpt() {
         mPs3OptCtxPayload.clear(); mPs3OptCtxDesc.clear();
         mPs3OptCtxList.clear(); mPs3OptCtxSel = 0; mPs3OptCtxPlaylist = mPhotoGridFromPl;
         mPs3OptSel = xmbOptDefaultSel(); mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+        // No ndsDropStaleDlgClose() here: the photo grid draws renderPs3Dialog under its Options
+        // panel, which keeps ticking a message-box close that is still sliding.
         return;
     }
 
@@ -12971,6 +12973,7 @@ void NanoMenu::openXmbOpt() {
     // generic "first action after the separator" heuristic would pick.
     mPs3OptSel = (it.kind == PS3_APP) ? 0 : xmbOptDefaultSel();
     mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+    ndsDropStaleDlgClose();   // DSi: a message-box close still sliding is not ticked under the panel
 }
 
 void NanoMenu::closeXmbOpt() {
@@ -17923,6 +17926,7 @@ void NanoMenu::beginTzGlobeFade() {
 void NanoMenu::openTimezoneGlobe() {
     buildTimezoneList();          // (re)reads persist.sys.timezone + pre-selects it
     mPs3TzActive = true;
+    ndsDropStaleDlgClose();       // DSi: the picker replaces the carousel, so a box close in flight is never ticked
     beginTzGlobeFade();
 }
 
@@ -17976,6 +17980,7 @@ void NanoMenu::openLanguagePicker() {
     mLangSelected   = (int)nanoGetLocale();  // start on the active UI language
     mLangSelOnOpen  = mLangSelected;         // remember it so cancel can revert
     mPs3LangActive  = true;
+    ndsDropStaleDlgClose();                   // DSi: the picker replaces the carousel, so a box close in flight is never ticked
     mPs3LangAnim    = 0.0f;                   // play the open transition (fade + frost)
     mPs3DlgBlurValid = false;                 // force a fresh frosted-wave capture
 }

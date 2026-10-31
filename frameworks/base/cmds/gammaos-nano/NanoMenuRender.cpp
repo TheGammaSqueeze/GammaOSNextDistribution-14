@@ -969,6 +969,27 @@ bool NanoMenu::ndsDlgIsSidePanel() const {
     return false;
 }
 
+// A DSi message box (or a kind-1 chooser) that was just dismissed plays its ~260 ms close while
+// mPs3DlgClosing is set, and only the DSi carousel renders that close (renderNdsDialog, or
+// renderNdsSidePanel for a chooser). When another modal takes the screen inside that window - the
+// Options panel, a Time Zone / Language picker, a media player - the carousel stops drawing it, so
+// nothing ticks the close: the flag survives, the box slides down late over the carousel on the way
+// back, and the home's idle-skip gate (ndsSettled needs !mPs3DlgClosing) stays off, keeping the
+// home at full render rate. The modal that takes over calls this to end the close for good. A
+// dialog that is open (mPs3DlgActive) is never touched; it resets the flag itself when it opens.
+// The photo grid is the exception: renderPs3Xmb draws it with renderPs3Dialog, which does tick a
+// close (also under the Options panel), so a box closed over the grid keeps fading out there.
+// Kill switch: persist.gammaos.nano.dsi_drop_stale_close=0 leaves the close alone (old behaviour).
+void NanoMenu::ndsDropStaleDlgClose() {
+    if (!mNdsTheme || mPs3DlgActive || !mPs3DlgClosing) return;
+    static int sDropOn = -1;
+    if (sDropOn < 0) sDropOn = property_get_bool("persist.gammaos.nano.dsi_drop_stale_close", true) ? 1 : 0;
+    if (!sDropOn) return;
+    if (ps3TopScreenKind() == PHOTO_GRID && !mPvActive && mPvEnterRaw <= 0.004f && !mPhotoMultiActive) return;
+    mPs3DlgClosing = false;
+    mPs3DlgCloseAnim = 0.0f;
+}
+
 void NanoMenu::ndsBuildCatCards() {
     mNdsCatCards.clear();
     for (auto& c : mPs3Cats) {
@@ -2028,6 +2049,12 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
     ensureNdsAssets();
     if (!mPs3MenuBuilt) initPs3Menu();   // the XMB hierarchy feeds the carousel tiles
     ndsSfxTick();                        // DSi interactive SFX: fire nav/drill/back/launch by state diff
+    // The Options panel and the Time Zone / System Language pickers return below without drawing
+    // the carousel's dialog layer, so a message-box close still in flight would never be ticked.
+    // Drop it now instead of letting it play late over the carousel (open paths do the same; this
+    // catches any other way these modals come up). Options only while ACTIVE: during its own
+    // fade-out a chooser close may legitimately still be queued behind it (see sideWanted below).
+    if (mPs3OptActive || mPs3TzActive || mPs3LangActive) ndsDropStaleDlgClose();
     // The Time Zone and System Language selectors are full-screen. The XMB theme draws them as a
     // native-language list / 3D globe, which looks out of place inside the DSi menu; render them as
     // the DSi scrollable picker list instead (nav + apply stay on the XMB langPickerNav/tzGlobeNav/
@@ -7044,6 +7071,12 @@ void NanoMenu::render() {
             // A media player is up: show the existing full-screen XMB video / music / photo
             // player on the primary (top) screen (user: "show the XMB ones when actually
             // playing"). The carousel keeps rendering on the secondary (bottom) panel.
+            // A message-box close that was still sliding when the player opened has no DSi home
+            // to be drawn on when there is no secondary panel (renderNds is skipped meanwhile): end
+            // it here rather than let it play late over the carousel when the player exits. With a
+            // live secondary the bottom carousel keeps running renderNdsDialog and finishes the
+            // close itself, so it must not be cut short there.
+            if (sAhbTargetSecondary.glFbo == 0 && mSecondaryEglSurfaces.empty()) ndsDropStaleDlgClose();
             renderPs3Xmb();
         } else if (mNdsTheme && !mPs3BootActive) {
             // On a true dual-panel device (RG DS) the DSi TOP screen fills the primary
