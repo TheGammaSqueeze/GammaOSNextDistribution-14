@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <vector>
 
+#include "DrasticAssets.h"   // LegacyCount for the General page's import row
 #include "DrasticPrefs.h"
 #include "DrasticOsk.h"
 #include "InputMap.h"
@@ -240,6 +241,16 @@ private:
     std::string mShadersDir;
 
     bool mOpen = false;
+    // The menu's fade (120 ms in and out, by the clock). mVisA is the alpha the
+    // menu is drawn at, 0..1: it climbs along an ease-out while mOpen and falls
+    // along an ease-in after the close, each step taken from the alpha the menu
+    // has now, so a reversal mid-fade carries on from where it is instead of
+    // jumping. advanceVis() steps it once per frame from draw(); the bottom-panel
+    // passes drawn after draw() reuse the value so both panels fade in step.
+    float   mVisA = 0.0f;
+    int64_t mVisLastMs = 0;           // when advanceVis last ran (0: restart the clock at the next frame)
+    bool    mVisHold = false;         // see holdVisibility()
+    void advanceVis(int64_t nowMs);
     bool mRelaunch = false;
     bool mExitApp = false;            // "Exit Game" row selected
     bool mRestartFresh = false;       // "Restart Game" row selected
@@ -509,6 +520,21 @@ private:
     std::atomic<bool> mUnpauseDone{true};      // set by the worker after pauseToggle(false)
     mutable bool mSlotCacheValid = false;      // per-open cache of slotFileExists (FUSE stats)
     mutable uint32_t mSlotCacheKnown = 0, mSlotCacheExists = 0;
+    void setSlotCacheBit(int slot, bool exists) const;
+    // Per-session cache for what the General page shows about the quick slot:
+    // slot 0 (bit 0 of the slot cache above), the two undo files and the count of
+    // saves left in the DraStic app. Filled in init() and re-stat'ed right after
+    // each quick save/load/undo, so opening the menu never stats the FUSE
+    // savestates folder (a cold MediaProvider daemon stalled the first open for
+    // 0.7 s). Render/input thread only: the load-done hook of undoQuickLoad runs
+    // elsewhere and must not touch these. mQuickCacheOn is
+    // persist.gammaos.drastic_nano.menu_quick_cache, read once in init() (default
+    // on for the RG DS Plus); off keeps the stat-on-every-rebuild behaviour.
+    bool mQuickCacheOn = false;
+    mutable bool mUndoSaveExists = false, mUndoLoadExists = false, mQuickCacheValid = false;
+    drastic_assets::LegacyCount mLegacy{};
+    bool mLegacyValid = false;
+    void refreshQuickCache();
     void toast(const std::string& msg, int64_t ms = 1500);
     void writePrefsSafe();
     void commitAndMaybeRelaunch();

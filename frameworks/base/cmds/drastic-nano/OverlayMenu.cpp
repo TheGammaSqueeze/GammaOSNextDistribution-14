@@ -243,6 +243,22 @@ void OverlayMenu::init(DrasticRunner* runner,
           mXmlPath.c_str());
 
     scanShaders();
+
+    // Fill the quick-slot cache now, while the loading screen is up and nothing
+    // waits on it, so the first menu open stats nothing on the FUSE savestates
+    // folder. init() runs on the DRM and the SurfaceFlinger path alike (only the
+    // DRM path pre-warms the pages). RG DS Plus only by default.
+    {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        mQuickCacheOn = property_get_bool("persist.gammaos.drastic_nano.menu_quick_cache",
+                                          strcmp(dev, "anbernicrgdsplus") == 0);
+    }
+    if (mQuickCacheOn) {
+        refreshQuickCache();
+        mLegacy = drastic_assets::scanLegacy();
+        mLegacyValid = true;
+    }
 }
 
 bool OverlayMenu::isCapturingKey() const { return mCaptureKey; }
@@ -274,25 +290,88 @@ bool OverlayMenu::slotFileExists(int slot) const {
     if (slot < 0 || slot > 9) return false;
     // The savestates dir lives on the FUSE shared storage; a stat there can take
     // tens of ms under load and the row builders ask for every slot on every
-    // rebuild (each adjust). Cache per menu open; a save invalidates.
+    // rebuild (each adjust). Cache per menu open; a save invalidates (the quick
+    // slot is refreshed in place by refreshQuickCache instead).
     if (mSlotCacheValid && (mSlotCacheKnown & (1u << slot))) return (mSlotCacheExists >> slot) & 1u;
     char path[512];
     snprintf(path, sizeof(path), "%s/%s_%d.dss",
              mSavestatesDir.c_str(), mRomBase.c_str(), slot);
     struct stat st;
     const bool exists = stat(path, &st) == 0 && st.st_size > 0;
+    setSlotCacheBit(slot, exists);
+    return exists;
+}
+
+void OverlayMenu::setSlotCacheBit(int slot, bool exists) const {
     if (!mSlotCacheValid) { mSlotCacheValid = true; mSlotCacheKnown = 0; mSlotCacheExists = 0; }
     mSlotCacheKnown |= (1u << slot);
     if (exists) mSlotCacheExists |= (1u << slot); else mSlotCacheExists &= ~(1u << slot);
-    return exists;
+}
+
+// Re-stat slot 0 and the two undo files into the session cache: at init(), and
+// right after every quick save/load/undo, when the FUSE daemon has just served
+// those very files and answers at once. The General page then builds from the
+// cache and never stats the savestates folder on open. A no-op with the switch
+// off: the places that used to drop the slot cache still do (see quickSave).
+void OverlayMenu::refreshQuickCache() {
+    if (!mQuickCacheOn) return;
+    if (!mRomBase.empty() && !mSavestatesDir.empty()) {
+        struct stat st;   // slot 0 follows slotFileExists: it counts when it is non-empty
+        setSlotCacheBit(0, stat(slot0Path().c_str(), &st) == 0 && st.st_size > 0);
+        mUndoSaveExists = fileExists(undoSavePath());
+        mUndoLoadExists = fileExists(undoLoadPath());
+    } else {
+        mUndoSaveExists = mUndoLoadExists = false;
+    }
+    mQuickCacheValid = true;
+}
+
+// The menu's fade, 120 ms either way. Cubic curves like the achievement banner's:
+// in, the alpha rises fast and settles gently (ease-out); out, it drops fast and
+// lets the last of the dark go gently (the cube of the same progress run
+// backwards). Either way the first frame after a press already moves, so the menu
+// answers at once. The first frame of an open from nothing shows kVisFirstP of
+// the way along the curve. A single slow frame may eat at most kVisMaxStepMs of
+// the fade, so a hitch at the press cannot turn the fade back into a cut.
+static constexpr float   kVisFadeMs    = 120.0f;
+static constexpr float   kVisFirstP    = 0.2f;
+static constexpr int64_t kVisMaxStepMs = 40;
+static float visEaseOut(float p) { const float q = 1.0f - p; return 1.0f - q * q * q; }
+static float visEaseIn(float p)  { return p * p * p; }
+
+// One step of the fade by the clock. The state is the alpha itself, not the time
+// into the fade: each step finds where that alpha sits on the curve it is about
+// to follow (the inverse of the cubic), moves along it, and writes the new alpha
+// back. Opening again half way through a close (or closing half way through an
+// open) therefore continues from the alpha on screen; two separate curves
+// evaluated on one shared progress value would jump between them.
+void OverlayMenu::advanceVis(int64_t nowMs) {
+    int64_t dt = mVisLastMs ? nowMs - mVisLastMs : 0;
+    mVisLastMs = nowMs;
+    if (dt <= 0) return;
+    if (dt > kVisMaxStepMs) dt = kVisMaxStepMs;
+    const float step = (float)dt / kVisFadeMs;
+    if (mOpen) {
+        if (mVisA >= 1.0f) return;
+        const float p = 1.0f - cbrtf(1.0f - mVisA);
+        mVisA = (p + step >= 1.0f) ? 1.0f : visEaseOut(p + step);
+    } else if (!mVisHold && !mExitApp && !mRelaunch && !mRestartFresh && !mPowerOff && !mReboot) {
+        // Held while an exit, relaunch, restart or power action is under way: the
+        // exit fill (or the teardown) takes over from a menu that is still up, so
+        // the game is never shown between the two.
+        if (mVisA <= 0.0f) return;
+        const float p = cbrtf(mVisA);
+        mVisA = (p - step <= 0.0f) ? 0.0f : visEaseIn(p - step);
+    }
 }
 
 void OverlayMenu::openMenu() {
     if (mOpen) return;
     mOpen = true;
     // The slot cache stays valid across opens: only this process writes states
-    // (menu rows and hotkeys, which invalidate it), and a fresh FUSE stat pass
-    // per open cost up to 120 ms on the RG DS Plus.
+    // (menu rows and hotkeys, which invalidate it; the quick slot and its undo
+    // files are re-stat'ed in place), and a fresh FUSE stat pass per open cost
+    // up to 120 ms on the RG DS Plus.
     mSavedPrefs = mPrefs;
     // Re-enumerate cheats fresh each open (cheap; the model caches names so
     // per-input rebuilds don't re-allocate).
@@ -1424,14 +1503,17 @@ void OverlayMenu::quickSave(bool fromMenu) {
         ALOGW("OverlayMenu: cannot keep %s for undo: %s", slot0.c_str(), strerror(errno));
     }
     if (mRunner->saveStateSlot(0)) {
-        mSlotCacheValid = false;
+        // Slot 0 is new and the undo file may have appeared; the daemon is warm now.
+        if (mQuickCacheOn) refreshQuickCache();
+        else mSlotCacheValid = false;
         handSlotToApp(slot0, mAppUid, mAppGid);
         toast(trDyn("Quick saved"));
         if (fromMenu) closeMenu();
     } else {
         // Put the previous quick save back; nothing was written.
         rename(undoSavePath().c_str(), slot0.c_str());
-        if (fromMenu) toast(trDyn("Save failed"));
+        refreshQuickCache();
+        toast(trDyn("Save failed"));
     }
 }
 
@@ -1443,13 +1525,17 @@ void OverlayMenu::undoQuickSave() {
     const bool hadCur = fileExists(slot0);
     if (hadCur && rename(slot0.c_str(), tmp.c_str()) != 0) { toast(trDyn("Undo failed")); return; }
     if (rename(undo.c_str(), slot0.c_str()) != 0) {
-        if (hadCur) rename(tmp.c_str(), slot0.c_str());
+        if (hadCur) {
+            rename(tmp.c_str(), slot0.c_str());
+            refreshQuickCache();   // slot 0 went to the side and back; re-stat what is really there
+        }
         toast(trDyn("Undo failed"));
         return;
     }
     if (hadCur) rename(tmp.c_str(), undo.c_str());
     handSlotToApp(slot0, mAppUid, mAppGid);
-    mSlotCacheValid = false;
+    if (mQuickCacheOn) refreshQuickCache();
+    else mSlotCacheValid = false;
     toast(trDyn("Previous quick save restored"));
     rebuildRows();
 }
@@ -1472,9 +1558,11 @@ void OverlayMenu::quickLoad(bool fromMenu) {
         }
         if (rename(aside.c_str(), slot0.c_str()) != 0) {
             ALOGE("OverlayMenu: quick save file lost while making the undo point: %s", strerror(errno));
-            if (fromMenu) toast(trDyn("Load failed"));
+            refreshQuickCache();   // after the log line: the stats below would overwrite errno
+            toast(trDyn("Load failed"));
             return;
         }
+        refreshQuickCache();   // the undo point (.undoload) is new, or the failed save left none
     }
     if (!undoPoint) ALOGW("OverlayMenu: quick load without an undo point");
     if (mRunner->requestLoadStateSlot(0)) {
@@ -1502,7 +1590,16 @@ void OverlayMenu::undoQuickLoad() {
         return;
     }
     mQuickBusy.store(true);
-    mSlotCacheValid = false;
+    // Set here, on this thread, not re-stat'ed: the undo point is consumed whether
+    // the load goes through or not, and slot 0 ends up as it was (hadCur) either way,
+    // put back by the hook below or by the failure branch. The hook runs on another
+    // thread and must not touch the cache.
+    if (mQuickCacheOn) {
+        mUndoLoadExists = false;
+        setSlotCacheBit(0, hadCur);
+    } else {
+        mSlotCacheValid = false;
+    }
     mRunner->setNextLoadDoneHook([this, slot0, aside, hadCur](int) {
         unlink(slot0.c_str());   // the undo point, now consumed
         if (hadCur && rename(aside.c_str(), slot0.c_str()) != 0) {
@@ -1554,6 +1651,10 @@ void OverlayMenu::rebuildGeneral() {
     // tab (a common request). Slot 0 is the conventional quick slot; the full 0..8
     // slots still live on the Save States tab. Both close the overlay on success so
     // the action is truly "quick" (one press, back to the game).
+    // Slot 0 and the two undo bits come from the quick cache (filled in init() and
+    // kept current by the quick actions), so this page stats nothing on open; with
+    // the switch off each rebuild stats the undo files, a FUSE lookup apiece.
+    if (mQuickCacheOn && !mQuickCacheValid) refreshQuickCache();
     {
         RowAction r;
         r.label = "Quick Save";
@@ -1574,15 +1675,14 @@ void OverlayMenu::rebuildGeneral() {
         r.onAccept = [this]() { quickLoad(true); };
         mRows.push_back(std::move(r));
     }
-    // Undo rows appear only while there is something to undo (one FUSE stat each,
-    // per menu open like the slot cache).
-    if (fileExists(undoSavePath())) {
+    // Undo rows appear only while there is something to undo.
+    if (mQuickCacheOn ? mUndoSaveExists : fileExists(undoSavePath())) {
         RowAction r;
         r.label = "Undo Quick Save";
         r.onAccept = [this]() { undoQuickSave(); };
         mRows.push_back(std::move(r));
     }
-    if (!mRaHardcore && fileExists(undoLoadPath())) {
+    if (!mRaHardcore && (mQuickCacheOn ? mUndoLoadExists : fileExists(undoLoadPath()))) {
         RowAction r;
         r.label = "Undo Quick Load";
         r.onAccept = [this]() { undoQuickLoad(); };
@@ -1717,7 +1817,10 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
     {
-        const drastic_assets::LegacyCount lc = drastic_assets::scanLegacy();
+        // The DraStic app is not running, so the count only changes through the
+        // import below, which clears it; with the switch off every rebuild scans.
+        if (!mQuickCacheOn || !mLegacyValid) { mLegacy = drastic_assets::scanLegacy(); mLegacyValid = true; }
+        const drastic_assets::LegacyCount lc = mLegacy;
         if (lc.saves + lc.states > 0) {
             RowAction r;
             r.label = "Import DraStic saves";
@@ -1730,6 +1833,7 @@ void OverlayMenu::rebuildGeneral() {
                     snprintf(msg, sizeof(msg), "%s: %d %s (%s)", trDyn("Moved"), res.moved, trDyn(res.moved == 1 ? "file" : "files"),
                              trDyn("this game's files after exit"));
                     toast(msg);
+                    mLegacyValid = false;   // rebuildGeneral scans again below
                     rebuildRows();
                 });
             };
