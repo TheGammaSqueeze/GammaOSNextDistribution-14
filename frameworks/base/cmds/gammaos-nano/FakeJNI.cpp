@@ -30,6 +30,7 @@
 #include <set>
 #include <vector>
 #include <memory>
+#include <cutils/properties.h>
 #include <utils/Log.h>
 
 namespace android {
@@ -420,6 +421,27 @@ static int ramReopen(int memfd, int flags) {
     return fd;
 }
 
+// Stamp a state file with the time it was written, once it is at its final path.
+//
+// The slot files live on the FUSE storage view (the savestates dir is a symlink into it), and a
+// rename over an existing file there leaves the file on the lower filesystem with the REPLACED
+// file's mtime: measured on the RG DS Plus, the new inode (new size) kept the old one's mtime to
+// the nanosecond, while the FUSE view's own cached attributes showed the new mtime. Whatever reads
+// the lower path (/data/media/0/..., a shell, a backup) or reads through FUSE after the cached
+// attributes are dropped (a reboot) then saw a rewritten slot 9 with a days-old date. A
+// utimensat(now) on the final path after the rename sets both views (25 of 25 rewrites correct
+// under a polling stat, against 8 of 8 stale without it). Unlinking the old file first would give
+// the right mtime too, but would leave no slot file at all if the process died in between.
+// Kill switch: sys.gammaos.drastic_nano.dss_touch=0.
+static void stampStateTime(const std::string& to) {
+    if (!property_get_bool("sys.gammaos.drastic_nano.dss_touch", true)) return;
+    const struct timespec now[2] = {{0, UTIME_NOW}, {0, UTIME_NOW}};   // the call toybox touch makes
+    if (utimensat(AT_FDCWD, to.c_str(), now, 0) != 0) {
+        // The state itself is written and in place; only its date is off.
+        ALOGW("FakeJNI: ram state stamp %s failed errno=%d", to.c_str(), errno);
+    }
+}
+
 // Copy a memfd's bytes to a disk file, atomically (sibling temp + rename).
 static bool ramMaterialize(int memfd, const std::string& to) {
     struct stat st = {};
@@ -451,6 +473,7 @@ static bool ramMaterialize(int memfd, const std::string& to) {
     close(out);
     if (ok && rename(tmp.c_str(), to.c_str()) != 0) ok = false;
     if (!ok) { unlink(tmp.c_str()); ALOGW("FakeJNI: ram state materialize to %s failed errno=%d", to.c_str(), errno); }
+    else stampStateTime(to);
     return ok;
 }
 
