@@ -7476,13 +7476,17 @@ void NanoMenu::render() {
             // XMB ring path: same triple-buffer mechanism used by drastic QR.
             // Decouples glFinish (GPU wait, ~11 ms on RK3576 1080x1920) from
             // the CPU-side blit+flip (~10 ms) by presenting a slot whose GPU
-            // work is ~2 iterations old -- its fence is already signaled so
-            // the per-slot AHB_lock returns fast, and we don't block the
-            // render thread on the current slot's in-flight GPU work. Gated
-            // on persist.gammaos.nano.triple_buffer (same prop as QR). Resolved
-            // once per process since the prop + slot availability don't change
-            // at runtime.
+            // work is sXmbRingLag iterations old -- with lag 2 its fence is
+            // already signaled so the per-slot AHB_lock returns fast, and we
+            // don't block the render thread on the current slot's in-flight
+            // GPU work. Gated on persist.gammaos.nano.triple_buffer (same
+            // prop as QR). Resolved once per process since the prop + slot
+            // availability don't change at runtime.
             static int sXmbRingEnabled = -1;
+            // Present lag in iterations: the commit shows the slot rendered this many
+            // iterations ago. 2 is the safe default; 1 shows each frame one vblank
+            // sooner and is resolved together with the ring below.
+            static int sXmbRingLag = 2;
             if (sXmbRingEnabled < 0) {
                 char prop[PROPERTY_VALUE_MAX] = {};
                 property_get("persist.gammaos.nano.triple_buffer", prop, "1");
@@ -7497,6 +7501,34 @@ void NanoMenu::render() {
                     sRingRenderIdx = 0;
                     sRingPresentIdx = 0;
                     sRingPrimedCount = 0;
+
+                    // Lag 1 commits the slot rendered one iteration ago, so it is only safe
+                    // where the commit itself waits for that slot's GPU fence: the PRIME
+                    // scanout path (eglClientWaitSyncKHR in drmFlipRingSlot, or the AFBC
+                    // kernel in-fence). The CPU-blit path (RK3576) locks the AHB without a
+                    // fence and keeps lag 2. On the RG DS Plus the loop is vblank-locked by
+                    // the page-flip drain, so the one-frame-old fence has long signalled and
+                    // each frame reaches the panel one vblank sooner. Lag 1 is the default
+                    // only on the RG DS Plus; persist.gammaos.nano.ring_lag=2 restores the old
+                    // behaviour there. The upper bound is AHB_RING_DEPTH-3: with the
+                    // frame-sync hold a lag of L keeps L+3 slots live (the one rendering,
+                    // L waiting to be presented, the primary and the secondary scanout).
+                    static_assert(AHB_RING_DEPTH >= 4, "XMB ring lag needs depth >= 4");
+                    bool primeAll = (sEglClientWaitSyncKHR != nullptr);
+                    for (int i = 0; i < AHB_RING_DEPTH && primeAll; i++) {
+                        if (sAhbRingPrimary[i].drmFbId == 0) primeAll = false;
+                        else if (sAhbRingSecondary[i].ahb &&
+                                 sAhbRingSecondary[i].drmFbId == 0) primeAll = false;
+                    }
+                    char devProp[PROPERTY_VALUE_MAX] = {};
+                    property_get("ro.gammaos.device", devProp, "");
+                    const int lagDef = (strcmp(devProp, "anbernicrgdsplus") == 0) ? 1 : 2;
+                    int lag = property_get_int32("persist.gammaos.nano.ring_lag", lagDef);
+                    if (lag < 1 || lag > AHB_RING_DEPTH - 3) lag = lagDef;
+                    if (lag < 2 && !primeAll) lag = 2;
+                    sXmbRingLag = lag;
+                    ALOGW("NanoMenu XMB ring present lag %d (prime=%d)",
+                          sXmbRingLag, primeAll ? 1 : 0);
                 }
                 ALOGW("NanoMenu XMB ring %s (flag=%d slotsOk=%d)",
                       sXmbRingEnabled ? "ENABLED" : "disabled",
@@ -7524,20 +7556,31 @@ void NanoMenu::render() {
                 }
                 // Advance render cursor BEFORE present so the macro
                 // sAhbTarget resolves to the next slot on the next render()
-                // call. Present uses presentIdx which lags by 2 (ring depth
-                // minus 1), reading an older slot whose fence is signaled.
+                // call. Present uses a slot sXmbRingLag iterations older than the
+                // one just rendered, whose fence is long signaled (lag 2) or, at
+                // worst, waited on by drmFlipRingSlot (lag 1).
                 sRingRenderIdx = (renderIdxNow + 1) % AHB_RING_DEPTH;
-                // Threshold = 2 (not depth-1) keeps present-lag at 2 regardless of
-// ring depth. With depth N and lag L, slot M is rendered at iter M
-// and re-rendered at iter M+N, but display still owns it through
-// iter M+L+1. Race-free requires L <= N-2. With depth 4 and L=2
-// (this threshold), we have 1 slot of headroom = no GL/scanout
-// races on the DRM PRIME path.
-if (sRingPrimedCount >= 2) {
-                    const int presentIdxNow = sRingPresentIdx;
+                // The lag is fixed by sXmbRingLag, independent of the ring depth.
+                // With depth N and lag L, slot M is rendered at iter M and
+                // re-rendered at iter M+N, but the display still owns it through
+                // iter M+L+1, and with the frame-sync hold the secondary panel
+                // scans it one iteration longer. Race-free therefore requires
+                // L <= N-3: while a slot renders, L older slots wait to be
+                // presented and one each is on the primary and the secondary
+                // panel. With depth 5, L=2 fills the ring exactly and L=1 leaves
+                // one slot spare: no GL/scanout races on the DRM PRIME path.
+                if (sRingPrimedCount >= sXmbRingLag) {
+                    // Derived from the render slot so the lag cannot drift from a
+                    // free-running cursor.
+                    const int presentIdxNow =
+                            (renderIdxNow - sXmbRingLag + AHB_RING_DEPTH) % AHB_RING_DEPTH;
                     drmFlipRingSlot(presentIdxNow, setupSkipSecondary);
-                    sRingPresentIdx =
-                            (presentIdxNow + 1) % AHB_RING_DEPTH;
+                    // NanoMenuRgbFollow reads sRingPresentIdx-1 as the last flipped
+                    // slot and only samples once sRingPrimedCount >= 2; at lag 1 the
+                    // counter would stop at 1, so open that gate after the first
+                    // present.
+                    sRingPresentIdx = (presentIdxNow + 1) % AHB_RING_DEPTH;
+                    if (sRingPrimedCount < 2) sRingPrimedCount = 2;
                 } else {
                     sRingPrimedCount++;
                 }
