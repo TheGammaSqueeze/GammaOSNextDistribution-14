@@ -38,6 +38,7 @@
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/eglext.h>
+#include <android/hardware_buffer.h>
 #include <cutils/properties.h>
 #include <utils/Log.h>
 #include <string.h>
@@ -167,6 +168,22 @@ static bool gRowInv = false;
 // the 786 KB frame instead of an in-place alpha pass and a second pass that reads it all again
 // (the frame is larger than the SoC's L3, so the second pass came from DRAM). Same output bytes.
 static bool gFusedScatter = false;
+// persist gpu3d_ahb_rb (read at GL init, default on only for the RG DS Plus, 0 = glReadPixels on the GL
+// thread as before; sys gpu3d_ahb_rb 0 also turns the hand-off off live): the two colour targets
+// are AHardwareBuffers (linear, CPU readable) and the scatter helper reads the finished frame in
+// place, so the GL thread no longer spends about 1 ms per job in a glReadPixels out of the GPU's
+// tiled texture. Decoupled MSAA jobs alternate between the two buffers (the helper may still be
+// reading one while the next job draws into the other); anything else draws into set 0 and waits
+// for the helper first (see renderJob). It is only enabled after a self-test at GL init proved the
+// buffers render and read back byte for byte like the plain texture (see ahbRbInit).
+static bool gAhbRb = false;                          // GL thread: the colour sets are AHB backed and the hand-off is allowed
+static std::atomic<bool> gAhbRbOff{false};           // the helper could not lock a buffer: the GL thread reads back with glReadPixels from the next job on
+static AHardwareBuffer* gAhb[2] = {};                // colour target of set 0 and of set 1
+static EGLImageKHR gAhbImg[2] = { EGL_NO_IMAGE_KHR, EGL_NO_IMAGE_KHR };
+static size_t gAhbPitch[2] = {};                     // bytes per row of each buffer (the allocator may pad the 2048 byte row)
+static int gAhbSet = 0;                              // the set the last alternating job drew into
+static uint32_t gAhbHand = 0;                        // jobs handed over in place since the last census line
+static uint32_t gAhbMiss = 0;                        // jobs that could have been handed over but read back with glReadPixels because their fence did not read as signalled
 // persist gpu3d_spec2 (read at GL init, default on only for the RG DS Plus, 0 = the old gate): the
 // specialised programs also lose the dead maths of the A/B and debug knobs at their default values
 // (uInterp/uUvOff selects, the uDbgDepth overrides, the depth-mode select), and a second set keeps
@@ -216,6 +233,8 @@ struct Job {
     // Two-in-flight pipeline (GL thread only): which target set the job draws into, whether the
     // loop allowed it to return after submission, and what it left behind for completeJob.
     int set = 0; bool pipe2 = false, submitted = false, sBlendAlpha = false;
+    bool ahbRb = false;   // pipe2 only: the frame stays in the AHB colour target, completeJob hands it to the scatter helper without a glReadPixels
+    bool scatHand = false;   // handed to the scatter helper, which publishes it (or, after a failed AHB lock, does not): the loop must not publish it again
     uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): bits 0-4 clear takes the specialised programs, bits 3-4 clear the toon/decal-free ones (gpu3d_spec2)
     GLsync fence = nullptr; int fenceFd = -1; int64_t st0 = 0, st1 = 0, st2 = 0;
 };
@@ -1076,6 +1095,7 @@ static void notePoolHint(bool dir, bool dirBig, bool big, int small) {
     if (pthread_create(&t, nullptr, poolHintWriter, nullptr) == 0) pthread_detach(t);
 }
 
+static void ahbRbInit();   // defined with the target sets, after ensureSet2
 bool initGl() {
     if (g.inited) return true;
     if (g.failed) return false;
@@ -1603,6 +1623,9 @@ bool initGl() {
         glBindFramebuffer(GL_FRAMEBUFFER, g.fbo); glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
         glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         glFinish();
+        // The AHB colour targets (gAhbRb), if wanted and proven here, replace set 0's plain texture
+        // before the state warm-up below, which then warms the MSAA path on the buffer a real job uses.
+        ahbRbInit();
         glBindFramebuffer(GL_FRAMEBUFFER, g.edgeFbo); glUseProgram(g.edgeProg); glBindVertexArray(g.edgeVao); glDrawArrays(GL_TRIANGLES, 0, 3);
         glUseProgram(g.resolveProg); glDrawArrays(GL_TRIANGLES, 0, 3);
         glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
@@ -2620,13 +2643,26 @@ void alphaToDs(uint8_t* buf, int y0, int y1) {
 // each). Native (256 wide): one linear 256-word row per line, a straight copy.
 // kAlpha applies the alphaToDs lane transform to every pixel on its way through (the fused
 // scatter, gFusedScatter): the same bytes as alphaToDs followed by the plain scatter, in one
-// pass, and src stays read-only.
+// pass, and src stays read-only. pitch is the byte distance between two source rows: kW * 4 for a
+// readback buffer, the allocator's row stride for an AHB colour target read in place (gAhbRb).
 template <bool kAlpha>
-static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int y1) {
+static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int y1, size_t pitch) {
 #if defined(__aarch64__)
     const uint32x4_t four = vdupq_n_u32(4), ff = vdupq_n_u32(255), maskC = vdupq_n_u32(0x00ffffffu);
 #endif
     if (kW == 256) {
+        if (pitch != 0x400) {   // padded source rows: one row at a time (the target rows are 0x400 bytes apart)
+            for (int y = y0; y < y1; y++) {
+                const uint32_t* s = reinterpret_cast<const uint32_t*>(src + (size_t)y * pitch);
+                uint32_t* d = reinterpret_cast<uint32_t*>(target + (size_t)y * 0x400);
+#if defined(__aarch64__)
+                for (int x = 0; x < 256; x += 4) { const uint32x4_t v = vld1q_u32(s + x); vst1q_u32(d + x, kAlpha ? alphaLaneDs(v, four, ff, maskC) : v); }
+#else
+                for (int x = 0; x < 256; x++) d[x] = kAlpha ? alphaPixDs(s[x]) : s[x];
+#endif
+            }
+            return;
+        }
         if (!kAlpha) {
             memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
             return;
@@ -2642,7 +2678,7 @@ static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int
         return;
     }
     for (int y = y0; y < y1; y++) {
-        const uint32_t* row = reinterpret_cast<const uint32_t*>(src + y * kW * 4);
+        const uint32_t* row = reinterpret_cast<const uint32_t*>(src + (size_t)y * pitch);
         uint32_t* even = reinterpret_cast<uint32_t*>(target + (2 * y) * 0x400);
         uint32_t* odd = reinterpret_cast<uint32_t*>(target + (2 * y + 1) * 0x400);
 #if defined(__aarch64__)
@@ -2661,8 +2697,12 @@ static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int
 #endif
     }
 }
-void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<false>(src, target, y0, y1); }
-void scatterRowsAlpha(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<true>(src, target, y0, y1); }
+void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<false>(src, target, y0, y1, (size_t)kW * 4); }
+void scatterRowsAlpha(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<true>(src, target, y0, y1, (size_t)kW * 4); }
+// The same scatter from a source with padded rows (an AHB colour target locked for the CPU).
+static void scatterRowsPitch(const uint8_t* src, size_t pitch, uint8_t* target, int y0, int y1, bool alpha) {
+    if (alpha) scatterRowsT<true>(src, target, y0, y1, pitch); else scatterRowsT<false>(src, target, y0, y1, pitch);
+}
 
 // The CPU finish of a readback: with a blend-factor alpha (blendAlpha) the DS alpha fix, then the
 // scatter. Fused (gFusedScatter) that is one pass over the frame; with the switch at 0 it is the
@@ -2682,7 +2722,10 @@ static void applyMsaaTarget() {
     // a single sample, which separates multisampling from everything else on this path).
     { static int force = 0; if ((g.glFrames & 15) == 0) force = property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_force", 0);
       if (force == 1 || force == 2 || force == 4) tgt = force; }
-    if (!g.msImplicit || !g.msFbo || tgt < 1 || tgt == g.msSamples) return;
+    // With the AHB colour sets (gAhbRb) only the current set's target would be rebuilt and the two sets
+    // would draw at different sample counts; that mode exists only at the 2-sample base, where the
+    // adaptive rule never changes the count, so only the gpu3d_msaa_force A/B knob is ignored here.
+    if (!g.msImplicit || !g.msFbo || tgt < 1 || tgt == g.msSamples || gAhbRb) return;
     auto pRb = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)g.pRbMsExt;
     auto pFb = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
     if (!pRb || !pFb) return;
@@ -2710,7 +2753,8 @@ static void applyMsaaTarget() {
 // thread moves on to the next job's draws while the previous frame is being scattered and
 // published. The 3D layer's timing is unchanged for a job that fits its frame; a job that would
 // otherwise miss the next kick by up to that CPU finish now makes it.
-struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; };
+// ahb: the frame is still in that AHB colour target (set srcIdx), to be locked and read in place; src is null then.
+struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; AHardwareBuffer* ahb = nullptr; size_t pitch = 0; };
 static std::atomic<Job*> gPendJob{nullptr}; static std::atomic<uint8_t*> gPendTarget{nullptr};
 // Publish a finished job (g.mtx held): the previous newest becomes the "one before" the lag rule may read.
 static void publishLatest(uint8_t* target, uint32_t seq, int pow15) {
@@ -2762,7 +2806,16 @@ static std::atomic<int> gParityWant{-1};   // the screen assignment the composit
 static std::atomic<uint32_t> gParRead{0}, gParAgeSum{0}, gParAgeMax{0};   // parity mode census: composites, and the age in kicks of the 3D frame shown (written by the compositor, read and cleared by the worker)
 static int gPipeline = 1;
 static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
+// gRbBusy[k]: the helper is still reading the source of a hand-off. k indexes the readback half (gRb[k])
+// in a fallback hand-off and the AHB colour set (gAhb[k]) in an in-place one, so a flag set by one kind
+// also makes the other kind wait for the same k (only conservative). The helper clears it as soon as its
+// scatter is done, ahead of its publish (gPendJob still names the job until then).
 static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
+// Readback half k, allocated when first used and sized for the current frame size every time. With the
+// AHB colour sets (gAhbRb) the halves are only the fallback and no longer cost 1.5 MB up front on the 1 GB
+// Plus; and a rebuild at the other resolution (hi-res 3D toggled) must not read into a smaller buffer.
+// Called after the helper is done with half k (the busy flag was drained), so the resize moves nothing it reads.
+static uint8_t* rbHalf(int k) { const size_t n = (size_t)kW * kH * 4; if (gRb[k].size() < n) gRb[k].resize(n); return gRb[k].data(); }
 static std::mutex gScMtx; static std::condition_variable gScCv; static PendingRb gScWork; static bool gScHas = false, gScQuit = false; static std::thread gScThread; static bool gScStarted = false;
 static void scatterThreadMain() {
     pthread_setname_np(pthread_self(), "dn-gpu3d-scat");
@@ -2772,14 +2825,35 @@ static void scatterThreadMain() {
         if (gScQuit) break;
         PendingRb w = gScWork; gScHas = false;
         lk.unlock();
-        finishRows(w.src, w.target, 0, kH, w.blendAlpha);
+        bool scattered = true;   // false: nothing was written into the target
+        if (w.ahb) {
+            // The GL thread already waited for this frame's fence, so the lock does not wait: it maps the
+            // buffer and invalidates the CPU's cache lines of it. The alpha lanes are applied on the way
+            // through (the fused scatter), never in place: the buffer is the GPU's colour target.
+            void* p = nullptr;
+            if (AHardwareBuffer_lock(w.ahb, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) == 0 && p) {
+                scatterRowsPitch(static_cast<const uint8_t*>(p), w.pitch, w.target, 0, kH, w.blendAlpha);
+                AHardwareBuffer_unlock(w.ahb, nullptr);
+            } else {
+                // This frame is not published (below); from the next job on the GL thread reads back with glReadPixels.
+                scattered = false;
+                ALOGE("gpu3d: in-place readback: AHardwareBuffer_lock failed, falling back to glReadPixels");
+                gAhbRbOff.store(true, std::memory_order_release);
+            }
+        } else {
+            finishRows(w.src, w.target, 0, kH, w.blendAlpha);
+        }
+        // The source is read out: the GL thread may draw into this set / write this half again while the frame publishes.
+        gRbBusy[w.srcIdx].store(0, std::memory_order_release);
         {
             std::lock_guard<std::mutex> gl(g.mtx);
-            publishLatest(w.target, w.job ? w.job->seq : 0, w.job ? w.job->pow15 : -1);
+            // A failed lock left the target as it was, which may hold a frame of the other screen assignment
+            // (a parity session reuses buffers): publishing it would show that on the wrong screen, so the
+            // previous frame stays. The pending marks still clear, or the joins and the drain would wait forever.
+            if (scattered) publishLatest(w.target, w.job ? w.job->seq : 0, w.job ? w.job->pow15 : -1);
             gPendJob.store(nullptr, std::memory_order_release); gPendTarget.store(nullptr, std::memory_order_release);
             g.cvDone.notify_all();
         }
-        gRbBusy[w.srcIdx].store(0, std::memory_order_release);
         lk.lock();
         gScCv.notify_all();
     }
@@ -2873,6 +2947,16 @@ static void useSet(int s) {
     std::swap(g.msFbo, g.msFbo2); std::swap(g.edgeFbo, g.edgeFbo2);
     g.setIdx = s;
 }
+// Make a texture name the sibling of AHB colour target i (an EGLImage of the buffer). False on any GL
+// error. The target extension function is resolved by ahbRbInit before the first call.
+static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gAhbTargetTex = nullptr;
+static bool ahbBindTexture(GLuint tex, int i) {
+    while (glGetError() != GL_NO_ERROR) {}
+    glBindTexture(GL_TEXTURE_2D, tex);
+    gAhbTargetTex(GL_TEXTURE_2D, (GLeglImageOES)gAhbImg[i]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    return glGetError() == GL_NO_ERROR;
+}
 static bool ensureSet2() {
     if (g.set2Tried) return g.set2Ok;
     g.set2Tried = true;
@@ -2882,8 +2966,12 @@ static bool ensureSet2() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     };
-    tex2d(g.colorTex2); tex2d(g.edgeTex2);
     bool ok = true;
+    // While ahbRbInit tries the AHB colour sets the second colour texture is the sibling of buffer 1
+    // (gAhbImg[1] is only set between its allocation and its release); otherwise a plain texture.
+    if (gAhbImg[1] != EGL_NO_IMAGE_KHR && gAhbTargetTex) { glGenTextures(1, &g.colorTex2); ok = ahbBindTexture(g.colorTex2, 1); }
+    else tex2d(g.colorTex2);
+    tex2d(g.edgeTex2);
     glGenFramebuffers(1, &g.fbo2); glBindFramebuffer(GL_FRAMEBUFFER, g.fbo2);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex2, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0);
@@ -2905,12 +2993,240 @@ static bool ensureSet2() {
     return ok;
 }
 
+// ---- In-place readback: AHB colour sets (see gAhbRb) ----
+// Drop both AHB colour targets (GL thread, after the textures that were their siblings are deleted).
+static void ahbRbFree() {
+    static PFNEGLDESTROYIMAGEKHRPROC destroyImg = nullptr;
+    if (!destroyImg) destroyImg = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+    for (int i = 0; i < 2; i++) {
+        if (gAhbImg[i] != EGL_NO_IMAGE_KHR && destroyImg) destroyImg(g.dpy, gAhbImg[i]);
+        gAhbImg[i] = EGL_NO_IMAGE_KHR;
+        if (gAhb[i]) { AHardwareBuffer_release(gAhb[i]); gAhb[i] = nullptr; }
+        gAhbPitch[i] = 0;
+    }
+    gAhbRb = false; gAhbSet = 0;
+}
+// GL init, GL thread, the plain targets built and set 0 current: move the two colour targets onto
+// AHardwareBuffers if this driver renders into them exactly like the plain texture, else change
+// nothing. Each way this can go wrong on a Mali is tested here instead of assumed:
+//  - the multisampled render-to-texture FBO on an EGLImage texture must be complete and render the
+//    same bytes as the plain texture (set 0, a gradient triangle with partial-coverage edges),
+//  - glReadPixels from the AHB texture (the sync and progressive paths keep using it) and a CPU lock
+//    of the buffer, row by row with its stride, must both give those bytes, on both sets,
+//  - a second, different picture drawn into the same buffers must read back as the second picture,
+//    so a missing cache invalidate on the CPU side (stale lines of the first read) cannot hide,
+//  - the helper's whole finish from the AHB (lock, fused scatter, unlock) must give the bytes the
+//    glReadPixels + scatter pair gives, and must not take longer than that pair does today, timed on
+//    the plain targets before the switch (an uncached CPU mapping would; that would delay publishing
+//    the frame even though the GL thread is free; a glReadPixels from the AHB texture could be slow
+//    for the same reason and is no reference),
+//  - the GL thread's own cost must not grow: a draw into the buffers has to cost less than the plain
+//    target's draw plus half its glReadPixels, else a linear target the GPU writes back slowly
+//    would eat what the readback saves.
+// Any failure puts the plain textures back on every FBO, frees the buffers and logs one line. A
+// crash inside the driver is guarded by sys gpu3d_ahb_try: set before the attempt and cleared
+// after it, so the next init of the same boot skips an attempt that never finished.
+static void ahbRbInit() {
+    gAhbRb = false; gAhbSet = 0; gAhbHand = 0; gAhbRbOff.store(false, std::memory_order_relaxed);
+    char dev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", dev, "");
+    bool want = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ahb_rb", strcmp(dev, "anbernicrgdsplus") == 0);
+    { const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_rb", -1); if (ov == 0) want = false; else if (ov == 1) want = true; }
+    if (!want) { ALOGI("gpu3d: in-place readback off (gpu3d_ahb_rb)"); return; }
+    // The 2-sample hi-res target only: the 4-sample native target has the second sync target
+    // (msFbo2x), which shares set 0's colour, and the adaptive sample-count rebuild, and both would
+    // have to follow the set alternation. The fused scatter is required too: the alpha lanes are
+    // rebuilt on the way through the scatter, because the CPU must not write into the GPU's buffer.
+    if (kW != 512 || kH != 384 || !g.msImplicit || !g.msFbo || g.msFbo2x || g.msSamples != 2 || !gFusedScatter || g.set2Tried || !g.fbo) {
+        ALOGI("gpu3d: in-place readback not used: it needs the 512x384 two-sample implicit MSAA target and the fused scatter (%dx%d, implicit %d, %d samples, fused %d)",
+              kW, kH, g.msImplicit ? 1 : 0, g.msSamples, gFusedScatter ? 1 : 0);
+        return;
+    }
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_try", 0) == 1) {
+        ALOGW("gpu3d: in-place readback skipped: an earlier attempt in this boot never finished (driver crash?), off until the next boot");
+        return;
+    }
+    struct TryMark { TryMark() { property_set("sys.gammaos.drastic_nano.gpu3d_ahb_try", "1"); } ~TryMark() { property_set("sys.gammaos.drastic_nano.gpu3d_ahb_try", "0"); } } tryMark;
+    typedef EGLClientBuffer (*GetClientBufferFn)(const AHardwareBuffer*);
+    auto getBuf = (GetClientBufferFn)eglGetProcAddress("eglGetNativeClientBufferANDROID");
+    auto createImg = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+    gAhbTargetTex = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    auto pFb = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
+    if (!getBuf || !createImg || !gAhbTargetTex || !pFb) { ALOGI("gpu3d: in-place readback unavailable: a needed EGL/GL entry point is missing"); return; }
+    const size_t rowB = (size_t)kW * 4, frameB = rowB * (size_t)kH;
+    for (int i = 0; i < 2; i++) {
+        AHardwareBuffer_Desc d = {};
+        d.width = (uint32_t)kW; d.height = (uint32_t)kH; d.layers = 1; d.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+        d.usage = AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE | AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
+        if (AHardwareBuffer_allocate(&d, &gAhb[i]) != 0 || !gAhb[i]) { gAhb[i] = nullptr; ALOGW("gpu3d: in-place readback off: AHardwareBuffer_allocate failed"); ahbRbFree(); return; }
+        AHardwareBuffer_Desc got = {}; AHardwareBuffer_describe(gAhb[i], &got);
+        gAhbPitch[i] = (size_t)got.stride * 4;
+        if (gAhbPitch[i] < rowB) { ALOGW("gpu3d: in-place readback off: buffer stride %u is shorter than a row", got.stride); ahbRbFree(); return; }
+        const EGLint attrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
+        gAhbImg[i] = createImg(g.dpy, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, getBuf(gAhb[i]), attrs);
+        if (gAhbImg[i] == EGL_NO_IMAGE_KHR) { ALOGW("gpu3d: in-place readback off: eglCreateImageKHR failed (0x%x)", eglGetError()); ahbRbFree(); return; }
+    }
+    std::vector<uint8_t> ref(frameB), rd(frameB), tgtGl(outBytes(1)), tgtAhb(outBytes(1));
+    while (glGetError() != GL_NO_ERROR) {}
+    glActiveTexture(GL_TEXTURE0);
+    const GLboolean blendWas = glIsEnabled(GL_BLEND);
+    glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST); glDisable(GL_STENCIL_TEST); glEnable(GL_DEPTH_TEST); glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE); glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glStencilMask(0xff); glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    // A gradient triangle through the production MSAA target (partial-coverage edges at 2 samples),
+    // pattern 0 and its mirror image, pattern 1. progTrivial writes the interpolated colour and a fixed alpha.
+    auto drawPattern = [&](int pat) {
+        const float fx[2][3] = { { 0.f, 1.f, 0.f }, { 1.f, 1.f, 0.f } }, fy[2][3] = { { 0.f, 0.f, 1.f }, { 1.f, 0.f, 1.f } };
+        const float cr[2][3] = { { 255.f, 0.f, 40.f }, { 10.f, 250.f, 128.f } }, cg[2][3] = { { 20.f, 255.f, 0.f }, { 200.f, 0.f, 255.f } }, cb[2][3] = { { 0.f, 30.f, 255.f }, { 255.f, 90.f, 0.f } };
+        Vtx tri[3] = {};
+        for (int i = 0; i < 3; i++) {
+            tri[i].x = fx[pat][i] * (float)kW; tri[i].y = fy[pat][i] * (float)kH; tri[i].depth = 0.5f; tri[i].w = 1.f;
+            tri[i].r = cr[pat][i]; tri[i].g = cg[pat][i]; tri[i].b = cb[pat][i];
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo); glViewport(0, 0, kW, kH);
+        { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+        glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
+        glUseProgram(g.progTrivial); glDrawArrays(GL_TRIANGLES, 0, 3);
+        glFinish();
+    };
+    auto readGl = [&](std::vector<uint8_t>& dst) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
+        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, dst.data());
+    };
+    // CPU view of buffer s against the bytes glReadPixels returned: row by row with the buffer's stride.
+    auto lockCmp = [&](int s, const std::vector<uint8_t>& want, char* why, size_t whyLen) -> bool {
+        void* p = nullptr;
+        if (AHardwareBuffer_lock(gAhb[s], AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) != 0 || !p) { snprintf(why, whyLen, "AHardwareBuffer_lock failed (set %d)", s); return false; }
+        int bad = 0;
+        for (int y = 0; y < kH; y++) if (memcmp(static_cast<const uint8_t*>(p) + (size_t)y * gAhbPitch[s], want.data() + (size_t)y * rowB, rowB) != 0) bad++;
+        AHardwareBuffer_unlock(gAhb[s], nullptr);
+        if (bad) { snprintf(why, whyLen, "the CPU view of set %d differs from glReadPixels in %d of %d rows", s, bad, kH); return false; }
+        return true;
+    };
+    // Reference: pattern 0 through the plain targets, before anything is switched. Best of three, the
+    // draw (submit, GPU, finish) and the glReadPixels apart: that pair is what the GL thread pays per job today.
+    // The glReadPixels plus the fused scatter into a target is the helper's finish today (plainFinish):
+    // the AHB's CPU read is held against it below. tgtGl is only scratch here, the comparison loop rewrites it.
+    int64_t plainDraw = INT64_MAX, plainRead = INT64_MAX, plainFinish = INT64_MAX;
+    for (int r = 0; r < 3; r++) {
+        const int64_t a = nowUs(); drawPattern(0); const int64_t b = nowUs(); readGl(ref); const int64_t c = nowUs();
+        scatterRowsAlpha(ref.data(), tgtGl.data(), 0, kH); const int64_t d = nowUs();
+        if (b - a < plainDraw) plainDraw = b - a;
+        if (c - b < plainRead) plainRead = c - b;
+        if (d - b < plainFinish) plainFinish = d - b;
+    }
+    { size_t lit = 0; for (size_t i = 0; i < frameB; i += 4) if (ref[i] | ref[i + 1] | ref[i + 2] | ref[i + 3]) lit++;
+      if (glGetError() != GL_NO_ERROR || lit < (size_t)kW * kH / 4) {
+          ALOGW("gpu3d: in-place readback not used: the self-test picture did not render (%zu lit pixels), nothing to compare against", lit);
+          if (blendWas) glEnable(GL_BLEND);
+          ahbRbFree(); return;
+      } }
+    const GLuint plainTex = g.colorTex; GLuint ahbTex0 = 0;
+    // From here on a failure must put everything back: revert() does.
+    auto revert = [&](const char* why) {
+        useSet(0);
+        glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, plainTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
+        pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, plainTex, 0, g.msSamples);
+        g.colorTex = plainTex;
+        if (ahbTex0) glDeleteTextures(1, &ahbTex0);
+        if (g.fbo2) glDeleteFramebuffers(1, &g.fbo2);
+        if (g.edgeFbo2) glDeleteFramebuffers(1, &g.edgeFbo2);
+        if (g.msFbo2) glDeleteFramebuffers(1, &g.msFbo2);
+        if (g.colorTex2) glDeleteTextures(1, &g.colorTex2);
+        if (g.edgeTex2) glDeleteTextures(1, &g.edgeTex2);
+        g.fbo2 = g.edgeFbo2 = g.msFbo2 = 0; g.colorTex2 = g.edgeTex2 = 0; g.set2Ok = g.set2Tried = false;
+        glFinish();
+        ahbRbFree();
+        glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+        if (blendWas) glEnable(GL_BLEND);
+        ALOGW("gpu3d: in-place readback off, plain colour targets kept: %s", why);
+    };
+    glGenTextures(1, &ahbTex0);
+    if (!ahbBindTexture(ahbTex0, 0)) { revert("glEGLImageTargetTexture2DOES refused buffer 0"); return; }
+    g.colorTex = ahbTex0;
+    glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ahbTex0, 0);
+    bool fbOk = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
+    pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ahbTex0, 0, g.msSamples);
+    fbOk = fbOk && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    if (!fbOk || glGetError() != GL_NO_ERROR) { revert("the framebuffers on the AHB colour target are incomplete"); return; }
+    if (!ensureSet2()) { revert("the second AHB colour set is incomplete"); return; }
+    char why[160] = {};
+    for (int s = 0; s < 2; s++) {
+        useSet(s);
+        for (int pat = 0; pat < 2; pat++) {
+            while (glGetError() != GL_NO_ERROR) {}
+            drawPattern(pat); readGl(rd);
+            if (glGetError() != GL_NO_ERROR) { snprintf(why, sizeof why, "a GL error while drawing picture %d into set %d", pat, s); revert(why); return; }
+            // Picture 0 must be the plain texture's picture on both sets, picture 1 must really be another one.
+            if ((rd == ref) != (pat == 0)) { snprintf(why, sizeof why, "picture %d in set %d %s the plain texture's picture", pat, s, pat == 0 ? "differs from" : "is the same as"); revert(why); return; }
+            if (!lockCmp(s, rd, why, sizeof why)) { revert(why); return; }
+        }
+    }
+    // Set 1 holds picture 1 now: the helper's finish from the buffer against glReadPixels + scatter (the bytes must
+    // match; bestGl is the same pair through the AHB texture, logged only), best of three each.
+    int64_t bestGl = INT64_MAX, bestAhb = INT64_MAX; bool same = true;
+    for (int r = 0; r < 3 && same; r++) {
+        int64_t a = nowUs();
+        readGl(rd); scatterRowsAlpha(rd.data(), tgtGl.data(), 0, kH);
+        int64_t dt = nowUs() - a; if (dt < bestGl) bestGl = dt;
+        void* p = nullptr;
+        a = nowUs();
+        if (AHardwareBuffer_lock(gAhb[1], AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) != 0 || !p) { same = false; break; }
+        scatterRowsPitch(static_cast<const uint8_t*>(p), gAhbPitch[1], tgtAhb.data(), 0, kH, true);
+        AHardwareBuffer_unlock(gAhb[1], nullptr);
+        dt = nowUs() - a; if (dt < bestAhb) bestAhb = dt;
+        if (memcmp(tgtGl.data(), tgtAhb.data(), tgtGl.size()) != 0) same = false;
+    }
+    if (!same) { revert("the scatter from the AHB gives other bytes than glReadPixels + scatter"); return; }
+    if (bestAhb > plainFinish + plainFinish / 8 + 100) {
+        snprintf(why, sizeof why, "reading the AHB on the CPU takes %lld us, glReadPixels + scatter on the plain target %lld us", (long long)bestAhb, (long long)plainFinish);
+        revert(why); return;
+    }
+    // What the GL thread pays per job with the buffers: the draw into them, and no readback. A linear
+    // target the GPU writes back slowly would eat what the readback saves, so the draw must come in
+    // under the plain target's draw plus at least half of its glReadPixels, else the plain targets stay.
+    // (Set 1 is current. Best of three: the first draws into a fresh buffer pay a one-off cost.)
+    int64_t ahbDraw = INT64_MAX;
+    for (int r = 0; r < 3; r++) { const int64_t a = nowUs(); drawPattern(0); const int64_t d = nowUs() - a; if (d < ahbDraw) ahbDraw = d; }
+    if (ahbDraw > plainDraw + plainRead / 2) {
+        snprintf(why, sizeof why, "drawing into the AHB takes %lld us, the plain target %lld us plus a %lld us glReadPixels", (long long)ahbDraw, (long long)plainDraw, (long long)plainRead);
+        revert(why); return;
+    }
+    useSet(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+    glDeleteTextures(1, &plainTex);   // set 0 lives on its buffer now; set 1 was built on buffer 1
+    if (blendWas) glEnable(GL_BLEND);
+    gAhbRb = true; gAhbSet = 0;
+    ALOGI("gpu3d: in-place readback on: two %dx%d AHB colour targets (row stride %zu bytes), self-test passed, helper finish %lld us from the buffer against %lld us for glReadPixels + scatter on the plain target (%lld us through the AHB texture), draw %lld us against %lld us + %lld us glReadPixels on the plain target",
+          kW, kH, gAhbPitch[0], (long long)bestAhb, (long long)plainFinish, (long long)bestGl, (long long)ahbDraw, (long long)plainDraw, (long long)plainRead);
+}
+
+// Whether the job's GL fence reads as signalled, for a frame that is about to be read in place. A
+// glReadPixels waits for the GPU on its own, a read of the AHB does not, and fenceWait / the native
+// fence wait give up after their cap. The wait for the native fence has covered this job's work, so
+// the object normally says so at once; the short bounded wait is for a driver whose GL fence object
+// trails the native one. False sends the job down the glReadPixels path, which waits by itself.
+static bool ahbFenceDone(GLsync f) {
+    GLenum r = glClientWaitSync(f, 0, 0);
+    if (r == GL_TIMEOUT_EXPIRED) r = glClientWaitSync(f, 0, 2000000ull);
+    return r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED;
+}
+
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
     const bool dsJob = !j.polyTab.empty() && g.rowProg != 0;   // DS span sampling runs for this job
     if (j.pipe2 && !ensureSet2()) { j.pipe2 = false; j.set = 0; }   // first attempt happens with nothing in flight (the loop only pipelines once the set exists)
     useSet(j.set);
+    // The scatter helper may still be reading the frame this set's colour target held (gAhbRb: it reads
+    // the AHB in place, not a copy). Every job draws into a colour target, not just the decoupled ones
+    // that alternate sets: a synchronous, progressive or fallback job draws into set 0. Normally the
+    // helper finished long ago (alternating jobs reach a set again two jobs later) and this costs nothing.
+    if (gAhbRb && gRbBusy[g.setIdx].load(std::memory_order_acquire)) scatterDrain();
     // Skip the redundant glBindTexture when the same array is already bound to a unit. A scene
     // transition uploads a whole new working set (Sonic attract: 243 in one frame), and the old
     // per-upload rebind issued ~2 binds each (the array + the palette); a run of same-target
@@ -3589,7 +3905,7 @@ void renderJob(Job& j) {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     static int rbTest = -1; if ((g.glFrames & 63) == 0) { rbTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0); gPipeline = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipeline", 1); }
     if (j.decoupled && gPipeline && rbTest != 5) {
-        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gScThread.detach(); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
+        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gScThread.detach(); }   // the readback halves come from rbHalf on first use
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (gProbe & 512) {
             // Pipelining feasibility probe (timing only): queue several milliseconds of unrelated GPU
@@ -3616,29 +3932,53 @@ void renderJob(Job& j) {
             glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); g.curProg = 0;
         }
         glFlush();
+        // In-place readback (gAhbRb): the resolved frame is in this set's AHB colour target, the helper
+        // reads it there and no glReadPixels runs. Only the in-tile MSAA jobs: their final colour is
+        // colorTex itself (j.edge is off), where a plain or edge-pass job reads another texture.
+        // sys gpu3d_ahb_rb 0 turns it off live (the buffers stay, the readback is the old one).
+        static int ahbLive = 1; if ((g.glFrames & 63) == 0) ahbLive = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_rb", 1) != 0;
+        const bool ahbHand = gAhbRb && ahbLive && msaa && g.msImplicit && !gAhbRbOff.load(std::memory_order_acquire);
         if (j.pipe2 && !timing) {
             // Two-in-flight pipeline: hand the finished submission back to the loop, which submits
             // the next queued job into the other target set while the GPU runs this one and calls
             // completeJob when this fence signals. The native fence is created now, after the flush,
             // so it covers exactly this job.
-            j.fence = fence; j.fenceFd = nativeFenceCreate(); j.st0 = t0; j.st1 = t1; j.st2 = t2; j.sBlendAlpha = g.blendAlpha; j.submitted = true;
+            j.fence = fence; j.fenceFd = nativeFenceCreate(); j.st0 = t0; j.st1 = t1; j.st2 = t2; j.sBlendAlpha = g.blendAlpha; j.ahbRb = ahbHand; j.submitted = true;
             return;
         }
         fenceWait(fence);
+        // A glReadPixels waits for the GPU on its own, a read of the AHB does not: fenceWait gives up
+        // after its cap, so ask the fence itself and read back the old way if it has not signalled.
+        bool ahb = ahbHand;
+        if (ahb && !ahbFenceDone(fence)) { ahb = false; gAhbMiss++; }
         glDeleteSync(fence);
         const int64_t t3 = nowUs();
         g.sumDrawUs += t3 - t2;
         g.lastGpuNs = -1;
         if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; g.lastGpuNs = (int64_t)ns; } }
         if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
-        const int k = gRbIdx; gRbIdx ^= 1;
-        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
-        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+        int k;
+        if (ahb) {
+            k = g.setIdx;   // the buffer index is the set: the helper reads this set's AHB until it clears the flag
+            if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // (the top of renderJob already waited; this keeps the invariant local)
+            gAhbHand++;
+        } else {
+            k = gRbIdx; gRbIdx ^= 1;
+            if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
+            glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, rbHalf(k));
+        }
+        // The helper clears its busy flag before it publishes: the previous job may still be unpublished,
+        // and gPendJob / gPendTarget below would overwrite it. Its buffer would then be in no exclusion
+        // list of the target choice (a parity kick could pick it). g.mtx is not held here.
+        if (gPendJob.load(std::memory_order_acquire)) scatterDrain();
         const int64_t t4 = nowUs();
         g.sumReadUs += t4 - t3;
         gRbBusy[k].store(1, std::memory_order_release);
-        gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
-        { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, g.blendAlpha }; gScHas = true; }
+        gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release); j.scatHand = true;
+        { std::lock_guard<std::mutex> lk(gScMtx);
+          if (ahb) gScWork = { nullptr, k, j.target, &j, g.blendAlpha, gAhb[k], gAhbPitch[k] };
+          else gScWork = { gRb[k].data(), k, j.target, &j, g.blendAlpha };
+          gScHas = true; }
         gScCv.notify_all();
         gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
         jobEpilogue(j, t0, t1, t2, t3, t4, t4);
@@ -3700,6 +4040,7 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
               g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
         ALOGI("gpu3d: census translucent depth pre-passes skipped %u", gPrepassSkipped); gPrepassSkipped = 0;
+        if (gAhbRb) { ALOGI("gpu3d: in-place readback: %u jobs of the last 300 handed over without a glReadPixels, %u read back the old way because their fence did not read as signalled%s", gAhbHand, gAhbMiss, gAhbRbOff.load(std::memory_order_relaxed) ? " (the helper's lock failed: reading back the old way now)" : ""); gAhbHand = gAhbMiss = 0; }
         ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
               g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
         memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
@@ -3711,7 +4052,20 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
 // program, buffer and the context go, and initGl builds them fresh at the new size. The EGL
 // display stays initialised (the presenter shares it in this process).
 static void destroyGl() {
-    if (gScStarted && gPendJob.load(std::memory_order_acquire)) scatterDrain();
+    if (gScStarted) {
+        // Always drain, not only for a pending job: ahbRbFree below releases the buffers the helper reads in
+        // place, and it must be off them first. The helper clears a busy flag before its publish, so after
+        // the drain both are normally 0 already. The wait is bounded so that a flag left set by a hand-off
+        // the helper never ran cannot hang the rebuild; the helper is idle then, so clearing it is safe.
+        scatterDrain();
+        if (gAhbRb) {
+            for (int i = 0; i < 100 && (gRbBusy[0].load(std::memory_order_acquire) || gRbBusy[1].load(std::memory_order_acquire)); i++) usleep(1000);
+            if (gRbBusy[0].load(std::memory_order_acquire) || gRbBusy[1].load(std::memory_order_acquire)) {
+                ALOGW("gpu3d: a scatter busy flag stayed set after the drain, clearing it before the buffers are freed");
+                gRbBusy[0].store(0, std::memory_order_release); gRbBusy[1].store(0, std::memory_order_release);
+            }
+        }
+    }
     if (g.dpy == EGL_NO_DISPLAY) return;
     if (g.ctx != EGL_NO_CONTEXT) {
         glFinish();
@@ -3740,6 +4094,7 @@ static void destroyGl() {
         if (g.vbo) { glDeleteBuffers(1, &g.vbo); g.vbo = 0; }
         if (g.tq) { auto pDelQ = (PFNGLDELETEQUERIESEXTPROC)eglGetProcAddress("glDeleteQueriesEXT"); if (pDelQ) pDelQ(1, &g.tq); g.tq = 0; }
         glFinish();
+        ahbRbFree();   // the colour textures that were siblings of the buffers are gone: the images and the buffers can go before the context
         eglMakeCurrent(g.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglDestroyContext(g.dpy, g.ctx); g.ctx = EGL_NO_CONTEXT;
     }
@@ -3757,19 +4112,33 @@ static void completeJob(Job& j) {
     useSet(j.set);
     if (j.fenceFd >= 0) { nativeFenceWaitFd(j.fenceFd, 200); close(j.fenceFd); j.fenceFd = -1; }
     else for (int i = 0; i < 5; i++) { const GLenum r = glClientWaitSync(j.fence, GL_SYNC_FLUSH_COMMANDS_BIT, 40000000ull); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED || r == GL_WAIT_FAILED) break; }
+    // In-place readback (see renderJob): only when the fence really signalled, since nothing else waits for the GPU.
+    bool ahb = j.ahbRb && !gAhbRbOff.load(std::memory_order_acquire);
+    if (ahb && !ahbFenceDone(j.fence)) { ahb = false; gAhbMiss++; }
     glDeleteSync(j.fence); j.fence = nullptr; j.submitted = false;
     const int64_t t3 = nowUs();
     g.sumDrawUs += t3 - j.st2;
     g.lastGpuNs = -1;
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // this set's resolved colour
-    const int k = gRbIdx; gRbIdx ^= 1;
-    if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
-    glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+    int k;
+    if (ahb) {
+        k = g.setIdx;   // useSet(j.set) above: the buffer index is the set
+        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
+        gAhbHand++;
+    } else {
+        k = gRbIdx; gRbIdx ^= 1;
+        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
+        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, rbHalf(k));
+    }
+    if (gPendJob.load(std::memory_order_acquire)) scatterDrain();   // the previous job must be published before gPendJob names this one (see renderJob; g.mtx is not held)
     const int64_t t4 = nowUs();
     g.sumReadUs += t4 - t3;
     gRbBusy[k].store(1, std::memory_order_release);
-    gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
-    { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, j.sBlendAlpha }; gScHas = true; }
+    gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release); j.scatHand = true;
+    { std::lock_guard<std::mutex> lk(gScMtx);
+      if (ahb) gScWork = { nullptr, k, j.target, &j, j.sBlendAlpha, gAhb[k], gAhbPitch[k] };
+      else gScWork = { gRb[k].data(), k, j.target, &j, j.sBlendAlpha };
+      gScHas = true; }
     gScCv.notify_all();
     gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
     static int64_t sLastDone = 0; const int64_t t0eff = j.st0 > sLastDone ? j.st0 : sLastDone; sLastDone = t4;
@@ -3893,7 +4262,7 @@ void glThreadMain() {
             latCensus(f, ts, nowUs());
             lk.lock();
             g.qHead ^= 1; g.qCount--;
-            if (gPendJob.load(std::memory_order_acquire) != f) publishLatest(f->target, f->seq, f->pow15);
+            if (!f->scatHand) publishLatest(f->target, f->seq, f->pow15);   // not gPendJob != f: the helper may already have published (or dropped) it and cleared the mark
             g.rendering2 = nullptr;
             g.cvDone.notify_all();
         };
@@ -3940,7 +4309,12 @@ void glThreadMain() {
         if (!skip) g.rendering = j;
         j->pipe2 = !skip && pipeAllowed(j);
         j->set = inflight ? (inflight->set ^ 1) : 0;
-        j->submitted = false;
+        // In-place readback (gAhbRb): the scatter helper reads a finished frame straight out of its set's
+        // colour target, so consecutive decoupled jobs draw into alternate sets and the next job never
+        // overwrites what the helper is reading. Behind an in-flight pipe2 job the line above already
+        // alternates. Everything else stays on set 0 and waits for the helper at the top of renderJob.
+        if (gAhbRb && !skip && j->decoupled && !j->syncLo2x) { if (!inflight) j->set = gAhbSet ^ 1; gAhbSet = j->set; }
+        j->submitted = false; j->scatHand = false;
         lk.unlock();
         int64_t ts = 0;
         if (!skip) {
@@ -3961,7 +4335,7 @@ void glThreadMain() {
         }
         if (inflight) finish(inflight);   // a synchronous job behind an in-flight one: the older frame publishes first
         g.qHead ^= 1; g.qCount--;
-        if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq, j->pow15);   // a pipelined job is published by the scatter helper
+        if (!skip && !j->scatHand) publishLatest(j->target, j->seq, j->pow15);   // a pipelined job is published by the scatter helper (a gPendJob check raced its publish: a second fin entry, or a failed AHB lock's unwritten target)
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
