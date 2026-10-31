@@ -167,6 +167,13 @@ static bool gRowInv = false;
 // the 786 KB frame instead of an in-place alpha pass and a second pass that reads it all again
 // (the frame is larger than the SoC's L3, so the second pass came from DRAM). Same output bytes.
 static bool gFusedScatter = false;
+// persist gpu3d_spec2 (read at GL init, default on only for the RG DS Plus, 0 = the old gate): the
+// specialised programs also lose the dead maths of the A/B and debug knobs at their default values
+// (uInterp/uUvOff selects, the uDbgDepth overrides, the depth-mode select), and a second set keeps
+// the direct, format 1 and format 5/7 branches but strips toon and decal, so Mario Kart's race
+// jobs (formats 5/7 always, toon and decal never) leave the full programs. 0 = the programs
+// specialise only for jobs with none of the five classes, as before.
+static bool gSpec2 = false;
 static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
 static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
 static int gPolyRows = 0;                           // row table rows handed out so far in this job
@@ -209,7 +216,7 @@ struct Job {
     // Two-in-flight pipeline (GL thread only): which target set the job draws into, whether the
     // loop allowed it to return after submission, and what it left behind for completeJob.
     int set = 0; bool pipe2 = false, submitted = false, sBlendAlpha = false;
-    uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): a clear mask takes the specialised programs
+    uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): bits 0-4 clear takes the specialised programs, bits 3-4 clear the toon/decal-free ones (gpu3d_spec2)
     GLsync fence = nullptr; int fenceFd = -1; int64_t st0 = 0, st1 = 0, st2 = 0;
 };
 
@@ -252,6 +259,7 @@ struct Gpu3d {
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
     GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
     GLuint progSp[2][2][2] = {}; GLint uAlphaMulSp[2][2][2] = {}; bool specOk = false;   // specialised programs [vertex depth][no fog][opaque]: frames without direct/format 1/5/7/toon/decal polygons
+    GLuint progSp7[2][2][2] = {}; bool spec7Ok = false;   // gpu3d_spec2 only: the same without the toon and decal branches (direct, format 1 and 5/7 kept), for frames without toon and decal polygons
     GLuint opq = 0;                               // this job's opaque (no-discard) program: progOpaque or progOpaqueNF
     bool vzJob = false;                           // this job draws with the vertex-depth programs
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
@@ -1119,7 +1127,18 @@ bool initGl() {
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
     ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false, bool spec = false) -> GLuint {
+    // stripMask (specialised programs): the class branches the program loses, bit 0 direct-colour
+    // texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal (0x1f = all of them, a job with none of the
+    // five classes). knobs: also the dead maths of the A/B and debug knobs at their default values
+    // (gpu3d_spec2); the job selector hands such a program only to jobs whose knobs are at default.
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false, int stripMask = 0, bool knobs = false) -> GLuint {
+        // Replace the first occurrence of an anchor; a missing anchor is logged and the code kept (still correct, only slower).
+        auto stripText = [](std::string& s, const char* anchor, const char* repl) -> bool {
+            size_t q = s.find(anchor);
+            if (q == std::string::npos) { ALOGW("gpu3d: knob strip anchor missing: %s", anchor); return false; }
+            s.replace(q, strlen(anchor), repl); return true;
+        };
+        const int probeBits = property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0);
         std::string frag = kFragHead;
         if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
         frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
@@ -1148,10 +1167,14 @@ bool initGl() {
             // Removes the per-polygon branches Pokemon White 2's title never takes (direct-colour
             // textures, formats 1/5/7, toon, decal) to measure what a per-frame specialised program
             // could save; wrong output on any frame that uses them.
-            if (spec || (property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0) & 1024)) {
-                for (auto pr : { std::pair<const char*, const char*>{"if ((vTex0.y & 2) != 0) {", "if (false) {"},
+            if (probeBits & 1024) stripMask = 0x1f;
+            if (stripMask != 0) {
+                const std::pair<const char*, const char*> classStrip[5] = { {"if ((vTex0.y & 2) != 0) {", "if (false) {"},
                                  {"if (fmt == 1) {", "if (false) {"}, {"else if (fmt == 5 || fmt == 7) {", "else if (false) {"},
-                                 {"bool toonMode = (mode == 2);", "bool toonMode = false;"}, {"if (mode == 1 && texOn) {", "if (false) {"} }) {
+                                 {"bool toonMode = (mode == 2);", "bool toonMode = false;"}, {"if (mode == 1 && texOn) {", "if (false) {"} };
+                for (int cb = 0; cb < 5; cb++) {
+                    if (!(stripMask & (1 << cb))) continue;
+                    const auto& pr = classStrip[cb];
                     size_t q = body.find(pr.first); if (q == std::string::npos) ALOGW("gpu3d: spec probe anchor missing: %s", pr.first); else body.replace(q, strlen(pr.first), pr.second);
                 }
             }
@@ -1165,11 +1188,52 @@ bool initGl() {
             // Probe (sys gpu3d_ezprobe=1 at program build): strip the shader depth write from the no-discard
             // opaque program so the GPU can reject hidden fragments early. Depth order is then the fixed
             // function value (wrong for W-buffered frames); timing only.
+            bool ezCut = false;
             { const int ez = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ezprobe", 0); if ((noDiscard && ez != 0) || ez == 2) {   // 2: every program (the whole frame on fixed-function depth)
                 size_t q = frag.find("    if (uDepthMode != 0) gl_FragDepth"); if (q != std::string::npos) frag.erase(q, frag.find('\n', q) + 1 - q);
                 for (size_t r; (r = frag.find("floor(gl_FragDepth * 16777215.0 + 0.5)")) != std::string::npos;) frag.replace(r, 38, "floor(gl_FragCoord.z * 16777215.0 + 0.5)");
                 ALOGI("gpu3d: ezprobe: opaque program built without a depth write (%s)", frag.find("gl_FragDepth") == std::string::npos ? "clean" : "gl_FragDepth still referenced");
+                ezCut = true;
             } }
+            // Knobs at default (gpu3d_spec2 programs, and sys gpu3d_probe bit 4096 on every program at build:
+            // timing only, correct for W-buffered frames on the MSAA path at default knobs). Mali cannot fold
+            // uniforms, so the selects and branches that only a non-default A/B or debug knob reaches ran
+            // for every fragment: the perspective-correct uv and colour selects with their divisions, the
+            // uUvOff derivative blocks, the uDbgDepth overrides, the depth-mode select, and the shadow bias
+            // branch in the programs that never run the shadow mask. Every kept expression has its exact text,
+            // so the arithmetic is unchanged. A missing anchor is logged and the code kept.
+            if (knobs || (probeBits & 4096)) {
+                stripText(frag, "vec2 uv = ((uInterp & 2) != 0) ? vUvW.xy / vUvW.z : vUv;", "vec2 uv = vUv;");
+                stripText(frag, "vec3 vcIn = ((uInterp & 1) != 0) ? vColW / vUvW.z : vCol;", "vec3 vcIn = vCol;");
+                stripText(frag, "if (uUvOff != 0) {", "if (false) {");
+                stripText(frag, "if ((uUvOff & 16) != 0)", "if (false)");
+                stripText(frag, "if (uDbgDepth != 0) {", "if (false) {");
+                stripText(frag, "if (uDbgDepth == 2)", "if (false)");
+                // The third override reads dsPx/dsPy, which move into the span block below, so the whole line goes.
+                bool dbg3Cut = false;
+                { size_t q = frag.find("    if (uDbgDepth == 3)");
+                  if (q == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: if (uDbgDepth == 3)"); else { frag.erase(q, frag.find('\n', q) + 1 - q); dbg3Cut = true; } }
+                // dsPos and the two floors only serve the span sampler (and that override): move them to the top of its block.
+                if (dbg3Cut) {
+                    static const char kDsLines[] = "    vec2 dsPos = vDsW.xy / vDsW.z;\n    int dsPx = int(floor(dsPos.x + 0.0625)), dsPy = int(floor(dsPos.y + 0.0625));\n";
+                    static const char kDsBlock[] = "if ((uDsUv & 3) != 0 && (vTex1.z >> 12) != 0) {\n";
+                    const size_t q = frag.find(kDsLines);
+                    if (q == std::string::npos || frag.find(kDsBlock) == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: dsPos lines or the span block");
+                    else {
+                        const std::string moved = frag.substr(q, sizeof kDsLines - 1);
+                        frag.erase(q, moved.size());
+                        frag.insert(frag.find(kDsBlock) + sizeof kDsBlock - 1, moved);
+                    }
+                }
+                if (!noDiscard) {   // the shadow mask sets uShadowBias on the opaque program only
+                    size_t q = frag.find("    if (uShadowBias != 0.0) dOut +=");
+                    if (q == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: if (uShadowBias != 0.0)"); else frag.erase(q, frag.find('\n', q) + 1 - q);
+                }
+                if (!vz) {   // vertex-depth programs keep both lines: their depth write is erased below and dOut is dead there
+                    stripText(frag, "((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth)", "vDepth");
+                    if (!ezCut) stripText(frag, "if (uDepthMode != 0) gl_FragDepth = dOut;", "gl_FragDepth = dOut;");
+                }
+            }
             if (fetchAttr) {
                 size_t q = frag.find("void main() {"); frag.insert(q + 13, "\n    vec4 attrIn = attrOut;");
                 q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
@@ -1249,17 +1313,36 @@ bool initGl() {
     // branches for direct-colour textures, formats 1/5/7, toon and decal. A job whose polygons use
     // none of them (Job::classMask == 0) draws with these; the output is identical because the
     // removed paths are never taken. Pokemon White 2's title: GL job 17.9 -> 14.6 ms.
+    // gpu3d_spec2 (default on only for the RG DS Plus) builds them with the knobs-at-default strip as
+    // well, and adds progSp7 (toon and decal stripped, the other three classes kept): the race in
+    // Mario Kart has formats 5/7 in every frame and toon and decal in none, so it never matched the
+    // all-class gate (12 of 22529 jobs). The full programs stay the fallback for every job outside
+    // the variants' conditions (see renderJob).
     if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_spec", 1)) {
+        { char s2Dev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", s2Dev, "");
+          gSpec2 = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_spec2", strcmp(s2Dev, "anbernicrgdsplus") == 0); }
         bool ok = true;
         for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
             if (vzi && !g.progNoFetchVZ) continue;
-            GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, true);
+            GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, 0x1f, gSpec2);
             if (!pr) ok = false;
             g.progSp[vzi][nf][op] = pr; g.uAlphaMulSp[vzi][nf][op] = pr ? glGetUniformLocation(pr, "uAlphaMul") : -1;
         }
         g.specOk = ok;
         if (!ok) { ALOGW("gpu3d: specialised programs failed to build, every frame keeps the full programs"); for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) c = 0; }
-        else ALOGI("gpu3d: specialised programs built for frames without direct/format 1/5/7/toon/decal polygons");
+        else ALOGI("gpu3d: specialised programs built for frames without direct/format 1/5/7/toon/decal polygons%s", gSpec2 ? " (knobs at default stripped)" : "");
+        if (gSpec2) {
+            bool ok7 = true;
+            for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
+                if (vzi && !g.progNoFetchVZ) continue;
+                GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, 0x18, true);
+                if (!pr) ok7 = false;
+                g.progSp7[vzi][nf][op] = pr;
+            }
+            g.spec7Ok = ok7;
+            if (!ok7) { ALOGW("gpu3d: toon/decal-free programs failed to build, those frames keep the other programs"); for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) c = 0; }
+            else ALOGI("gpu3d: toon/decal-free programs built for frames without toon and decal polygons");
+        }
     }
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
@@ -1527,11 +1610,11 @@ bool initGl() {
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
             glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
             glEnable(GL_STENCIL_TEST); glStencilMask(0xff);
-            for (GLuint pr : { g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF }) {
+            auto warmProg = [&](GLuint pr, int dm0, int dm1) {
                 glUseProgram(pr);
                 const GLint ld = glGetUniformLocation(pr, "uDepthMode");
                 const GLint lp = glGetUniformLocation(pr, "uPass");
-                for (int dm = 0; dm <= 2; dm++) {
+                for (int dm = dm0; dm <= dm1; dm++) {
                     if (ld >= 0) glUniform1i(ld, dm);
                     for (int pass = 0; pass <= 2; pass++) {
                         if (lp >= 0) glUniform1i(lp, pass);
@@ -1546,6 +1629,18 @@ bool initGl() {
                     if (ld >= 0) glUniform1i(ld, 0);
                     if (lp >= 0) glUniform1i(lp, 0);
                 }
+            };
+            for (GLuint pr : { g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF }) warmProg(pr, 0, 2);
+            // The vertex-depth and specialised programs were never drawn here, so their first real job
+            // paid the driver's finish of the program (the program build itself only links it) in the
+            // middle of a race. Each is drawn in the one depth mode it is meant for: the vertex-depth ones
+            // take Z-buffered frames (mode 2), the knob-stripped ones W-buffered frames (mode 1, or the
+            // vertex-depth form), the old all-class ones whatever mode the frame had.
+            if (g.progNoFetchVZ) for (GLuint pr : { g.progNoFetchVZ, g.progOpaqueVZ, g.progNoFetchNFVZ, g.progOpaqueNFVZ }) warmProg(pr, 2, 2);
+            for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
+                const int d0 = vzi ? 2 : (gSpec2 ? 1 : 0), d1 = vzi ? 2 : (gSpec2 ? 1 : 2);
+                if (g.specOk && g.progSp[vzi][nf][op]) warmProg(g.progSp[vzi][nf][op], d0, d1);
+                if (g.spec7Ok && g.progSp7[vzi][nf][op]) warmProg(g.progSp7[vzi][nf][op], d0, d1);
             }
             glDisable(GL_STENCIL_TEST);
             glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -2220,7 +2315,7 @@ struct ProgU {
     GLint toonR = -1, toonG = -1, toonB = -1, toonHighlight = -1;
     GLint pass = -1, shadowPass = -1;
 };
-constexpr int kProgUMax = 32;   // 21 programs exist at most
+constexpr int kProgUMax = 48;   // 29 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free)
 static ProgU gProgU[kProgUMax]; static int gProgUN = 0;
 static void resetProgU() { gProgUN = 0; for (ProgU& p : gProgU) p = ProgU(); }
 // The programs that take the alpha lane scale (1/31 as a blend factor, 1/255 as the stored 5-bit
@@ -2230,6 +2325,7 @@ static bool takesAlphaScale(GLuint pr) {
     if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs)) return true;
     if (g.progNoFetchVZ && (pr == g.progNoFetchVZ || pr == g.progOpaqueVZ || pr == g.progNoFetchNFVZ || pr == g.progOpaqueNFVZ)) return true;
     if (g.specOk) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp[a][b][c]) return true;
+    if (g.spec7Ok) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp7[a][b][c]) return true;
     return false;
 }
 static ProgU* progU(GLuint prog) {
@@ -2914,18 +3010,44 @@ void renderJob(Job& j) {
     bool mainBlend = progSel == 3 || !g.fbFetch;
     if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = j.fog ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
     g.opq = j.fog ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    // The knobs the specialised programs were stripped of (uInterp, uUvOff, uDbgDepth and the depth mode
+    // select) are read here once per job on one cadence, and the uniform loop below pushes these same
+    // values, so a job never draws with a stripped program and a knob value the program lost.
+    static int knobInterp = 0, knobUvOff = 0, knobDbgDepth = 0, knobDepthMode = -1;
+    if ((g.glFrames & 15) == 0) {
+        knobInterp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
+        knobUvOff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
+        knobDbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
+        knobDepthMode = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
+    }
     // Z-buffered frames (depth mode 2) take the vertex-depth programs: same maths, biases folded
     // into the clip z, no gl_FragDepth, so hidden fragments are rejected before they are shaded
     // (Pokemon White 2's title: late depth 2.4 ms plus about 1 ms of hidden shading out of 18).
     // The shadow mask slope knob needs a fragment derivative and keeps the fragment-depth programs.
-    { static int dmKnobSel = -1, slopeSel = 0; if ((g.glFrames & 15) == 0) { dmKnobSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1); slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0); }
-      const int dmSel = dmKnobSel >= 0 ? dmKnobSel : (j.wbufDepth ? 1 : 2);
+    { static int slopeSel = 0; if ((g.glFrames & 15) == 0) slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
+      const int dmSel = knobDepthMode >= 0 ? knobDepthMode : (j.wbufDepth ? 1 : 2);
       const bool vzJob = dmSel == 2 && slopeSel == 0 && g.progNoFetchVZ && msaa && progSel != 4 && progSel != 6 && progSel != 7;
       if (vzJob) { useProg = j.fog ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = j.fog ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
-      const bool specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
-      if (specJob) { const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
-      { static uint32_t vzJobs = 0, fdJobs = 0, spJobs = 0; if (vzJob) vzJobs++; else fdJobs++; if (specJob) spJobs++;
-        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth, %u specialised (this job: mode %d, %s, classes 0x%x)", vzJobs, fdJobs, spJobs, dmSel, vzJob ? "vertex" : "fragment", j.classMask); }
+      bool specJob = false, sp7Job = false;   // the job draws with progSp / progSp7 (census)
+      if (!gSpec2) {   // the old gate: specialised only when none of the five classes is present
+          specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
+          if (specJob) { const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
+      } else {
+          // The knob-stripped programs compute exactly what the full ones do while the knobs sit at their
+          // defaults, and the non-vertex-depth ones read the perspective depth outright. A Z-buffered job on
+          // the fragment-depth programs (no vertex-depth programs, or sys gpu3d_vz 0) needs the linear depth of
+          // the select, so (vzJob || dmSel == 1) is required: it must never get a W variant. The program is
+          // chosen per job and g.opq follows it, so the caster redraw (GL_EQUAL) sees the same depth maths.
+          const bool knobsOk = knobInterp == 0 && knobUvOff == 0 && knobDbgDepth == 0 && slopeSel == 0 && (vzJob || dmSel == 1) && msaa
+                               && progSel != 3 && progSel != 4 && progSel != 6 && progSel != 7;
+          if (knobsOk) {
+              const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1;
+              if (g.specOk && (j.classMask & 0x1f) == 0 && g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { specJob = true; useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; }
+              else if (g.spec7Ok && (j.classMask & 0x18) == 0 && g.progSp7[vzi][nf][0] && g.progSp7[vzi][nf][1]) { sp7Job = true; useProg = g.progSp7[vzi][nf][0]; g.opq = g.progSp7[vzi][nf][1]; }
+          }
+      }
+      { static uint32_t vzJobs = 0, fdJobs = 0, spJobs = 0, sp7Jobs = 0; if (vzJob) vzJobs++; else fdJobs++; if (specJob) spJobs++; if (sp7Job) sp7Jobs++;
+        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth, %u specialised (%u progSp, %u progSp7, %u full programs) (this job: mode %d, %s, classes 0x%x)", vzJobs, fdJobs, spJobs + sp7Jobs, spJobs, sp7Jobs, vzJobs + fdJobs - spJobs - sp7Jobs, dmSel, vzJob ? "vertex" : "fragment", j.classMask); }
       g.vzJob = vzJob; }
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
@@ -2961,15 +3083,13 @@ void renderJob(Job& j) {
         glUseProgram(pr);
         ProgU* pu = progU(pr);
         if (pu->alphaMul >= 0 && (!pu->alphaKnown || pu->alphaVal != alphaWant)) { glUniform1f(pu->alphaMul, alphaWant); pu->alphaKnown = true; pu->alphaVal = alphaWant; }
-        { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
-          if (pu->interp >= 0) glUniform1i(pu->interp, interp);
+        { if (pu->interp >= 0) glUniform1i(pu->interp, knobInterp);
           // drastic samples coverage, texcoords and colours at integer pixel positions, GL at the
           // pixel centre. Shifting the vertices half a pixel (uVtxShift, default 2 quarter pixels)
           // moves GL's sample to drastic's for free: Golden Sun 14183 -> 5048 px over 4 levels,
           // Mario Kart 27122 -> 12113, Sonic 568 -> 367. The derivative-based corner sampling
           // (uUvOff bits) did the same for texcoords alone at +3 ms of GPU time a frame; A/B only.
-          static int uvoff = 0; if ((g.glFrames & 15) == 0) uvoff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
-          if (pu->uvOff >= 0) glUniform1i(pu->uvOff, uvoff);
+          if (pu->uvOff >= 0) glUniform1i(pu->uvOff, knobUvOff);
           static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
           if (pu->vtxShift >= 0) glUniform2f(pu->vtxShift, vsh * 0.25f, vsh * 0.25f);
           if (pu->dsUv >= 0) glUniform1i(pu->dsUv, dsJob ? gDsUv : 0); }
@@ -2979,8 +3099,7 @@ void renderJob(Job& j) {
         // Mode 0 (fixed function depth, no bias terms) is the A/B control; it lost Pokemon White 2's
         // town ground to a far reflection quad, which is why mode 1 was once applied to Z frames too,
         // until the bedroom cushion showed the linear rule is the DS's. sys gpu3d_depth_mode overrides.
-        { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
-          const int dm = dmKnob >= 0 ? dmKnob : (j.wbufDepth ? 1 : 2);
+        { const int dm = knobDepthMode >= 0 ? knobDepthMode : (j.wbufDepth ? 1 : 2);
           if (pu->depthMode >= 0) glUniform1i(pu->depthMode, dm);
           static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
           const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);
@@ -2991,8 +3110,7 @@ void renderJob(Job& j) {
           if (pu->translZBias >= 0) glUniform1f(pu->translZBias, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
           static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
           if (pu->shadowSlope >= 0) glUniform1f(pu->shadowSlope, slopeKnob / 10.0f);
-          static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
-          if (pu->dbgDepth >= 0) glUniform1i(pu->dbgDepth, dbgDepth);
+          if (pu->dbgDepth >= 0) glUniform1i(pu->dbgDepth, knobDbgDepth);
           if (pu->attrDepth >= 0) glUniform1i(pu->attrDepth, (j.edge || g.attrWanted) ? 1 : 0);
           if (pu->noBlend >= 0) glUniform1i(pu->noBlend, j.noBlend); }
         if (pu->fog < 0) continue;
@@ -3586,6 +3704,7 @@ static void destroyGl() {
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
+        for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.spec7Ok = false;
         delPr(g.edgeProg); delPr(g.resolveProg);
         resetProgU();   // the names above are free for the driver to hand out again
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
