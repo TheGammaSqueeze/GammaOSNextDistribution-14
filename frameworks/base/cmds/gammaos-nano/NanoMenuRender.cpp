@@ -2690,7 +2690,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
           {79,126,178},{79,127,130},{79,128,178},
         };
         float pw = S(1.0f) + 0.6f;
-        for (const TP& p : tab) { float v = (float)p.v / 255.0f;
+        const NdsPal cpal = ndsPal();   // dark: the light-firmware greys are remapped onto the dark balloon's ramp
+        for (const TP& p : tab) { float v = ndsChromeGrey((float)p.v / 255.0f, cpal);
           drawQuad(X((float)p.x), Y((float)p.y), pw, pw, v, v, v, ca); }
       }
 
@@ -2719,7 +2720,8 @@ void NanoMenu::renderNdsCarousel(float rx, float ry, float rw, float rh, bool si
           {87,126,105},{87,127,105},{87,128,105},
         };
         float pw = S(1.0f) + 0.6f;
-        for (const NP& p : notch) { float v = (float)p.v / 255.0f;
+        const NdsPal cpal = ndsPal();   // dark: remapped like the tail, including the rows over the blue frame
+        for (const NP& p : notch) { float v = ndsChromeGrey((float)p.v / 255.0f, cpal);
           drawQuad(X((float)p.x), Y((float)p.y), pw, pw, v, v, v, ca); }
       }
     }
@@ -3464,9 +3466,10 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
       drawField(ts, clockRight);
       drawField(ds, clockRight - S(fieldW(ts)) - S(5.0f));
       // battery: a DSi-styled indicator with a PROPORTIONAL fill so it reflects the real
-      // charge level, not just full/low/charge states (user request). Dark frame + terminal
-      // nub, light empty track, fill width = level%, coloured by state (green while charging,
-      // red <=15%, DSi orange otherwise). Real host battery via pollBattery (HAL/sysfs).
+      // charge level, not just full/low/charge states (user request). Ink frame + terminal
+      // nub around an empty track (light theme: dark frame on a light track; dark theme: light
+      // frame around a dark recess), fill width = level%, coloured by state (green while
+      // charging, red <=15%, DSi orange otherwise). Real host battery via pollBattery (HAL/sysfs).
       pollBattery();
       { int pct = mBatteryPercent;
         if (pct < 0) {                                   // unknown: static full sprite fallback
@@ -3483,7 +3486,10 @@ void NanoMenu::drawNdsStatusBar(float cx, float offY, float scale) {
             drawRoundedRect(bx, by, bw, bh, S(1.5f), sp2.ink, sp2.ink, sp2.ink, 1.0f);               // dark frame
             drawQuad(bx + bw, by + S(2.0f), S(2.0f), bh - S(4.0f), sp2.ink, sp2.ink, sp2.ink, 1.0f); // terminal nub
             float ix = bx + S(1.5f), iy = by + S(1.5f), iw = bw - S(3.0f), ih = bh - S(3.0f);
-            drawQuad(ix, iy, iw, ih, 0.902f, 0.902f, 0.902f, 1.0f);                               // empty track
+            // Dark: the light ink frame (0.878) would merge into the light track (0.902), so the
+            // track takes the dark top-screen background and the frame and the bolt stay readable.
+            const float trk = mNdsDark ? sp2.topBg : 0.902f;
+            drawQuad(ix, iy, iw, ih, trk, trk, trk, 1.0f);                                         // empty track
             float fr, fg, fb;
             if (mBatteryCharging)   { fr = 0.30f; fg = 0.78f; fb = 0.36f; }   // charging -> green
             else if (pct <= 15)     { fr = 0.93f; fg = 0.26f; fb = 0.20f; }   // low -> red

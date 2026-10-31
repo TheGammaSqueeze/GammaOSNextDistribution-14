@@ -1659,6 +1659,21 @@ private:
             0.97f, 0.255f,
             1.0f };   // white tile pillow (identity tint)
     }
+    // Dark variant: remaps a light-firmware chrome grey (the balloon tail and the frame notch are
+    // pixel art in the light balloon's greys) through the light bevel ramp onto the dark one, so
+    // the art follows the dark balloon's inverted bevel instead of showing white flecks under it.
+    // Light theme: identity, bit-identical. The two-argument form takes a ndsPal() the caller
+    // already built, so a per-pixel loop does not rebuild the palette for every quad.
+    float ndsChromeGrey(float v, const NdsPal& p) const {
+        if (!mNdsDark) return v;
+        static const float L[5] = { 0.318f, 0.635f, 0.765f, 0.859f, 0.984f };   // light bevel0..4 (ndsPal)
+        const float D[5] = { p.bevel0, p.bevel1, p.bevel2, p.bevel3, p.bevel4 };   // dark ramp, so a retune follows
+        if (v <= L[0]) return D[0];
+        for (int i = 1; i < 5; i++)
+            if (v <= L[i]) return D[i - 1] + (v - L[i - 1]) / (L[i] - L[i - 1]) * (D[i] - D[i - 1]);
+        return D[4];
+    }
+    float ndsChromeGrey(float v) const { return mNdsDark ? ndsChromeGrey(v, ndsPal()) : v; }
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     // ES-DE theme engine: the fourth home theme (persist.gammaos.nano.ndstheme=3). Parses
