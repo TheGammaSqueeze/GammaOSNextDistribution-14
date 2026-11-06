@@ -91,6 +91,17 @@ static int kW = 512, kH = 384;
 static std::atomic<int> gResCur{-1};    // 1 hi-res, 0 native: the size the GL state was built for (set after init)
 static std::atomic<int> gResWant{1};    // the size drastic's config asks for (written by the worker)
 static inline int bandRows() { return kH / 12; }                          // rows per band: 32 hi-res, 16 native
+// The bands (bit b = rows b * bandRows() ..) a polygon whose vertices span y0..y1 draws rows in, conservative: its
+// screen box. The DS and drastic rasterise rows ytop..ybot-1 (the bottom row is exclusive, see emitPoly's row table),
+// so a bottom vertex exactly on a band boundary does not mark the band below it, and a polygon without a row
+// (y1 <= y0, it draws nothing) marks nothing. drastic fogs only the bands where a fog polygon drew (band + 0x24014),
+// see Job::fogBands.
+static inline uint32_t fogBandMask(float y0, float y1) {
+    const int br = bandRows(), r0 = (int)floorf(y0), r1 = (int)ceilf(y1) - 1;   // first and last covered row
+    if (r1 < r0 || r1 < 0) return 0u;
+    const int b0 = std::max(0, std::min(11, r0 / br)), b1 = std::max(0, std::min(11, r1 / br));
+    return ((2u << b1) - 1) & ~((1u << b0) - 1);
+}
 static inline size_t outBytes(int hires) { return hires ? 0xc0000 : 0x30000; }
 
 struct Vtx {
@@ -200,11 +211,13 @@ constexpr int kRowTabW = 128, kRowTabH = 512;   // row table: one texel per poly
 // One translucent polygon in DS list (submission) order: which group it went to, where its
 // vertices start inside that group's array, how many, and its polygon id.
 struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; int16_t bx0, by0, bx1, by1; };   // b* = screen bounding box in target pixels (inclusive), for order-safe batching   // pi = polygon bank index = DS submission order; pa = polygon alpha
-struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::vector<uint8_t> polyId[8]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
+constexpr int kGrp = 16;   // groups per stream: [deq | dwrite<<1 | nodiscard<<2 | fog<<3]; the fog group bit is set only on fog post pass frames (Job::fogPost), so a draw never mixes polygon fog bits
+struct Stream { std::vector<Vtx> v[kGrp]; std::vector<uint16_t> polyLen[kGrp]; std::vector<uint8_t> polyId[kGrp]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2 | fog<<3]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
+static std::atomic<bool> gFogPostOk{false};   // GL thread built the fog post pass program (read by the worker, see Job::fogPost)
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
 static int gFrontBias = 1;      // sys gpu3d_front_bias: 0 off, 1 shadow polygons only (default), 2 every polygon
-struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box
+struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; bool fog, dw; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box; fog, dw: the polygon fog bit and depth update bit (attr bits 15 and 11), fog post pass frames only
 struct Job {
     Stream opaque, transl;
     std::vector<int32_t> polyTab;   // DS span sampling: kPolyTabW ivec4 per polygon (see gDsUv)
@@ -217,6 +230,12 @@ struct Job {
     uint32_t earlyMask = 0;   // bands marked complete at hand-off (no-wait policy)
     int noBlend = 0;   // DISP3DCNT bit 3 clear: translucent fragments replace instead of blending
     int fog = 0, fogShift = 0, fogOffset = 0; uint32_t fogColor = 0; int fogTable[32] = {}; int fogDelta[32] = {};
+    // Fog post pass (sys gpu3d_fog 1, see kFogFrag): drastic's per-pixel fog flag lives in stencil bit 0x01 and the
+    // density comes from the finished frame, like drastic's band pass. fogPost: the flag and the pass are on for this
+    // job (fog is on and the pass program exists; 0 = the per-fragment fog block of gpu3d_fog 2 / no pass program);
+    // clearFog: CLEAR_COLOR bit 15, the rear plane's flag; fogBands: the bands (bit b = rows b * bandRows() ..) a
+    // fog polygon touches, drastic fogs only bands where one drew (band + 0x24014).
+    int fogPost = 0, clearFog = 0; uint32_t fogBands = 0;
     // Toon / highlight shading (polygon mode 2): 32 entry table from gx+0x9934, lanes expanded
     // to the 6 bit range the vertex colours use. toonHighlight mirrors DISP3DCNT bit 1.
     bool toonUsed = false; int toonR[32] = {}, toonG[32] = {}, toonB[32] = {}; int toonHighlight = 0;
@@ -285,6 +304,7 @@ struct Gpu3d {
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
+    GLuint progNF = 0, progFog = 0; GLint uFogDbg = -1; bool fogDepthFetch = false;   // progNF: g.prog without the fog block (fog-free and post pass frames); progFog: the fog post pass (kFogFrag), needs framebuffer fetch of colour and depth
     GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
     GLuint progSp[2][2][2] = {}; GLint uAlphaMulSp[2][2][2] = {}; bool specOk = false;   // specialised programs [vertex depth][no fog][opaque]: frames without direct/format 1/5/7/toon/decal polygons
     GLuint progSp7[2][2][2] = {}; bool spec7Ok = false;   // gpu3d_spec2 only: the same without the toon and decal branches (direct, format 1 and 5/7 kept), for frames without toon and decal polygons
@@ -953,6 +973,52 @@ void main() {
     fragColor = edge ? vec4(uEdge[id >> 3].rgb, c.a) : c;
 }
 )";
+// Fog post pass (drawFog in renderJob): drastic's band fog (+0x5eccc colour+alpha, +0x5ed78 alpha
+// only; density +0x8f4e0, blend +0x8f5d8) over the finished frame, before edge marking as drastic
+// does. Stencil bit 0x01 is the per-pixel fog flag (EQUAL test, so unflagged samples are never
+// shaded); colour by framebuffer fetch, the depth-buffer value by ARM depth fetch: no attachment is
+// sampled and no draw buffer changes, so the pass stays in the tile pass (per sample on MSAA).
+// The flag follows drastic's: an opaque pixel takes the polygon's fog bit, a translucent pixel keeps
+// old & fog bit, the rear plane starts from CLEAR_COLOR bit 15 (see stencilPlain and the shadow pass).
+// The stored depth is drastic's: opaque pixels store it, translucent and shadow (id != 0) pixels only with
+// the polygon's depth update bit (an alpha 31 pixel of those would store it anyway, approximated).
+const char* kFogFrag = R"(#version 300 es
+#extension GL_EXT_shader_framebuffer_fetch : require
+#extension GL_ARM_shader_framebuffer_fetch_depth_stencil : require
+precision highp float;
+precision highp int;
+layout(location = 0) inout vec4 fragColor;
+uniform int uFog;          // 1 colour and alpha, 2 alpha only (DISP3DCNT bit 6)
+uniform ivec2 uFogParam;   // (shift, (0x400 >> shift) + offset)
+uniform ivec2 uFogTune;    // depth bias in 24-bit units; 1 = floor the step (drastic's sqdmulh), 0 = round
+uniform vec4 uFogColor;    // r, g, b 6-bit, a 5-bit
+uniform int uFogTable[32];
+uniform int uFogDelta[32];
+uniform float uAlphaMul;   // the job's alpha lane: 1/31 blend factor (GL-blend), 1/255 the 5-bit value (fetch)
+uniform int uFogDbg;       // 1: flagged samples magenta, 2: their stored depth in the uDbgDepth encoding
+void main() {
+    vec4 c = fragColor;
+    int dz = int(floor(gl_LastFragDepthARM * 16777215.0 + 0.5)) + uFogTune.x;
+    int z16 = (dz >> 9) & 0x7fff;
+    int t = z16 - uFogParam.y; if (t < 0) t = 0;
+    int z2 = t << uFogParam.x; if (z2 > 0x7fff) z2 = 0x7fff;
+    int idx = z2 >> 10, frac = z2 & 0x3ff;
+    int d = (uFogTable[idx] + ((uFogDelta[idx] * frac + (uFogTune.y != 0 ? 0 : 512)) >> 10)) & 255;
+    if (d == 127) d = 128;
+    float fd = float(d);
+    float r = floor(c.r * 255.0 + 0.5), gg = floor(c.g * 255.0 + 0.5), b = floor(c.b * 255.0 + 0.5);
+    float a = floor(c.a / uAlphaMul + 0.5);   // exact for both lanes (a/31 is stored as round(a*255/31))
+    if (uFog == 1) {
+        r = r + floor((uFogColor.r - r) * fd * (1.0 / 128.0));
+        gg = gg + floor((uFogColor.g - gg) * fd * (1.0 / 128.0));
+        b = b + floor((uFogColor.b - b) * fd * (1.0 / 128.0));
+    }
+    a = a + floor((uFogColor.a - a) * fd * (1.0 / 128.0));   // alpha is never tested: alpha-0 flagged pixels fog too (drastic)
+    fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
+    if (uFogDbg == 1) fragColor = vec4(63.0 / 255.0, 0.0, 63.0 / 255.0, 31.0 * uAlphaMul);
+    if (uFogDbg == 2) { float q = floor(gl_LastFragDepthARM * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
+}
+)";
 
 GLuint compile(GLenum type, const std::string& src) {
     GLuint sh = glCreateShader(type);
@@ -1153,8 +1219,9 @@ bool initGl() {
     if (!eglMakeCurrent(g.dpy, g.surf, g.surf, g.ctx)) { ALOGE("gpu3d: eglMakeCurrent failed 0x%x", eglGetError()); return false; }
     const char* ext = (const char*)glGetString(GL_EXTENSIONS);
     g.fbFetch = ext && strstr(ext, "GL_EXT_shader_framebuffer_fetch");
+    g.fogDepthFetch = ext && strstr(ext, "GL_ARM_shader_framebuffer_fetch_depth_stencil");
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
-    ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
+    ALOGI("gpu3d: %s / %s, framebuffer fetch %d, depth fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.fogDepthFetch, g.timerExt);
 
     // stripMask (specialised programs): the class branches the program loses, bit 0 direct-colour
     // texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal (0x1f = all of them, a job with none of the
@@ -1308,6 +1375,7 @@ bool initGl() {
         return pr;
     };
     g.prog = build(g.fbFetch, false);
+    g.progNF = build(g.fbFetch, false, false, 0, false, true);   // g.prog minus the fog block (fog-free and fog post pass frames); a failure leaves 0 and g.prog is used
     g.progNoFetch = build(false, false);
     g.progTrivial = build(false, true);
     g.progOpaque = build(false, false, true);
@@ -1373,6 +1441,21 @@ bool initGl() {
             else ALOGI("gpu3d: toon/decal-free programs built for frames without toon and decal polygons");
         }
     }
+    // Fog post pass (sys gpu3d_fog 1, see kFogFrag). Needs the colour and the depth fetch; without it (or when
+    // the build fails) every fog frame keeps the per-fragment fog block, the gpu3d_fog 2 behaviour.
+    if (g.fbFetch && g.fogDepthFetch) {
+        GLuint vs = compile(GL_VERTEX_SHADER, kEdgeVert), fs = compile(GL_FRAGMENT_SHADER, kFogFrag);
+        if (vs && fs) {
+            GLuint pr = glCreateProgram(); glAttachShader(pr, vs); glAttachShader(pr, fs); glLinkProgram(pr);
+            GLint ok = 0; glGetProgramiv(pr, GL_LINK_STATUS, &ok);
+            if (ok) {
+                g.progFog = pr; g.uFogDbg = glGetUniformLocation(pr, "uFogDbg");
+                glUseProgram(pr); const GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);   // a job sets the real lane scale; this keeps the warm-up draw finite
+            } else { char log[2048] = {}; glGetProgramInfoLog(pr, sizeof log, nullptr, log); ALOGE("gpu3d: fog pass link failed: %s", log); glDeleteProgram(pr); }
+        }
+    }
+    gFogPostOk.store(g.progFog != 0);
+    ALOGI("gpu3d: fog post pass %s (framebuffer fetch %d, depth fetch %d)", g.progFog ? "built" : "unavailable, per-fragment fog", g.fbFetch ? 1 : 0, g.fogDepthFetch ? 1 : 0);
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
     glUniform1i(g.uPass, 0);
@@ -1594,7 +1677,7 @@ bool initGl() {
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
-            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial, g.progNF ? g.progNF : g.progTrivial, g.progFog ? g.progFog : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
             glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
         if (g.msFbo) {   // the MSAA target too, read back exactly as renderJob does, full size:
@@ -1674,6 +1757,8 @@ bool initGl() {
                 if (g.specOk && g.progSp[vzi][nf][op]) warmProg(g.progSp[vzi][nf][op], d0, d1);
                 if (g.spec7Ok && g.progSp7[vzi][nf][op]) warmProg(g.progSp7[vzi][nf][op], d0, d1);
             }
+            // The fog post pass: a full-screen draw of flagged samples (EQUAL 1/1, nothing written), blend off as the warm-up above left it.
+            if (g.progFog) { glUseProgram(g.progFog); glDisable(GL_DEPTH_TEST); glStencilMask(0); glStencilFunc(GL_EQUAL, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); glDrawArrays(GL_TRIANGLES, 0, 3); glEnable(GL_DEPTH_TEST); glStencilMask(0xff); }
             glDisable(GL_STENCIL_TEST);
             glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             if (!g.msImplicit) { glBindFramebuffer(GL_READ_FRAMEBUFFER, g.msFbo); glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g.fbo); glBlitFramebuffer(0, 0, kW, kH, 0, 0, kW, kH, GL_COLOR_BUFFER_BIT, GL_NEAREST); }
@@ -2121,7 +2206,13 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         // never darkens itself; that needs the destination id per pixel and is not done here.)
         const uint8_t sid = (uint8_t)((pattr >> 24) & 63); const bool mask = sid == 0;
         std::vector<Vtx>& sv = g.cur->shadow; std::vector<ShadowSeg>& segs = g.cur->shadowSegs;
-        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid, 32767, 32767, -32768, -32768 });
+        // Fog post pass frames: a shadow pixel is DS translucent, so the pixel's fog flag becomes old & the
+        // polygon's fog bit (a mask polygon never touches it), and its depth is stored when the polygon has the
+        // depth update bit (drastic's translucent kernels, bit 11; the fog pass reads the stored depth). One segment
+        // never mixes either bit. Other frames keep the shadow pass depth-read-only: nothing reads the depth after it.
+        const bool sfog = g.cur->fogPost && !mask && ((pattr >> 15) & 1);
+        const bool sdw = g.cur->fogPost && !mask && ((pattr >> 11) & 1);
+        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid || segs.back().fog != sfog || segs.back().dw != sdw) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid, 32767, 32767, -32768, -32768, sfog, sdw });
         Vtx v[16];
         for (int k = 0; k < n; k++) {
             int kk = (order >> (4 * k)) & 15;
@@ -2148,6 +2239,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
               if (px < sg.x0) sg.x0 = px; if (px > sg.x1) sg.x1 = px;
               if (py < sg.y0) sg.y0 = py; if (py > sg.y1) sg.y1 = py;
           } }
+        if (sfog) {   // the bands a fog polygon touches (drastic fogs only those)
+            float y0 = v[0].y, y1 = v[0].y;
+            for (int k = 1; k < n; k++) { y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
+            g.cur->fogBands |= fogBandMask(y0, y1);
+        }
         segs.back().count = (uint32_t)sv.size() - segs.back().start;
         return;
     }
@@ -2162,7 +2258,9 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     // translucent list. GTA Chinatown Wars draws its cloud layers as such polygons in the opaque
     // list; blended against the transparent rear plane they came out dark and faceted.
     const bool partialA = !translucent && t && (fmt == 1 || fmt == 6);
-    const int grpIdx = deq | ((translucent ? dwrite : (partialA ? 1 : 0)) << 1) | ((mayDiscard ? 0 : 1) << 2);
+    // Group bit 3: the polygon's fog bit, only on fog post pass frames (the stencil takes no per-fragment
+    // value, so a draw must not mix fog bits: drawStream puts the bit into the stencil reference).
+    const int grpIdx = deq | ((translucent ? dwrite : (partialA ? 1 : 0)) << 1) | ((mayDiscard ? 0 : 1) << 2) | ((g.cur && g.cur->fogPost && ((pattr >> 15) & 1)) ? 8 : 0);
     std::vector<Vtx>& dst = out.v[grpIdx];
     Vtx v[16];
     for (int k = 0; k < n; k++) {
@@ -2189,6 +2287,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     if (gFrontBias >= 2) {   // DS facing from the screen winding (y down); only with the bias on every polygon
         float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
         if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
+    }
+    if (grpIdx & 8) {   // a fog polygon: the bands it touches (drastic fogs only those)
+        float y0 = v[0].y, y1 = v[0].y;
+        for (int k = 1; k < n; k++) { y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
+        g.cur->fogBands |= fogBandMask(y0, y1);
     }
     const uint32_t vStart = (uint32_t)dst.size();
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
@@ -2304,7 +2407,7 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
         // draw can merge screen-disjoint runs into single draws (the runs broke on contiguity
         // 167 times a frame on Pokemon White 2's town before this).
         static std::vector<Vtx> tmpV; static std::vector<uint16_t> tmpL; static std::vector<uint8_t> tmpI; static std::vector<uint32_t> tmpIdx;
-        for (int grp = 0; grp < 8; grp++) {
+        for (int grp = 0; grp < kGrp; grp++) {
             std::vector<Vtx>& vv = out.v[grp];
             if (vv.empty()) continue;
             tmpV.clear(); tmpV.reserve(vv.size()); tmpL.clear(); tmpI.clear();
@@ -2348,14 +2451,15 @@ struct ProgU {
     GLint toonR = -1, toonG = -1, toonB = -1, toonHighlight = -1;
     GLint pass = -1, shadowPass = -1;
 };
-constexpr int kProgUMax = 48;   // 29 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free)
+constexpr int kProgUMax = 48;   // 31 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free, the fetch fog-free one and the fog post pass)
 static ProgU gProgU[kProgUMax]; static int gProgUN = 0;
 static void resetProgU() { gProgUN = 0; for (ProgU& p : gProgU) p = ProgU(); }
 // The programs that take the alpha lane scale (1/31 as a blend factor, 1/255 as the stored 5-bit
-// value): the no-fetch, opaque, vertex-depth and specialised variants and the MSAA shadow pass.
+// value): the no-fetch, opaque, vertex-depth and specialised variants, the MSAA shadow pass and the fog
+// post pass (it decodes and re-encodes the alpha lane).
 static bool takesAlphaScale(GLuint pr) {
     if (!pr) return false;
-    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs)) return true;
+    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs) || (g.progFog && pr == g.progFog)) return true;
     if (g.progNoFetchVZ && (pr == g.progNoFetchVZ || pr == g.progOpaqueVZ || pr == g.progNoFetchNFVZ || pr == g.progOpaqueNFVZ)) return true;
     if (g.specOk) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp[a][b][c]) return true;
     if (g.spec7Ok) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp7[a][b][c]) return true;
@@ -2408,8 +2512,24 @@ static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-po
 // rejected as "same id" and the water never appeared.
 static inline int translIdCode(int id) { return id >= 62 ? 63 : id + 1; }
 static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the translucent list in DS submission order (see drawStream)
+// Fog flag (stencil bit 0x01 while gFogFlag, i.e. on fog post pass frames): drastic's per-pixel flag that
+// gates its fog post pass (kFogFrag). A DS opaque pixel (the opaque list, or a translucent polygon's alpha 31
+// fragment) takes the polygon's fog bit; a DS translucent pixel keeps old & fog: a fog polygon leaves the
+// bit alone, a non-fog one clears it. The stencil takes no per-fragment value, so a draw never mixes fog
+// bits (group bit 3) and the value comes from the reference: gFogRef is the fog bit of the group being
+// drawn. The shadow plane moves to 0x02 on those frames (drawShadows), the drawn flag and the id code are
+// dead once the translucent list has drawn.
+static int gFogFlag = 0, gFogRef = 0;
+// Write mask bit 0x01 for a draw: always for an opaque pixel (REPLACE), for a translucent pixel only when the polygon has no fog bit (REPLACE with 0 = the AND).
+static inline GLuint fogWm(bool translPart) { return (gFogFlag && !(translPart && gFogRef)) ? 0x01u : 0x00u; }
+static inline GLint fogRefBit() { return gFogFlag ? gFogRef : 0; }
+// Stencil state of a plain draw (not the two-pass DS rule): the drawn flag on the GL-blend path plus the fog flag.
+static void stencilPlain(bool translPart) {
+    if (gDsBlend) { glStencilMask(0xfe | fogWm(translPart)); glStencilFunc(GL_ALWAYS, 0x80 | fogRefBit(), 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    else if (gFogFlag) { glStencilMask(fogWm(translPart)); glStencilFunc(GL_ALWAYS, fogRefBit(), 0x00); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+}
 // The stencil holds the DS "drawn" flag in bit 0x80 and, when the same-id rule is on, the last
-// writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane). The DS does
+// writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane, or the fog flag on fog post pass frames). The DS does
 // not draw a translucent fragment whose destination polygon id equals its own (so a translucent
 // surface never blends over itself). GTA Chinatown Wars draws its distant haze as ~147 overlapping
 // translucent layers ALL sharing polygon id 62; without the rule they all blend and the scene goes
@@ -2417,24 +2537,26 @@ static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the trans
 // with id P: pass 1 replaces where nothing is drawn (writing drawn + id P), pass 2 blends only where
 // something is drawn AND its stored id differs from P (writing id P), and same-id fragments are
 // skipped. Opaque leaves the id bits 0, so translucent over opaque (id != 0) always blends.
-static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<uint8_t>& ids, size_t base) {
+// translPart: the draws are DS translucent pixels (the translucent list): the fog flag becomes old & the
+// polygon's fog bit. false: DS opaque pixels (an opaque list polygon with partial alpha texels), which
+// always take the polygon's fog bit. The fog terms are all 0 on frames without the fog post pass.
+static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<uint8_t>& ids, size_t base, bool translPart) {
     size_t off = base;
     if (!gTranslSameId) {
         for (uint16_t n : lens) {
-            glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glStencilMask(0x80 | fogWm(translPart)); glStencilFunc(GL_NOTEQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glDisable(GL_BLEND);
             glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
-            glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glStencilFunc(GL_EQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, fogWm(translPart) ? GL_REPLACE : GL_KEEP);
             glEnable(GL_BLEND);
             glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
             off += n;
         }
-        glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilMask(0x80);
+        stencilPlain(false);
         g.curBlend = true;
         return;
     }
-    glStencilMask(0xfe);   // write the drawn flag (0x80) and the id (0x7e); never the shadow bit (0x01)
+    glStencilMask(0xfe | fogWm(translPart));   // write the drawn flag (0x80) and the id (0x7e) and, on fog frames, the fog flag (0x01); never the shadow bit (0x01 on frames without fog)
     // Consecutive polygons with the same id code form one draw pair. Exact: pass 1 only touches
     // undrawn pixels and pass 2 only pixels drawn by another id, and a same-id polygon's own
     // pixels are skipped by both, so the pixel sets the two passes of a run act on are disjoint
@@ -2446,7 +2568,7 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         GLsizei n = lens[i]; size_t k = i + 1;
         while (k < lens.size() && translIdCode(k < ids.size() ? ids[k] : 0) == code) { n += lens[k]; k++; }
         i = k; gDcDsPairs++;
-        const GLint ref = (GLint)(0x80 | (code << 1));
+        const GLint ref = (GLint)(0x80 | (code << 1)) | fogRefBit();   // the func masks below leave bit 0 out, so the fog bit only feeds the write
         // pass 1: replace where nothing is drawn (drawn bit clear), writing drawn + this id
         glStencilFunc(GL_NOTEQUAL, ref, 0x80);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -2459,30 +2581,29 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
         off += n;
     }
-    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0xfe);   // restore for subsequent non-translucent draws: drawn flag set, stored id cleared
+    stencilPlain(false);   // restore for subsequent non-translucent draws: drawn flag set, stored id cleared, fog flag from the polygon
     g.curBlend = true;   // left enabled; useProgram tracks it from here
 }
 // One translucent polygon under the DS blend rule (the per-polygon body of drawTranslDs), self
 // contained: sets its stencil state and restores the plain drawn-flag state after, so plain draws
-// interleaved with it see the right stencil function.
+// interleaved with it see the right stencil function. Always the translucent list's rule (translPart).
 static void drawOnePolyDs(GLint off, GLsizei n, int id) {
     gDcDsPairs++;
     if (!gTranslSameId) {
-        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x80 | fogWm(true)); glStencilFunc(GL_NOTEQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
-        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glStencilFunc(GL_EQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, fogWm(true) ? GL_REPLACE : GL_KEEP);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     } else {
-        const GLint ref = (GLint)(0x80 | (translIdCode(id) << 1));
-        glStencilMask(0xfe);
+        const GLint ref = (GLint)(0x80 | (translIdCode(id) << 1)) | fogRefBit();
+        glStencilMask(0xfe | fogWm(true));
         glStencilFunc(GL_NOTEQUAL, ref, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
         glStencilFunc(GL_NOTEQUAL, ref, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     }
-    // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id.
-    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0xfe);
+    // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id (and set the fog flag from their polygon).
+    stencilPlain(false);
     g.curBlend = true;
 }
 // Convex screen-space overlap of two ordered polygons (their vertex rings recovered from the
@@ -2513,7 +2634,7 @@ static bool ordOverlap(const std::vector<Vtx>& vv, const OrdPoly& a, const OrdPo
     return true;
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
-    // vertices of all eight groups were uploaded contiguously; draw each group with its state.
+    // vertices of all sixteen groups were uploaded contiguously; draw each group with its state.
     // Only the opaque list writes the polygon id / depth attachment, and only when the edge
     // pass will use it (a second RGBA8 attachment doubles the tile write bandwidth).
     if (issue) {
@@ -2531,7 +2652,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     // stays grouped (order independent under the depth test). sys gpu3d_transl_listorder 0 restores
     // the grouped translucent draw for A/B.
     if (translucent && issue && gTranslListOrder && !st.ord.empty()) {
-        size_t goff[8]; { size_t b = base; for (int i = 0; i < 8; i++) { goff[i] = b; b += st.v[i].size(); } }
+        size_t goff[kGrp]; { size_t b = base; for (int i = 0; i < kGrp; i++) { goff[i] = b; b += st.v[i].size(); } }
         int curGrp = -1;
         gDcOrdPolys += (uint32_t)st.ord.size();
         // Batching that keeps the list order exact: a run of consecutive entries with the same
@@ -2544,9 +2665,13 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
         for (size_t oi = 0; oi < st.ord.size();) {
             const OrdPoly& p = st.ord[oi]; gDcTranslDraws++;
             const int grp = p.grp;
-            if (grp != curGrp) { curGrp = grp; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
+            if (grp != curGrp) { curGrp = grp; gFogRef = (grp >> 3) & 1; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
             const bool dwrite = (grp >> 1) & 1;
-            const bool pre = !dwrite && (p.pa >= 31 || !gPrepassSkip);
+            // Fog post pass frames: a fog polygon's depth-writing draw mixes alpha 31 fragments (DS opaque
+            // pixels, the flag is set) with alpha < 31 ones (DS translucent, the flag is kept), and one stencil
+            // write cannot do both, so it takes the two alpha passes like a polygon without the depth write.
+            const bool fogSplit = dwrite && gFogFlag && gFogRef;
+            const bool pre = (!dwrite || fogSplit) && (p.pa >= 31 || !gPrepassSkip);
             const GLint off = (GLint)(goff[grp] + p.start);
             GLsizei n = p.n; size_t k = oi + 1; uint32_t next = p.start + p.n;
             for (; k < st.ord.size(); k++) {
@@ -2555,7 +2680,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
                 if (q.grp != p.grp) break;
                 if (q.start != next) break;
                 if (gDsBlend && q.id != p.id) break;
-                if (!dwrite && ((q.pa >= 31 || !gPrepassSkip) != pre)) break;
+                if ((!dwrite || fogSplit) && ((q.pa >= 31 || !gPrepassSkip) != pre)) break;
                 // Boxes are half open in pixels: [bx0, bx1) x [by0, by1) with bx1 = ceil(max x), so
                 // two polygons meeting on a pixel boundary share no pixel and count as disjoint.
                 bool disjoint = true;
@@ -2565,39 +2690,62 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
             }
             oi = k;
             if (dwrite) {
-                glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
+                glDepthMask(GL_TRUE);
+                if (fogSplit) {   // both passes write depth (the polygon has the depth update bit)
+                    if (pre) { gDcPrepass++; if (g.uPass >= 0) glUniform1i(g.uPass, 1); stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 2);
+                    if (gDsBlend) drawOnePolyDs(off, n, p.id); else { stencilPlain(true); glDrawArrays(GL_TRIANGLES, off, n); }
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                } else {
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                    if (gDsBlend) drawOnePolyDs(off, n, p.id); else { if (gFogFlag) stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); }
+                }
             } else {
                 // The depth-writing pass keeps only alpha 31 fragments: alpha = (texel alpha *
                 // (polygon alpha + 1)) >> 5 never reaches 31 when the polygon alpha is below 31,
                 // so for such a polygon the pass discards everything and is skipped.
-                if (pre) { gDcPrepass++; glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
+                if (pre) { gDcPrepass++; glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); if (gFogFlag) stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
+                if (gDsBlend) drawOnePolyDs(off, n, p.id); else { if (gFogFlag) stencilPlain(true); glDrawArrays(GL_TRIANGLES, off, n); }
                 glUniform1i(g.uPass, 0);
             }
         }
-        for (int i = 0; i < 8; i++) base += st.v[i].size();
+        for (int i = 0; i < kGrp; i++) base += st.v[i].size();
         return;
     }
-    for (int grp = 0; grp < 8; grp++) {
+    for (int grp = 0; grp < kGrp; grp++) {
         std::vector<Vtx>& vv = st.v[grp];
         if (vv.empty()) continue;
         if (issue) { if (translucent) gDcTranslDraws++; else gDcOpaqueDraws++; if (gDsBlend && (translucent || (((grp >> 1) & 1) && !((grp >> 2) & 1)))) gDcOpaqueDraws += (uint32_t)st.polyLen[grp].size();
             const bool noDiscard = (grp >> 2) & 1;
+            gFogRef = (grp >> 3) & 1;
             useProgram(noDiscard ? g.opq : mainProg, noDiscard ? false : mainBlend);
             glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS);
             bool dwrite = (grp >> 1) & 1;   // opaque stream: the partial-alpha texel flag instead
             if (!translucent || dwrite || noDiscard) {
                 glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend && (translucent || (dwrite && !noDiscard))) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
-                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                const bool dsRule = gDsBlend && (translucent || (dwrite && !noDiscard));
+                if (gFogFlag && gFogRef && translucent) {
+                    // a fog polygon group with the depth write mixes alpha 31 (DS opaque, flag set) and alpha < 31 fragments (DS translucent, flag kept): two alpha passes, both writing depth
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 1);
+                    stencilPlain(false);
+                    glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 2);
+                    if (dsRule) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, true);
+                    else { stencilPlain(true); glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size()); }
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                } else {
+                    if (gFogFlag && !dsRule) stencilPlain(false);   // a polygon without the fog bit REPLACEs 0, which is also the AND
+                    if (dsRule) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, translucent);   // the opaque list (partial alpha texels) always REPLACEs the flag
+                    else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                }
             } else {
                 glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1);
+                if (gFogFlag) stencilPlain(false);
                 glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
-                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                if (gDsBlend) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, true);
+                else { if (gFogFlag) stencilPlain(true); glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size()); }
                 glUniform1i(g.uPass, 0);
             }
         }
@@ -3349,10 +3497,16 @@ void renderJob(Job& j) {
     // (a/31) that alphaToDs turns back into the 5-bit value. Clearing with a/255 on MSAA left an
     // opaque rear plane at 4 of 31 (Sonic Rush stage intro: the white card composed as clear).
     static int progSel = 0; if ((g.glFrames & 63) == 0) progSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
-    GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : g.prog;
+    // Fog (DISP3DCNT bit 7). fogPost: drastic's per-pixel fog flag (stencil bit 0x01) and the post pass
+    // (drawFog, kFogFrag) after the draws; the draw programs are then the fog-free ones. fogFrag: the per-fragment
+    // fog block (sys gpu3d_fog 2, or no pass program on this GPU), the only case that draws with the fog programs.
+    const bool fogPost = j.fog && j.fogPost && g.progFog && !(gProbe & 2);
+    const bool fogFrag = j.fog && !fogPost;
+    gFogFlag = fogPost ? 1 : 0; gFogRef = 0;
+    GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : ((fogFrag || !g.progNF) ? g.prog : g.progNF);
     bool mainBlend = progSel == 3 || !g.fbFetch;
-    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = j.fog ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
-    g.opq = j.fog ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = fogFrag ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
+    g.opq = fogFrag ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
     // The knobs the specialised programs were stripped of (uInterp, uUvOff, uDbgDepth and the depth mode
     // select) are read here once per job on one cadence, and the uniform loop below pushes these same
     // values, so a job never draws with a stripped program and a knob value the program lost.
@@ -3370,11 +3524,11 @@ void renderJob(Job& j) {
     { static int slopeSel = 0; if ((g.glFrames & 15) == 0) slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
       const int dmSel = knobDepthMode >= 0 ? knobDepthMode : (j.wbufDepth ? 1 : 2);
       const bool vzJob = dmSel == 2 && slopeSel == 0 && g.progNoFetchVZ && msaa && progSel != 4 && progSel != 6 && progSel != 7;
-      if (vzJob) { useProg = j.fog ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = j.fog ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
+      if (vzJob) { useProg = fogFrag ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = fogFrag ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
       bool specJob = false, sp7Job = false;   // the job draws with progSp / progSp7 (census)
       if (!gSpec2) {   // the old gate: specialised only when none of the five classes is present
           specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
-          if (specJob) { const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
+          if (specJob) { const int vzi = vzJob ? 1 : 0, nf = fogFrag ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
       } else {
           // The knob-stripped programs compute exactly what the full ones do while the knobs sit at their
           // defaults, and the non-vertex-depth ones read the perspective depth outright. A Z-buffered job on
@@ -3384,7 +3538,7 @@ void renderJob(Job& j) {
           const bool knobsOk = knobInterp == 0 && knobUvOff == 0 && knobDbgDepth == 0 && slopeSel == 0 && (vzJob || dmSel == 1) && msaa
                                && progSel != 3 && progSel != 4 && progSel != 6 && progSel != 7;
           if (knobsOk) {
-              const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1;
+              const int vzi = vzJob ? 1 : 0, nf = fogFrag ? 0 : 1;
               if (g.specOk && (j.classMask & 0x1f) == 0 && g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { specJob = true; useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; }
               else if (g.spec7Ok && (j.classMask & 0x18) == 0 && g.progSp7[vzi][nf][0] && g.progSp7[vzi][nf][1]) { sp7Job = true; useProg = g.progSp7[vzi][nf][0]; g.opq = g.progSp7[vzi][nf][1]; }
           }
@@ -3402,7 +3556,9 @@ void renderJob(Job& j) {
       // honours the stencil write mask) to its own plane, so the shadow pass no longer wipes the
       // drawn flag and the drawn flag no longer satisfies the shadow's EQUAL test everywhere
       // (Mario Kart: the kart's shadow was drawn over the whole kart on the GPU path).
-      glClearStencil(gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 0x80 : 0); glStencilMask(0xff); }
+      // On fog post pass frames bit 0x01 is the fog flag instead (the shadow plane moves to 0x02, see drawShadows):
+      // the rear plane starts it from CLEAR_COLOR bit 15, and every opaque pixel then takes its polygon's fog bit.
+      glClearStencil((gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 0x80 : 0) | (gFogFlag && j.clearFog ? 0x01 : 0)); glStencilMask(0xff); }
     glClearColor((j.clearC & 0x3f) / 255.0f, ((j.clearC >> 8) & 0x3f) / 255.0f, ((j.clearC >> 16) & 0x3f) / 255.0f,
                  ((j.clearC >> 24) & 0x1f) / (mainBlend ? 31.0f : 255.0f));
     glClearDepthf((float)j.clearD / 16777215.0f);
@@ -3418,8 +3574,8 @@ void renderJob(Job& j) {
     // both take the blend-factor alpha scale there; with only progNoFetch set, opaque polygons
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
     const float alphaWant = mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f;
-    GLuint usedProgs[3] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0 };
-    for (int ui = 0; ui < 3; ui++) {
+    GLuint usedProgs[4] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0, fogPost ? g.progFog : 0 };
+    for (int ui = 0; ui < 4; ui++) {
         const GLuint pr = usedProgs[ui]; if (!pr) continue;
         bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
         if (dup) continue;
@@ -3456,15 +3612,21 @@ void renderJob(Job& j) {
           if (pu->dbgDepth >= 0) glUniform1i(pu->dbgDepth, knobDbgDepth);
           if (pu->attrDepth >= 0) glUniform1i(pu->attrDepth, (j.edge || g.attrWanted) ? 1 : 0);
           if (pu->noBlend >= 0) glUniform1i(pu->noBlend, j.noBlend); }
-        if (pu->fog < 0) continue;
-        glUniform1i(pu->fog, j.fog);
-        if (j.fog) {
-            glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);
-            { static int fb = 0, ft = 0; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", 0); }
-              glUniform2i(pu->fogTune, fb, ft); }
-            glUniform4f(pu->fogColor, (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
-            glUniform1iv(pu->fogTable, 32, j.fogTable);
-            glUniform1iv(pu->fogDelta, 32, j.fogDelta);
+        if (pu->fog >= 0) {
+            // Only the post pass program and, on a per-fragment fog job, the fog programs take the fog; a program that
+            // still carries the fog block but is not the job's fog program (the MSAA id shadow program, the fetch program
+            // on a post pass job) gets 0, so it never fogs per fragment on top of the post pass.
+            const bool fogHere = (g.progFog && pr == g.progFog) || fogFrag;
+            glUniform1i(pu->fog, fogHere ? j.fog : 0);
+            if (fogHere) {
+                glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);
+                // gpu3d_fog_trunc: -1 (default) floors the fractional density step in the post pass (drastic's sqdmulh) and rounds it in the per-fragment block (the old maths); 0 rounds, 1 floors
+                { static int fb = 0, ft = -1; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", -1); }
+                  glUniform2i(pu->fogTune, fb, ft >= 0 ? ft : ((g.progFog && pr == g.progFog) ? 1 : 0)); }
+                glUniform4f(pu->fogColor, (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
+                glUniform1iv(pu->fogTable, 32, j.fogTable);
+                glUniform1iv(pu->fogDelta, 32, j.fogDelta);
+            }
         }
         if (j.toonUsed) {
             if (pu->toonR >= 0) {
@@ -3479,7 +3641,8 @@ void renderJob(Job& j) {
     else if (gDsBlend && !(gProbe & 1)) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
-    if (gDsBlend && !(gProbe & 2)) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    if (gDsBlend && !(gProbe & 2)) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe | (gFogFlag ? 1u : 0u)); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    else if (gFogFlag) { glEnable(GL_STENCIL_TEST); glStencilMask(0x01); glStencilFunc(GL_ALWAYS, 0, 0); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }   // the fetch path has no drawn flag: the fog flag only
     else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
@@ -3489,7 +3652,7 @@ void renderJob(Job& j) {
     glActiveTexture(GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirTex);
     glActiveTexture(GL_TEXTURE6); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirBigTex);
     size_t total = 0;
-    for (int i = 0; i < 8; i++) total += j.opaque.v[i].size() + j.transl.v[i].size();
+    for (int i = 0; i < kGrp; i++) total += j.opaque.v[i].size() + j.transl.v[i].size();
     const size_t shadowBase = total;
     total += j.shadow.size();
     g.vertCount = total;
@@ -3510,16 +3673,28 @@ void renderJob(Job& j) {
         glBufferData(GL_ARRAY_BUFFER, total * sizeof(Vtx), nullptr, GL_STREAM_DRAW);   // orphan
         size_t off = 0;
         for (Stream* st : { &j.opaque, &j.transl })
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < kGrp; i++) {
                 if (st->v[i].empty()) continue;
                 glBufferSubData(GL_ARRAY_BUFFER, off * sizeof(Vtx), st->v[i].size() * sizeof(Vtx), st->v[i].data());
                 off += st->v[i].size();
             }
         if (!j.shadow.empty()) glBufferSubData(GL_ARRAY_BUFFER, off * sizeof(Vtx), j.shadow.size() * sizeof(Vtx), j.shadow.data());
     }
+    // The progressive path draws each chunk under a band scissor (issue sets scBand and the band range). The shadow
+    // pass and the fog pass enable the scissor test for their own boxes and put the chunk's band back through
+    // restoreScissor; whole-frame jobs have no scissor. (They used to disable it for good, so every shadow draw and
+    // every later chunk covered the whole frame again, blending translucent polygons in the lower bands 2 to 3 times.)
+    bool scBand = false; int scB0 = 0, scB1 = 12;
+    auto restoreScissor = [&]() { if (scBand) { glEnable(GL_SCISSOR_TEST); glScissor(0, scB0 * bandRows(), kW, (scB1 - scB0) * bandRows()); } else glDisable(GL_SCISSOR_TEST); };
     // Shadow pass, after the translucent list: stencil masks then shadow polygons per segment.
     auto drawShadows = [&](GLuint mainProg, bool mainBlend) {
         if (j.shadowSegs.empty() || (gProbe & 4)) return;
+        // The shadow plane: stencil bit 0x01, except on fog post pass frames where 0x01 is the fog flag and the plane
+        // moves to 0x02. That bit holds the translucent id code (0x7e) until the translucent list has drawn and is dead
+        // after it, so the clears below take it back over the boxes they cover (orphan shadows: see the segment loop).
+        const GLuint sp = gFogFlag ? 0x02u : 0x01u;
+        // The band the chunk covers (progressive), in render-target rows, for the clear boxes below.
+        const int bandY0 = scBand ? scB0 * bandRows() * (rw / kW) : 0, bandY1 = scBand ? scB1 * bandRows() * (rw / kW) : rh;
         // The self-shadow polygon-id test needs the opaque pass's id attachment (attachment 1).
         // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
@@ -3570,7 +3745,7 @@ void renderJob(Job& j) {
         // caster's own polygons. The shadow draw also clears the plane bit where it lands, which is
         // the DS rejecting a second shadow fragment of the same translucent id over the pixel.
         const bool casterTest = idTest == 1 && !haveId;
-        size_t goff[16]; { size_t b = 0; for (int i = 0; i < 8; i++) { goff[i] = b; b += j.opaque.v[i].size(); } for (int i = 0; i < 8; i++) { goff[8 + i] = b; b += j.transl.v[i].size(); } }
+        size_t goff[2 * kGrp]; { size_t b = 0; for (int i = 0; i < kGrp; i++) { goff[i] = b; b += j.opaque.v[i].size(); } for (int i = 0; i < kGrp; i++) { goff[kGrp + i] = b; b += j.transl.v[i].size(); } }
         // The caster's triangles for each shadow id are gathered once per job into an index list,
         // two ranges per id (the no-discard program's groups and the discard program's), so a
         // caster costs two indexed draws however many polygon runs it is spread over (the race
@@ -3586,9 +3761,9 @@ void renderJob(Job& j) {
                 CasterIdx c{ sg.id, { 0, 0 }, { 0, 0 } };
                 for (int cls = 0; cls < 2; cls++) {   // 0 = no-discard groups (progOpaque), 1 = discard groups (mainProg)
                     c.start[cls] = (uint32_t)casterElems.size();
-                    for (int gi = 0; gi < 16; gi++) {
-                        const Stream& st = gi < 8 ? j.opaque : j.transl; const int grp = gi & 7;
-                        if (gi >= 8 && !((grp >> 1) & 1)) continue;   // translucent without depth write: nothing to match
+                    for (int gi = 0; gi < 2 * kGrp; gi++) {
+                        const Stream& st = gi < kGrp ? j.opaque : j.transl; const int grp = gi % kGrp;
+                        if (gi >= kGrp && !((grp >> 1) & 1)) continue;   // translucent without depth write: nothing to match
                         if ((((grp >> 2) & 1) != 0) != (cls == 0)) continue;
                         const std::vector<uint16_t>& lens = st.polyLen[grp]; const std::vector<uint8_t>& ids = st.polyId[grp];
                         uint32_t off = (uint32_t)goff[gi];
@@ -3613,20 +3788,22 @@ void renderJob(Job& j) {
             const int sc = rw / kW;   // render scale (1, or 2 on the supersampled target)
             bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc;
             bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+            by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);   // progressive: only this chunk's band
             if (bx1 <= bx0 || by1 <= by0) return;
             glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
             glDepthFunc(GL_EQUAL);
-            glStencilFunc(GL_ALWAYS, 0x00, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
+            glStencilMask(sp);   // the plane only: the shadow draws leave the fog flag in the mask too
+            glStencilFunc(GL_ALWAYS, 0x00, sp); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
             for (int cls = 0; cls < 2; cls++) {
                 if (!c->count[cls]) continue;
                 useProgram(cls == 0 ? g.opq : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 glDrawElements(GL_TRIANGLES, (GLsizei)c->count[cls], GL_UNSIGNED_INT, (const void*)(uintptr_t)(c->start[cls] * sizeof(uint32_t))); gDcShadowCasterDraws++;
             }
-            glDisable(GL_SCISSOR_TEST);
+            restoreScissor();
         };
         glEnable(GL_STENCIL_TEST);
-        glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
+        glStencilMask(sp);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80) or the fog flag
         bool prevMask = false, first = true; const ShadowSeg* lastMask = nullptr;
         // Clear the shadow plane only over the volume's own box (mask polygons and the shadow
         // polygons that follow them) instead of the whole target: a full clear per volume is a
@@ -3642,6 +3819,7 @@ void renderJob(Job& j) {
             if (sg.mask && (shDbg & 2)) glDepthFunc(GL_NEVER);       // every covered sample "fails": stencil set everywhere
             if (!sg.mask && (shDbg & 1)) glDepthFunc(GL_ALWAYS);     // shadow ignores depth
             if (sg.mask) {
+                glStencilMask(sp);   // first: the segment before may have left sp | fog flag in the mask, and glClear honours it
                 if (first || !prevMask) {
                     if (!(gProbe & 16)) {
                         int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1; bool seenShadow = false;
@@ -3649,16 +3827,41 @@ void renderJob(Job& j) {
                             bx0 = std::min<int>(bx0, t.x0); by0 = std::min<int>(by0, t.y0); bx1 = std::max<int>(bx1, t.x1); by1 = std::max<int>(by1, t.y1); }
                         const int sc = rw / kW;
                         bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc; bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
-                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); glDisable(GL_SCISSOR_TEST); }
-                    } else glClear(GL_STENCIL_BUFFER_BIT);   // probe: the old full clear (bit 0 only, write mask 0x01)
+                        by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);   // progressive: only this chunk's band
+                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); restoreScissor(); }
+                    } else glClear(GL_STENCIL_BUFFER_BIT);   // probe: the old full clear (the plane only, write mask sp)
                 }
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
+                glStencilFunc(GL_ALWAYS, sp, sp); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
                 useProgram(g.opq, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uMaskBias >= 0) glUniform1f(uMaskBias, maskBias / 16777215.0f);   // away from the camera: the mask must fail over the floor
             } else {
-                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, casterTest ? GL_ZERO : GL_KEEP);
+                if (first && sp != 0x01u && gDsBlend) {
+                    // Orphan shadow: a shadow segment before any mask has no plane to test. With the plane at 0x01 it
+                    // was clear there; bit 0x02 holds translucent id code bits, so take it back over the box of the
+                    // leading shadow run (nothing marked it, so the run draws nothing, as before).
+                    glStencilMask(sp);
+                    if (!(gProbe & 16)) {
+                        int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1;
+                        for (size_t k = si + 1; k < nSeg; k++) { const ShadowSeg& t = j.shadowSegs[k]; if (!t.count) continue; if (t.mask) break;
+                            bx0 = std::min<int>(bx0, t.x0); by0 = std::min<int>(by0, t.y0); bx1 = std::max<int>(bx1, t.x1); by1 = std::max<int>(by1, t.y1); }
+                        const int sc = rw / kW;
+                        bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc; bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+                        by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);
+                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); restoreScissor(); }
+                    } else glClear(GL_STENCIL_BUFFER_BIT);
+                }
+                // A shadow pixel is DS translucent. Its depth is stored only with the polygon's depth update bit (sg.dw, set on fog
+                // post pass frames only: the fog pass reads the stored depth; elsewhere nothing reads depth after this pass). The
+                // caster test's GL_EQUAL redraw of a later segment then no longer matches where an earlier segment stored its depth.
+                // The fog flag (bit 0x01 on fog post pass frames) becomes old & the polygon's fog bit. A non-fog shadow writes 0
+                // into it: through the caster test's ZERO op, or by REPLACE with a reference whose flag bit is 0 (the reference sp
+                // keeps the plane bit as it is, since the EQUAL test passed on it). Approximation: a pixel of an alpha 31 shadow
+                // is DS opaque (flag set, depth stored whatever bit 11 says); here it still ANDs the flag and stores depth by bit 11.
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(sg.dw ? GL_TRUE : GL_FALSE);
+                const GLuint wf = (gFogFlag && !sg.fog) ? 0x01u : 0x00u;
+                glStencilMask(sp | wf); glStencilFunc(GL_EQUAL, sp, sp);
+                glStencilOp(GL_KEEP, GL_KEEP, casterTest ? GL_ZERO : (wf ? GL_REPLACE : GL_KEEP));
                 useProgram(shadowProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uShadow >= 0) glUniform1i(uShadow, shadowMode);
             }
@@ -3669,7 +3872,7 @@ void renderJob(Job& j) {
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE); glDepthFunc(GL_LESS);
-        if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        if (gDsBlend || gFogFlag) stencilPlain(false);   // the plain draws' state: drawn flag (GL-blend path) and the fog flag (fog post pass frames)
         else glDisable(GL_STENCIL_TEST);
         if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); } }
         else if (haveId) {
@@ -3678,6 +3881,30 @@ void renderJob(Job& j) {
             else glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
             { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); }
         }
+    };
+    // Fog post pass (fogPost jobs): drastic's band fog over the finished frame, see kFogFrag. One full-screen triangle per run
+    // of fog bands [b0, b1) (a band is bandRows() rows; the bands a fog polygon touches, see Job::fogBands), shading only the
+    // samples whose stencil bit 0x01 is set. Same FBO, no draw buffer change, nothing sampled: it stays in the tile pass.
+    // sys gpu3d_fog_bandgate 0 fogs every band of a frame that has a fog polygon; gpu3d_fog_dbg 1 paints the flagged samples
+    // magenta, 2 shows their stored depth (the uDbgDepth encoding).
+    auto drawFog = [&](int b0, int b1) {
+        static int bandGate = 1, fogDbg = 0;
+        if ((g.glFrames & 63) == 0) { bandGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bandgate", 1); fogDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_dbg", 0); }
+        const uint32_t m = (bandGate ? j.fogBands : (j.fogBands ? 0xfffu : 0u)) & (((1u << b1) - 1) & ~((1u << b0) - 1));
+        if (!m) return;
+        useProgram(g.progFog, false); if (g.uFogDbg >= 0) glUniform1i(g.uFogDbg, fogDbg);
+        glDisable(GL_DEPTH_TEST); glDepthMask(GL_FALSE);
+        glEnable(GL_STENCIL_TEST); glStencilMask(0x00); glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glBindVertexArray(g.edgeVao); glEnable(GL_SCISSOR_TEST);
+        const int br = bandRows() * (rw / kW);
+        for (int b = b0; b < b1;) {
+            if (!((m >> b) & 1)) { b++; continue; }
+            int e = b + 1; while (e < b1 && ((m >> e) & 1)) e++;
+            glScissor(0, b * br, rw, (e - b) * br); glDrawArrays(GL_TRIANGLES, 0, 3); b = e;
+        }
+        glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); glDepthMask(GL_TRUE);
+        if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        restoreScissor();
     };
     static int gpuTime = 0; if ((g.glFrames & 63) == 0) gpuTime = property_get_int32("sys.gammaos.drastic_nano.gpu3d_gputime", 0);
     static PFNGLGENQUERIESEXTPROC pGenQ = nullptr; static PFNGLBEGINQUERYEXTPROC pBeginQ = nullptr; static PFNGLENDQUERYEXTPROC pEndQ = nullptr;
@@ -3716,6 +3943,7 @@ void renderJob(Job& j) {
         auto issue = [&](int c) {
             int b0, b1; bandRange(c, b0, b1);
             if (b0 == b1) return;
+            scBand = true; scB0 = b0; scB1 = b1;   // drawShadows and drawFog put this band back after their own scissors
             glScissor(0, b0 * bandRows(), kW, (b1 - b0) * bandRows());
             const int64_t d0 = nowUs();
             if (total) {
@@ -3723,6 +3951,8 @@ void renderJob(Job& j) {
                 drawStream(j.opaque, false, base, true, useProg, mainBlend);
                 drawStream(j.transl, true, base, true, useProg, mainBlend);
                 drawShadows(useProg, mainBlend);
+                restoreScissor();
+                if (gFogFlag) drawFog(b0, b1);   // this chunk's bands are final: the later chunks only draw their own
             }
             const int64_t d1 = nowUs();
             fences[c] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -3842,12 +4072,13 @@ void renderJob(Job& j) {
     }
     if (total) {
         size_t base = 0;
-        if (!(gProbe & 64)) drawStream(j.opaque, false, base, true, useProg, mainBlend); else { for (int i = 0; i < 8; i++) base += j.opaque.v[i].size(); }
+        if (!(gProbe & 64)) drawStream(j.opaque, false, base, true, useProg, mainBlend); else { for (int i = 0; i < kGrp; i++) base += j.opaque.v[i].size(); }
         if (!(gProbe & 32)) drawStream(j.transl, true, base, true, useProg, mainBlend);
         if (timeShadow) pBeginQ(0x88BF, g.tq);
         drawShadows(useProg, mainBlend);
         if (timeShadow) pEndQ(0x88BF);
     }
+    if (gFogFlag) drawFog(0, 12);   // after the draws and before the invalidate below: it reads the depth and the stencil
     // End of the main pass: nothing after this point reads the depth/stencil buffer (every job
     // clears it first), and nothing reads the id attachment unless the edge or shadow pass
     // wanted it. Without an invalidate a tile-based GPU writes both back to memory at the end
@@ -4083,6 +4314,7 @@ static void destroyGl() {
         g.smallLayers = g.smallLayersGl = kSmallLayers; g.palRows = g.palRowsGl = kPalRows; g.growWant.store(0);
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
+        delPr(g.progNF); delPr(g.progFog); g.uFogDbg = -1; gFogPostOk.store(false);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
         for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.spec7Ok = false;
@@ -4809,10 +5041,12 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     uint8_t* pbo = gx + 0x39ae0 + bank * 0x10008;
     uint8_t* pbt = gx + 0x59af0 + bank * 0x10008;
     gStage = 3;
-    // Fog prep takes (gx, R): it folds the 32 densities into their deltas at gx+0x9994 and writes
-    // the all-equal flag (the fog colour, or -1) at R+0x249490. The worker frame passes R
-    // (x20), not the target buffer; with the target the flag went to regs+16.
-    if (regs[0] & 0x80) fnFog(gx, R);
+    // Fog prep takes (gx, R + 0x1056c0): it folds the 32 densities into their deltas at gx+0x9994 and writes
+    // a flag 0x249490 bytes past its second argument: -1, or 0 when the table is all zero or a repeated
+    // {b,0,0,0} pattern (drastic's post pass then skips fog). drastic's own worker frame passes R + 0x1056c0
+    // (x20 at +0x5ef14), so the flag lands at regs+0x10, which the post pass gates on (see job.fog below).
+    // Passing R wrote the flag into R+0x249490, inside the output buffer bufB (hi-res pixel 233,263).
+    if (regs[0] & 0x80) fnFog(gx, R + 0x1056c0);
     gStage = 4;
     fnBinOpaque(gx, R + 0x2856c0, pbo, vb, 0);
     fnBinTransl(gx, R + 0x2916f0, pbt, vb, 1);
@@ -4830,11 +5064,15 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // non-threaded path derives and stays 0 in threaded mode: Sonic Rush's white level
     // transition (rear plane white, alpha 31) was missing on the GPU path because of it.
     uint32_t clearC = *reinterpret_cast<uint32_t*>(regs + 4);
+    // The rear plane's fog flag: CLEAR_COLOR bit 15. drastic's swap builds regs+8 as (CLEAR_COLOR << 16 & 0x80000000) | the
+    // expanded colour, so bit 31 there is the flag (non-threaded); the threaded path reads the raw word below.
+    uint32_t clearFog = (*reinterpret_cast<uint32_t*>(regs + 8) >> 31) & 1;
     if (threaded) {
         const uint32_t cc = *reinterpret_cast<uint32_t*>(S + 84);
         const uint32_t r5 = cc & 31, g5 = (cc >> 5) & 31, b5 = (cc >> 10) & 31, a5 = (cc >> 16) & 31;
         auto x6 = [](uint32_t v) { return (v << 1) | (v >> 4); };   // 5 to 6 bits, top bit replicated (31 -> 63, as the CPU layer shows)
         clearC = x6(r5) | (x6(g5) << 8) | (x6(b5) << 16) | (a5 << 24);
+        clearFog = (cc >> 15) & 1;
     }
     const uint32_t clearD = *reinterpret_cast<uint32_t*>(regs + 12) & 0xffffff;
     g.frame++;
@@ -4853,11 +5091,12 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 4;
     job.cancel = false;
     g.cur = &job;
-    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
+    for (int i = 0; i < kGrp; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
     job.opaque.ord.clear(); job.transl.ord.clear();
     job.shadow.clear(); job.shadowSegs.clear(); job.cancel = false;
     job.uploads.clear();
     job.target = target; job.clearC = clearC; job.clearD = clearD; job.decoupled = useDecoupled;
+    job.clearFog = (int)clearFog; job.fogBands = 0;   // fogBands is filled by buildList below
     // Edge marking: drastic-nano's mode-5 pipeline drops drastic's per-band edge pass and the
     // dumped CPU frames show no edge pixels on the controls, so the GPU pass is opt-in
     // (sys.gammaos.drastic_nano.gpu3d_edge=1) until the CPU behaviour is pinned down.
@@ -4902,9 +5141,18 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     job.clearId = *reinterpret_cast<uint32_t*>(regs + 12) >> 24;   // clear depth word carries the clear polygon id in bits 24-29
     // Fog: drastic's band post pass (+0x5829c) reads the density table at gx+0x9974, the colour word
     // at gx+0x9a9c (r, g, b 6-bit, a 5-bit bytes), the offset halfword at gx+0x9aaa and the shift
-    // from DISP3DCNT bits 8-11; the per-pixel maths is in the fragment shader (uFog*).
+    // from DISP3DCNT bits 8-11. The per-pixel maths is in kFogFrag (the post pass over the finished frame) or,
+    // for the A/B knob, in the fragment shader (uFog*).
+    // sys gpu3d_fog: 0 off, 1 post pass (default: drastic's per-pixel fog flag in the stencil, the density from the
+    // finished frame's depth), 2 the old per-fragment fog (every polygon with the fog bit, own depth; A/B only).
     static int fogKnob = 1; if ((g.frame & 63) == 7) fogKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog", 1);
     job.fog = (fogKnob && (disp3d & 0x80)) ? ((disp3d & 0x40) ? 2 : 1) : 0;
+    // drastic's prep flagged a flat table (regs+0x10 == 0): its post pass skips fog altogether.
+    if (job.fog && fogKnob != 2 && *reinterpret_cast<const int32_t*>(regs + 0x10) == 0) {
+        static int flatLogs = 0; if (flatLogs++ < 3) ALOGI("gpu3d: fog on, but drastic's prep flagged a flat density table (regs+0x10 == 0): its post pass skips fog");
+        job.fog = 0;
+    }
+    job.fogPost = (job.fog && fogKnob != 2 && gFogPostOk.load(std::memory_order_relaxed)) ? 1 : 0;   // the pass program exists (GL init)
     if (job.fog) {
         job.fogShift = (disp3d >> 8) & 15;
         job.fogOffset = (0x400 >> job.fogShift) + (*reinterpret_cast<const uint16_t*>(gx + 0x9aaa) & 0x7fff);
@@ -4914,7 +5162,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         static int fogLogs = 0;
         if (fogLogs < 3 || (g.frame % 300) == 7) { fogLogs++;
             char tb[160]; int n = 0; for (int i = 0; i < 32; i++) n += snprintf(tb + n, sizeof tb - n, "%d%s", job.fogTable[i], i < 31 ? "," : "");
-            ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x table %s", job.fog, job.fogShift, job.fogOffset, job.fogColor, tb); }
+            ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x post %d clearfog %d table %s", job.fog, job.fogShift, job.fogOffset, job.fogColor, job.fogPost, job.clearFog, tb); }
     }
     // Toon / highlight table: 32 BGR555 halfwords at gx+0x9934, immediately before the fog table
     // (getter lib+0x68bf0, 64 byte clear lib+0x69e44). Expanded to 6 bit the same way vertex
@@ -4940,6 +5188,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
     gPolyTab = nullptr; gRowOwner = nullptr;
+    if (job.fogPost) { static int bandLogs = 0; if (bandLogs < 3 || (g.frame % 300) == 7) { bandLogs++; ALOGI("gpu3d: fog post pass: fog polygons touch bands %03x (rear plane flag %d)", job.fogBands, job.clearFog); } }
     if (!job.rowOwner.empty()) job.rowOwner.resize((job.rowOwner.size() + kRowTabW - 1) / kRowTabW * kRowTabW, 0);   // whole texture lines for the upload
     job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
     job.classMask = gClassSeen;
