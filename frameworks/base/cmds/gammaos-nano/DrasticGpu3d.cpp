@@ -236,6 +236,12 @@ struct Job {
     // clearFog: CLEAR_COLOR bit 15, the rear plane's flag; fogBands: the bands (bit b = rows b * bandRows() ..) a
     // fog polygon touches, drastic fogs only bands where one drew (band + 0x24014).
     int fogPost = 0, clearFog = 0; uint32_t fogBands = 0;
+    // fogBandsSet and the box fogBx0..fogBy1 (kW x kH pixels like Vtx::x / y, inclusive-exclusive): the bands and the screen
+    // box of the fog polygons that can SET the flag, a subset of fogBands (see emitPoly). With clearFog 0 every flagged
+    // sample lies inside them, so the pass shades only there. fogFlat / fogFlatD: the density table is flat (all 32 entries
+    // equal), so the density is the one value fogFlatD (127 already mapped to 128) at any depth and the pass needs no depth fetch.
+    uint32_t fogBandsSet = 0; int fogBx0 = 1 << 30, fogBy0 = 1 << 30, fogBx1 = -(1 << 30), fogBy1 = -(1 << 30);
+    int fogFlat = 0, fogFlatD = 0;
     // Toon / highlight shading (polygon mode 2): 32 entry table from gx+0x9934, lanes expanded
     // to the 6 bit range the vertex colours use. toonHighlight mirrors DISP3DCNT bit 1.
     bool toonUsed = false; int toonR[32] = {}, toonG[32] = {}, toonB[32] = {}; int toonHighlight = 0;
@@ -305,6 +311,7 @@ struct Gpu3d {
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
     GLuint progNF = 0, progFog = 0; GLint uFogDbg = -1; bool fogDepthFetch = false;   // progNF: g.prog without the fog block (fog-free and post pass frames); progFog: the fog post pass (kFogFrag), needs framebuffer fetch of colour and depth
+    GLuint progFogFlat = 0; GLint uFogDbgFlat = -1, uFogFlatD = -1;   // the same pass for a flat density table (kFogFragFlat): no depth fetch; 0 = not built, drawFog then uses progFog
     GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
     GLuint progSp[2][2][2] = {}; GLint uAlphaMulSp[2][2][2] = {}; bool specOk = false;   // specialised programs [vertex depth][no fog][opaque]: frames without direct/format 1/5/7/toon/decal polygons
     GLuint progSp7[2][2][2] = {}; bool spec7Ok = false;   // gpu3d_spec2 only: the same without the toon and decal branches (direct, format 1 and 5/7 kept), for frames without toon and decal polygons
@@ -1019,6 +1026,36 @@ void main() {
     if (uFogDbg == 2) { float q = floor(gl_LastFragDepthARM * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
 }
 )";
+// The same pass for a flat density table (all 32 entries equal, Job::fogFlat). Then every delta is 0 and the density of
+// kFogFrag is table[idx] whatever the depth, the bias, the step rounding or idx, so it is one uniform and the depth fetch goes:
+// the shader reads only the colour, and the stencil test is no longer held back behind a depth read. The lines from the
+// decode on are kFogFrag's, unchanged (every value is a small integer or an integer over 128, exact in highp float), so
+// the output is bit identical. gpu3d_fog_dbg 2 (the depth view) keeps kFogFrag.
+const char* kFogFragFlat = R"(#version 300 es
+#extension GL_EXT_shader_framebuffer_fetch : require
+precision highp float;
+precision highp int;
+layout(location = 0) inout vec4 fragColor;
+uniform int uFog;          // 1 colour and alpha, 2 alpha only (DISP3DCNT bit 6)
+uniform vec4 uFogColor;    // r, g, b 6-bit, a 5-bit
+uniform float uAlphaMul;   // the job's alpha lane: 1/31 blend factor (GL-blend), 1/255 the 5-bit value (fetch)
+uniform int uFogDbg;       // 1: flagged samples magenta
+uniform int uFogFlatD;     // the table's one density, 127 already mapped to 128 (as kFogFrag does)
+void main() {
+    vec4 c = fragColor;
+    float fd = float(uFogFlatD);
+    float r = floor(c.r * 255.0 + 0.5), gg = floor(c.g * 255.0 + 0.5), b = floor(c.b * 255.0 + 0.5);
+    float a = floor(c.a / uAlphaMul + 0.5);   // exact for both lanes (a/31 is stored as round(a*255/31))
+    if (uFog == 1) {
+        r = r + floor((uFogColor.r - r) * fd * (1.0 / 128.0));
+        gg = gg + floor((uFogColor.g - gg) * fd * (1.0 / 128.0));
+        b = b + floor((uFogColor.b - b) * fd * (1.0 / 128.0));
+    }
+    a = a + floor((uFogColor.a - a) * fd * (1.0 / 128.0));   // alpha is never tested: alpha-0 flagged pixels fog too (drastic)
+    fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
+    if (uFogDbg == 1) fragColor = vec4(63.0 / 255.0, 0.0, 63.0 / 255.0, 31.0 * uAlphaMul);
+}
+)";
 
 GLuint compile(GLenum type, const std::string& src) {
     GLuint sh = glCreateShader(type);
@@ -1454,8 +1491,23 @@ bool initGl() {
             } else { char log[2048] = {}; glGetProgramInfoLog(pr, sizeof log, nullptr, log); ALOGE("gpu3d: fog pass link failed: %s", log); glDeleteProgram(pr); }
         }
     }
+    // The flat-table variant without the depth fetch (kFogFragFlat). Only with the pass itself, so the knob and the
+    // fallback logic stay what they were; a failed build leaves 0 and drawFog keeps progFog.
+    if (g.progFog) {
+        GLuint vs = compile(GL_VERTEX_SHADER, kEdgeVert), fs = compile(GL_FRAGMENT_SHADER, kFogFragFlat);
+        if (vs && fs) {
+            GLuint pr = glCreateProgram(); glAttachShader(pr, vs); glAttachShader(pr, fs); glLinkProgram(pr);
+            GLint ok = 0; glGetProgramiv(pr, GL_LINK_STATUS, &ok);
+            if (ok) {
+                g.progFogFlat = pr; g.uFogDbgFlat = glGetUniformLocation(pr, "uFogDbg"); g.uFogFlatD = glGetUniformLocation(pr, "uFogFlatD");
+                glUseProgram(pr); const GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);   // as for progFog: keeps the warm-up draw finite
+            } else { char log[2048] = {}; glGetProgramInfoLog(pr, sizeof log, nullptr, log); ALOGE("gpu3d: flat fog pass link failed: %s", log); glDeleteProgram(pr); }
+        }
+        if (vs) glDeleteShader(vs);
+        if (fs) glDeleteShader(fs);
+    }
     gFogPostOk.store(g.progFog != 0);
-    ALOGI("gpu3d: fog post pass %s (framebuffer fetch %d, depth fetch %d)", g.progFog ? "built" : "unavailable, per-fragment fog", g.fbFetch ? 1 : 0, g.fogDepthFetch ? 1 : 0);
+    ALOGI("gpu3d: fog post pass %s (framebuffer fetch %d, depth fetch %d, flat-table variant %s)", g.progFog ? "built" : "unavailable, per-fragment fog", g.fbFetch ? 1 : 0, g.fogDepthFetch ? 1 : 0, g.progFogFlat ? "built" : "no");
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
     glUniform1i(g.uPass, 0);
@@ -1677,7 +1729,7 @@ bool initGl() {
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
-            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial, g.progNF ? g.progNF : g.progTrivial, g.progFog ? g.progFog : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial, g.progNF ? g.progNF : g.progTrivial, g.progFog ? g.progFog : g.progTrivial, g.progFogFlat ? g.progFogFlat : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
             glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
         if (g.msFbo) {   // the MSAA target too, read back exactly as renderJob does, full size:
@@ -1758,7 +1810,11 @@ bool initGl() {
                 if (g.spec7Ok && g.progSp7[vzi][nf][op]) warmProg(g.progSp7[vzi][nf][op], d0, d1);
             }
             // The fog post pass: a full-screen draw of flagged samples (EQUAL 1/1, nothing written), blend off as the warm-up above left it.
-            if (g.progFog) { glUseProgram(g.progFog); glDisable(GL_DEPTH_TEST); glStencilMask(0); glStencilFunc(GL_EQUAL, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP); glDrawArrays(GL_TRIANGLES, 0, 3); glEnable(GL_DEPTH_TEST); glStencilMask(0xff); }
+            if (g.progFog) {
+                glDisable(GL_DEPTH_TEST); glStencilMask(0); glStencilFunc(GL_EQUAL, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                for (GLuint pr : { g.progFog, g.progFogFlat }) if (pr) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }   // the flat-table variant too, so its first fog frame causes no compile hitch
+                glEnable(GL_DEPTH_TEST); glStencilMask(0xff);
+            }
             glDisable(GL_STENCIL_TEST);
             glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
             if (!g.msImplicit) { glBindFramebuffer(GL_READ_FRAMEBUFFER, g.msFbo); glBindFramebuffer(GL_DRAW_FRAMEBUFFER, g.fbo); glBlitFramebuffer(0, 0, kW, kH, 0, 0, kW, kH, GL_COLOR_BUFFER_BIT, GL_NEAREST); }
@@ -2289,9 +2345,22 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
     }
     if (grpIdx & 8) {   // a fog polygon: the bands it touches (drastic fogs only those)
-        float y0 = v[0].y, y1 = v[0].y;
-        for (int k = 1; k < n; k++) { y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
-        g.cur->fogBands |= fogBandMask(y0, y1);
+        float x0 = v[0].x, x1 = v[0].x, y0 = v[0].y, y1 = v[0].y;
+        for (int k = 1; k < n; k++) { x0 = std::min(x0, v[k].x); x1 = std::max(x1, v[k].x); y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
+        const uint32_t fbm = fogBandMask(y0, y1);
+        g.cur->fogBands |= fbm;
+        // The flag (stencil bit 0x01) becomes 1 only through a fog group's REPLACE with the fog bit (stencilPlain(false)): an opaque
+        // list polygon, or the alpha 31 pass (uPass 1) of a translucent one; its alpha < 31 pass keeps the flag (fogWm(true) is 0
+        // there), and shadows and non-fog polygons only clear it. A translucent polygon with alpha 1..30 never draws an alpha 31
+        // fragment (a = floor(ta * (alpha + 1) / 32) <= 30 for ta <= 31), so it never sets the flag. Direct and format 7 texels
+        // can carry an alpha lane above 31 (not pinned down), alpha 0 is the wireframe case: both stay in, conservatively.
+        // With CLEAR_COLOR bit 15 clear no other sample is flagged, so the pass only has to cover these polygons (drawFog).
+        const int pa = (pattr >> 16) & 31;
+        if (!translucent || pa == 31 || pa == 0 || (t && (t->direct || fmt == 7))) {
+            g.cur->fogBandsSet |= fbm;
+            g.cur->fogBx0 = std::min(g.cur->fogBx0, (int)floorf(x0)); g.cur->fogBx1 = std::max(g.cur->fogBx1, (int)ceilf(x1));
+            g.cur->fogBy0 = std::min(g.cur->fogBy0, (int)floorf(y0)); g.cur->fogBy1 = std::max(g.cur->fogBy1, (int)ceilf(y1));
+        }
     }
     const uint32_t vStart = (uint32_t)dst.size();
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
@@ -2451,15 +2520,15 @@ struct ProgU {
     GLint toonR = -1, toonG = -1, toonB = -1, toonHighlight = -1;
     GLint pass = -1, shadowPass = -1;
 };
-constexpr int kProgUMax = 48;   // 31 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free, the fetch fog-free one and the fog post pass)
+constexpr int kProgUMax = 48;   // 32 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free, the fetch fog-free one and the two fog post pass programs)
 static ProgU gProgU[kProgUMax]; static int gProgUN = 0;
 static void resetProgU() { gProgUN = 0; for (ProgU& p : gProgU) p = ProgU(); }
 // The programs that take the alpha lane scale (1/31 as a blend factor, 1/255 as the stored 5-bit
-// value): the no-fetch, opaque, vertex-depth and specialised variants, the MSAA shadow pass and the fog
-// post pass (it decodes and re-encodes the alpha lane).
+// value): the no-fetch, opaque, vertex-depth and specialised variants, the MSAA shadow pass and the two fog
+// post pass programs (they decode and re-encode the alpha lane).
 static bool takesAlphaScale(GLuint pr) {
     if (!pr) return false;
-    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs) || (g.progFog && pr == g.progFog)) return true;
+    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs) || (g.progFog && pr == g.progFog) || (g.progFogFlat && pr == g.progFogFlat)) return true;
     if (g.progNoFetchVZ && (pr == g.progNoFetchVZ || pr == g.progOpaqueVZ || pr == g.progNoFetchNFVZ || pr == g.progOpaqueNFVZ)) return true;
     if (g.specOk) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp[a][b][c]) return true;
     if (g.spec7Ok) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp7[a][b][c]) return true;
@@ -2520,6 +2589,7 @@ static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the trans
 // drawn. The shadow plane moves to 0x02 on those frames (drawShadows), the drawn flag and the id code are
 // dead once the translucent list has drawn.
 static int gFogFlag = 0, gFogRef = 0;
+static int gVshQ = 2;   // sys gpu3d_vshift: the vertex shift in quarter pixels (renderJob polls it); drawFog pads its box by it
 // Write mask bit 0x01 for a draw: always for an opaque pixel (REPLACE), for a translucent pixel only when the polygon has no fog bit (REPLACE with 0 = the AND).
 static inline GLuint fogWm(bool translPart) { return (gFogFlag && !(translPart && gFogRef)) ? 0x01u : 0x00u; }
 static inline GLint fogRefBit() { return gFogFlag ? gFogRef : 0; }
@@ -3503,6 +3573,26 @@ void renderJob(Job& j) {
     const bool fogPost = j.fog && j.fogPost && g.progFog && !(gProbe & 2);
     const bool fogFrag = j.fog && !fogPost;
     gFogFlag = fogPost ? 1 : 0; gFogRef = 0;
+    // Post pass knobs, read here once per job (drawFog and the uniform loop below both use them). gpu3d_fog_bandgate 0 fogs
+    // every band of a frame that has a fog polygon; gpu3d_fog_dbg 1 paints the flagged samples magenta, 2 shows their stored
+    // depth (the uDbgDepth encoding); gpu3d_fog_setgate 0 shades the bands of every fog polygon, not only of those that can
+    // set the flag, and the whole width (the round 8 pass); gpu3d_fog_flat 0 keeps the depth fetch shader on flat tables too.
+    static int fogBandGate = 1, fogDbg = 0, fogSetGate = 1, fogFlatKnob = 1;
+    if ((g.glFrames & 63) == 0) {
+        fogBandGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bandgate", 1); fogDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_dbg", 0);
+        fogSetGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_setgate", 1); fogFlatKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_flat", 1);
+    }
+    // A flat density table (every entry equal) needs no depth: the variant that only reads the colour does the same arithmetic.
+    const bool fogUseFlat = fogPost && j.fogFlat && g.progFogFlat && fogFlatKnob && fogDbg != 2;
+    if (fogPost) {   // which path the pass takes, once and again when it changes (a table going flat or not)
+        static int lastPath = -1, pathLogs = 0;
+        const int path = fogUseFlat ? 1 : 0;
+        if (path != lastPath && pathLogs < 8) {
+            lastPath = path; pathLogs++;
+            if (fogUseFlat) ALOGI("gpu3d: fog post pass: flat table (density %d) -> colour fetch only, no depth fetch (flag-setting bands %03x%s)", j.fogFlatD, j.fogBandsSet, j.clearFog ? ", rear plane flagged: every fog band" : "");
+            else ALOGI("gpu3d: fog post pass: depth fetch (%s)", !j.fogFlat ? "table not flat" : !g.progFogFlat ? "flat variant not built" : "flat variant off or depth view on");
+        }
+    }
     GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : ((fogFrag || !g.progNF) ? g.prog : g.progNF);
     bool mainBlend = progSel == 3 || !g.fbFetch;
     if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = fogFrag ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
@@ -3574,7 +3664,7 @@ void renderJob(Job& j) {
     // both take the blend-factor alpha scale there; with only progNoFetch set, opaque polygons
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
     const float alphaWant = mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f;
-    GLuint usedProgs[4] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0, fogPost ? g.progFog : 0 };
+    GLuint usedProgs[4] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0, fogPost ? (fogUseFlat ? g.progFogFlat : g.progFog) : 0 };
     for (int ui = 0; ui < 4; ui++) {
         const GLuint pr = usedProgs[ui]; if (!pr) continue;
         bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
@@ -3589,8 +3679,8 @@ void renderJob(Job& j) {
           // Mario Kart 27122 -> 12113, Sonic 568 -> 367. The derivative-based corner sampling
           // (uUvOff bits) did the same for texcoords alone at +3 ms of GPU time a frame; A/B only.
           if (pu->uvOff >= 0) glUniform1i(pu->uvOff, knobUvOff);
-          static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
-          if (pu->vtxShift >= 0) glUniform2f(pu->vtxShift, vsh * 0.25f, vsh * 0.25f);
+          if ((g.glFrames & 15) == 0) gVshQ = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
+          if (pu->vtxShift >= 0) glUniform2f(pu->vtxShift, gVshQ * 0.25f, gVshQ * 0.25f);
           if (pu->dsUv >= 0) glUniform1i(pu->dsUv, dsJob ? gDsUv : 0); }
         // Depth: W buffered frames interpolate the vertex W perspective correctly (mode 1), Z
         // buffered frames interpolate the 16-bit z (shifted by 9, lib+0x555bc) linearly on screen
@@ -3616,16 +3706,16 @@ void renderJob(Job& j) {
             // Only the post pass program and, on a per-fragment fog job, the fog programs take the fog; a program that
             // still carries the fog block but is not the job's fog program (the MSAA id shadow program, the fetch program
             // on a post pass job) gets 0, so it never fogs per fragment on top of the post pass.
-            const bool fogHere = (g.progFog && pr == g.progFog) || fogFrag;
+            const bool fogHere = (g.progFog && pr == g.progFog) || (g.progFogFlat && pr == g.progFogFlat) || fogFrag;
             glUniform1i(pu->fog, fogHere ? j.fog : 0);
             if (fogHere) {
-                glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);
+                if (pu->fogParam >= 0) glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);   // the flat variant has no depth maths: only uFog, uFogColor and the lane scale
                 // gpu3d_fog_trunc: -1 (default) floors the fractional density step in the post pass (drastic's sqdmulh) and rounds it in the per-fragment block (the old maths); 0 rounds, 1 floors
                 { static int fb = 0, ft = -1; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", -1); }
-                  glUniform2i(pu->fogTune, fb, ft >= 0 ? ft : ((g.progFog && pr == g.progFog) ? 1 : 0)); }
+                  if (pu->fogTune >= 0) glUniform2i(pu->fogTune, fb, ft >= 0 ? ft : ((g.progFog && pr == g.progFog) ? 1 : 0)); }
                 glUniform4f(pu->fogColor, (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
-                glUniform1iv(pu->fogTable, 32, j.fogTable);
-                glUniform1iv(pu->fogDelta, 32, j.fogDelta);
+                if (pu->fogTable >= 0) glUniform1iv(pu->fogTable, 32, j.fogTable);
+                if (pu->fogDelta >= 0) glUniform1iv(pu->fogDelta, 32, j.fogDelta);
             }
         }
         if (j.toonUsed) {
@@ -3885,14 +3975,27 @@ void renderJob(Job& j) {
     // Fog post pass (fogPost jobs): drastic's band fog over the finished frame, see kFogFrag. One full-screen triangle per run
     // of fog bands [b0, b1) (a band is bandRows() rows; the bands a fog polygon touches, see Job::fogBands), shading only the
     // samples whose stencil bit 0x01 is set. Same FBO, no draw buffer change, nothing sampled: it stays in the tile pass.
-    // sys gpu3d_fog_bandgate 0 fogs every band of a frame that has a fog polygon; gpu3d_fog_dbg 1 paints the flagged samples
-    // magenta, 2 shows their stored depth (the uDbgDepth encoding).
+    // Cost: the pass is a full-screen shader per flagged sample, and the stencil test only saves the samples it rejects before the
+    // shader runs. So it covers as little as is exact: with CLEAR_COLOR bit 15 clear (no rear plane flag) only the bands and the
+    // screen box of the fog polygons that can set the flag (Job::fogBandsSet, the box; padded by the vertex shift and a rasteriser
+    // margin), and a flat density table takes the variant without the depth fetch (Job::fogFlat). Knobs: see renderJob.
     auto drawFog = [&](int b0, int b1) {
-        static int bandGate = 1, fogDbg = 0;
-        if ((g.glFrames & 63) == 0) { bandGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bandgate", 1); fogDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_dbg", 0); }
-        const uint32_t m = (bandGate ? j.fogBands : (j.fogBands ? 0xfffu : 0u)) & (((1u << b1) - 1) & ~((1u << b0) - 1));
+        // The flat variant is only built next to the pass and a flat table with density 0 fogs nothing at all.
+        if (fogUseFlat && j.fogFlatD == 0 && fogDbg == 0) return;
+        const bool setGate = fogBandGate && fogSetGate && !j.clearFog;
+        const uint32_t m = (fogBandGate ? (setGate ? j.fogBandsSet : j.fogBands) : (j.fogBands ? 0xfffu : 0u)) & (((1u << b1) - 1) & ~((1u << b0) - 1));
         if (!m) return;
-        useProgram(g.progFog, false); if (g.uFogDbg >= 0) glUniform1i(g.uFogDbg, fogDbg);
+        // Scissor box in target pixels: the whole width of every band run, or the flag-setting polygons' box.
+        int bx0 = 0, bx1 = rw, by0 = 0, by1 = rh;
+        if (setGate) {
+            const int sc = rw / kW, vs = gVshQ < 0 ? -gVshQ : gVshQ, pad = 2 + (vs + 3) / 4;   // the vertex shift moves the polygon by vs / 4 px; 2 px for the sample position and the box rounding
+            bx0 = std::max(0, j.fogBx0 - pad) * sc; bx1 = std::min(kW, j.fogBx1 + pad) * sc;
+            by0 = std::max(0, j.fogBy0 - pad) * sc; by1 = std::min(kH, j.fogBy1 + pad) * sc;
+            if (bx1 <= bx0 || by1 <= by0) return;
+        }
+        useProgram(fogUseFlat ? g.progFogFlat : g.progFog, false);
+        if (fogUseFlat) { if (g.uFogDbgFlat >= 0) glUniform1i(g.uFogDbgFlat, fogDbg); if (g.uFogFlatD >= 0) glUniform1i(g.uFogFlatD, j.fogFlatD); }
+        else if (g.uFogDbg >= 0) glUniform1i(g.uFogDbg, fogDbg);
         glDisable(GL_DEPTH_TEST); glDepthMask(GL_FALSE);
         glEnable(GL_STENCIL_TEST); glStencilMask(0x00); glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         glBindVertexArray(g.edgeVao); glEnable(GL_SCISSOR_TEST);
@@ -3900,7 +4003,9 @@ void renderJob(Job& j) {
         for (int b = b0; b < b1;) {
             if (!((m >> b) & 1)) { b++; continue; }
             int e = b + 1; while (e < b1 && ((m >> e) & 1)) e++;
-            glScissor(0, b * br, rw, (e - b) * br); glDrawArrays(GL_TRIANGLES, 0, 3); b = e;
+            const int ry0 = std::max(b * br, by0), ry1 = std::min(e * br, by1);
+            if (ry1 > ry0) { glScissor(bx0, ry0, bx1 - bx0, ry1 - ry0); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            b = e;
         }
         glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); glDepthMask(GL_TRUE);
         if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
@@ -4314,7 +4419,7 @@ static void destroyGl() {
         g.smallLayers = g.smallLayersGl = kSmallLayers; g.palRows = g.palRowsGl = kPalRows; g.growWant.store(0);
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
-        delPr(g.progNF); delPr(g.progFog); g.uFogDbg = -1; gFogPostOk.store(false);
+        delPr(g.progNF); delPr(g.progFog); g.uFogDbg = -1; delPr(g.progFogFlat); g.uFogDbgFlat = g.uFogFlatD = -1; gFogPostOk.store(false);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
         for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.spec7Ok = false;
@@ -5097,6 +5202,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     job.uploads.clear();
     job.target = target; job.clearC = clearC; job.clearD = clearD; job.decoupled = useDecoupled;
     job.clearFog = (int)clearFog; job.fogBands = 0;   // fogBands is filled by buildList below
+    job.fogBandsSet = 0; job.fogBx0 = job.fogBy0 = 1 << 30; job.fogBx1 = job.fogBy1 = -(1 << 30); job.fogFlat = 0; job.fogFlatD = 0;   // job slots are reused: buildList and the fog block below refill these
     // Edge marking: drastic-nano's mode-5 pipeline drops drastic's per-band edge pass and the
     // dumped CPU frames show no edge pixels on the controls, so the GPU pass is opt-in
     // (sys.gammaos.drastic_nano.gpu3d_edge=1) until the CPU behaviour is pinned down.
@@ -5159,6 +5265,9 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         job.fogColor = *reinterpret_cast<const uint32_t*>(gx + 0x9a9c);
         const uint8_t* ft = gx + 0x9974;
         for (int i = 0; i < 32; i++) { job.fogTable[i] = ft[i]; job.fogDelta[i] = i < 31 ? (int)ft[i + 1] - (int)ft[i] : 0; }
+        // A flat table (all 32 entries equal) has no deltas: the density is table[0] at any depth (kFogFragFlat; kFogFrag's `& 255` is a no-op on a byte, then 127 -> 128).
+        job.fogFlat = 1; for (int i = 1; i < 32; i++) if (job.fogTable[i] != job.fogTable[0]) job.fogFlat = 0;
+        job.fogFlatD = job.fogTable[0] == 127 ? 128 : job.fogTable[0];
         static int fogLogs = 0;
         if (fogLogs < 3 || (g.frame % 300) == 7) { fogLogs++;
             char tb[160]; int n = 0; for (int i = 0; i < 32; i++) n += snprintf(tb + n, sizeof tb - n, "%d%s", job.fogTable[i], i < 31 ? "," : "");
@@ -5188,7 +5297,9 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
     gPolyTab = nullptr; gRowOwner = nullptr;
-    if (job.fogPost) { static int bandLogs = 0; if (bandLogs < 3 || (g.frame % 300) == 7) { bandLogs++; ALOGI("gpu3d: fog post pass: fog polygons touch bands %03x (rear plane flag %d)", job.fogBands, job.clearFog); } }
+    if (job.fogPost) { static int bandLogs = 0; if (bandLogs < 3 || (g.frame % 300) == 7) { bandLogs++;
+        ALOGI("gpu3d: fog post pass: fog polygons touch bands %03x, those that can set the flag %03x box %d,%d-%d,%d (rear plane flag %d, table %s%d)", job.fogBands, job.fogBandsSet,
+              job.fogBandsSet ? job.fogBx0 : 0, job.fogBandsSet ? job.fogBy0 : 0, job.fogBandsSet ? job.fogBx1 : 0, job.fogBandsSet ? job.fogBy1 : 0, job.clearFog, job.fogFlat ? "flat " : "not flat, density[0] ", job.fogTable[0]); } }
     if (!job.rowOwner.empty()) job.rowOwner.resize((job.rowOwner.size() + kRowTabW - 1) / kRowTabW * kRowTabW, 0);   // whole texture lines for the upload
     job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
     job.classMask = gClassSeen;
