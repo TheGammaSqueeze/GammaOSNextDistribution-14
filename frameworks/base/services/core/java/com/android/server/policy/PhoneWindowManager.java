@@ -872,6 +872,31 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final long NANO_MENU_RESUME_GUARD_MS = 3000;
     private static final boolean GAMMA_MENU_HOME_DEVICE =
             "anbernicrgdsplus".equals(SystemProperties.get("ro.gammaos.device", ""));
+    // GammaOS Nano: drastic-nano owns the lid during its DRM game session. It sets
+    // sys.gammaos.drastic_nano.lid_owner=1 (only on devices where it chains its own sleep into PowerManager),
+    // and init clears it when the service stops. drastic pauses the game and keeps the panels on for a grace
+    // period, then puts PowerManager to sleep itself. A framework lid sleep came 1.4-2.3 s late and landed
+    // after a quick reopen (dark panels, the vendor suspend loop under a running game).
+    private static boolean gammaNanoLidOwned() {
+        return SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && "1".equals(SystemProperties.get("sys.gammaos.drastic_nano.lid_owner", "0"));
+    }
+    private static final long GAMMA_NANO_LID_RECHECK_MS = 2000;
+    // Runs while a closed lid was left to drastic-nano: once drastic no longer owns it (exit, crash) and the
+    // lid is still closed, the normal lid behaviour applies.
+    private final Runnable mGammaNanoLidRecheck = new Runnable() {
+        @Override
+        public void run() {
+            if (mDefaultDisplayPolicy.getLidState() != LID_CLOSED) return;
+            if (gammaNanoLidOwned()) {
+                mHandler.postDelayed(this, GAMMA_NANO_LID_RECHECK_MS);
+                return;
+            }
+            Slog.i(TAG, "GammaOS Nano: drastic-nano gave the lid back while it is closed, applying it");
+            applyLidSwitchState();
+            updateRotation(true);
+        }
+    };
     // Event time (ns) of the Menu key down that may still turn into a tap, 0 when there is none.
     // Only touched from the input thread.
     private long mNanoMenuDownNs;
@@ -1538,11 +1563,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // GammaOS Nano: a quick power press always puts the device to sleep. The
             // power-hold is reserved for raising the overlay XMB (powerLongPress), so
             // the short press must sleep regardless of the device's configured
-            // short-press behavior. This only runs in the overlay/app-foreground case
-            // (in the DRM home the power key is swallowed in interceptKeyBeforeQueueing
-            // and nano handles sleep over evdev), giving consistent quick-press-to-sleep
-            // in both modes.
+            // short-press behavior. nano's DRM home only keeps the key from getting
+            // here when it grabs input (persist.gammaos.nano.grab_input); otherwise
+            // this is the only sleep. drastic-nano reads the key off evdev and owns
+            // the sleep during its game session (below). This gives consistent
+            // quick-press-to-sleep in all modes.
             if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                if (gammaNanoLidOwned()) {
+                    // drastic-nano reads the power key off evdev and puts PowerManager to sleep itself once
+                    // its panels are off
+                    Slog.i(TAG, "GammaOS Nano: power short press left to drastic-nano");
+                    return;
+                }
                 // A system update is being checked, downloaded or prepared on the nano home
                 // (nano sets this while its progress screen is up): the screen stays on, so the
                 // update goes on where the user can see it. A hold still opens the power menu.
@@ -6599,15 +6631,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mDefaultDisplayPolicy.setLidState(newLidState);
 
-        // GammaOS Nano: the framework MUST keep driving the lid sleep/wake even
-        // while a DRM-direct renderer owns the panels - its goToSleep is what
-        // sets sys.screen.state=off, and the device's real suspend
+        mHandler.removeCallbacks(mGammaNanoLidRecheck);
+        if (gammaNanoLidOwned()) {
+            if (lidOpen) {
+                // No updateRotation (it held the WMS lock on the InputReader thread for seconds) and no
+                // broadcast. The wake stays: it runs while this input event still holds its wakeup source,
+                // so the device cannot autosuspend again before drastic-nano's own wake request lands.
+                // drastic wakes on every lid open, so this never contradicts it.
+                Slog.i(TAG, "GammaOS Nano: lid open left to drastic-nano (wake only)");
+                mWindowWakeUpPolicy.wakeUpFromLid();
+            } else {
+                Slog.i(TAG, "GammaOS Nano: lid close left to drastic-nano");
+                mHandler.postDelayed(mGammaNanoLidRecheck, GAMMA_NANO_LID_RECHECK_MS);
+            }
+            return;
+        }
+
+        // GammaOS Nano: the framework drives the lid sleep/wake, even while a
+        // DRM-direct renderer owns the panels - its goToSleep is what sets
+        // sys.screen.state=off, and the device's real suspend
         // (init: sys.screen.state=off -> force_sleep -> sleep.sh -> echo mem)
         // hangs off that. nano reads the lid switch off evdev in parallel to
         // pause its emulator + drop its render thread off SCHED_FIFO (so the
         // kernel task-freeze succeeds) and to blank + recommit its own DRM
-        // panel around the suspend. The two cooperate; we deliberately do NOT
-        // suppress the framework here.
+        // panel around the suspend. The one exception is a drastic-nano game
+        // session (above): drastic owns the lid then, and asks PowerManager
+        // for the sleep itself once its grace period is over, so the same
+        // chain still runs.
 
         applyLidSwitchState();
         updateRotation(true);
