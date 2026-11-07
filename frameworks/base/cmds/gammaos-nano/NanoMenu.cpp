@@ -92,6 +92,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoBtStable.h"
+#include "NanoClockProfile.h"   // nanoclock::startService / beginSleep / endSleep (RG DS Plus)
 #include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
 extern int gEarlyDrmFd;
@@ -1259,7 +1260,9 @@ void NanoMenu::perfHintReport() {
 
 // Run /vendor/bin/setclock_<mode>.sh in the background to switch the CPU
 // governor/clocks. `mode` is validated against the known set (the scripts that
-// actually ship) so the value can never inject into the shell command.
+// actually ship) so the value can never inject into the shell command. On the
+// RG DS Plus it starts the vendor service instead, so init sees the run and can
+// re-apply the persisted mode after a late powersave run (NanoClockProfile.h).
 void NanoMenu::nanoApplyPerfClock(const char* mode) {
     const char* m = "stock";
     if (mode) {
@@ -1267,6 +1270,7 @@ void NanoMenu::nanoApplyPerfClock(const char* mode) {
         else if (!strcmp(mode, "powersave")) m = "powersave";
         else m = "stock";
     }
+    if (nanoclock::startService(m)) return;
     char cmd[96];
     snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", m);
     system(cmd);
@@ -5235,9 +5239,9 @@ if (sRingPrimedCount >= 2) {
                 if (!mSfxOpening.load()) mSfxPlayer.release();
                 // the 3DS theme's own player (its looping BGM never idles the stream): same reason
                 if (mCtrAudio) { mCtrAudio->stopAll(0); mCtrAudio->release(); }
-                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
+                nanoclock::beginSleep(); nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
             }
-            else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sOvlPwrSave = false; }
+            else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoclock::endSleep(); nanoRestorePerfClock(); sOvlPwrSave = false; }
             // The framework drives suspend for the overlay; release the BT bluesleep
             // wakelock (BT off) so it is not blocked. Restored when the panel returns.
             static bool sOvlBtLpm = false;
@@ -5346,11 +5350,11 @@ if (sRingPrimedCount >= 2) {
                     mDrmPanelsParked.store(true, std::memory_order_relaxed);
                     ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked and switched off");
                 }
-                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
+                nanoclock::beginSleep(); nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
                 mCtrSleepStartMs = (int64_t)uptimeMillis();
             }
             else if (!screenOff && sSfPwrSave) {
-                property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false;
+                property_set("sys.gammaos.nano.screenoff", "0"); nanoclock::endSleep(); nanoRestorePerfClock(); sSfPwrSave = false;
                 ctrShuffleEvent(false, (int64_t)uptimeMillis() - mCtrSleepStartMs);   // 3DS theme Shuffle
                 if (sDrmActive) {
                     // the CRTCs first (the DP bridge needs a moment after its power-down:
@@ -6306,14 +6310,13 @@ if (sRingPrimedCount >= 2) {
     }
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
-    // Run in background — setclock_max.sh has a 20s retry loop that must not block exit.
+    // Run in background so the exit is not blocked; nanoRestorePerfClock validates the mode
+    // before it reaches a shell.
     if (mExitRequested) {
         char mode[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.performance_mode", mode, "stock");
-        char cmd[128];
-        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", mode);
         ALOGI("NanoMenu: re-applying performance mode '%s' (background)", mode);
-        system(cmd);
+        nanoRestorePerfClock();
     }
 
     // Transition: grab input devices. drop_input was already set in handleSelect()

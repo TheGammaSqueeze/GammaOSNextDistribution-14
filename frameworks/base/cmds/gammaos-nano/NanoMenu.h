@@ -410,7 +410,7 @@ private:
     std::atomic<bool> mDrasticParked{false};
     // CPU clock/governor while the screen is off: drop to powersave on screen-off and
     // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).
-    void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated)
+    void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated; the RG DS Plus starts the service via init)
     void nanoRestorePerfClock();                 // re-apply persist.gammaos.performance_mode
     void handleUp();
     void handleDown();

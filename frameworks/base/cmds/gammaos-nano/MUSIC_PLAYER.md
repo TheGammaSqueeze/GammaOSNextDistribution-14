@@ -99,6 +99,10 @@ normal phone music player:
   performance mode on wake (`nanoApplyPerfClock`/`nanoRestorePerfClock`, NanoMenu.cpp;
   mode validated to stock/max/powersave). Audio decode + the 1Hz poll run fine at
   408MHz, so playback continues in a genuinely low-power state with no processes killed.
+  On the RG DS Plus these start the vendor `setclock_*` services instead of a direct script run
+  (NanoClockProfile.h), and `device/gammaos/gammaos.rc` re-applies the persisted mode when a late
+  powersave run ends after the wake, so a powersave run that outlives the suspend cannot leave the
+  clocks capped.
 - When the queue ends (repeat off -> `mpStep` Pauses -> `isPaused()`), nano releases the
   wakelock and lets the device take a real sleep, so it is not left awake screen-off
   with nothing playing.

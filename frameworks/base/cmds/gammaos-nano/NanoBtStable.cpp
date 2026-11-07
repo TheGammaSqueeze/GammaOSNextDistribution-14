@@ -17,6 +17,7 @@
 #define LOG_TAG "GammaOSNano"
 
 #include "NanoBtStable.h"
+#include "NanoClockProfile.h"
 
 #include <dirent.h>
 #include <fcntl.h>
@@ -205,6 +206,8 @@ void cpuRestore() {
         else if (!strcmp(mode, "powersave")) m = "powersave";
         else                                 m = "stock";
     }
+    // RG DS Plus: through the service, so init sees the run (device/gammaos/gammaos.rc)
+    if (nanoclock::startService(m)) return;
     char cmd[96];
     snprintf(cmd, sizeof cmd, "/vendor/bin/setclock_%s.sh", m);   // mode validated above; no injection
     system(cmd);

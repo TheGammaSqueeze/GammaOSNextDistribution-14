@@ -53,6 +53,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/SystemClock.h>
 
 #include "NanoBacklight.h"
+#include "NanoClockProfile.h"   // nanoclock::beginSleep / endSleep (RG DS Plus)
 #include "NanoMenu.h"
 #include "NanoCtrAudio.h"      // lid sleep closes the 3DS theme audio streams
 #include "NanoCtrHome.h"
@@ -1104,6 +1105,7 @@ bool NanoMenu::enterDrmSleep() {
     // screen-off state so the BT stability monitor reverts to powersave (not the
     // user's perf mode) if A2DP audio stops while the screen is off.
     property_set("sys.gammaos.nano.screenoff", "1");
+    nanoclock::beginSleep();   // RG DS Plus: init keeps its hands off this powersave run (NanoClockProfile.h)
     nanoApplyPerfClock("powersave");
 
     // Drive the WHOLE device into a real PowerManager suspend (not just a
@@ -1355,6 +1357,7 @@ bool NanoMenu::enterDrmSleep() {
         setBrightnessViaHal(sysfs_val);
     }
     property_set("sys.gammaos.nano.screenoff", "0");
+    nanoclock::endSleep();
     nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)
     // Hold nano_wake until the framework actually owns wakefulness. The wake key
     // is injected via `input keyevent 224` -> app_process, which on a low-RAM

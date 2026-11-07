@@ -109,6 +109,7 @@
 #include "DrasticAssets.h"
 #include "DrasticPerf.h"
 #include "NanoSessionHw.h"
+#include "NanoClockProfile.h"
 #include "DisplayBackend.h"
 #include "SfDisplayBackend.h"
 #include "DsScreenLayout.h"
@@ -1245,6 +1246,10 @@ void doSleep(android::drastic_input::InputState* input,
     // Stop the exclusive audio stream for the sleep (kept open): it bypasses AudioFlinger's
     // mixer, so while started it keeps the audio DSP up and the SoC out of vmin.
     dr->setAudioSleep(true);
+    // RG DS Plus: tell init this powersave run is ours, so its re-apply of the persisted mode
+    // (device/gammaos/gammaos.rc) does not undo it before the screen goes off, and stop a max/stock run
+    // still in flight so powersave writes last.
+    android::nanoclock::beginSleep();
     property_set("ctl.start", "setclock_powersave");
     {
         struct sched_param sp = {};
@@ -1324,6 +1329,10 @@ void doSleep(android::drastic_input::InputState* input,
         }
     }
     disableDeepCpuIdle();
+    // RG DS Plus: lift the sleep marker. A powersave run still going from the sleep (or started late by
+    // the vendor screen-off trigger) can end after this max run; init then starts the persisted mode
+    // again (device/gammaos/gammaos.rc), so those caps no longer outlast the wake.
+    android::nanoclock::endSleep();
     retriggerPowerProfile();
 
     // Resume re-enables the CRTCs with no planes; re-commit the
