@@ -3077,26 +3077,46 @@ bool SurfaceFlinger::commit(PhysicalDisplayId pacesetterId,
     // pass. The property is toggled by NanoMenuDrm::drmEarlySplash / drmStop.
     const bool gammaNanoDrmOwnsDisplay =
             base::GetBoolProperty("sys.gammaos.nano.drm_active"s, false);
-    // GammaOS: while a nano process (home, drastic-nano, azahar-nano) holds DRM master, the
-    // power-on requests DisplayManager sends (the follower wake retries every 500 ms) reach a
-    // composer that cannot commit, so the composer keeps its display OFF while SF records ON.
-    // SF never re-sends ON for a display it thinks is on: once the nano hands the panel back,
-    // every SurfaceFlinger app composed DEVICE layers onto CRTCs with no planes (black on
-    // both panels until a power key cycle). The composer also caches the last requested mode
-    // and ignores a repeated ON, so cycle OFF then ON in the composer for every display SF
-    // has on as the hand-back happens (what a power key cycle does; SF's own state stays
-    // ON, and the panels are changing owner at this moment anyway).
+    // GammaOS: this kernel does not enforce DRM master (CONFIG_DRM_IGNORE_IOTCL_PERMIT=y), so a
+    // composer power change made while a nano process (home, drastic-nano, azahar-nano) drives
+    // the panels does reach the CRTCs: a late screen-off disabled both CRTCs and detached the
+    // game's planes. SF therefore holds the composer's power changes back for the internal
+    // displays during a nano session (gammaSetHwcPowerMode) and replays them here. SF's own
+    // state (DisplayDevice mode, vsync, scheduler) is never held back.
+    // A display SF has ON: the composer may be OFF (a request it could not apply earlier) or
+    // ON, and it caches the last requested mode and ignores a repeated one. Cycle OFF then ON
+    // in the composer (what a power key cycle does; the panels are changing owner at this
+    // moment anyway). A display SF has in another mode: when a change was held back, send that
+    // mode, so a composer left ON does not swallow the next ON.
     if (CC_UNLIKELY(mGammaNanoDrmWasActive && !gammaNanoDrmOwnsDisplay)) {
         ftl::FakeGuard guard(mStateLock);
         for (const auto& [_, display] : FTL_FAKE_GUARD(mStateLock, mDisplays)) {
             if (!display || display->isVirtual()) continue;
-            if (display->getPowerMode() != hal::PowerMode::ON) continue;
             const auto displayId = display->getPhysicalId();
-            ALOGI("GammaOS: nano DRM session over, cycling HWC power on display %s",
-                  to_string(displayId).c_str());
-            getHwComposer().setPowerMode(displayId, hal::PowerMode::OFF);
-            getHwComposer().setPowerMode(displayId, hal::PowerMode::ON);
+            const auto mode = display->getPowerMode();
+            if (mode == hal::PowerMode::ON) {
+                ALOGI("GammaOS: nano DRM session over, cycling HWC power on display %s",
+                      to_string(displayId).c_str());
+                getHwComposer().setPowerMode(displayId, hal::PowerMode::OFF);
+                getHwComposer().setPowerMode(displayId, hal::PowerMode::ON);
+                mGammaHwcPowerSent[displayId.value] = hal::PowerMode::ON;
+                // OFF also disabled the composer's vsync (HWComposer::setPowerMode): ask again, as
+                // the power-on path does
+                if (const auto schedule = mScheduler->getVsyncSchedule(displayId)) {
+                    requestHardwareVsync(displayId, schedule->getPendingHardwareVsyncState());
+                }
+            } else if (mGammaHwcPowerDeferred) {
+                // A composer left ON by a held-back OFF caches ON and would swallow the next ON
+                const auto it = mGammaHwcPowerSent.find(displayId.value);
+                if (it != mGammaHwcPowerSent.end() && it->second != mode) {
+                    ALOGI("GammaOS: nano DRM session over, composer power %d replayed on display %s",
+                          static_cast<int32_t>(mode), to_string(displayId).c_str());
+                    getHwComposer().setPowerMode(displayId, mode);
+                    it->second = mode;
+                }
+            }
         }
+        mGammaHwcPowerDeferred = false;
         mVisibleRegionsDirty = true;
         mustComposite = true;
     }
@@ -5140,6 +5160,8 @@ void SurfaceFlinger::processDisplayRemoved(const wp<IBinder>& displayToken) {
     if (display && !display->isVirtual()) {
         mDelayFrames.erase(display->getPhysicalId());
         mDelayCountdown.erase(display->getPhysicalId());
+        // GammaOS: a display that comes back gets its first ON again (gammaSetHwcPowerMode)
+        mGammaHwcPowerSent.erase(display->getPhysicalId().value);
     }
 
     if (display && display->isVirtual()) {
@@ -5178,6 +5200,9 @@ void SurfaceFlinger::processDisplayChanged(const wp<IBinder>& displayToken,
 
         if (const auto& physical = currentState.physical) {
             getHwComposer().allocatePhysicalDisplay(physical->hwcDisplayId, physical->id);
+            // GammaOS: the composer display is new, so it gets its first ON again
+            // (gammaSetHwcPowerMode)
+            mGammaHwcPowerSent.erase(physical->id.value);
         }
 
         processDisplayAdded(displayToken, currentState);
@@ -7531,6 +7556,37 @@ void SurfaceFlinger::initializeDisplays() {
     }
 }
 
+// GammaOS: while a nano process (home, drastic-nano, azahar-nano) drives the internal panels over DRM, the
+// composer must not switch them. This kernel does not enforce DRM master (CONFIG_DRM_IGNORE_IOTCL_PERMIT=y):
+// a late screen-off reached the composer, which disabled both CRTCs and detached the game's planes (black
+// until a sleep/wake). SurfaceFlinger keeps its own state; the composer catches up when drm_active falls
+// (commit()). The first ON a display gets is never held back (boot, capability query in HWC2::Display).
+// On by default on the RG DS Plus; persist.gammaos.nano.defer_hwc_power overrides it either way.
+void SurfaceFlinger::gammaSetHwcPowerMode(PhysicalDisplayId displayId, bool isInternal,
+                                          hal::PowerMode mode) {
+    static const bool sDeviceDefault =
+            base::GetProperty("ro.gammaos.device"s, ""s) == "anbernicrgdsplus"s;
+    const auto it = mGammaHwcPowerSent.find(displayId.value);
+    if (it != mGammaHwcPowerSent.end() && isInternal &&
+        base::GetIntProperty("persist.gammaos.nano.defer_hwc_power"s, sDeviceDefault ? 1 : 0) != 0 &&
+        base::GetBoolProperty("sys.gammaos.minimal_boot"s, false) &&
+        base::GetBoolProperty("sys.gammaos.nano.drm_active"s, false)) {
+        ALOGI("GammaOS: nano drives the panels, composer power %d on display %s held back",
+              static_cast<int32_t>(mode), to_string(displayId).c_str());
+        mGammaHwcPowerDeferred = true;
+        // commit() may not have run while drm_active was 1: make its first look at drm_active=0
+        // run the hand-back replay
+        mGammaNanoDrmWasActive = true;
+        return;
+    }
+    getHwComposer().setPowerMode(displayId, mode);
+    if (it != mGammaHwcPowerSent.end()) {
+        it->second = mode;
+    } else if (mode == hal::PowerMode::ON) {
+        mGammaHwcPowerSent.emplace(displayId.value, mode);
+    }
+}
+
 void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal::PowerMode mode) {
     if (display->isVirtual()) {
         // TODO(b/241285876): This code path should not be reachable, so enforce this at compile
@@ -7587,7 +7643,7 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
             }
         }
 
-        getHwComposer().setPowerMode(displayId, mode);
+        gammaSetHwcPowerMode(displayId, isInternalDisplay, mode);
         // GammaOS: Enable vsync + composition for ALL powered-on displays, not just
         // the active one. On dual-DSI devices (RG DS RK3568) the follower display
         // stays on synthetic vsync without this, blocking HWC present for 20+ seconds.
@@ -7644,13 +7700,13 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         // call just updates the pending state, without actually disabling
         // VSYNC.
         requestHardwareVsync(displayId, false);
-        getHwComposer().setPowerMode(displayId, mode);
+        gammaSetHwcPowerMode(displayId, isInternalDisplay, mode);
 
         mVisibleRegionsDirty = true;
         // from this point on, SF will stop drawing on this display
     } else if (mode == hal::PowerMode::DOZE || mode == hal::PowerMode::ON) {
         // Update display while dozing
-        getHwComposer().setPowerMode(displayId, mode);
+        gammaSetHwcPowerMode(displayId, isInternalDisplay, mode);
         if (currentMode == hal::PowerMode::DOZE_SUSPEND &&
             (displayId == mActiveDisplayId || FlagManager::getInstance().multithreaded_present())) {
             if (displayId == mActiveDisplayId) {
@@ -7673,10 +7729,10 @@ void SurfaceFlinger::setPowerModeInternal(const sp<DisplayDevice>& display, hal:
         if (displayId == mActiveDisplayId) {
             mScheduler->enableSyntheticVsync();
         }
-        getHwComposer().setPowerMode(displayId, mode);
+        gammaSetHwcPowerMode(displayId, isInternalDisplay, mode);
     } else {
         ALOGE("Attempting to set unknown power mode: %d\n", mode);
-        getHwComposer().setPowerMode(displayId, mode);
+        gammaSetHwcPowerMode(displayId, isInternalDisplay, mode);
     }
 
     if (displayId == mActiveDisplayId) {
