@@ -4792,6 +4792,33 @@ extern "C" void gpu3dNotePresent() {
 }
 
 
+// Budget guard bookkeeping (worker thread only: gpu3dFrame and gpu3dOff both run on the 3D worker). The CPU fallback is not
+// for the session. It ends by itself on a growing schedule, and at once when the setting that made the scene too heavy changes
+// (supersampling, hi-res 3D, the GPU 3D setting itself); the GL thread only sees such a change in a job, and none is queued
+// while the fallback lasts.
+static uint32_t sBackoffLevel = 0;     // trips in a row: the next fallback lasts 600 << level frames (10 s, 20 s, 40 s ...), at most 18000 (5 min)
+static uint32_t sBackoffRetryAt = 0;   // frames the running fallback lasts; 0 = no retry (sys gpu3d_retry_frames 0, for A/B)
+static uint32_t sGpuRunFrames = 0;     // frames on the GPU path since the last retry or trip: 3600 (60 s) without a trip forget the level
+static uint32_t sRetryTrial = 0;       // frames left of a retry's trial window: a trip inside it needs 45 frames over budget, not 90, so a failed retry costs under a second
+static int sBackoffSs = 1;             // the supersampling option when the fallback began (ssOptionNow)
+// The supersampling option as renderJob reads it (sys override, else the setting), without its sample count check: 1 off, 2 SSAA, 3 MSAA.
+static int ssOptionNow() {
+    const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ss", -1);
+    if (!(ov >= 0 ? ov >= 2 : android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ss", false))) return 1;
+    char mode[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.drastic_nano.gpu3d_ss_mode", mode, "msaa");
+    return strcmp(mode, "ssaa") != 0 ? 3 : 2;
+}
+// Forget the budget history: the over-budget average (firstUs is the first-quarter EMA the GL thread seeds emaUs from after a
+// progressive job; left alone it brings the old average straight back), the counters and the fallback itself.
+static void budgetClear() {
+    g.emaUs = 0.f; g.firstUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+}
+// The same for a new configuration, which also forgets how often the old one tripped.
+static void budgetForget() {
+    budgetClear(); sBackoffLevel = 0; sGpuRunFrames = 0; sRetryTrial = 0;
+}
+
 // Returns true when the frame was rendered on the GPU (drastic's target buffer holds the
 // result and every band is marked complete); false = the caller must run the CPU path.
 extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
@@ -4828,7 +4855,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     {
         // Budget guard (runtime knob gpu3d_budget_ms, default 8): a scene whose GPU frame stays
         // above the budget starves the compositor's band waits, so hand it back to the CPU
-        // rasterizer for 600 frames and retry. 0 disables the guard.
+        // rasterizer for a while (10 s, doubling up to 5 min) and retry. 0 disables the guard.
         // Budget: the first band quarter must be ready within gpu3d_budget_ms (default 6) in
         // progressive mode (whole frame time otherwise).
         // Decoupled mode (below) renders whole frames into a buffer the compositor is not reading,
@@ -4840,16 +4867,31 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // again; otherwise the row looked inert for the rest of the session.
         if (g.ssChanged.exchange(false, std::memory_order_acq_rel)) {
             if (g.backoffFrames) ALOGI("gpu3d: supersampling changed, leaving the CPU fallback");
-            g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+            budgetForget();
+        }
+        if (!g.backoffFrames) {   // on the GPU path: the retry's trial window runs down, a long clean run forgets the trips
+            if (sRetryTrial) sRetryTrial--;
+            if (sBackoffLevel && ++sGpuRunFrames >= 3600) { sBackoffLevel = 0; sGpuRunFrames = 0; }
         }
         if (g.backoffFrames) {
-            // Sticky for the session: a retry costs one over-budget frame and on Pokemon the
-            // retry's first GPU frame once stalled for 12 s (fps 50 for 14 s), so a scene that
-            // trips the budget stays on the CPU rasterizer until the GPU setting is toggled or
-            // the game is relaunched. (sys gpu3d_retry_frames > 0 re-enables timed retries.)
-            static int retryFrames = 0; if ((g.frame & 63) == 0) retryFrames = property_get_int32("sys.gammaos.drastic_nano.gpu3d_retry_frames", 0);
-            if (retryFrames > 0 && ++g.backoffElapsed >= (uint32_t)retryFrames) {
-                g.backoffFrames = 0; g.backoffElapsed = 0; g.emaUs = 0.f; ALOGI("gpu3d: retrying the GPU path");
+            // The CPU fallback is not for the session (a scene that trips the budget at the GPU's slow moment, after a clock
+            // drop or on a heavy scene, would otherwise stay on the CPU rasterizer until the game is relaunched). It ends when
+            //  - the hi-res 3D setting or the supersampling option changes (checked here: the GL thread's own check lives in
+            //    a job, and none is submitted while the fallback lasts; the GPU 3D setting is handled by gpu3dOff), or
+            //  - the schedule runs out (sBackoffRetryAt, see the trip below): the GPU path is tried again, and a failed try
+            //    leaves it again after under a second.
+            // sys gpu3d_retry_frames: -1 (default) the schedule, 0 no retry (A/B), > 0 a fixed number of frames.
+            const uint32_t el = g.backoffElapsed++;   // frames spent in the fallback
+            const uint8_t* cfgB = *reinterpret_cast<uint8_t**>(R + 8);
+            const char* leave = nullptr;
+            if ((*reinterpret_cast<const uint32_t*>(cfgB + 1184) != 0 ? 1 : 0) != gResWant.load(std::memory_order_relaxed)) leave = "hi-res 3D changed";   // the hi-res block below then rebuilds the GL state
+            else if ((el & 63) == 0 && ssOptionNow() != sBackoffSs) leave = "supersampling changed";
+            if (leave) {
+                ALOGI("gpu3d: %s, leaving the CPU fallback", leave);
+                budgetForget();
+            } else if (sBackoffRetryAt > 0 && el + 1 >= sBackoffRetryAt) {
+                budgetClear(); sRetryTrial = 300; sGpuRunFrames = 0;
+                ALOGI("gpu3d: retrying the GPU path (after %u frames, backoff %u)", el + 1, g.backoffs);
             } else { joinPrevious(); return false; }
         } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && !g.parityOn && ++g.overBudget >= 30) {   // parity mode sheds jobs instead of waiting, so a slow job there is no reason to shed MSAA or leave the GPU path
             // Heavy-scene fallback ladder. On the MSAA supersampling path (ss 3), a scene that
@@ -4869,10 +4911,15 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             if (msaaMode && g.msImplicit && g.msSamples > 2 && g.msTargetSamples.load() > 2) {
                 g.msTargetSamples.store(2); g.overBudget = 0; g.emaUs = 0.f; g.msaaUnder = 0;
                 ALOGW("gpu3d: %.1f ms sustained over the %d ms budget, dropping MSAA to 2x (was 4x)", overMs, budgetMs);
-            } else if (!msaaMode && g.overBudget >= 90) {
+            } else if (!msaaMode && g.overBudget >= (sRetryTrial ? 45u : 90u)) {   // a retry's first frames trip sooner: a try that fails is over after under a second (45 frames outlast the first job's texture uploads, which seed the EMA)
                 g.backoffFrames = 1; g.backoffElapsed = 0; g.backoffs++;
-                ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (backoff %u)",
-                      overMs, budgetMs, g.backoffs);
+                sBackoffSs = ssOptionNow();
+                const int retryProp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_retry_frames", -1);
+                sBackoffRetryAt = retryProp >= 0 ? (uint32_t)retryProp : std::min<uint32_t>(600u << sBackoffLevel, 18000u);
+                if (sBackoffLevel < 5) sBackoffLevel++;
+                sGpuRunFrames = 0; sRetryTrial = 0;
+                if (sBackoffRetryAt) ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for %u frames, then a retry (backoff %u)", overMs, budgetMs, sBackoffRetryAt, g.backoffs);
+                else ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (gpu3d_retry_frames 0, backoff %u)", overMs, budgetMs, g.backoffs);
                 joinPrevious(); return false;
             }
             // msaaMode already at 2x and still over budget: stay at 2x (accept the residual dip);
@@ -4922,7 +4969,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
       }
       if (gResWant.load(std::memory_order_relaxed) != resWant) {
           joinPrevious();
-          g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+          budgetForget();
           gResWant.store(resWant, std::memory_order_release);
           { std::lock_guard<std::mutex> lk(g.mtx); }
           g.cvSubmit.notify_one();
@@ -5449,6 +5496,9 @@ extern "C" void gpu3dResetTextures() {
 }
 extern "C" void gpu3dOff() {
     if (!g.threadStarted) return;
+    // A CPU fallback the budget guard began belongs to the GPU 3D session that was running: switching the setting off and on
+    // starts the guard afresh (nothing else clears it while no GPU frame is submitted).
+    if (g.backoffFrames) { ALOGI("gpu3d: GPU 3D is off, leaving the CPU fallback"); budgetForget(); }
     if (g.decoupledActive.load(std::memory_order_acquire) || g.latest.load(std::memory_order_acquire)) joinPrevious();
 }
 extern "C" void gpu3dLatchRead(uint8_t* R) {
