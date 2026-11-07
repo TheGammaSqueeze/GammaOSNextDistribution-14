@@ -4929,8 +4929,10 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             // Restore 4x once the scene has comfortably fit (well under budget) for ~3 s, so a
             // brief lull does not ping-pong the sample count. Measured at the current sample
             // count, so the hysteresis gap (drop at budget, restore at 70% of it) exceeds the
-            // 2x->4x cost step and cannot oscillate.
-            if (g.msImplicit && g.msTargetSamples.load() == 2 && g.emaUs > 0.f && g.emaUs < budgetMs * 700.f) {
+            // 2x->4x cost step and cannot oscillate. Only below the base count: a device whose base is
+            // already 2x has nothing to restore, and the literal 2 here re-fired every 180 frames there
+            // (log line plus an EMA reset that blinded the budget guard).
+            if (g.msImplicit && g.msTargetSamples.load() < g.msBaseSamples && g.emaUs > 0.f && g.emaUs < budgetMs * 700.f) {
                 if (++g.msaaUnder >= 180) { g.msTargetSamples.store(g.msBaseSamples); g.msaaUnder = 0; g.emaUs = 0.f;
                     ALOGI("gpu3d: scene comfortably fits, restoring MSAA to %dx", g.msBaseSamples); }
             } else g.msaaUnder = 0;
