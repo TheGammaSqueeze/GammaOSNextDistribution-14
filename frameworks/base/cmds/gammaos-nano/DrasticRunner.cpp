@@ -5381,6 +5381,12 @@ void DrasticRunner::setVblankPacing(bool on) {
 }
 
 std::atomic<uint32_t> gAudioHoldSeq{0};   // vblank seq of the last deliberate audio-lead hold (see audioLeadHoldTick)
+// The lead cap (pace_lead_max_us): 12000 on the AFBC path (RG DS Plus), 9000 on PRIME. Every write to the lead or to its
+// creep floor stays under it (the miss step, the floor pins, the GPU margin controller and the creep): above it the lead
+// buys nothing, and the pins used to push it past the cap, where the useless-lead rule then dropped the lock.
+static int64_t paceLeadMaxUs() {
+    return property_get_int32("sys.gammaos.drastic_nano.pace_lead_max_us", android::sDrmAfbcMode ? 12000 : 9000);
+}
 void DrasticRunner::reportFrameMiss(int source) {
     if (source == 2) gPresLate.fetch_add(1, std::memory_order_relaxed);   // flip latched a vblank late (any mode)
     if (!gPaceOn.load()) return;   // bypass: the lock is not driving the emulator
@@ -5408,13 +5414,13 @@ void DrasticRunner::reportFrameMiss(int source) {
     // misses pin the creep floor (the RP Duo Lite's DSI lands a flip late a
     // few times a minute on its own; pinning the floor there parks the lead
     // at a value with no latency benefit).
-    static int64_t sStep = -1, sMax = -1; static int sPin = -1;
+    static int64_t sStep = -1; static int sPin = -1;
     if (sStep < 0) {
         const bool prime = !android::sDrmAfbcMode;
         sStep = property_get_int32("sys.gammaos.drastic_nano.pace_miss_step_us", prime ? 500 : 1000);
-        sMax = property_get_int32("sys.gammaos.drastic_nano.pace_lead_max_us", prime ? 9000 : 12000);
         sPin = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", prime ? 0 : 1);
     }
+    const int64_t sMax = paceLeadMaxUs();
     int64_t l = at + sStep;
     if (l > sMax) l = sMax;
     gLeadUs.store(l);
@@ -5424,7 +5430,8 @@ void DrasticRunner::reportFrameMiss(int source) {
     // edge and pin the creep floor just above it.
     static uint32_t sPrevMissSeq = 0;
     if (sPin && sPrevMissSeq && seq - sPrevMissSeq < 600) {
-        if (at + 500 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 500);
+        const int64_t pin = std::min<int64_t>(at + 500, sMax);   // never above the cap: the creep would lift the lead to the floor
+        if (pin > gLeadCreepFloor.load()) gLeadCreepFloor.store(pin);
         gLeadFloorRelaxAt.store(seq + 3600);
     }
     sPrevMissSeq = seq;
@@ -7129,18 +7136,22 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // Optional: drop a lock whose lead the GPU margin keeps at
         // pace_lead_useless_us or more for 5 s, with a backoff before probing
         // again (60 s, doubling to 10 min). Off by default (the threshold sits
-        // above the lead cap): on the RP Duo Lite Sonic Rush measured 16 to 19 ms
-        // frame-done-to-visible locked at the 9 ms cap against 18 to 22 ms in
-        // the panel-rate bypass, so even the capped lock was the better state.
-        static int64_t sLeadHighSinceUs = 0, sUselessUntilUs = 0, sUselessBackoffUs = 60000000;
+        // one above the lead cap, which no lead write exceeds): on the RP Duo Lite
+        // Sonic Rush measured 16 to 19 ms frame-done-to-visible locked at the
+        // 9 ms cap against 18 to 22 ms in the panel-rate bypass, so even the
+        // capped lock was the better state.
+        // sEmuAtDrop / sLastDropMiss: the drop was not caused by the frame time (see the probe below); the useless-lead drop sets them too.
+        static int64_t sLeadHighSinceUs = 0, sUselessUntilUs = 0, sUselessBackoffUs = 60000000, sEmuAtDrop = 0;
+        static bool sLastDropMiss = false;
         {
-            const int64_t useless = property_get_int32("sys.gammaos.drastic_nano.pace_lead_useless_us", 12000);
+            const int64_t useless = property_get_int32("sys.gammaos.drastic_nano.pace_lead_useless_us", (int)(paceLeadMaxUs() + 1));
             if (gPaceOn.load() && !gPaceBypass.load() && gLeadUs.load() >= useless) {
                 if (sLeadHighSinceUs == 0) sLeadHighSinceUs = vblankUs;
                 if (vblankUs - sLeadHighSinceUs > 5000000) {
                     ALOGW("PACE bypass: lead %lld us for 5 s buys nothing over the free-running path, next probe in %lld s",
                           (long long)gLeadUs.load(), (long long)(sUselessBackoffUs / 1000000));
                     gPaceBypass.store(true); sBypassSinceUs = vblankUs; sProbeSinceUs = 0;
+                    sLastDropMiss = true; sEmuAtDrop = 0;   // not the frame time either: the probe below then needs no light scene
                     sUselessUntilUs = vblankUs + sUselessBackoffUs;
                     if (sUselessBackoffUs < 600000000) sUselessBackoffUs *= 2;
                     sLeadHighSinceUs = 0;
@@ -7154,11 +7165,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // frames: White 2 measured 54 fps locked vs 59.8 bypassed); scenes
         // that merely hiccuped recover through the run-ahead retry below.
         static int sOverCount = 0;
-        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0, sEmuAtDrop = 0;
+        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0;
         if (gPaceOn.load() && emu > sBypassUs) sOverCount++; else sOverCount = 0;
         if (gPaceOn.load() && !gPaceBypass.load()) {
             if (sLockedSinceUs == 0) sLockedSinceUs = vblankUs;
-            if (vblankUs - sLockedSinceUs > 10000000) sRaRetryUs = 4000000;   // held 10 s: reset the backoff
+            if (vblankUs - sLockedSinceUs > 10000000) { sRaRetryUs = 4000000; sUselessBackoffUs = 60000000; sUselessUntilUs = 0; }   // held 10 s: reset the backoffs
         } else {
             sLockedSinceUs = 0;
         }
@@ -7169,7 +7180,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // (30 misses a second for 20 s, 30 fps presented) and ran 59.8 at the panel rate.
         // pace_miss_trip misses within a second (default 5: the title screen misses every flip, so five arrive in 170 ms; Pokemon under the lock showed at most 5 in a second and lives in the bypass anyway) hand it to the bypass; the light-scene
         // re-probe then backs off exponentially like the run-ahead retry so it cannot flip-flop.
-        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false, sLastDropMiss = false;
+        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false;
         static int sMissTripN = 10;
         // Checked every tick against a one-second window (not only at the window's end): a
         // title screen that misses every other vblank reaches the trip in a third of a second
@@ -7216,6 +7227,12 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             }
         } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 && vblankUs >= sUselessUntilUs &&
                    ((gEmuCpuLightSecs.load() >= 3 && (!sLastDropMiss || vblankUs - sBypassSinceUs > sRaRetryUs)) ||
+                    // Without run-ahead, a miss or catch-up drop (or the useless-lead one) at a frame time the lock can hold is also
+                    // retried on the backoff alone, once the emulator thread's busy time per period is under the bypass threshold:
+                    // it must not wait for a 'light' scene (under 55% of a core for 3 s), which a 10 to 12 ms scene never is, or the
+                    // lock never returns. (Run-ahead has its own retry below.)
+                    (gRaMode.load() != 2 && sLastDropMiss && vblankUs - sBypassSinceUs > sRaRetryUs &&
+                     (int64_t)gEmuCpuPct.load() * gVblankPeriodUs.load() / 100 < sBypassUs) ||
                     // run-ahead needs the lock: retry with exponential backoff
                     // (4, 8, 16 .. 64 s), but only while the emulator's average
                     // frame sits near the threshold. A scene well over it can
@@ -7266,25 +7283,33 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     // GPU margin controller: creep the lead later while the render finishes
     // comfortably before the vblank, back it off as soon as it gets tight.
     // Runs only while the emulator is producing frames.
-    if (gpuDoneUs > 0 && gSteadyFrames.load() >= 120) {
+    // Only while the lock drives the emulator: in the bypass the lead is unused, and a controller that kept raising it there
+    // took the lead to 31 ms on timestamps that were not even in one time base after a wake.
+    if (gpuDoneUs > 0 && gSteadyFrames.load() >= 120 && gPaceOn.load() && !gPaceBypass.load()) {
         // PRIME path: the GPU-done time is the fence wait that follows the
         // drain of the previous vblank, so it lies past vblankUs; the commit
         // it precedes targets the next vblank, which is the margin that matters.
         int64_t margin = vblankUs - gpuDoneUs;
         if (margin < 0 && !android::sDrmAfbcMode) margin += gVblankPeriodUs.load();
         static int64_t sMinMargin = 1 << 30; static int nMargin = 0;
-        if (margin < sMinMargin) sMinMargin = margin;
-        if (++nMargin >= 20) {
+        // A margin outside -1 .. +2 periods is a stale or foreign timestamp (after a wake it read -25 s to -100 s and grew by the
+        // time elapsed): no sample, instead of a 'tight margin' that raised the lead every 20 ticks.
+        const int64_t perM = gVblankPeriodUs.load();
+        const bool marginValid = margin >= -perM && margin <= 2 * perM;
+        if (marginValid && margin < sMinMargin) sMinMargin = margin;
+        if (marginValid && ++nMargin >= 20) {
             const int64_t tight = property_get_int32("sys.gammaos.drastic_nano.pace_margin_tight_us", 1500);
             const int64_t comfy = property_get_int32("sys.gammaos.drastic_nano.pace_margin_ok_us", 3000);
             if (sMinMargin < tight) {
-                const int64_t at = gLeadUs.load();
-                gLeadUs.store(at + 500);
+                const int64_t at = gLeadUs.load(), maxUs = paceLeadMaxUs();
+                const int64_t nl = std::max<int64_t>(at, std::min<int64_t>(at + 500, maxUs));   // up to the cap, never down
+                gLeadUs.store(nl);
                 static int sPinM = -1;
                 if (sPinM < 0) sPinM = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", android::sDrmAfbcMode ? 1 : 0);
-                if (sPinM && at + 250 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 250);
+                const int64_t pinM = std::min<int64_t>(at + 250, maxUs);
+                if (sPinM && pinM > gLeadCreepFloor.load()) gLeadCreepFloor.store(pinM);
                 gLeadFloorRelaxAt.store(gVblSeq.load() + 3600);
-                ALOGW("PACE tight margin %lld us at lead %lld", (long long)sMinMargin, (long long)at);
+                if (nl != at) ALOGW("PACE tight margin %lld us at lead %lld", (long long)sMinMargin, (long long)at);   // at the cap it would repeat every 20 ticks
             }
             gMarginOk.store(sMinMargin >= comfy);
             sMinMargin = 1 << 30; nMargin = 0;
@@ -7358,6 +7383,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             // late frame and pins a creep floor just above the edge.
             int64_t floorUs = property_get_int32("sys.gammaos.drastic_nano.pace_lead_min_us", -6000);
             if (gLeadCreepFloor.load() > floorUs) floorUs = gLeadCreepFloor.load();
+            if (floorUs > paceLeadMaxUs()) floorUs = paceLeadMaxUs();   // a floor above the cap would lift the lead past it
             int64_t l = gLeadUs.load() - 50;
             if (l < floorUs) l = floorUs;
             gLeadUs.store(l);
