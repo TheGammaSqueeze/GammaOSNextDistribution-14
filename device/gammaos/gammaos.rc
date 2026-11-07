@@ -159,6 +159,12 @@ on property:init.svc.cpu_screen_off=running && property:sys.gammaos.drastic_nano
 on property:wlan.driver.status=ok && property:ro.gammaos.device=anbernicrgdsplus
     write /sys/module/8821cs/parameters/rtw_drv_log_level 3
 
+# RG DS Plus: 8821cs resumes from its own workqueue, so the kernel resume does not wait about 1 s for the
+# firmware reload. persist.gammaos.wifi.sync_resume=1 brings back the synchronous resume (escape hatch).
+# Every module load resets the parameter; wlan.driver.status=ok follows each load.
+on property:wlan.driver.status=ok && property:persist.gammaos.wifi.sync_resume=1 && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/module/8821cs/parameters/rtw_resume_async 0
+
 # RG DS Plus nano: MediaProvider (an APEX priv-app, never preopted) runs from its APK because the ART
 # background dexopt job waits for IDLE, which nano never reaches. Its cold start then verifies the
 # dex on every boot (Verify dex file 630 ms + 385 VerifyClass 785 ms) on the way to the FUSE mount
