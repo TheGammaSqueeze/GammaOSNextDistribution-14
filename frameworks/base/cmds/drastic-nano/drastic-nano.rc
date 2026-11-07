@@ -127,3 +127,9 @@ on property:sys.gammaos.drastic_nano.session_done=1
     setprop service.bootanim.nano_retroarch 0
     start gammaos-nano
 
+# drastic-nano owns the lid and the device sleep for its DRM game session (PhoneWindowManager
+# notifyLidSwitchChanged, device/gammaos/gammaos.rc). However the service ends (exit, crash, kill), the
+# framework gets the lid back and the vendor suspend loop is no longer held off.
+on property:init.svc.drastic-nano=stopped
+    setprop sys.gammaos.drastic_nano.lid_owner 0
+    setprop sys.gammaos.drastic_nano.awake 0
