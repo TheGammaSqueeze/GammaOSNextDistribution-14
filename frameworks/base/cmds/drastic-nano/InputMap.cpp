@@ -24,6 +24,7 @@
 #include "DrasticRunner.h"
 #include "NanoMenuDrm.h"
 #include "DrasticSettings.h"
+#include "NanoPmSync.h"
 
 namespace android {
 namespace drastic_input {
@@ -94,6 +95,7 @@ std::atomic<bool> sUserInputSeen{false};
 void closeDeviceFds(InputState* st) {
     for (int fd : st->fds) close(fd);
     st->fds.clear();
+    st->lidFd = -1;   // one of the fds above
     for (int fd : st->touchFds) close(fd);
     st->touchFds.clear();
     st->touchNodeW.clear();
@@ -106,7 +108,7 @@ void closeDeviceFds(InputState* st) {
 bool userInputSeen() { return sUserInputSeen.load(std::memory_order_relaxed); }
 
 void scanInputDevices(InputState* st) {
-    closeDeviceFds(st);
+    closeDeviceFds(st);   // also clears lidFd
     st->touchPanelW = 0;
     st->touchPanelH = 0;
     // Watch /dev/input for nodes coming and going so a device that appears after
@@ -177,11 +179,13 @@ void scanInputDevices(InputState* st) {
                         (code % (8 * sizeof(long)))) & 1;
             };
             // KEY_POWER admits the gpio-keys power button device for the DRM
-            // backend: there the framework consumes KEYCODE_POWER inertly while a
-            // drastic session runs (the DRM home swallows it), so the power
-            // gestures must be read from evdev. The SF backend runs as a normal
-            // foreground app and leaves power entirely to PhoneWindowManager, so
-            // it clears admitPowerKey and a power-only node is not opened here.
+            // backend: the power gestures (sleep, menu, power off) are read from
+            // evdev here. PhoneWindowManager still sees the key as well: it leaves
+            // the short press to drastic only while drastic owns the lid
+            // (sys.gammaos.drastic_nano.lid_owner), and the long press always;
+            // elsewhere both act. The SF backend runs as a normal foreground app
+            // and leaves power entirely to PhoneWindowManager, so it clears
+            // admitPowerKey and a power-only node is not opened here.
             const bool powerAdmit = st->admitPowerKey && has(KEY_POWER);
             // The lid switch drives sleep the same way in the DRM backend. On the RG DS it
             // shares a node with keys, but the RP Duo Lite reports it alone on hall_switch
@@ -197,6 +201,7 @@ void scanInputDevices(InputState* st) {
             if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
                 has(KEY_UP) || has(KEY_VOLUMEUP) || powerAdmit || lidAdmit) {
                 st->fds.push_back(fd);
+                if (lidAdmit) st->lidFd = fd;
                 // Read axis calibration for any sticks / triggers on
                 // this device. Missing axes leave the struct at
                 // defaults (seen=false).
@@ -261,6 +266,21 @@ void closeInputDevices(InputState* st) {
         st->inotifyFd = -1;
     }
     st->rescanDueMs = 0;
+}
+
+int readLidSwitch(const InputState* st) {
+    if (st->lidFd < 0) return -1;
+    unsigned long sw[(SW_MAX + 8 * sizeof(long)) / (8 * sizeof(long))] = {};
+    if (ioctl(st->lidFd, EVIOCGSW(sizeof(sw)), sw) < 0) return -1;
+    return (sw[SW_LID / (8 * sizeof(long))] >> (SW_LID % (8 * sizeof(long)))) & 1;
+}
+
+int lidGraceMs() {
+    if (!drastic_pm::owning()) return 0;
+    int ms = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_grace_ms", 10000);
+    if (ms < 0) ms = 0;
+    if (ms > 60000) ms = 60000;
+    return ms;
 }
 
 namespace {
@@ -564,12 +584,54 @@ bool menuKeyIsHome() {
     return cached == 1;
 }
 
+// One lid edge (the level changed). Hall-effect lid switch, closed = true.
+//  - persist.gammaos.drastic_nano.phys_lid_close on: a close signals the EMULATED DS lid closed right away
+//    (the game sleeps in-emulator, the run loop also darkens the backlight) and arms a delayed device sleep,
+//    so a quick close-then-open just pauses and resumes the game; a sustained close sleeps the device. The
+//    delay is lid_sleep_delay_ms, or with the default (-1) the grace period when one is set, else 2.5 s.
+//    An open signals the DS lid open and cancels the arm.
+//  - otherwise a close while drastic-nano owns the lid and a grace period is set asks for the grace window
+//    (the run loop pauses, darkens and keeps the panels on); with no grace (0, or the lid is not ours) it
+//    asks for the sleep at once, like a short power press. The open edge is consumed by the grace / sleep
+//    loop as the wake.
+void onLidEdge(InputState* st, InputActions* out, bool closed) {
+    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
+        if (closed) {
+            out->physLidClose = true;
+            int delayMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_sleep_delay_ms", -1);
+            if (delayMs < 0) {
+                const int graceMs = lidGraceMs();
+                delayMs = graceMs > 0 ? graceMs : 2500;
+            }
+            st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
+        } else {
+            out->physLidOpen = true;
+            st->lidSleepDueMs = 0;   // cancel the pending device sleep
+        }
+    } else if (closed) {
+        if (lidGraceMs() > 0) {
+            out->lidGraceRequested = true;
+        } else {
+            out->sleepRequested = true;
+            out->sleepByLid = true;
+        }
+    }
+}
+
 } // anonymous namespace
 
 void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   int64_t shortBackMs, int64_t longBackMs,
                   int64_t powerHoldMs, int64_t powerOffHoldMs, InputActions* out) {
     *out = {};
+
+    // The wake path found the lid closed again after it drained the queue: act on it now, as on a close edge.
+    if (st->lidReclosePending) {
+        st->lidReclosePending = false;
+        st->lidClosed = false;
+        onLidEdge(st, out, true);
+        st->lidClosed = true;
+    }
 
     // ---- Hot-plug: rescan when /dev/input changed ----
     // Every reader of this state opened its fds once at startup, so a pad that
@@ -621,29 +683,8 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 sUserInputSeen.store(true, std::memory_order_relaxed);
             }
             if (ev.type == EV_SW && ev.code == SW_LID) {
-                // Hall-effect lid switch. value 1 = lid closed. By default a close edge requests
-                // sleep immediately (same as a short power press); the open edge is consumed by the
-                // sleep loop as the wake. With persist.gammaos.drastic_nano.phys_lid_close on, a
-                // close edge instead signals the EMULATED DS lid closed right away (the game sleeps
-                // in-emulator) AND arms a delayed device sleep, so a quick close-then-open just
-                // pauses and resumes the game without a full sleep/wake, while a sustained close
-                // still sleeps the device. An open edge signals the DS lid open and cancels the arm.
                 const bool closed = (ev.value != 0);
-                if (closed != st->lidClosed) {
-                    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
-                        if (closed) {
-                            out->physLidClose = true;
-                            int delayMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_sleep_delay_ms", 2500);
-                            if (delayMs < 0) delayMs = 0;
-                            st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
-                        } else {
-                            out->physLidOpen = true;
-                            st->lidSleepDueMs = 0;   // cancel the pending device sleep
-                        }
-                    } else if (closed) {
-                        out->sleepRequested = true;
-                    }
-                }
+                if (closed != st->lidClosed) onLidEdge(st, out, closed);
                 st->lidClosed = closed;
                 continue;
             }
@@ -1011,6 +1052,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // within the delay cleared lidSleepDueMs, so only a sustained close reaches here.
     if (st->lidSleepDueMs && st->lidClosed && android::elapsedRealtime() >= st->lidSleepDueMs) {
         out->sleepRequested = true;
+        out->sleepByLid = true;
         st->lidSleepDueMs = 0;
     }
 }

@@ -61,6 +61,7 @@ inline bool startService(const char* mode) {
 // have left its GPU / DMC writes behind. After the stop the start sets SVC_RESTART (or starts fresh once
 // reaped), so powersave runs from the top and is the last writer before the suspend. With the hold at 1
 // the resulting state changes cannot fire the re-apply rules.
+// The three ctl.stop writes block until init's main loop answers: do not call this on a render thread.
 inline void beginSleep() {
     if (!managed()) return;
     property_set("sys.gammaos.nano.clock_hold", "1");
@@ -70,10 +71,18 @@ inline void beginSleep() {
 }
 
 // Call on wake, before the profile is re-applied. init clears the hold at every screen on as well, so a
-// process that dies mid-sleep cannot leave it set.
+// process that dies mid-sleep cannot leave it set. A property write round-trips to init, so keep it off
+// render threads, with the other calls of this header.
 inline void endSleep() {
     if (!managed()) return;
     property_set("sys.gammaos.nano.clock_hold", "0");
+}
+
+// Stop a running powersave run (the vendor screen-off trigger can start one late). Wake path, before the
+// persisted mode is applied again. Blocks until init's main loop answers: never call it on a render thread.
+inline void stopPowersave() {
+    if (!managed()) return;
+    property_set("ctl.stop", "setclock_powersave");
 }
 
 } // namespace nanoclock

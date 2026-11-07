@@ -77,6 +77,12 @@ struct InputState {
     // a close edge arms a delayed device sleep at this elapsedRealtime() deadline; an open edge clears
     // it. 0 = no pending sleep. The event poll requests the sleep once the deadline passes.
     int64_t lidSleepDueMs = 0;
+    // The event node that reports SW_LID (set by scanInputDevices on the DRM backend), for EVIOCGSW: the level
+    // of the switch right now, whatever events are still queued. -1 = none.
+    int lidFd = -1;
+    // The lid was found closed again right after a wake: the next pollInputMap turns it into a close edge, as
+    // if the event had arrived after the wake (the wake drain would otherwise throw it away).
+    bool lidReclosePending = false;
 
     // Touchscreen state. A unit can expose more than one touch node for
     // the same panel (for example a MediaTek "mtk-tpd" alongside the
@@ -228,8 +234,15 @@ struct InputActions {
     bool exitRequested = false;
     // Short POWER press (released before powerHoldMs) = system sleep.
     // Also set on a lid-close edge (hall sensor) so closing the lid
-    // sleeps exactly like a short power press.
+    // sleeps exactly like a short power press, unless a grace period applies
+    // (lidGraceRequested).
     bool sleepRequested = false;
+    // The sleep was asked for by the lid (a close edge without grace, or the delayed sleep of phys_lid_close),
+    // not by the power key.
+    bool sleepByLid = false;
+    // Lid close edge while drastic-nano owns the lid and a grace period is set: pause and darken at once and
+    // keep the panels on for the grace period (main.cpp lidGrace) instead of sleeping the device.
+    bool lidGraceRequested = false;
     // POWER held >= powerHoldMs = raise the in-game overlay menu
     // (one-shot edge).
     bool xmbOverlayRequested = false;
@@ -288,6 +301,14 @@ void pollInputMap(InputState* st,
 
 // Close all fds owned by state (devices and the hot-plug watch) and reset the vectors.
 void closeInputDevices(InputState* st);
+
+// Level of the lid switch right now (EVIOCGSW on lidFd): 1 closed, 0 open, -1 unknown (no lid node).
+int readLidSwitch(const InputState* st);
+
+// Grace period of a lid close in ms (persist.gammaos.drastic_nano.lid_grace_ms, default 10000, 0..60000).
+// 0 unless drastic-nano owns the lid this session (drastic_pm::owning()): without ownership the framework
+// handles the lid and there is nothing to defer. Any thread.
+int lidGraceMs();
 
 // True once ANY input state in this process has seen a deliberate user input
 // (a button press, a D-pad or hat move, a touch on the panel). Analog stick

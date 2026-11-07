@@ -52,11 +52,13 @@
 #include <pthread.h>
 #include <sched.h>
 #include <signal.h>
+#include <sys/eventfd.h>
 #include <sys/ioctl.h>
 #include <sys/mman.h>
 #include <sys/resource.h>
 #include <sys/stat.h>
 #include <sys/syscall.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -72,6 +74,7 @@
 #include <cmath>
 #include <cstdlib>
 #include <atomic>
+#include <chrono>
 #include <cstring>
 #include <condition_variable>
 #include <mutex>
@@ -97,6 +100,7 @@
 #include "DrasticSettings.h"
 #include "FakeJNI.h"
 #include "InputMap.h"
+#include "NanoPmSync.h"
 #include "NanoBacklight.h"
 #include "NanoMenuDrm.h"
 #include "NanoColorMatrix.h"
@@ -602,6 +606,109 @@ void retriggerPowerProfile() {
           svc, mode);
 }
 
+// ------------------------------------------------------------------
+// Clock worker
+// ------------------------------------------------------------------
+// ctl.start / ctl.stop (and so nanoclock::beginSleep) are answered by init's MAIN loop only, one message per
+// pass, and that loop is busy with the screen-off actions around every sleep: each call took 0.2 to 1.9 s.
+// On the render thread they held up the sleep path and hid a lid open that was already queued. All of them
+// run on this worker now ("dn-clock"); the render thread only posts what it wants and never waits.
+// Latest wins: a sleep that has not started when the wake is posted is skipped, and one that is running
+// does not start powersave after the wake was posted (the old 7 s powersave + max overlap).
+enum ClkWant { kClkNone, kClkSleep, kClkAwake };
+
+struct ClockWorker {
+    std::mutex mu;
+    std::condition_variable cv;       // wakes the worker
+    std::condition_variable cvDone;   // the posted work is done
+    ClkWant want = kClkNone;
+    uint32_t seq = 0;                 // bumped with every post
+    uint32_t takenSeq = 0;            // the post the worker is on (or finished)
+    uint32_t doneSeq = 0;             // the last post whose work has finished
+    bool started = false;
+};
+// Never destroyed: the thread is detached and may still sit in its wait when static destructors run.
+static ClockWorker& clockWorker() {
+    static ClockWorker* w = new ClockWorker;
+    return *w;
+}
+
+static void clockWorkerMain() {
+    pthread_setname_np(pthread_self(), "dn-clock");
+    {
+        // The render thread's SCHED_FIFO 80 is inherited; init's main loop is slow enough already.
+        sched_param sp = {};
+        sched_setscheduler(0, SCHED_OTHER, &sp);
+        setpriority(PRIO_PROCESS, 0, 0);
+    }
+    ClockWorker& w = clockWorker();
+    for (;;) {
+        ClkWant job;
+        uint32_t mine;
+        {
+            std::unique_lock<std::mutex> lk(w.mu);
+            w.cv.wait(lk, [&] { return w.seq != w.takenSeq; });
+            job = w.want;
+            mine = w.seq;
+            w.takenSeq = mine;
+        }
+        const int64_t t0 = android::uptimeMillis();
+        if (job == kClkSleep) {
+            // RG DS Plus: tell init this powersave run is ours, so its re-apply of the persisted mode
+            // (device/gammaos/gammaos.rc) does not undo it before the screen goes off, and stop a max/stock
+            // run still in flight so powersave writes last.
+            android::nanoclock::beginSleep();
+            bool still;
+            {
+                std::lock_guard<std::mutex> lk(w.mu);
+                still = (w.seq == mine);
+            }
+            if (still) {
+                property_set("ctl.start", "setclock_powersave");
+                ALOGI("drastic-nano: clocks to powersave (%lld ms)", (long long)(android::uptimeMillis() - t0));
+            } else {
+                ALOGI("drastic-nano: clocks: the wake came first, powersave not started");
+            }
+        } else if (job == kClkAwake) {
+            // RG DS Plus: lift the sleep marker, then stop a powersave run that is still going or that the
+            // vendor screen-off trigger started late (init.gammaos_power.rc), so it cannot end after the
+            // mode below. A late run that slips through is re-applied by device/gammaos/gammaos.rc.
+            android::nanoclock::endSleep();
+            android::nanoclock::stopPowersave();
+            retriggerPowerProfile();
+            char mode[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.performance_mode", mode, "max");
+            ALOGI("drastic-nano: clocks back to %s (%lld ms)", mode, (long long)(android::uptimeMillis() - t0));
+        }
+        {
+            std::lock_guard<std::mutex> lk(w.mu);
+            w.doneSeq = mine;
+            w.cvDone.notify_all();
+        }
+    }
+}
+
+// Render thread: ask for the clocks of the sleep or the wake. Never blocks on init.
+void clockWorkerPost(ClkWant want) {
+    ClockWorker& w = clockWorker();
+    std::lock_guard<std::mutex> lk(w.mu);
+    w.want = want;
+    ++w.seq;
+    if (!w.started) {
+        w.started = true;
+        std::thread(clockWorkerMain).detach();
+    }
+    w.cv.notify_all();
+}
+
+// Exit paths: wait until everything posted is done (at most timeoutMs), so a wake's retrigger cannot land after
+// the per-game mode restore that follows. Not for the crash handlers.
+bool clockWorkerDrain(int timeoutMs) {
+    ClockWorker& w = clockWorker();
+    std::unique_lock<std::mutex> lk(w.mu);
+    return w.cvDone.wait_for(lk, std::chrono::milliseconds(timeoutMs), [&] { return w.doneSeq == w.seq; });
+}
+
 // RT bandwidth throttle, applied ONLY while fast-forward is active. GammaOS sets
 // /proc/sys/kernel/sched_rt_runtime_us to -1 (RT throttling OFF) in
 // init.rk356x.rc, so SCHED_FIFO/RR threads may consume 100% of every core with
@@ -774,6 +881,9 @@ void restoreDeepCpuIdle() {
 // context, so we only touch property_set (bionic does an atomic
 // property write) -- no logcat, no locale-dependent functions.
 void crashCleanup(int sig) {
+    // The lid and the device sleep go back to the framework first (two property writes): PhoneWindowManager
+    // applies a lid that is still closed within 2 s, and the vendor suspend loop is no longer held off.
+    android::drastic_pm::crashClear();
     android::drastic_perf::restoreGlobal();   // the per-game performance mode must not outlive the game
     property_set(kSessionDoneProp, "1");
     // On the SurfaceFlinger / overlay-home path a crash otherwise leaves
@@ -810,7 +920,21 @@ static std::string slot9Stem(const std::string& savestatesDir, const std::string
 // loop then breaks into the normal save-and-exit tail. volatile sig_atomic_t is
 // the only object safe to touch from a signal handler.
 volatile sig_atomic_t gTermRequested = 0;
-void termCleanup(int) { gTermRequested = 1; }
+// An eventfd the handler writes to, for the one poll() that waits on nothing but input events (the sleep in
+// doSleep). SIGTERM goes to the main thread first, but any thread that does not block it may take it, and the
+// render thread's poll then gets no EINTR; a signal that lands between the flag check and the poll is lost
+// the same way. -1 = none (the poll then relies on EINTR alone). Created before the handler is installed.
+static int gTermWakeFd = -1;
+void termCleanup(int) {
+    gTermRequested = 1;
+    if (gTermWakeFd >= 0) {
+        const int savedErrno = errno;
+        const uint64_t one = 1;
+        const ssize_t r = write(gTermWakeFd, &one, sizeof(one));
+        (void)r;
+        errno = savedErrno;
+    }
+}
 
 // The clean exit tail has finished: from here on a fault is a teardown fault (static
 // destructors, driver unload) of a process that already handed its state over, so it
@@ -851,6 +975,7 @@ void installCrashHandler() {
     }
     // SIGTERM is a graceful stop request, not a crash: only set the flag (no
     // re-raise), so the run loop can save slot 9 before exiting.
+    gTermWakeFd = eventfd(0, EFD_NONBLOCK | EFD_CLOEXEC);
     struct sigaction st{};
     st.sa_handler = termCleanup;
     sigemptyset(&st.sa_mask);
@@ -864,6 +989,7 @@ void installCrashHandler() {
 // app_launched, which a DRM home that is already up takes as "the overlay owns the home" and bows out
 // of (the frozen-panel case the disarm rationale above describes).
 void tailCrashCleanup(int sig) {
+    android::drastic_pm::crashClear();
     android::drastic_perf::restoreGlobal();
     property_set(kSessionDoneProp, "1");
     signal(sig, SIG_DFL);
@@ -1189,43 +1315,322 @@ void setBacklightHal(int brightness) {
     }
 }
 
-// Short power press = real system sleep, mirroring the nano home's
-// recipe (NanoMenuInput.cpp): pause the emulator, blank both panels,
-// kill the backlights, let PowerManager suspend the device via the
-// process-agnostic nano-dosleep init trigger, block on the input fds
-// until the power button wakes the kernel, then wake PowerManager via
-// nano-dowake, re-commit the DRM modeset (resume brings the CRTCs back
-// with no planes - without the recommit both panels stay black behind
-// a lit backlight and every page flip EBUSYs forever) and restore the
-// backlights before resuming emulation.
+// The brightness a session runs at: persist.gammaos.nano.brightness, 1..255.
+int sessionBrightness() {
+    int level = property_get_int32("persist.gammaos.nano.brightness", 128);
+    if (level < 1) level = 1;
+    if (level > 255) level = 255;
+    return level;
+}
+
+// The lights HAL is skipped on the RG DS Plus: RockchipLights writes the same sysfs nodes, DisplayPowerController
+// writes the HAL itself, and a call of ours cost 0.4 to 0.9 s (getLights, and the HAL re-reads its config on
+// every call) on the sleep and the wake path. An empty node list there (should not happen) keeps the HAL.
+bool backlightHalSkipped() {
+    static const bool sSkip = [] {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        return strcmp(dev, "anbernicrgdsplus") == 0 && !android::nanobl::nanoBacklightNodes().empty();
+    }();
+    return sSkip;
+}
+
+// "dn-blhal": the lights HAL calls of the devices that still need them, latest level wins. Never destroyed:
+// the thread is detached and may sit in its wait when static destructors run.
+struct BlHalWorker {
+    std::mutex mu;
+    std::condition_variable cv;
+    int want = 0;
+    uint32_t seq = 0, taken = 0;
+    bool started = false;
+};
+BlHalWorker& blHalWorker() {
+    static BlHalWorker* w = new BlHalWorker;
+    return *w;
+}
+
+void blHalMain() {
+    pthread_setname_np(pthread_self(), "dn-blhal");
+    {
+        sched_param sp = {};   // the render thread's SCHED_FIFO 80 is inherited
+        sched_setscheduler(0, SCHED_OTHER, &sp);
+        setpriority(PRIO_PROCESS, 0, 0);
+    }
+    BlHalWorker& w = blHalWorker();
+    for (;;) {
+        int level;
+        {
+            std::unique_lock<std::mutex> lk(w.mu);
+            w.cv.wait(lk, [&] { return w.seq != w.taken; });
+            level = w.want;
+            w.taken = w.seq;
+        }
+        setBacklightHal(level);
+        {
+            std::lock_guard<std::mutex> lk(w.mu);
+            if (w.seq != w.taken) continue;   // a newer level was asked for meanwhile: that one wins
+        }
+        // The HAL call can end after the render thread's sysfs write of a newer level; rewrite the node with
+        // the level this call applied, now that nothing newer is waiting, so a stale HAL(0) is never last.
+        android::nanobl::nanoBacklightSet(level);
+    }
+}
+
+// Sets the panel backlight on every device: the sysfs nodes at once, on the calling thread; where the lights
+// HAL is needed as well, it follows from "dn-blhal".
+void backlightApply(int level) {
+    android::nanobl::nanoBacklightSet(level);
+    if (backlightHalSkipped()) return;
+    BlHalWorker& w = blHalWorker();
+    std::lock_guard<std::mutex> lk(w.mu);
+    w.want = level;
+    ++w.seq;
+    if (!w.started) {
+        w.started = true;
+        std::thread(blHalMain).detach();
+    }
+    w.cv.notify_all();
+}
+
+// Lowest brightness over the sysfs nodes, -1 when there are none. Reads the files directly
+// (nanoBacklightReadInt maps 0 to its default).
+int backlightReadMin() {
+    int lowest = -1;
+    for (const auto& n : android::nanobl::nanoBacklightNodes()) {
+        const int fd = open(n.brightnessPath.c_str(), O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        char buf[32] = {};
+        const ssize_t got = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (got <= 0) continue;
+        const int v = atoi(buf);
+        if (lowest < 0 || v < lowest) lowest = v;
+    }
+    return lowest;
+}
+
+// When the last wake (or grace exit) finished, uptimeMillis(). The backlight watchdog leaves a wake alone for
+// the first second. Render thread only.
+static int64_t sLastWakeMs = 0;
+
+static int buildInputPollFds(const android::drastic_input::InputState* input, struct pollfd* pfds, int max) {
+    int nf = 0;
+    for (int fd : input->fds) {
+        if (fd >= 0 && nf < max) {
+            pfds[nf].fd = fd;
+            pfds[nf].events = POLLIN;
+            pfds[nf].revents = 0;
+            nf++;
+        }
+    }
+    return nf;
+}
+
+// Drains everything that queued up while the panels were off (the wake press's release, touch events, game
+// buttons) but keeps the lid level: a close that was queued behind the open is seen by the caller through
+// readLidSwitch(), and input->lidClosed follows the events.
+static void drainInputAfterWake(android::drastic_input::InputState* input) {
+    struct input_event d;
+    for (int fd : input->fds) {
+        while (read(fd, &d, sizeof(d)) == sizeof(d)) {
+            if (d.type == EV_SW && d.code == SW_LID) input->lidClosed = (d.value != 0);
+        }
+    }
+    for (int fd : input->touchFds) {
+        while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
+    }
+}
+
+// Reset the gesture trackers and every held state the drain skipped, so the consumed wake press cannot fire
+// sleep/menu/exit on the next poll and no button, touch or stick position hangs on because its release was
+// drained.
+static void resetInputAfterWake(android::drastic_input::InputState* input) {
+    input->powerWasDown = false;
+    input->powerPressStartMs = 0;
+    input->powerHoldFired = false;
+    input->powerOffFired = false;
+    input->backWasDown = false;
+    input->backPressStartMs = 0;
+    input->backPressEvUs = 0;
+    input->dsBtnMask = 0;
+    input->hat0xPrev = 0;
+    input->hat0yPrev = 0;
+    input->btnL2 = input->btnR2 = input->btnL3 = input->btnR3 = false;
+    input->ffWasDown = false;
+    input->btnFastFwd = false;
+    input->cursorToggleWasDown = false;
+    input->stylusBtnHeld = false;
+    input->touchHeld = false;
+    input->touchReal = false;
+    input->touchPendingValid = false;
+    android::drastic_input::recalibrateAxes(input);   // sticks as they are now, not as the last event left them
+}
+
+// persist.gammaos.drastic_nano.phys_lid_close: the physical lid closes the EMULATED DS lid and the game keeps
+// running behind it; the device sleep follows after a delay. Read at each use, it can change at any time.
+static bool physLidMode() {
+    return android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false);
+}
+
+// Time the kernel has spent suspended since boot, in ns: BOOTTIME minus MONOTONIC. It is up to date the moment
+// user space runs again after a resume. /sys/power/suspend_stats/success is not: the kernel bumps it only when
+// pm_suspend() returns, after the tasks are thawed and the post-suspend notifiers have run, so a read right
+// after a wake can still show the old count.
+static int64_t suspendedNs() {
+    return android::elapsedRealtimeNano() - android::uptimeNanos();
+}
+// More than clock read jitter (a few microseconds): the kernel did suspend in between.
+constexpr int64_t kSuspendSeenNs = 5000000;
+
+// Resume the game at the end of a wake. The emulated DS lid is written first: the main loop writes it again
+// after the wake, but not before the emulator has run a frame, and it follows the physical lid only in
+// phys_lid_close mode (closed again by the wake: the close edge that follows darkens the light and arms the
+// delayed sleep again; in that mode the game keeps running, so the next open finds it running). Everywhere
+// else the emulated lid never closes, and a lid that was closed again by the wake keeps the game paused until
+// the next grace or sleep has run its course.
+static void resumeGameAfterWake(DrasticRunner* dr, bool overlayWasOpen, bool reclosed) {
+    const bool phys = physLidMode();
+    dr->setLidClosed(phys && reclosed);
+    if (!overlayWasOpen && (phys || !reclosed)) dr->pauseToggle(false);
+}
+
+// The wake half of a full sleep, also the relight of a grace that saw a kernel suspend (fromGrace: nothing of
+// the sleep half ran, so the clocks, the scheduling policy, deep idle and the audio stream are as they were).
+// PowerManager, the clocks and the audio stream are asked first and go on beside the relight; the panels come
+// back with ONE modeset where the atomic path works (NanoMenuDrm), the input is drained meanwhile and the lid
+// level read again, the backlight follows the panels, and the emulator resumes once the audio start is
+// through (bounded). Returns true when the lid is closed again by then: the panels are relit but the
+// backlight stays 0 and the game stays paused (it keeps running in phys_lid_close mode, see
+// resumeGameAfterWake), and the next pollInputMap turns it into a new close edge.
+static bool wakeUp(android::drastic_input::InputState* input, DrasticRunner* dr, bool overlayWasOpen,
+                   android::drastic_pm::Cause cause, bool fromGrace, int64_t tDecision) {
+    // PowerManager has not seen the waking press or lid (read off evdev), or has but is not awake yet.
+    android::drastic_pm::wantAwake(tDecision, cause);
+    if (!fromGrace) {
+        clockWorkerPost(kClkAwake);
+        dr->audioWakeBegin();
+    }
+
+    // Resume re-enables the CRTCs with no planes: relight them (one modeset that shows the last game frame,
+    // or the legacy recommit) and reset the flip/ring bookkeeping. The ring cursors restart, so the render
+    // loop's bootstrap re-primes automatically.
+    const bool atomicTried = android::drmWakeRelightAtomicOk();
+    int dark = android::drmWakeRelightBegin();
+
+    // The relight runs on the display hardware; meanwhile drain the input, but keep the lid: a re-close that
+    // came in behind the open used to be thrown away here, leaving the panels lit under a closed lid.
+    drainInputAfterWake(input);
+    const bool reclosed = android::drastic_input::readLidSwitch(input) == 1;
+    if (reclosed) {
+        input->lidClosed = false;
+        input->lidReclosePending = true;
+        ALOGI("drastic-nano: lid closed again during the wake");
+    }
+    resetInputAfterWake(input);
+
+    if (!fromGrace) {
+        // Restore the session's performance state (mirror of the pre-sleep relax in doSleep): RT render
+        // thread and deep-idle disabled. The clocks follow from "dn-clock".
+        struct sched_param sp = {};
+        sp.sched_priority = 80;
+        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
+            // FIFO denied (rare): fall back to nice -20 like boot.
+            setpriority(PRIO_PROCESS, 0, -20);
+        }
+        disableDeepCpuIdle();
+    }
+
+    dark += android::drmWakeRelightWait(1500);
+    if (dark > 0) {
+        // The DP bridge needs a moment after its power-down: retry the CRTCs that refuse, with the legacy
+        // recommit.
+        const int64_t r0 = android::elapsedRealtime();
+        int left = android::drmResumeRecommit();
+        while (left > 0 && android::elapsedRealtime() - r0 < 3000) {
+            usleep(250000);
+            left = android::drmResumeRecommit();
+        }
+        if (left > 0) {
+            ALOGW("drastic-nano: %d panel(s) did not come back after the sleep", left);
+            dark = left;
+        } else {
+            dark = 0;
+        }
+    }
+
+    if (!reclosed) backlightApply(sessionBrightness());
+    const int64_t tLight = android::uptimeMillis();
+
+    dr->noteWake();   // the pacer lead and floor from before the sleep, and a short re-acquire window
+
+    // The audio start ran beside the relight: wait for it, bounded. A start that is still going finishes in
+    // the background and the emulator thread never waits for it (aOk false = "late").
+    bool aOk = true;
+    if (!fromGrace) {
+        int waitMs = property_get_int32("sys.gammaos.drastic_nano.wake_audio_wait_ms", 250);
+        if (waitMs < 0) waitMs = 0;
+        if (waitMs > 2000) waitMs = 2000;
+        aOk = dr->audioWakeWait(waitMs);
+    }
+    resumeGameAfterWake(dr, overlayWasOpen, reclosed);
+    // audioserver may have respawned its output thread across the
+    // suspend at SCHED_OTHER; re-boost so audio does not underrun.
+    boostAudioServer();
+    // The suspend cycle that ended in this wake was ours; the loop's external check must skip it. Marked here,
+    // not at the start: the kernel counts a cycle only after the tasks are thawed, which can be after the
+    // poll that began this wake returned (the check would then relight a second time, ~0.5 s later).
+    android::drmSuspendMarkSeen();
+    sLastWakeMs = android::uptimeMillis();
+    const bool atomicDone = atomicTried && android::drmWakeRelightAtomicOk();
+    char relight[24];
+    if (dark > 0) snprintf(relight, sizeof relight, "failed:%d", dark);
+    else snprintf(relight, sizeof relight, "%s", atomicDone ? "atomic" : "legacy");
+    ALOGI("drastic-nano: woke up in %lld ms (light %lld ms, relight %s, audio %s)",
+          (long long)(sLastWakeMs - tDecision), (long long)(tLight - tDecision), relight,
+          fromGrace ? "kept" : (aOk ? "ready" : "late"));
+    return reclosed;
+}
+
+// Device sleep, from the power key or from the lid (a grace that ran out, or no grace set): pause the
+// emulator, darken and power off both panels, let PowerManager sleep through drastic_pm (so the vendor
+// suspend chain runs), block on the input fds until the power button or the lid wakes the kernel, then wake
+// everything again (wakeUp) before resuming emulation.
+//
+// byLid picks the PowerManager reason and the wake that is already pending when the lid is open again by the
+// time the panels are off. decisionMs is android::uptimeMillis() at the decision (a grace's expiry time):
+// PowerManager drops a sleep that is older than a wake it has seen, so a late request cannot undo a reopen.
 //
 // Runs on the render loop thread, which owns all DRM/GL state.
-void doSleep(android::drastic_input::InputState* input,
-             DrasticRunner* dr, bool overlayWasOpen) {
-    ALOGI("drastic-nano: power short press, sleeping");
+void doSleep(android::drastic_input::InputState* input, DrasticRunner* dr, bool overlayWasOpen,
+             bool byLid, int64_t decisionMs) {
+    using android::drastic_pm::Cause;
+    const int64_t t0 = android::uptimeMillis();
+    ALOGI("drastic-nano: sleeping (%s)", byLid ? "lid" : "power");
     // The in-game menu already paused the emulator when it opened;
-    // pauseToggle is absolute so pausing twice would be harmless, but
+    // pauseToggle is absolute so pausing twice would be harmless (a lid grace paused it already), but
     // resuming on wake must not undo a menu-held pause.
     if (!overlayWasOpen) dr->pauseToggle(true);
+    dr->noteSleep();   // the first call of a sleep keeps the lead from before a grace
+    backlightApply(0);
 
-    // Blank both panels: clear AHB ring slot 0 (what drmFlipAll scans
-    // out) and present it, so the wake-time recommit relights onto
-    // black rather than the last gameplay frame.
-    glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-    if (android::sDrmZeroCopy && android::sAhbRingPrimary[0].glFbo) {
-        glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
-        glClear(GL_COLOR_BUFFER_BIT);
-        if (android::sAhbRingSecondary[0].glFbo) {
-            glBindFramebuffer(GL_FRAMEBUFFER,
-                              android::sAhbRingSecondary[0].glFbo);
+    // Without the AFBC atomic path: blank both panels first (clear AHB ring slot 0, what drmFlipAll scans
+    // out, and present it), so the wake-time recommit relights onto black rather than the last gameplay
+    // frame. The AFBC path relights with the last game frame on the glass, so the blank is skipped there.
+    if (!android::sDrmAfbcMode) {
+        glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+        if (android::sDrmZeroCopy && android::sAhbRingPrimary[0].glFbo) {
+            glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
             glClear(GL_COLOR_BUFFER_BIT);
+            if (android::sAhbRingSecondary[0].glFbo) {
+                glBindFramebuffer(GL_FRAMEBUFFER,
+                                  android::sAhbRingSecondary[0].glFbo);
+                glClear(GL_COLOR_BUFFER_BIT);
+            }
+            glBindFramebuffer(GL_FRAMEBUFFER, 0);
+            glFinish();
+            android::drmFlipAll();
         }
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        glFinish();
-        android::drmFlipAll();
     }
-    android::nanobl::nanoBacklightSet(0);
-    setBacklightHal(0);
     // and the pipes themselves off (the DSI panel sleeps, the DP bridge powers down): a
     // blank frame still scanned, the last image showed under a bright light and a USB
     // plug relit the bottom panel onto it
@@ -1238,7 +1643,7 @@ void doSleep(android::drastic_input::InputState* input,
     // destabilises the resume and crashes the session. Before blocking:
     //  - re-enable deep CPU idle so the cores can actually power down,
     //  - relax the governors to powersave (the perf profile keeps clocks
-    //    pinned, fighting suspend),
+    //    pinned, fighting suspend; "dn-clock" does that off this thread),
     //  - drop THIS thread (the render loop) off SCHED_FIFO so the kernel's
     //    task-freeze does not have to freeze a running RT task.
     // All restored on wake.
@@ -1246,35 +1651,50 @@ void doSleep(android::drastic_input::InputState* input,
     // Stop the exclusive audio stream for the sleep (kept open): it bypasses AudioFlinger's
     // mixer, so while started it keeps the audio DSP up and the SoC out of vmin.
     dr->setAudioSleep(true);
+    // PowerManager goes to sleep from here (a worker, or the old init trigger where drastic does not own the
+    // lid); the panels are off already, so nothing it does can fight them.
+    android::drastic_pm::wantSleep(decisionMs, byLid ? Cause::Lid : Cause::Power);
     // RG DS Plus: tell init this powersave run is ours, so its re-apply of the persisted mode
     // (device/gammaos/gammaos.rc) does not undo it before the screen goes off, and stop a max/stock run
-    // still in flight so powersave writes last.
-    android::nanoclock::beginSleep();
-    property_set("ctl.start", "setclock_powersave");
+    // still in flight so powersave writes last. All ctl.* calls run on "dn-clock".
+    clockWorkerPost(kClkSleep);
     {
         struct sched_param sp = {};
         sched_setscheduler(0, SCHED_OTHER, &sp);
     }
 
-    // sys.boot_completed is always 1 during a drastic-nano session
-    // (the XMB launched us post-boot); the guard is robustness only.
-    bool pmSleep = property_get_bool("sys.boot_completed", false);
-    if (pmSleep) {
-        property_set("sys.gammaos.nano.dosleep", "1");
-    }
-
+    Cause wakeCause = byLid ? Cause::Lid : Cause::Power;
+    struct timeval wakeEvTime = {};
     bool asleep = true;
+    // The lid may already be open again (a quick close and open that overtook the sleep): the open event is
+    // queued, and the poll would return at once, but there is no reason to wait for it.
+    if (byLid && android::drastic_input::readLidSwitch(input) == 0) {
+        ALOGI("drastic-nano: lid already open again, waking at once");
+        asleep = false;
+    }
     while (asleep) {
-        struct pollfd pfds[16];
-        int nf = 0;
-        for (int fd : input->fds) {
-            if (fd >= 0 && nf < 16) {
-                pfds[nf].fd = fd;
-                pfds[nf].events = POLLIN;
-                nf++;
-            }
+        if (gTermRequested) {
+            // Shutdown while asleep: wake so the session can save slot 9 and exit.
+            wakeCause = Cause::Other;
+            break;
         }
-        poll(pfds, nf, -1);
+        struct pollfd pfds[17];
+        int nf = buildInputPollFds(input, pfds, 16);
+        if (gTermWakeFd >= 0) {
+            // SIGTERM, whichever thread took it (the loop top then sees gTermRequested and wakes).
+            pfds[nf].fd = gTermWakeFd;
+            pfds[nf].events = POLLIN;
+            pfds[nf].revents = 0;
+            nf++;
+        }
+        const int pr = poll(pfds, nf, -1);
+        if (pr < 0) {
+            if (errno == EINTR && gTermRequested) {
+                wakeCause = Cause::Other;
+                break;
+            }
+            continue;
+        }
         struct input_event ev;
         for (int fd : input->fds) {
             while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
@@ -1283,86 +1703,138 @@ void doSleep(android::drastic_input::InputState* input,
                 // put us to sleep is not mistaken for a wake.
                 if (ev.type == EV_KEY && ev.code == KEY_POWER &&
                     ev.value == 1) {
+                    if (asleep) { wakeCause = Cause::Power; wakeEvTime = ev.time; }
                     asleep = false;
                 } else if (ev.type == EV_SW && ev.code == SW_LID) {
                     input->lidClosed = (ev.value != 0);
-                    if (ev.value == 0) asleep = false;
+                    if (ev.value == 0) {
+                        if (asleep) { wakeCause = Cause::Lid; wakeEvTime = ev.time; }
+                        asleep = false;
+                    }
                 }
             }
         }
     }
 
-    // PowerManager never saw the waking press (we read it off evdev),
-    // so wake it explicitly, mirroring the home.
-    if (pmSleep) {
-        property_set("sys.gammaos.nano.dosleep", "0");
-        property_set("sys.gammaos.nano.dowake", "1");
-    }
-    usleep(200000);
-    // Drain everything (including the wake press's release and any
-    // touch events) and reset the gesture trackers so the consumed
-    // wake press cannot fire sleep/menu/exit on the next poll.
-    {
-        struct input_event d;
+    const int64_t tW = android::uptimeMillis();
+    ALOGI("drastic-nano: wake decision (%s), event at %lld.%06lld realtime, asleep %lld ms",
+          wakeCause == Cause::Lid ? "lid" : (wakeCause == Cause::Power ? "power" : "term"),
+          (long long)wakeEvTime.tv_sec, (long long)wakeEvTime.tv_usec, (long long)(tW - t0));
+    wakeUp(input, dr, overlayWasOpen, wakeCause, /*fromGrace=*/false, tW);
+}
+
+// ------------------------------------------------------------------
+// Lid close grace
+// ------------------------------------------------------------------
+
+enum GraceResult { kGraceOpen, kGracePower, kGraceExpired, kGraceTerm };
+
+// A lid close while drastic-nano owns the lid (D2): pause the game (audio fades with the pause) and darken both
+// panels at once, but keep the panels, the CRTCs, PowerManager, the clocks and the audio stream as they are,
+// for up to graceMs. Opening the lid inside it brings the light and the game back with no DRM work at all
+// (when no kernel suspend happened meanwhile). The power key and the end of the grace go to the full sleep
+// (doSleep), which the caller runs for kGracePower and kGraceExpired. Render thread.
+static GraceResult lidGrace(android::drastic_input::InputState* input, DrasticRunner* dr,
+                            bool overlayWasOpen, int graceMs) {
+    const int64_t t0 = android::uptimeMillis();
+    const int64_t suspended0 = suspendedNs();   // a suspend from here on is told apart at the open
+    backlightApply(0);
+    if (!overlayWasOpen) dr->pauseToggle(true);
+    dr->noteSleep();
+    android::drmSuspendMarkSeen();
+    ALOGI("drastic-nano: lid closed, grace %d ms", graceMs);
+
+    const int64_t deadline = t0 + graceMs;
+    int64_t nextTickMs = t0 + 500;
+    bool relitLogged = false;
+    GraceResult res = kGraceExpired;
+    for (;;) {
+        if (gTermRequested) { res = kGraceTerm; break; }
+        // The level of the switch is the truth: an open event may sit behind a close.
+        if (android::drastic_input::readLidSwitch(input) == 0) { res = kGraceOpen; break; }
+        const int64_t now = android::uptimeMillis();
+        if (now >= deadline) {
+            ALOGI("drastic-nano: grace over, full sleep");
+            res = kGraceExpired;
+            break;
+        }
+        if (now >= nextTickMs) {
+            nextTickMs = now + 500;
+            // Something relit the backlight under the closed lid (a late overlay or PowerManager write):
+            // darken it again.
+            if (android::drastic_input::readLidSwitch(input) != 0 && backlightReadMin() > 0) {
+                backlightApply(0);
+                if (!relitLogged) {
+                    relitLogged = true;
+                    ALOGW("drastic-nano: backlight relit during grace, dark again");
+                }
+            }
+            // The framework asked for a clean quit (shutdown) while the lid is closed.
+            if (property_get_bool("sys.gammaos.drastic_nano.quit", false)) { res = kGraceTerm; break; }
+        }
+        struct pollfd pfds[16];
+        const int nf = buildInputPollFds(input, pfds, 16);
+        const int64_t left = deadline - now;
+        const int pr = poll(pfds, nf, (int)(left < 500 ? left : 500));
+        if (pr < 0) continue;   // EINTR: the loop top looks at gTermRequested
+        bool powerPress = false;
+        int lidLevel = -1;
+        struct input_event ev;
         for (int fd : input->fds) {
-            while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
+            while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
+                if (ev.type == EV_KEY && ev.code == KEY_POWER && ev.value == 1) powerPress = true;
+                else if (ev.type == EV_SW && ev.code == SW_LID) lidLevel = ev.value != 0 ? 1 : 0;
+                // everything else is dropped; the held state is reset at the open
+            }
         }
-        for (int fd : input->touchFds) {
-            while (read(fd, &d, sizeof(d)) == sizeof(d)) {}
-        }
-    }
-    input->powerWasDown = false;
-    input->powerPressStartMs = 0;
-    input->powerHoldFired = false;
-    input->backWasDown = false;
-    input->backPressStartMs = 0;
-    input->backPressEvUs = 0;
-
-    // Restore the session's performance state (mirror of the pre-sleep
-    // relax above): RT render thread, deep-idle disabled, perf governors.
-    {
-        struct sched_param sp = {};
-        sp.sched_priority = 80;
-        if (sched_setscheduler(0, SCHED_FIFO, &sp) != 0) {
-            // FIFO denied (rare): fall back to nice -20 like boot.
-            setpriority(PRIO_PROCESS, 0, -20);
+        // An open wins over a power press in the same batch: the user is back, and the open event is gone from
+        // the queue, so a sleep now would wait for another one.
+        if (lidLevel == 0) { res = kGraceOpen; break; }   // the last switch event of the batch was an open
+        if (powerPress) {
+            ALOGI("drastic-nano: power press in grace, full sleep");
+            res = kGracePower;
+            break;
         }
     }
-    disableDeepCpuIdle();
-    // RG DS Plus: lift the sleep marker. A powersave run still going from the sleep (or started late by
-    // the vendor screen-off trigger) can end after this max run; init then starts the persisted mode
-    // again (device/gammaos/gammaos.rc), so those caps no longer outlast the wake.
-    android::nanoclock::endSleep();
-    retriggerPowerProfile();
 
-    // Resume re-enables the CRTCs with no planes; re-commit the
-    // modeset and reset the flip/ring bookkeeping before relighting.
-    // The ring cursors restart at 0, so the render loop's bootstrap
-    // re-primes (renders 2 frames before the first flip) automatically.
-    android::drmSuspendMarkSeen();   // this cycle was ours; the loop's external check skips it
-    {
-        // the DP bridge needs a moment after its power-down: retry the CRTCs that refuse
-        const int64_t t0 = android::elapsedRealtime();
-        int left = android::drmResumeRecommit();
-        while (left > 0 && android::elapsedRealtime() - t0 < 3000) {
-            usleep(250000);
-            left = android::drmResumeRecommit();
+    const int64_t tOpen = android::uptimeMillis();
+    if (res == kGraceOpen) {
+        input->lidClosed = false;
+        // The time spent suspended is the reliable signal at this moment; the counter may not have been
+        // bumped yet by a cycle that ended just now (and catches what the time misses).
+        if (suspendedNs() - suspended0 > kSuspendSeenNs || android::drmSuspendCountChanged()) {
+            // The kernel suspended under the grace (nothing kept the device awake after all): the CRTCs
+            // came back with no planes. Relight them like after a full sleep, but the sleep half never ran.
+            ALOGI("drastic-nano: lid opened in grace after a kernel suspend, full relight");
+            wakeUp(input, dr, overlayWasOpen, android::drastic_pm::Cause::Lid, /*fromGrace=*/true, tOpen);
+            return res;
         }
-        if (left > 0) ALOGW("drastic-nano: %d panel(s) did not come back after the sleep", left);
+        // Quick wake: no DRM, no PowerManager, no clocks.
+        drainInputAfterWake(input);
+        if (android::drastic_input::readLidSwitch(input) == 1) {
+            // Closed again already: stay dark and paused, the next pollInputMap starts a new grace.
+            input->lidClosed = false;
+            input->lidReclosePending = true;
+            resumeGameAfterWake(dr, overlayWasOpen, /*reclosed=*/true);
+            ALOGI("drastic-nano: lid closed again during the wake");
+            return res;
+        }
+        resetInputAfterWake(input);
+        backlightApply(sessionBrightness());
+        const int64_t tLight = android::uptimeMillis();
+        dr->noteWake();
+        resumeGameAfterWake(dr, overlayWasOpen, /*reclosed=*/false);
+        sLastWakeMs = android::uptimeMillis();
+        ALOGI("drastic-nano: lid opened in grace after %lld ms, light %lld ms, resumed %lld ms",
+              (long long)(tOpen - t0), (long long)(tLight - tOpen), (long long)(sLastWakeMs - tOpen));
+    } else if (res == kGraceTerm) {
+        // Shutdown or a clean quit: light and game back, the loop top takes the quit from here.
+        backlightApply(sessionBrightness());
+        dr->noteWake();
+        resumeGameAfterWake(dr, overlayWasOpen, /*reclosed=*/false);
+        sLastWakeMs = android::uptimeMillis();
     }
-
-    int level = property_get_int32("persist.gammaos.nano.brightness", 128);
-    if (level < 1) level = 1;
-    if (level > 255) level = 255;
-    android::nanobl::nanoBacklightSet(level);
-    setBacklightHal(level);
-
-    dr->setAudioSleep(false);
-    if (!overlayWasOpen) dr->pauseToggle(false);
-    // audioserver may have respawned its output thread across the
-    // suspend at SCHED_OTHER; re-boost so audio does not underrun.
-    boostAudioServer();
-    ALOGI("drastic-nano: woke up");
+    return res;
 }
 
 // ------------------------------------------------------------------
@@ -1443,7 +1915,9 @@ bool handPanelToHome(DrasticRunner& dr, const RunLoopResult& rlr) {
     munlockall();
     // The per-game performance mode has done its job: the home's wake should run on the user's global
     // mode, not on the game's (a powersave one would stretch it) until this process exits. It is a
-    // no-op when nothing was parked, and the exit tail calls it again harmlessly.
+    // no-op when nothing was parked, and the exit tail calls it again harmlessly. A wake's clock work still
+    // on "dn-clock" finishes first, so its retrigger cannot land over the restored mode.
+    clockWorkerDrain(1500);
     android::drastic_perf::restoreGlobal();
     ALOGI("drastic-nano: panels handed to the home (%s): save captured %lld ms after the loop, panels freed in %lld ms",
           baton ? "baton held" : "plain stop", (long long)(tCaptured - t0),
@@ -2195,6 +2669,20 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     android::drastic_input::scanInputDevices(&input);
     ALOGI("drastic-nano: found %zu input devices", input.fds.size());
 
+    // Lid ownership (D1): from here to the return of runLoop drastic owns the lid and the short power press
+    // on the devices where own_lid is on (PhoneWindowManager leaves them to it, and init clears the flag
+    // when the service stops, however it ends), and asks PowerManager for the sleep and wake itself. The
+    // guard hands the lid back on every return path.
+    android::drastic_pm::start();
+    struct PmGuard { ~PmGuard() { android::drastic_pm::stop(); } } pmGuard;
+    sLastWakeMs = android::uptimeMillis();
+    // The lid was closed while the game loaded (before this session owned it): treat it as a close edge, so
+    // the grace and the sleep come from here and PowerManager is not left awake behind a dark lid.
+    if (android::drastic_pm::owning() && android::drastic_input::readLidSwitch(&input) == 1) {
+        input.lidClosed = false;
+        input.lidReclosePending = true;
+    }
+
     // Initialize overlay renderer + menu. OverlayGfx binds its own
     // programs; it must run on the same thread/context as drastic.
     // Rotation matrix lives next to the runner's, so pick it up once
@@ -2312,6 +2800,15 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     const int ringDepth = android::AHB_RING_DEPTH;
 
     bool exitRequested = false;
+    // Backlight watchdog state (see the check in the loop). persist.gammaos.drastic_nano.bl_watchdog, default
+    // on for the RG DS Plus.
+    const bool blWatchdogOn = [] {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        return property_get_bool("persist.gammaos.drastic_nano.bl_watchdog", strcmp(dev, "anbernicrgdsplus") == 0);
+    }();
+    int64_t blWatchdogNextMs = 0;
+    bool blWatchdogPrevDark = false;
     // Full saturation / no gradient -- drastic-nano has no preview
     // overlay.
     const float saturation = 1.0f;
@@ -2535,16 +3032,48 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // home, the vendor sleep script): resume leaves both CRTCs active with no
         // planes attached and every flip fails with EINVAL until the modeset is
         // re-committed. Detect it from the kernel's suspend counter and relight
-        // exactly like doSleep()'s own wake path does.
-        if (android::drmSuspendCycleDetected()) {
-            ALOGW("drastic-nano: resumed from a suspend this session did not start; re-committing DRM");
-            android::drmResumeRecommit();
-            int level = property_get_int32("persist.gammaos.nano.brightness", 128);
-            if (level < 1) level = 1;
-            if (level > 255) level = 255;
-            android::nanobl::nanoBacklightSet(level);
-            setBacklightHal(level);
+        // exactly like doSleep()'s own wake path does. The same relight answers a run of failed AFBC
+        // commits (D4): something else switched the CRTCs and took the planes (the composer's late power
+        // cycle, a DP bridge reset) without a suspend; the flips then fail until the planes are bound again.
+        const bool susp = android::drmSuspendCycleDetected();
+        const bool rebind = !susp && android::drmTakeRebindRequest();
+        if (susp || rebind) {
+            if (rebind) {
+                ALOGW("drastic-nano: re-binding the panels after %d failed frames", android::drmRebindFailRun());
+            } else {
+                ALOGW("drastic-nano: resumed from a suspend this session did not start; re-committing DRM");
+            }
+            int dark = android::drmWakeRelightBegin();
+            dark += android::drmWakeRelightWait(1500);   // returns 0 at once when nothing is pending
+            if (dark > 0) ALOGW("drastic-nano: %d panel(s) did not come back", dark);
+            // Not under a closed lid (phys_lid_close keeps the game running behind a dark panel)
+            if (android::drastic_input::readLidSwitch(&input) != 1) backlightApply(sessionBrightness());
             boostAudioServer();
+        }
+        // Backlight watchdog (RG DS Plus): the framework's display power controller can still apply a late
+        // screen-off to the backlight under an open lid (it writes the lights HAL, which is sysfs here) while
+        // PowerManager is awake again. The panels are fine then, only dark. Every 500 ms: lid open, a second
+        // since the last wake, PowerManager awake, a level above 0 wanted, and the nodes read 0 on two checks
+        // in a row. Then only the sysfs level is written back.
+        if (blWatchdogOn && !exiting) {
+            const int64_t nowMs = android::uptimeMillis();
+            if (nowMs >= blWatchdogNextMs) {
+                blWatchdogNextMs = nowMs + 500;
+                bool dark = false;
+                if (android::drastic_input::readLidSwitch(&input) == 0 && nowMs - sLastWakeMs >= 1000 &&
+                    sessionBrightness() > 0 && backlightReadMin() == 0) {
+                    char scr[PROPERTY_VALUE_MAX] = {};
+                    property_get("sys.screen.state", scr, "");
+                    dark = strcmp(scr, "on") == 0;
+                }
+                if (dark && blWatchdogPrevDark) {
+                    const int level = sessionBrightness();
+                    android::nanobl::nanoBacklightSet(level);
+                    ALOGW("drastic-nano: backlight was dark under an open lid, relit to %d", level);
+                    dark = false;
+                }
+                blWatchdogPrevDark = dark;
+            }
         }
         if (android::elapsedRealtime() >= audioBoostDeadlineMs) {
             boostAudioServer();
@@ -2563,15 +3092,31 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
                     kBackShortMs, kBackHoldMs, kPowerHoldMs, kPowerOffHoldMs, &actions);
             qrChainNoteUserInput();
         }
+        // Lid close with a grace period (drastic owns the lid): pause and darken at once, keep the panels on,
+        // and sleep the device only when the grace runs out or the power key is pressed. An open inside it
+        // is a quick wake.
+        if (actions.lidGraceRequested) {
+            const GraceResult gr = lidGrace(&input, dr, overlay.isOpen(), android::drastic_input::lidGraceMs());
+            if (gr == kGracePower || gr == kGraceExpired) {
+                doSleep(&input, dr, overlay.isOpen(), gr == kGraceExpired, android::uptimeMillis());
+            }
+            // Woke (lid opened or power press). The loops consume the lid-open event themselves, so
+            // clear the emulated DS lid here or it would stay "closed" after a physical-lid sleep.
+            // A lid that was closed again by the wake keeps the emulated one closed only in phys_lid_close
+            // mode (the close edge that follows sets it there too); otherwise it never closes.
+            lidClosed = physLidMode() && input.lidReclosePending; dr->setLidClosed(lidClosed);
+            continue;
+        }
         // Short power press = system sleep. Handled before the overlay
         // update so a sleep press while the menu is open does not also
         // feed the menu; the menu's pause state is preserved across the
         // sleep (doSleep only resumes what it paused itself).
         if (actions.sleepRequested) {
-            doSleep(&input, dr, overlay.isOpen());
+            doSleep(&input, dr, overlay.isOpen(), actions.sleepByLid, android::uptimeMillis());
             // Woke (lid opened or power press). The sleep loop consumes the lid-open event itself,
-            // so clear the emulated DS lid here or it would stay "closed" after a physical-lid sleep.
-            lidClosed = false; dr->setLidClosed(false);
+            // so clear the emulated DS lid here or it would stay "closed" after a physical-lid sleep (see above
+            // for a lid that was closed again by the wake).
+            lidClosed = physLidMode() && input.lidReclosePending; dr->setLidClosed(lidClosed);
             continue;
         }
         // Power hold = raise drastic's own in-game overlay menu (the
@@ -2887,8 +3432,10 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // it absolutely when routed (persist.gammaos.drastic_nano.phys_lid_close). Push the state
         // every frame (idempotent) so the core keeps the hinge bit latched while the lid is closed.
         if (actions.actCloseLid) { lidClosed = !lidClosed; ALOGI("drastic-nano: emulated lid = %d", lidClosed); }
-        if (actions.physLidClose) lidClosed = true;
-        if (actions.physLidOpen)  lidClosed = false;
+        // The physical lid also darkens the panel at once under a closed lid (the game keeps running and the
+        // delayed device sleep follows) and relights it on the open.
+        if (actions.physLidClose) { lidClosed = true; backlightApply(0); }
+        if (actions.physLidOpen)  { lidClosed = false; backlightApply(sessionBrightness()); }
         dr->setLidClosed(lidClosed);
         // Live Display Rotation: re-lay-out the single-panel output when the user
         // changes it in Video settings. Runs before touch + render so both follow.
@@ -6433,6 +6980,7 @@ int main(int argc, char** argv) {
     ALOGI("drastic-nano: back hold to exit = %lld ms", (long long)gBackHoldMs);
     if (!drInitOk) {
         ALOGE("drastic-nano: DrasticRunner::init failed");
+        clockWorkerDrain(1500);
         android::drastic_perf::restoreGlobal();
         property_set(kSessionDoneProp, "1");
         return 7;
@@ -6764,6 +7312,7 @@ int main(int argc, char** argv) {
     // caller's synchronous nano_action -> sys.powerctl. The caller detects our exit
     // by scanning /proc, not by session_done.
     if (rlr.quitShutdown) {
+        clockWorkerDrain(1500);
         android::drastic_perf::restoreGlobal();
         ALOGI("drastic-nano: exit (external shutdown quit, caller owns the power action)");
         disarmCrashHandler();
@@ -6797,6 +7346,7 @@ int main(int argc, char** argv) {
 
     // SF was never stopped, so with that launcher state set the session_done
     // trigger brings nano back up on the XMB.
+    clockWorkerDrain(1500);
     android::drastic_perf::restoreGlobal();
     // Handed over to a running home: it is up and the session is already cleared (handPanelToHome),
     // so session_done would only fire the rule that resets the launch flags (the next game, or an app,
