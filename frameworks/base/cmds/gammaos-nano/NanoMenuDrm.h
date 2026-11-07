@@ -84,6 +84,11 @@ struct DrmDisplay {
     uint32_t clInFenceProp = 0;
     uint32_t smartCrtcIdProp = 0; // Smart primary CRTC_ID prop (to disable it)
     bool     clConfigured = false;
+    // Wake relight (drmWakeRelightBegin, drastic AFBC path): the CRTC and connector props of the
+    // one-modeset-per-CRTC atomic commit and the CRTC's mode blob, all found once per session (0 until
+    // then); wakePending while that commit's flip event is still to come.
+    uint32_t crtcActiveProp = 0, crtcModeIdProp = 0, connCrtcIdProp = 0, modeBlobId = 0;
+    bool     wakePending = false;
 };
 
 struct AhbRenderTarget {
@@ -413,8 +418,30 @@ void nanoSetOverlayRenderRotation(int rot);
 // the render thread, before relighting the backlight.
 // Returns the number of CRTCs that did not come back (the DP bridge can take a moment).
 int drmResumeRecommit();
+// ---- Wake relight and self re-bind (drastic AFBC/Cluster path; the home keeps drmResumeRecommit) ----
+// True when drmWakeRelightBegin will use atomic commits: sDrmAfbcMode, wake_atomic > 0 and no atomic
+// relight failed earlier in this session. Render thread only.
+bool drmWakeRelightAtomicOk();
+// Relights every display. Atomic: ONE modeset per CRTC that also binds the Cluster planes to the ring slot
+// that was last on the glass (wake_atomic=2: nonblocking, both CRTCs come up in parallel; 1: blocking, one
+// after the other). A display whose commit is refused is relit at once by the legacy recommit. Not atomic:
+// runs drmResumeRecommit() once. Returns the number of displays it could not light at all (the caller may
+// retry with drmResumeRecommit, as for the DP bridge). Clears the panels-off state. Render thread only.
+int  drmWakeRelightBegin();
+// Waits up to timeoutMs for the nonblocking commits of drmWakeRelightBegin (their flip events). A display that
+// times out is relit by the legacy recommit. Returns the number still dark. Returns 0 at once after a
+// blocking, legacy or failed Begin. Render thread only.
+int  drmWakeRelightWait(int timeoutMs);
+// Unthrottled: true when /sys/power/suspend_stats/success differs from the value drmSuspendMarkSeen() stored.
+bool drmSuspendCountChanged();
+// D4: true (once, then throttled: 2 s, 10 s after 5 re-binds with no successful flip) when the AFBC commits
+// failed rebind_fail_frames frames in a row on any path (EBUSY excluded). False when !sDrmAfbcMode or
+// while the panels are off on purpose. Render thread only.
+int  drmRebindFailRun();          // the failed-frame run that triggered the request, for the log
+bool drmTakeRebindRequest();
 // Screen off on the DRM home: every CRTC off (panels asleep, bridge down); returns the
-// number that refused. drmResumeRecommit turns them back on.
+// number that refused. drmResumeRecommit (or drmWakeRelightBegin) turns them back on. A commit
+// the flip thread still has in flight is waited for first.
 int drmPanelsPowerOff();
 bool drmPanelsAreOff();
 void drmRecoverPanelsTick();   // sys.gammaos.nano.dp_recover=1: re-prepare the primary so the kernel re-powers the DP bridge, then re-commit the secondary
