@@ -283,6 +283,20 @@ public:
     // bypasses AudioFlinger's mixer threads, so the framework's ultra low power park cannot.
     void setAudioSleep(bool asleep);
 
+    // Wake: starts the AAudio sink again on a helper thread (setAudioSleep(false) semantics) and returns at
+    // once. audioWakeWait waits up to timeoutMs and returns true when the start finished. The start goes on
+    // in the background otherwise, and the emulator thread never waits for it. setAudioSleep(true), shutdown
+    // and the destructor join a start still in flight.
+    void audioWakeBegin();
+    bool audioWakeWait(int timeoutMs);
+
+    // Device sleep/wake for the pacer: noteSleep saves the lead and the creep floor (first call per sleep
+    // only, so a grace period followed by a full sleep keeps the pre-grace values); noteWake restores them
+    // (under the lead cap) and starts a short re-acquire window (no miss reports, stale drops or margin
+    // raises). Render thread. Harmless to call when nothing was saved.
+    void noteSleep();
+    void noteWake();
+
     // Mid-session save / load. slot is 0..8 (9 is drastic's reserved
     // autosave slot -- callers must not pass 9). Writes to / reads
     // from <cacheDir>/savestates/<rom_basename>_<slot>.dss. On the
