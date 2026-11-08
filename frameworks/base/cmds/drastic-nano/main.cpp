@@ -1350,6 +1350,11 @@ static void resetInputAfterWake(android::drastic_input::InputState* input) {
     input->touchHeld = false;
     input->touchReal = false;
     input->touchPendingValid = false;
+    input->selectChordLatched = false;
+    input->selectMaskBit = 0;
+    input->volHeldCode = 0;
+    // Select held through the sleep (the kernel re-sends the press after the resume; the drain above may have read it)
+    input->selectPhys = android::drastic_input::keyHeldNow(input, BTN_SELECT);
     android::drastic_input::recalibrateAxes(input);   // sticks as they are now, not as the last event left them
 }
 

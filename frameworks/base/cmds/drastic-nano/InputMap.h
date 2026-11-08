@@ -159,6 +159,24 @@ struct InputState {
     int  hat0xPrev = 0;
     int  hat0yPrev = 0;
 
+    // The physical Select (BTN_SELECT) level from its own press and release events, whatever the keymap or the menu
+    // do with it: Select+Vol is brightness exactly while it is held, as in PhoneWindowManager
+    // (gammaSelectPhysicallyHeld). Re-seeded from EVIOCGKEY after a rescan and after a wake.
+    bool selectPhys = false;
+    // A Select+Vol chord happened while Select is held: the DS bit the physical Select produces (selectMaskBit,
+    // dsBitForKey at the latch; 0 = nothing to mask) is kept out of out->dsBtnMask until the physical release.
+    bool selectChordLatched = false;
+    int selectMaskBit = 0;
+    // Select+Vol hold-repeat: the volume key held for the chord (0 = none), its direction, the next repeat
+    // (elapsedRealtime ms), and whether the repeat has started (for the log).
+    int volHeldCode = 0;
+    int volHeldDir = 0;
+    int64_t volRepeatDueMs = 0;
+    bool volRepeating = false;
+    // This state may toggle the Touch Cursor (action 28) and honour cursor_dbg. False for the fast input thread:
+    // the render loop owns the cursor mode and tells that thread when it may forward (main.cpp fastOwnsNow).
+    bool ownsCursorToggle = true;
+
     // Derived: which Android keycode is currently held? Tracked for
     // the "capture key" overlay mode (controls remap).
     int lastKeyDownAndroidKc = 0;
@@ -223,8 +241,9 @@ struct InputActions {
     bool navRightHeld = false;
 
     // In-app volume / brightness adjust (from the volume keys: VOL alone =
-    // volume, SELECT+VOL = brightness). -1 / 0 / +1. Drives the slider HUDs
-    // since the SurfaceFlinger system HUDs never appear on the DRM path.
+    // volume, SELECT+VOL = brightness). volAdjust is -1 / 0 / +1; brightAdjust is the
+    // signed number of brightness steps this frame (presses and repeats). Drives the
+    // slider HUDs since the SurfaceFlinger system HUDs never appear on the DRM path.
     int volAdjust = 0;
     int brightAdjust = 0;
 
@@ -304,6 +323,9 @@ void closeInputDevices(InputState* st);
 
 // Level of the lid switch right now (EVIOCGSW on lidFd): 1 closed, 0 open, -1 unknown (no lid node).
 int readLidSwitch(const InputState* st);
+
+// True when evCode (a KEY_*/BTN_* code) is down right now on any of st->fds (EVIOCGKEY).
+bool keyHeldNow(const InputState* st, int evCode);
 
 // Grace period of a lid close in ms (persist.gammaos.drastic_nano.lid_grace_ms, default 10000, 0..60000).
 // 0 unless drastic-nano owns the lid this session (drastic_pm::owning()): without ownership the framework

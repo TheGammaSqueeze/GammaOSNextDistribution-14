@@ -24,6 +24,7 @@
 #include "DrasticRunner.h"
 #include "NanoMenuDrm.h"
 #include "DrasticSettings.h"
+#include "NanoBrightness.h"
 #include "NanoPmSync.h"
 
 namespace android {
@@ -84,6 +85,16 @@ float normAxis(const InputState::Axis& a, float deadzone) {
     if (an < deadzone) return 0.0f;
     float scaled = (an - deadzone) / (1.0f - deadzone);
     return n < 0 ? -scaled : scaled;
+}
+
+// EVIOCGKEY of one device into keys; false when the ioctl fails.
+constexpr size_t kKeyBitsLongs = (KEY_MAX + 8 * sizeof(long)) / (8 * sizeof(long));
+bool readKeyBits(int fd, unsigned long (&keys)[kKeyBitsLongs]) {
+    memset(keys, 0, sizeof(keys));
+    return ioctl(fd, EVIOCGKEY(sizeof(keys)), keys) >= 0;
+}
+bool keyBitSet(const unsigned long (&keys)[kKeyBitsLongs], int code) {
+    return (keys[code / (8 * sizeof(long))] >> (code % (8 * sizeof(long)))) & 1;
 }
 
 } // anonymous namespace
@@ -273,6 +284,14 @@ int readLidSwitch(const InputState* st) {
     unsigned long sw[(SW_MAX + 8 * sizeof(long)) / (8 * sizeof(long))] = {};
     if (ioctl(st->lidFd, EVIOCGSW(sizeof(sw)), sw) < 0) return -1;
     return (sw[SW_LID / (8 * sizeof(long))] >> (SW_LID % (8 * sizeof(long)))) & 1;
+}
+
+bool keyHeldNow(const InputState* st, int evCode) {
+    for (int fd : st->fds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys) && keyBitSet(keys, evCode)) return true;
+    }
+    return false;
 }
 
 int lidGraceMs() {
@@ -535,6 +554,29 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
     }
 }
 
+// The DS bit a held key gives in gameplay: the user's keymap, else the legacy mapping of pollInputMap's switch
+// (keep the two in step). 0 for special actions and unmapped keys.
+int dsBitForKey(const InputState* st, int code) {
+    const int kc = drastic_prefs::evdevToAndroidKeycode(code);
+    auto it = st->keycodeToAction.find(kc);
+    if (it != st->keycodeToAction.end()) return actionIndexToDsBit(it->second);
+    switch (code) {
+    case BTN_SOUTH: return DrasticRunner::kDsBtnA;
+    case BTN_EAST:  return DrasticRunner::kDsBtnB;
+    case BTN_NORTH: return DrasticRunner::kDsBtnX;
+    case BTN_WEST:  return DrasticRunner::kDsBtnY;
+    case BTN_TL: case KEY_L: return DrasticRunner::kDsBtnL;
+    case BTN_TR: case KEY_R: return DrasticRunner::kDsBtnR;
+    case BTN_START:  return DrasticRunner::kDsBtnStart;
+    case BTN_SELECT: return DrasticRunner::kDsBtnSelect;
+    case KEY_UP:    case BTN_DPAD_UP:    return DrasticRunner::kDsBtnUp;
+    case KEY_DOWN:  case BTN_DPAD_DOWN:  return DrasticRunner::kDsBtnDown;
+    case KEY_LEFT:  case BTN_DPAD_LEFT:  return DrasticRunner::kDsBtnLeft;
+    case KEY_RIGHT: case BTN_DPAD_RIGHT: return DrasticRunner::kDsBtnRight;
+    default: return 0;
+    }
+}
+
 // Time of an evdev event in microseconds. drastic-nano never sets EVIOCSCLOCK, so this is
 // CLOCK_REALTIME; only the difference between two events of the same device is used.
 int64_t evTimeUs(const struct input_event& ev) {
@@ -691,17 +733,40 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
             if (ev.type == EV_KEY) {
                 const bool pressed = (ev.value != 0);
 
-                // Volume keys drive the in-app volume / brightness HUDs.
-                // VOL alone = volume (press only); SELECT+VOL = brightness
-                // (press or repeat, so holding SELECT + tapping VOL ramps).
-                // Never routed to a DS button.
+                // The physical Select, before every routing branch (capture, menu, keymap), both edges.
+                if (ev.code == BTN_SELECT && ev.value != 2) {
+                    st->selectPhys = (ev.value != 0);
+                    if (!st->selectPhys) {
+                        st->selectChordLatched = false;   // Select reaches the game again
+                        st->selectMaskBit = 0;
+                        st->volHeldCode = 0;
+                    }
+                }
+
+                // Volume keys: VOL alone = volume (press only); physical SELECT + VOL = brightness, a signed step
+                // count, repeated in software below while both keys are held. value 2 (kernel autorepeat) is ignored:
+                // the chord repeats here, plain volume repeats in PhoneWindowManager. Never a DS button.
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
-                    int dir = (ev.code == KEY_VOLUMEUP) ? 1 : -1;
-                    bool selectHeld =
-                            (st->dsBtnMask & DrasticRunner::kDsBtnSelect) != 0;
-                    if (ev.value == 1 || ev.value == 2) {
-                        if (selectHeld)        out->brightAdjust = dir;
-                        else if (ev.value == 1) out->volAdjust   = dir;
+                    const int dir = (ev.code == KEY_VOLUMEUP) ? 1 : -1;
+                    if (ev.value == 1) {
+                        if (st->selectPhys) {
+                            out->brightAdjust += dir;
+                            if (!st->selectChordLatched) {
+                                // what the physical Select gives the game under the current keymap (0: nothing)
+                                st->selectMaskBit = dsBitForKey(st, BTN_SELECT);
+                                if (st->ownsCursorToggle)
+                                    ALOGI("DrasticNano::input: Select+Vol brightness, Select kept from the game until it is released");
+                            }
+                            st->selectChordLatched = true;
+                            st->volHeldCode = ev.code;
+                            st->volHeldDir = dir;
+                            st->volRepeatDueMs = android::elapsedRealtime() + android::nanobr::kChordRepeatFirstMs;
+                            st->volRepeating = false;
+                        } else {
+                            out->volAdjust = dir;
+                        }
+                    } else if (ev.value == 0 && ev.code == st->volHeldCode) {
+                        st->volHeldCode = 0;
                     }
                     continue;
                 }
@@ -916,6 +981,23 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         }
     }
 
+    // Select+Vol held: another step after kChordRepeatFirstMs, then every kChordRepeatMs, while both are held.
+    if (st->volHeldCode != 0) {
+        if (!st->selectPhys) {
+            st->volHeldCode = 0;
+        } else {
+            const int64_t now = android::elapsedRealtime();
+            if (now >= st->volRepeatDueMs) {
+                out->brightAdjust += st->volHeldDir;
+                st->volRepeatDueMs = now + android::nanobr::kChordRepeatMs;
+                if (!st->volRepeating) {
+                    st->volRepeating = true;
+                    if (st->ownsCursorToggle) ALOGI("DrasticNano::input: Select+Vol held, repeating");
+                }
+            }
+        }
+    }
+
     // Long-press exit detection. Fires when BACK has been held longer
     // than longBackMs; short-press was already handled on release.
     if (st->backPressStartMs > 0) {
@@ -1009,6 +1091,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   DrasticRunner::kDsBtnLeft | DrasticRunner::kDsBtnRight |
                   DrasticRunner::kDsBtnA    | DrasticRunner::kDsBtnX     |
                   DrasticRunner::kDsBtnY);
+        if (st->selectChordLatched) out->dsBtnMask &= ~st->selectMaskBit;
         out->touchX = (int)(st->cursorX + 0.5f);
         out->touchY = (int)(st->cursorY + 0.5f);
         out->touchHeld = (st->dsBtnMask & DrasticRunner::kDsBtnA) != 0;
@@ -1037,7 +1120,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 raw = applyPortraitControls(st, physMask, lsDpad, pcRot, atoi(sl));
             }
         }
-        out->dsBtnMask = raw;
+        out->dsBtnMask = st->selectChordLatched ? (raw & ~st->selectMaskBit) : raw;
         out->touchX = st->touchDsX;
         out->touchTop = st->touchTop;
         out->touchY = st->touchDsY;
