@@ -52,8 +52,11 @@ is verified on-device against the control unit.
 `launch_readiness_check.cpp` exercises the same `NanoLaunchReadiness.h` used by
 the launcher. It checks volume aliases, missing mounts and tmpfs placeholders,
 internal paths, asynchronous polling, single dispatch, cancellation and stale
-worker results. A mounted volume passes even if the ROM is missing, leaving
-the existing launcher's file check responsible for that error.
+worker results. It also checks first-probe success, the 150 ms waiting-panel
+grace period and cancellation during that period. Only the panel is delayed;
+a ready result can be dispatched immediately. A mounted volume passes even if
+the ROM is missing, leaving the existing launcher's file check responsible for
+that error.
 
 From the repo root:
 
@@ -66,7 +69,8 @@ c++ -std=c++17 -pthread -Wall -Wextra -Werror \
 ```
 
 Build with assertions enabled (no `-DNDEBUG`). This needs no Android build or
-device. It does not validate Android's mount
-namespace, system properties or the UI dispatch wiring. On-device validation
-should include touch/button launches with the input released before storage is
-ready, touch/button Back during the wait, and a missing ROM on a mounted card.
+device. It does not validate Android's mount namespace, system properties or the
+UI dispatch wiring. On-device validation should include already-mounted storage
+(input-to-launch latency and absence of a brief waiting panel), touch/button
+launches with the input released before storage is ready, touch/button Back
+during the wait, and a missing ROM on a mounted card.

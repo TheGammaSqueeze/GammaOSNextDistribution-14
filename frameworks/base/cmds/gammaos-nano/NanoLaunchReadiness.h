@@ -46,6 +46,7 @@ class Readiness {
     enum Status { Waiting, Ready, Dispatching, Cancelled };
     std::shared_ptr<std::atomic<Status>> mResult;
     std::string mPath;
+    std::chrono::steady_clock::time_point mStarted;
 public:
     Readiness() = default;
     Readiness(const Readiness&) = delete;
@@ -57,6 +58,7 @@ public:
         if (mResult && mPath == path && mResult->load() != Dispatching) return;
         cancel();
         mPath = path;
+        mStarted = std::chrono::steady_clock::now();
         auto result = mResult = std::make_shared<std::atomic<Status>>(Waiting);
         std::thread([result, path, probe, initWorker] {
             if (initWorker) initWorker();
@@ -75,6 +77,13 @@ public:
     bool takeReady() {
         Status expected = Ready;
         return mResult && mResult->compare_exchange_strong(expected, Dispatching);
+    }
+
+    // Delay only the panel, never the ready handoff.
+    bool showBusy(std::chrono::steady_clock::time_point now =
+                          std::chrono::steady_clock::now()) const {
+        return mResult && mResult->load() == Waiting
+                && now - mStarted >= std::chrono::milliseconds(150);
     }
 
     bool dispatching(const std::string& path) const {

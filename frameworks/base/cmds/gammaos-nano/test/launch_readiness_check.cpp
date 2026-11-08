@@ -49,8 +49,44 @@ int main() {
     puts("PASS: storage aliases, absent card, placeholder, mount, missing ROM");
 
     Readiness gate;
-    auto state = std::make_shared<ProbeState>();
     const auto uiThread = std::this_thread::get_id();
+    // A mounted card passes on the first probe, without waiting for the panel.
+    auto probes = std::make_shared<std::atomic<int>>(0);
+    gate.start(rom, [probes, uiThread](const std::string&) {
+        assert(std::this_thread::get_id() != uiThread);
+        ++*probes;
+        return true;
+    });
+    await([&] { return probes.use_count() == 1; });
+    assert(*probes == 1);
+    assert(!gate.showBusy(std::chrono::steady_clock::now() + 1s));
+    assert(gate.takeReady() && gate.dispatching(rom));
+    assert(!gate.takeReady());
+    gate.cancel();
+    puts("PASS: first-probe success, one handoff, no waiting panel");
+
+    // Hold the probe inside I/O. Panel timing and cancellation stay on the UI thread.
+    auto blocked = std::make_shared<ProbeState>();
+    const auto before = std::chrono::steady_clock::now();
+    gate.start(rom, [blocked](const std::string&) {
+        blocked->entered = true;
+        await([&] { return blocked->ready.load(); });
+        return true;
+    });
+    const auto after = std::chrono::steady_clock::now();
+    await([&] { return blocked->entered.load(); });
+    assert(!gate.takeReady());
+    assert(!gate.showBusy(before + 149ms));
+    assert(gate.showBusy(after + 150ms));
+    gate.start(rom, [](const std::string&) { assert(false); return true; });
+    assert(gate.showBusy(after + 150ms));
+    gate.cancel();
+    assert(!gate.showBusy(after + 1s) && !gate.takeReady());
+    blocked->ready = true;
+    await([&] { return blocked.use_count() == 1; });
+    puts("PASS: panel grace period, pending I/O, duplicate request, early cancellation");
+
+    auto state = std::make_shared<ProbeState>();
     gate.start(rom, [state, uiThread](const std::string&) {
         assert(std::this_thread::get_id() != uiThread);
         const bool ready = state->ready.load();

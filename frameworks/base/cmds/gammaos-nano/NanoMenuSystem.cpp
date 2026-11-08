@@ -427,6 +427,8 @@ void NanoMenu::cancelPendingLaunch() {
 
 void NanoMenu::renderLaunchBusyToast() {
     if (!mShowLaunchBusy) return;
+    if (mLaunchPending && !mLaunchPendingRomPath.empty()
+            && !mLaunchReadiness.showBusy()) return;
     // Keep the panel visible while waiting for storage.
     if (!mLaunchPending) {
         if (--mLaunchBusyTimer <= 0) {
