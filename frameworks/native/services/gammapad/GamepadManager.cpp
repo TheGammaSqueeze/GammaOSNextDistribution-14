@@ -353,6 +353,12 @@ void GamepadManager::run() {
             checkForegroundApp();
             // Check for external mouse mode toggle (QS tile) and combo timeout
             if (mMouseMode) {
+                using android::base::GetIntProperty;
+                // drm_active is not part of it: the RetroArch preview has it too, and the DRM home switches the mode
+                // off itself (NanoMenu.cpp mouseModeHomeGuard).
+                const bool nanoSession = GetIntProperty("sys.gammaos.drastic_nano.session", 0) == 1 ||
+                        GetIntProperty("sys.gammaos.azahar_nano.session", 0) == 1;
+                mMouseMode->setSessionBlock(nanoSession);
                 if (mMouseMode->checkExternalToggle()) {
                     drainMouseFlushEvents();
                 }
