@@ -74,6 +74,7 @@ private:
     void checkConfigChange();
     void checkForegroundApp();
     void drainMouseFlushEvents();
+    void flushTransformerExtras();
 
     // Load per-app profiles (btn/combo remaps + action rules) from properties.
     void loadPerAppProfiles();

@@ -37,6 +37,25 @@ void InputTransformer::loadConfig() {
     mButtonToAxis.clear();
     mCalibration.clear();
     mAxisButtons.clear();
+    // A combo target that is held on the virtual pad would stay down for good once its combo is gone: release it.
+    int releasedTargets = 0;
+    for (const auto& combo : mCombos) {
+        if (!combo.active) continue;
+        struct input_event rel = {};
+        rel.type = EV_KEY;
+        rel.code = combo.emitBtn;
+        rel.value = 0;
+        mExtraEvents.push_back(rel);
+        struct input_event syn = {};
+        syn.type = EV_SYN;
+        syn.code = SYN_REPORT;
+        mExtraEvents.push_back(syn);
+        mVirtualHeld.erase(combo.emitBtn);
+        releasedTargets++;
+    }
+    if (releasedTargets > 0) {
+        LOG(INFO) << "Config reload released " << releasedTargets << " active combo target(s)";
+    }
     mCombos.clear();
     mButtonActions.clear();
     // NB: do NOT clear mActionPend here - a button physically held across a
@@ -44,9 +63,10 @@ void InputTransformer::loadConfig() {
     // the (surviving) short action instead of being silently swallowed. Stale
     // entries for removed codes are inert (processButtonAction/checkActionTimeouts
     // both re-resolve the rule and skip codes with no current action).
-    mPhysicalHeld.clear();
+    // mPhysicalHeld and mVirtualHeld outlive a reload for the same reason: a held button keeps working and its
+    // release is still forwarded.
     mDpadUpHeld = mDpadDownHeld = mDpadLeftHeld = mDpadRightHeld = false;
-    mVirtualHeld.clear();
+    mRecalled.clear();
 
     // Parse button remaps: "from1:to1,from2:to2,..."
     std::string btnRemap = GetProperty("persist.gammaos.gamepad.remap_btn", "");
@@ -318,7 +338,9 @@ bool InputTransformer::transform(struct input_event& ev,
         }
 
         // 3. Button combo processing (after all remapping, before blacklist)
-        if (!mCombos.empty() && processCombo(ev)) {
+        // Runs with no combos too: it keeps mPhysicalHeld/mVirtualHeld in step with every press and release,
+        // so a button held across a reload cannot leave a stale entry that later fires a combo.
+        if (processCombo(ev)) {
             return false; // consumed by combo logic
         }
 
@@ -692,6 +714,7 @@ bool InputTransformer::processCombo(struct input_event& ev) {
                     syn.code = SYN_REPORT;
                     mExtraEvents.push_back(syn);
                     mVirtualHeld.erase(combo.btn1);
+                    mRecalled.insert(combo.btn1);
                 }
                 if (mVirtualHeld.count(combo.btn2)) {
                     struct input_event rel = {};
@@ -704,6 +727,7 @@ bool InputTransformer::processCombo(struct input_event& ev) {
                     syn.code = SYN_REPORT;
                     mExtraEvents.push_back(syn);
                     mVirtualHeld.erase(combo.btn2);
+                    mRecalled.insert(combo.btn2);
                 }
 
                 // Emit target press
@@ -759,11 +783,9 @@ bool InputTransformer::processCombo(struct input_event& ev) {
         }
 
         // Not part of any active combo
-        if (mVirtualHeld.count(code)) {
-            mVirtualHeld.erase(code);
-            return false; // forward release normally
-        }
-        return true; // was recalled or consumed, don't forward
+        if (mVirtualHeld.erase(code)) return false; // forward release normally
+        if (mRecalled.erase(code)) return true;     // recalled by a combo trigger: already released, don't forward
+        return false;  // nobody tracked it (held across a reload): forward, the kernel drops a redundant up
 
     } else {
         // Key repeat (value == 2) — suppress if part of active combo
