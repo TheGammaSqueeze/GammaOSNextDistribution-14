@@ -584,6 +584,57 @@ int dsBitForKey(const InputState* st, int code) {
     }
 }
 
+// After a rescan: rebuild the held state from the devices instead of dropping it (a pad sends no events for what is
+// already held). Latches follow the held level so a held FF / cursor key does not toggle again.
+void reseedHeldState(InputState* st) {
+    static const int kCodes[] = {
+        BTN_SOUTH, BTN_EAST, BTN_NORTH, BTN_WEST, BTN_TL, BTN_TR, BTN_TL2, BTN_TR2, BTN_SELECT, BTN_START,
+        BTN_THUMBL, BTN_THUMBR, KEY_L, KEY_R, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT,
+        BTN_DPAD_UP, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT};
+    bool ffHeld = false, cursorHeld = false;
+    for (int fd : st->fds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys)) {
+            for (int code : kCodes) {
+                if (!keyBitSet(keys, code)) continue;
+                if (code == BTN_SELECT) st->selectPhys = true;
+                if (code == BTN_TL2) st->btnL2 = true;
+                if (code == BTN_TR2) st->btnR2 = true;
+                if (code == BTN_THUMBL) st->btnL3 = true;
+                if (code == BTN_THUMBR) st->btnR3 = true;
+                st->dsBtnMask |= dsBitForKey(st, code);
+                auto it = st->keycodeToAction.find(drastic_prefs::evdevToAndroidKeycode(code));
+                if (it != st->keycodeToAction.end()) {
+                    if (it->second == 17) ffHeld = true;
+                    if (it->second == 28) cursorHeld = true;
+                }
+            }
+        }
+        // The hat: a held direction sends no event until it changes.
+        struct input_absinfo hat = {};
+        if (ioctl(fd, EVIOCGABS(ABS_HAT0X), &hat) >= 0 && hat.value != 0) {
+            st->dsBtnMask |= hat.value < 0 ? DrasticRunner::kDsBtnLeft : DrasticRunner::kDsBtnRight;
+            st->hat0xPrev = hat.value;
+        }
+        hat = {};
+        if (ioctl(fd, EVIOCGABS(ABS_HAT0Y), &hat) >= 0 && hat.value != 0) {
+            st->dsBtnMask |= hat.value < 0 ? DrasticRunner::kDsBtnUp : DrasticRunner::kDsBtnDown;
+            st->hat0yPrev = hat.value;
+        }
+    }
+    st->ffWasDown = ffHeld;
+    st->btnFastFwd = ffHeld;
+    st->cursorToggleWasDown = cursorHeld;
+    // A finger on a digitizer that was reopened: touchHeld follows it unless the stick drives the stylus.
+    bool touching = false;
+    for (int fd : st->touchFds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys) && keyBitSet(keys, BTN_TOUCH)) touching = true;
+    }
+    st->touchReal = touching;
+    if (!st->stickStylusActive) st->touchHeld = touching;
+}
+
 // Time of an evdev event in microseconds. drastic-nano never sets EVIOCSCLOCK, so this is
 // CLOCK_REALTIME; only the difference between two events of the same device is used.
 int64_t evTimeUs(const struct input_event& ev) {
@@ -688,8 +739,9 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // us early, a Bluetooth controller pairing mid-game, ueventd recreating a
     // node) was invisible for the rest of the session: no buttons, no way to
     // open the menu or exit. Debounce the burst of inotify events a device
-    // creation produces, then reopen everything and drop any held state, since
-    // a removed pad never sends its releases.
+    // creation produces, then reopen everything and rebuild the held state from
+    // the devices (EVIOCGKEY), since a removed pad never sends its releases and
+    // a new one sends no events for what is already held.
     if (st->inotifyFd >= 0) {
         char buf[1024] __attribute__((aligned(__alignof__(struct inotify_event))));
         ssize_t n;
@@ -718,8 +770,15 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         st->hat0xPrev = 0;
         st->hat0yPrev = 0;
         st->btnL2 = st->btnR2 = st->btnL3 = st->btnR3 = false;
-        ALOGI("DrasticNano::input: /dev/input changed, rescanned (%zu -> %zu nodes)",
-              before, st->fds.size() + st->touchFds.size());
+        st->selectPhys = false;
+        st->selectChordLatched = false;
+        st->selectMaskBit = 0;
+        st->volHeldCode = 0;
+        st->powerHoldFired = false;
+        st->powerOffFired = false;
+        reseedHeldState(st);   // what is still held keeps working (a pad sends no event for it)
+        ALOGI("DrasticNano::input: /dev/input changed, rescanned (%zu -> %zu nodes), held mask 0x%x select %d",
+              before, st->fds.size() + st->touchFds.size(), st->dsBtnMask, st->selectPhys ? 1 : 0);
     }
 
     // ---- Drain gamepad event devices ----
