@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/inotify.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/wait.h>
@@ -37,6 +38,20 @@ static constexpr const char* HIDDEN_NODES_FILE = "/data/misc/gammapad/hidden_nod
 static constexpr int MAX_EPOLL_EVENTS = 16;
 static constexpr int CONFIG_CHECK_INTERVAL_MS = 1000;
 static constexpr int HOTPLUG_SETTLE_MS = 100;
+
+namespace {
+
+// gammapad's own uinput nodes (virtual pad, mouse, touchscreen) carry a "gammapad-" phys: they need no settle time.
+bool isOwnVirtualNode(const std::string& path) {
+    const int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    if (fd < 0) return false;
+    char phys[64] = {};
+    const bool own = ioctl(fd, EVIOCGPHYS(sizeof(phys) - 1), phys) >= 0 && strncmp(phys, "gammapad-", 9) == 0;
+    close(fd);
+    return own;
+}
+
+}  // namespace
 
 // epoll data tags to distinguish event sources
 enum EpollTag : uint32_t {
@@ -1148,9 +1163,13 @@ void GamepadManager::handleInotifyEvent() {
                 }
                 if (trackedFd < 0) {
                     // New device — grab it.
-                    usleep(HOTPLUG_SETTLE_MS * 1000);
-                    if (grabDevice(path)) {
-                        needRebuild = true;
+                    if (isOwnVirtualNode(path)) {
+                        LOG(INFO) << "Skipping own virtual device without the settle delay: " << path;
+                    } else {
+                        usleep(HOTPLUG_SETTLE_MS * 1000);
+                        if (grabDevice(path)) {
+                            needRebuild = true;
+                        }
                     }
                 } else if (trackedHidden) {
                     // We hid this path (unlinked the source node) yet a fresh
