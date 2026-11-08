@@ -827,10 +827,27 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 if (ev.code == BTN_THUMBR) st->btnR3 = pressed;
 
                 if (overlayOpen) {
-                    // Route keys to overlay nav. Dispatch edge events
-                    // only on press.
-                    dispatchNav(androidKc, pressed, out);
-                    continue;
+                    // Key D-pads (keyboards, BTN_DPAD_* pads) keep their held level in the mask on both edges, so the
+                    // menu's hold-to-repeat sees them and a release clears them.
+                    int dpadBit = 0;
+                    switch (ev.code) {
+                    case KEY_UP:    case BTN_DPAD_UP:    dpadBit = DrasticRunner::kDsBtnUp;    break;
+                    case KEY_DOWN:  case BTN_DPAD_DOWN:  dpadBit = DrasticRunner::kDsBtnDown;  break;
+                    case KEY_LEFT:  case BTN_DPAD_LEFT:  dpadBit = DrasticRunner::kDsBtnLeft;  break;
+                    case KEY_RIGHT: case BTN_DPAD_RIGHT: dpadBit = DrasticRunner::kDsBtnRight; break;
+                    default: break;
+                    }
+                    if (dpadBit) {
+                        if (ev.value != 0) st->dsBtnMask |= dpadBit;
+                        else               st->dsBtnMask &= ~dpadBit;
+                        continue;
+                    }
+                    // Presses drive the menu (one edge per press, never autorepeat).
+                    if (ev.value == 1) { dispatchNav(androidKc, true, out); continue; }
+                    if (ev.value == 2) continue;
+                    // A release falls through to the gameplay routing so its held bit and the FF / cursor latches
+                    // clear: a button let go inside the menu is not held after it (K3). Edge actions fire on presses
+                    // only, and out->dsBtnMask is blanked below while the menu is open.
                 }
 
                 // Gameplay routing: prefer the user's keymap; fall
@@ -896,7 +913,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // Touch Cursor: edge-toggle the virtual cursor (the new
                         // default R3 behavior, replacing the momentary stylus).
                         case 28:
-                            if (pressed && !st->cursorToggleWasDown) {
+                            if (pressed && !st->cursorToggleWasDown && st->ownsCursorToggle) {
                                 st->cursorMode = !st->cursorMode;
                                 if (st->cursorMode) {
                                     st->cursorX = 128.0f;   // center on enter
@@ -906,16 +923,16 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                             st->cursorToggleWasDown = pressed;
                             break;
                         // Edge-triggered (fire once on press only).
-                        case 16: if (pressed) out->actSwapScreens = true; break;
+                        case 16: if (ev.value == 1) out->actSwapScreens = true; break;
                         // Save State / Load State: quick-save to / quick-load
                         // from slot 0. Edge actions (fire once on press). The
                         // overlay's update() consumes these even while the menu
                         // is closed, driving DrasticRunner save/loadStateSlot(0).
-                        case 29: if (pressed) out->actQuickSave = true; break;
-                        case 30: if (pressed) out->actQuickLoad = true; break;
+                        case 29: if (ev.value == 1) out->actQuickSave = true; break;
+                        case 30: if (ev.value == 1) out->actQuickLoad = true; break;
                         // Close Lid: edge action (fire once on press). The run loop toggles the
                         // emulated DS hinge, so one press closes the lid and the next opens it.
-                        case 31: if (pressed) out->actCloseLid = true; break;
+                        case 31: if (ev.value == 1) out->actCloseLid = true; break;
                         // Menu action: SAME short-press-overlay /
                         // hold-exit semantics as the literal KEY_BACK
                         // button. The physical Back button on this
@@ -927,8 +944,10 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // backPressStartMs/backWasDown state so the
                         // shared hold check below fires exitRequested.
                         case 20:
-                            backEdge(st, pressed, ev, shortBackMs,
-                                     longBackMs, out);
+                            // A release inside the menu must not toggle the menu or exit.
+                            if (!overlayOpen)
+                                backEdge(st, pressed, ev, shortBackMs,
+                                         longBackMs, out);
                             break;
                         default: break;
                         }
@@ -1045,7 +1064,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     {
         char cdbg[PROPERTY_VALUE_MAX] = {};
         android::drastic_settings::get("persist.gammaos.drastic_nano.cursor_dbg", cdbg, "0");
-        if (cdbg[0] == '1') st->cursorMode = true;
+        if (cdbg[0] == '1' && st->ownsCursorToggle) st->cursorMode = true;
     }
 
     // Held dpad level (keys + HAT + stick) for the overlay's hold-to-repeat
