@@ -6915,6 +6915,8 @@ int main(int argc, char** argv) {
                         prefsPath, savestatesDir, romPath, shadersDir)
             : runLoop(&dpy, &dr, prefs, appUid, appGid,
                       prefsPath, savestatesDir, romPath, shadersDir);
+    // No session, no volume target: PhoneWindowManager must not apply a stale one.
+    property_set("sys.gammaos.nano.vol_target", "0");
     // Release the SurfaceFlinger layer(s) so the compositor recomposites the home
     // behind them. The DRM teardown below is guarded by sDrmActive and no-ops on
     // the SF path.

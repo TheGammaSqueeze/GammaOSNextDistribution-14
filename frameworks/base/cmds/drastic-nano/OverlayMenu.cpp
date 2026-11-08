@@ -2185,9 +2185,10 @@ void OverlayMenu::addCustomCheatFlow() {
 // the key reached the policy 100 to 400 ms late and the first press after a pause
 // took 1.2 s to move the music stream, because system_server is starved by the
 // FIFO emulator threads and partly swapped out on 1 GB. So the press also sets the
-// music stream index straight through audioserver from here, within a few ms; the
-// framework's own step then lands on the same index (it reads its cached level and
-// adds the direction, exactly what this computes), so nothing is applied twice.
+// music stream index straight through audioserver from here, within a few ms, and
+// publishes it (sys.gammaos.nano.vol_target); the framework's own step for the same
+// press applies that target instead of adding the direction to its cached level, so
+// a burst cannot dip back.
 // One tiny thread of its own (not the settings worker: a queued persist write was
 // measured at up to 400 ms in game and the press must not wait behind it). Presses
 // are coalesced into one pending delta; the base index is re-read from audioserver
@@ -2236,7 +2237,15 @@ void volThreadMain() {
         if (next > maxIdx) next = maxIdx;
         const android::status_t st = android::AudioSystem::setStreamVolumeIndex(AUDIO_STREAM_MUSIC, next, dev);
         lastApplyMs = android::elapsedRealtime();
-        if (st == android::NO_ERROR) { base = next; gVolApplied.store(next, std::memory_order_relaxed); }
+        if (st == android::NO_ERROR) {
+            base = next;
+            gVolApplied.store(next, std::memory_order_relaxed);
+            // PhoneWindowManager's own step for the same press lands 0.1 to 1.2 s later and would add the
+            // direction to AudioService's stale index; it takes this target instead (sys.gammaos.nano.vol_target).
+            char vt[48];
+            snprintf(vt, sizeof(vt), "%d:%lld", next, (long long)android::uptimeMillis());
+            property_set("sys.gammaos.nano.vol_target", vt);
+        }
         ALOGI("drastic-nano volume: music index %d (delta %+d, device 0x%x) %s in %lld ms",
               next, delta, (unsigned)dev, st == android::NO_ERROR ? "applied" : "FAILED", (long long)(lastApplyMs - t0));
         if (st != android::NO_ERROR) base = -1;    // re-read next time
