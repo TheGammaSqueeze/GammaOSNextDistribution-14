@@ -3259,6 +3259,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return overlayUp || !appUp;
     }
 
+    // GammaOS Nano: a drastic-nano DS session is live (its SurfaceFlinger backend holds app_launched=1, so
+    // gammaNanoForeground() is false there). The Select+Volume branch only; stale-combo resets keep their own test.
+    private boolean gammaDrasticSessionLive() {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return false;
+        return "1".equals(SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))
+                && "running".equals(SystemProperties.get("init.svc.drastic-nano", ""));
+    }
+
     private void gammaClearStaleCombosIfNanoForeground() {
         if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
         final boolean overlayUp = "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
@@ -7704,7 +7712,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         // in front (stale-combo reset), which turned a real Select+Volume into a
                         // plain volume change on top of nano's brightness change.
                         final boolean selectHeld = gammaSelectPhysicallyHeld();
-                        if (selectHeld && gammaNanoForeground()) {
+                        if (selectHeld && (gammaNanoForeground() || gammaDrasticSessionLive())) {
                             // nano (home, overlay or drastic-nano) reads the same keys, adjusts
                             // the brightness and draws its own slider. Leave it to nano, or the
                             // brightness would move twice per press.
