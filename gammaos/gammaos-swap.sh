@@ -54,6 +54,15 @@ if [ "$size_mb" -gt "$MAX_MB" ]; then
     size_mb=$MAX_MB
 fi
 
+# RG DS Plus nano: the swap file is read and written on the microSD that also holds the ROMs. Idle I/O class
+# (fallocate, mkswap and swapon inherit it), so a game's reads always go first; the swap partition and zram cover
+# memory until the file is on. Full Android and other devices are unchanged.
+if [ "$(getprop ro.gammaos.device)" = anbernicrgdsplus ] && [ "$(getprop sys.gammaos.minimal_boot)" = 1 ]; then
+    if ionice -c 3 -p $$ 2>/dev/null; then
+        log_i "idle I/O priority (a game's reads go first)"
+    fi
+fi
+
 # RG DS Plus nano: swapon of the file reads every f2fs node block of it from the microSD (2081
 # reads, 2.5 s on an idle system; 9-11 s at boot, overlapping zygote and system_server). zram and
 # the swap partition (2.4 GB, higher priority) cover boot, which used under 200 MB of swap, so the
