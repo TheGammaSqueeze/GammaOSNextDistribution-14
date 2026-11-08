@@ -1275,6 +1275,14 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // the input layer pushed up and write it into the current action
     // slot.
     if (mCaptureKey) {
+        // B cancels, as the footer says, except on the DS "B" row (action 2) where B is the key being bound.
+        if (a.capturedAndroidKc == 97 /* BUTTON_B */ && mCaptureActionIdx != 2) {
+            mCaptureKey = false;
+            mCaptureActionIdx = -1;
+            toast("Cancelled");
+            ALOGI("OverlayMenu: key capture cancelled with B");
+            return;
+        }
         if (a.capturedAndroidKc != 0 && mCaptureActionIdx >= 0) {
             // A physical button drives exactly one function: clear this
             // keycode from any OTHER action slot before assigning it here.
@@ -4402,7 +4410,8 @@ void OverlayMenu::drawFooter(drastic_gfx::OverlayGfx& gfx, float vw,
     float footScale = kFooterScale * sf;
     const char* hint;
     if (mCaptureKey) {
-        hint = "Press any key to bind     B: cancel";
+        hint = (mCaptureActionIdx == 2) ? "Press the key for B     Back: close menu"
+                                        : "Press any key to bind     B: cancel";
     } else {
         hint = "L/R: tabs     Up/Down: move     A: select     "
                "Left/Right: adjust     B: close";
