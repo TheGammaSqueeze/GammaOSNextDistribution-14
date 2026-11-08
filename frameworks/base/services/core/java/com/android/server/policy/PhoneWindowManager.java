@@ -923,8 +923,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final long GAMMA_STUCK_MODIFIER_MS = 6000;
 
     // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
-    private boolean mRetroarchSelectDown = false;
-    private String mRetroarchSelectDevicePath = null;
+    // Set on the input threads, cleared by the gamma-select thread once a write succeeded.
+    private volatile boolean mRetroarchSelectDown = false;
+    private volatile String mRetroarchSelectDevicePath = null;
+
+    // GammaOS: every BTN_SELECT the RetroArch BACK override writes goes through this one thread, in order, so an up
+    // can never overtake its down whatever path wrote it, and the input dispatch thread never waits for a shell.
+    private java.util.concurrent.ExecutorService mGammaSelectExecutor;
+    // Bumped by each queued down; an up clears mRetroarchSelectDown only for the down it belongs to.
+    private final java.util.concurrent.atomic.AtomicInteger mGammaSelectGen =
+            new java.util.concurrent.atomic.AtomicInteger();
 
     // GammaOS Nano: Select+Volume hold-repeat for apps in nano mode, as NanoBrightness.h kChordRepeatFirstMs /
     // kChordRepeatMs. The repeats are a temporary brightness (the panel follows; Settings and
@@ -3360,7 +3368,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 String sysfsPath = "/sys/class/input/" + eventFile.getName() + "/device/name";
                 try {
                     String sysfsName = readFile(sysfsPath).trim();
-                    Log.d(TAG, "Found sysfs name for " + eventFilePath + ": " + sysfsName);
+                    if (DEBUG_INPUT) {
+                        Log.d(TAG, "Found sysfs name for " + eventFilePath + ": " + sysfsName);
+                    }
                     if (sysfsName.equals(deviceName)) {
                         return eventFilePath;
                     }
@@ -3372,46 +3382,76 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return null;
     }
 
+    private synchronized java.util.concurrent.ExecutorService gammaSelectExecutor() {
+        if (mGammaSelectExecutor == null) {
+            mGammaSelectExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(
+                    r -> new Thread(r, "gamma-select"));
+        }
+        return mGammaSelectExecutor;
+    }
+
+    // BTN_SELECT down or up (value) plus SYN on an evdev node, written by system_server itself in one write (input
+    // group, input_device rw like EventHub). Fallback: one shell running both sendevents in order. True when written.
+    // gamma-select thread only.
+    private boolean gammaWriteSelect(String devicePath, int value) {
+        final int size = android.os.Process.is64Bit() ? 24 : 16;   // struct input_event
+        final java.nio.ByteBuffer b = java.nio.ByteBuffer.allocate(size * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        b.position(size - 8); b.putShort((short) 1); b.putShort((short) 314); b.putInt(value);   // EV_KEY BTN_SELECT
+        b.position(size * 2 - 8); b.putShort((short) 0); b.putShort((short) 0); b.putInt(0);     // EV_SYN
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream(devicePath)) {
+            out.write(b.array());
+            return true;
+        } catch (IOException | SecurityException e) {
+            try {
+                return Runtime.getRuntime().exec(new String[] {"sh", "-c",
+                        "sendevent " + devicePath + " 1 314 " + value + "; sendevent " + devicePath + " 0 0 0"})
+                        .waitFor() == 0;
+            } catch (Exception e2) {
+                Log.e(TAG, "Failed to send BTN_SELECT " + value, e2);
+                return false;
+            }
+        }
+    }
+
     private void sendBtnSelectDown(String devicePath) {
         if (devicePath == null) return;
         if (mRetroarchSelectDown && devicePath.equals(mRetroarchSelectDevicePath)) return;
-        try {
-            // Send BTN_SELECT down: type 1 (EV_KEY), code 314, value 1
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 1");
-            // Follow with a synchronization event
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
-            mRetroarchSelectDown = true;
-            mRetroarchSelectDevicePath = devicePath;
-        } catch (java.io.IOException e) {
-            Log.e(TAG, "Failed to send BTN_SELECT down event", e);
-        }
+        mRetroarchSelectDevicePath = devicePath;
+        mRetroarchSelectDown = true;   // a down is on its way: the BACK release sends its up
+        final int gen = mGammaSelectGen.incrementAndGet();
+        gammaSelectExecutor().execute(() -> {
+            if (!gammaWriteSelect(devicePath, 1) && mGammaSelectGen.get() == gen) {
+                mRetroarchSelectDown = false;   // nothing went down: nothing to release
+                mRetroarchSelectDevicePath = null;
+            }
+        });
     }
 
     private void sendBtnSelectUp(String devicePath) {
         if (devicePath == null) return;
-        try {
-            // Send BTN_SELECT up: type 1 (EV_KEY), code 314, value 0
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 0");
-            // Follow with a synchronization event
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
-            if (mRetroarchSelectDevicePath != null
+        final int gen = mGammaSelectGen.get();
+        gammaSelectExecutor().execute(() -> {
+            // the flag clears only after the write succeeded, and only for the down this up belongs to
+            if (gammaWriteSelect(devicePath, 0) && mGammaSelectGen.get() == gen
                     && devicePath.equals(mRetroarchSelectDevicePath)) {
                 mRetroarchSelectDown = false;
                 mRetroarchSelectDevicePath = null;
             }
-        } catch (java.io.IOException e) {
-            Log.e(TAG, "Failed to send BTN_SELECT up event", e);
-        }
+        });
     }
 
     private String getDevicePathForDeviceId(int deviceId) {
         InputDevice device = InputManager.getInstance().getInputDevice(deviceId);
         if (device != null) {
             String deviceName = device.getName();
-            Log.d(TAG, "Target InputDevice name: " + deviceName + " (deviceId: " + deviceId + ")");
+            if (DEBUG_INPUT) {
+                Log.d(TAG, "Target InputDevice name: " + deviceName + " (deviceId: " + deviceId + ")");
+            }
             String devicePath = findDevicePathByName(deviceName);
             if (devicePath != null) {
-                Log.d(TAG, "Found matching device path for target: " + devicePath);
+                if (DEBUG_INPUT) {
+                    Log.d(TAG, "Found matching device path for target: " + devicePath);
+                }
                 return devicePath;
             } else {
                 Log.e(TAG, "No matching event file found for device: " + deviceName);
@@ -5276,12 +5316,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             } else {
                 // On BACK key release, reset flags.
                 // Also release any synthesized BTN_SELECT for RetroArch combo.
-                int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
-                String devicePath = getDevicePathForDeviceId(targetDeviceId);
-                sendBtnSelectUp(devicePath);
+                // Only a Select this override put down is lifted, on the path it went to; mRetroarchSelectDown clears
+                // itself once that write succeeded (gamma-select thread).
+                if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+                    sendBtnSelectUp(mRetroarchSelectDevicePath);
+                }
                 // Fully reset combo state so subsequent combos work immediately
-                mRetroarchSelectDown = false;
-                mRetroarchSelectDevicePath = null;
                 mRetroarchComboDeviceId = -1;
                 mBackPressed = false;
                 mBackLongPressActivated = false;
@@ -7099,11 +7139,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mSelectPressed = false;
         // Release any BTN_SELECT that the RetroArch back-override synthesized, at the evdev level,
         // so the app does not see SELECT stuck down either (mirrors the BACK-up release path).
-        if (mRetroarchSelectDown) {
-            int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
-            sendBtnSelectUp(getDevicePathForDeviceId(targetDeviceId));
-            mRetroarchSelectDown = false;
-            mRetroarchSelectDevicePath = null;
+        if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+            sendBtnSelectUp(mRetroarchSelectDevicePath);
             mRetroarchComboDeviceId = -1;
         }
         if (mBackPressed || mBackBrightnessMode) {
