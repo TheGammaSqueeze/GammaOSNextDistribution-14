@@ -150,6 +150,21 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/drastic-nano-lib/libdrastic_arm64.so:system/lib64/libdrastic_arm64.so \
     gammaos/emulators/drastic-nano-lib/libdrastic_cpu.so:system/lib64/libdrastic_cpu.so
 
+# azahar-nano, as in base.mk: this product does not include base.mk, so the block that moved
+# there left the tv image without the 3DS core. Keep both copies in step.
+PRODUCT_PACKAGES += azahar-nano azahar-nano-cheats
+PRODUCT_COPY_FILES += \
+    gammaos/emulators/azahar-nano-lib/libazahar-nano-core.so:system/lib64/libazahar-nano-core.so \
+    gammaos/emulators/azahar-nano-lib/libc++_shared.so:system/lib64/libc++_shared.so \
+    gammaos/emulators/azahar-nano-lib/libmain_hook.so:system/lib64/libmain_hook.so \
+    gammaos/emulators/azahar-nano-lib/libfile_redirect_hook.so:system/lib64/libfile_redirect_hook.so \
+    gammaos/emulators/azahar-nano-lib/libgsl_alloc_hook.so:system/lib64/libgsl_alloc_hook.so \
+    gammaos/emulators/azahar-nano-lib/libhook_impl.so:system/lib64/libhook_impl.so \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/meta.json:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/meta.json \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/meta.json:system/etc/azahar-nano/gpu_drivers/malisx2-g52/meta.json \
+    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/libvulkan_malisx2.so:system/etc/azahar-nano/gpu_drivers/malisx2-g52/libvulkan_malisx2.so
+
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
 # build-time replacements for setup.sh's per-app grant/allowlist commands.

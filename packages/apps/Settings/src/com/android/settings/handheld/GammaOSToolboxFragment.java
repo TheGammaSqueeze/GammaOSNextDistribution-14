@@ -79,7 +79,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
     static {
         // Display
         DEFAULTS.put("persist.gammaos.immersive", "0");
-        DEFAULTS.put("persist.gammaos.refresh.lock", "false");
+        // "0" (int style): SurfaceFlinger Scheduler reads refresh.lock with GetIntProperty()==1.
+        DEFAULTS.put("persist.gammaos.refresh.lock", "0");
         DEFAULTS.put("persist.gammaos.refresh.rate", "0");
         DEFAULTS.put("persist.gammaos.display.tweaks", "false");
         DEFAULTS.put("persist.gammaos.force_client_comp", "false");
@@ -133,7 +134,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.bfi.flip.rgb.b", "1.0");
 
         // Shader
-        DEFAULTS.put("persist.gammaos.shader.enable", "false");
+        // "0" (int style): the nano control center reads shader.enable with property_get_int32.
+        DEFAULTS.put("persist.gammaos.shader.enable", "0");
         DEFAULTS.put("persist.gammaos.shader.type", "");
         DEFAULTS.put("persist.gammaos.shader.bp_grace_frames", "6");
         DEFAULTS.put("persist.gammaos.shader.custom.preset", "");
@@ -211,7 +213,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
         DEFAULTS.put("persist.gammaos.allwinner.hdmi.enable", "false");
 
         // Gamepad
-        DEFAULTS.put("persist.gammaos.gamepad.enable", "false");
+        // "0" (int style): gammapad.rc only starts/stops gammapad on gamepad.enable=1 / =0.
+        DEFAULTS.put("persist.gammaos.gamepad.enable", "0");
         DEFAULTS.put("persist.gammaos.gamepad.merge", "1");
         DEFAULTS.put("persist.gammaos.gamepad.hide_source", "1");
         DEFAULTS.put("persist.gammaos.gamepad.devices", "");
@@ -282,7 +285,8 @@ public class GammaOSToolboxFragment extends SettingsPreferenceFragment {
 
         // USB & Docking
         DEFAULTS.put("persist.gammaos.usbcontrollerswitch", "false");
-        DEFAULTS.put("persist.gammaos.dcdimmingemulation", "false");
+        // "0" (int style): the init.rc triggers and DisplayPowerController getInt()==1 need 1/0.
+        DEFAULTS.put("persist.gammaos.dcdimmingemulation", "0");
 
         // Desktop extras
         DEFAULTS.put("persist.gammaos.taskbar.phone", "true");

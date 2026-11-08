@@ -422,8 +422,18 @@ void MouseMode::showToast(const std::string& message) {
     }
 }
 
+// A DS or 3DS nano session (drastic-nano, azahar-nano) reads the pad from evdev and shows no pointer: the combo would
+// silently eat every button there. Off while it runs, and an active mode is switched off.
+void MouseMode::setSessionBlock(bool block) {
+    if (block == mSessionBlock) return;
+    mSessionBlock = block;
+    mComboBothHeld = false;
+    if (block && mActive) setActive(false);
+    LOG(INFO) << (block ? "Mouse mode combo off during a nano game session" : "Mouse mode combo available again");
+}
+
 bool MouseMode::checkComboTimeout() {
-    if (!mComboBothHeld) return false;
+    if (mSessionBlock || !mComboBothHeld) return false;
 
     auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
         std::chrono::steady_clock::now() - mComboBothHeldSince).count();
@@ -436,6 +446,12 @@ bool MouseMode::checkComboTimeout() {
 }
 
 bool MouseMode::checkExternalToggle() {
+    if (mSessionBlock) {
+        if (android::base::GetIntProperty("sys.gammaos.gamepad.mouse_active", 0) != 0) {
+            android::base::SetProperty("sys.gammaos.gamepad.mouse_active", "0");
+        }
+        return false;
+    }
     bool externalActive = android::base::GetIntProperty(
         "sys.gammaos.gamepad.mouse_active", 0) != 0;
     if (externalActive != mActive) {
@@ -460,7 +476,7 @@ bool MouseMode::processEvent(const struct input_event& ev) {
         }
 
         // Check if both combo buttons are held
-        if (mComboBtn1Held && mComboBtn2Held) {
+        if (mComboBtn1Held && mComboBtn2Held && !mSessionBlock) {
             if (!mComboBothHeld) {
                 mComboBothHeld = true;
                 mComboBothHeldSince = std::chrono::steady_clock::now();
@@ -471,7 +487,7 @@ bool MouseMode::processEvent(const struct input_event& ev) {
     }
 
     // Check combo timeout on every event type (stick noise ensures timely detection)
-    if (mComboBothHeld) {
+    if (mComboBothHeld && !mSessionBlock) {
         auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
             std::chrono::steady_clock::now() - mComboBothHeldSince).count();
         if (elapsed >= mComboHoldMs) {

@@ -4,8 +4,10 @@
 // pad gammapad publishes, or a raw joypad) and forwards 3DS buttons, the circle
 // pad, the C stick and the triggers to the core through the C ABI. Touch on the
 // bottom panel's touchscreen is forwarded as bottom-screen touch. A long press
-// of the Back/Home key requests exit.
+// of the Back/Home key requests exit. Select held with a volume key is a brightness step.
 #pragma once
+
+#include <linux/input.h>
 
 #include <atomic>
 #include <cstdint>
@@ -27,6 +29,8 @@ struct InputCallbacks {
     std::function<void(int panel, float x, float y)> touchMoved;
     std::function<void()> menuToggle;   // short press of the menu/back key
     std::function<void()> exitRequest;  // long press of the menu/back key
+    std::function<void()> menuTapExit;  // Menu tap: save the resume state, then exit (falls back to exitRequest)
+    std::function<void(int steps)> brightness;   // Select+Vol: a brightness step (press or hold-repeat)
     std::function<void()> fastForwardToggle;   // R3 (the 3DS has no stick click)
     // True while the menu is open: the d-pad then always navigates it (no stick swap).
     std::function<bool()> menuOpen;
@@ -65,6 +69,7 @@ private:
         bool pad = false;
         bool touch = false;
         bool lid = false;       // reports SW_LID
+        bool vol = false;       // reports KEY_VOLUMEUP/DOWN (gpio-keys on the RG DS Plus, also the lid node)
         int panel = 0;          // touch: the panel this digitizer sits on
         float tx = 0, ty = 0;   // touch: last position, 0..1 of the panel
         bool down = false, dirty = false;
@@ -75,6 +80,14 @@ private:
     void scan();
     void loop();
     void handlePad(Node& n, uint16_t type, uint16_t code, int32_t value);
+    // RG DS Plus Menu key; true when the event was that key and has been dealt with.
+    bool handleMenuKey(const input_event& e);
+    // True when BTN_SELECT is down right now on a pad node (EVIOCGKEY).
+    bool selectHeldNow();
+    // True when the volume key `code` is down right now on a volume node (EVIOCGKEY).
+    bool volHeldNow(int code);
+    // KEY_VOLUMEUP/DOWN: Select+Vol is brightness, a plain volume key is left to PhoneWindowManager.
+    void handleVolume(const input_event& e);
     void handleTouch(Node& n, uint16_t type, uint16_t code, int32_t value);
     enum Dir { kLeft, kRight, kUp, kDown };
     bool swapActive();
@@ -107,6 +120,18 @@ private:
     std::atomic<int64_t> mBackHoldNs{400LL * 1000000LL};   // see backHoldNs (NanoInput.cpp)
     bool mBackLongFired = false;
     bool mBackCombo = false;  // this Back press was used as a combo modifier
+    // RG DS Plus in nano mode: the Menu key (KEY_ALL_APPLICATIONS, gammapad's remap of BTN_MODE).
+    // A tap returns to the launcher, like the Back hold; a hold of 600 ms or more is nano's
+    // Control Center key and does nothing here. mMenuDownUs is the press time from the event
+    // itself (us), 0 when the key is not down.
+    bool mMenuHome = false;
+    int64_t mMenuDownUs = 0;
+    // Select+Vol hold-repeat: the volume key held for the chord (0 = none), its direction, the next repeat
+    // (CLOCK_MONOTONIC ns) and whether the repeat has started (for the log).
+    int mVolHeldCode = 0;
+    int mVolHeldDir = 0;
+    int64_t mVolRepeatDueNs = 0;
+    bool mVolRepeating = false;
 };
 
 } // namespace azahar_nano

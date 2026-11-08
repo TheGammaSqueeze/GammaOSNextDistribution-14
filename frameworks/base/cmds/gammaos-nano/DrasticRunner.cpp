@@ -27,6 +27,7 @@
 #include <sys/auxv.h>
 extern "C" void drasticLockLibrary(const char* nameSubstr);   // DrasticGpu3d.cpp: mlock2(ONFAULT) a library's file-backed segments
 extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.cpp: drop the texture cache after a state restore
+extern "C" void gpu3dSetPoolHint(const char* path);            // DrasticGpu3d.cpp: where this game's texture pool hint file lives
 #include <sys/uio.h>
 #include <sys/ioctl.h>
 #include <linux/dma-buf.h>
@@ -36,6 +37,7 @@ extern "C" void gpu3dResetTextures();                          // DrasticGpu3d.c
 #include <sys/syscall.h>
 #include <unistd.h>
 #include <cstring>
+#include <cstdint>
 #include <cstdlib>
 #include <chrono>
 #include <thread>
@@ -351,6 +353,13 @@ bool DrasticRunner::init(const std::string& cacheDir,
                          int64_t customClockMs) {
     maybeStartThreadTracer();
     mCacheDir = cacheDir;
+    {   // The GPU rasterizer keeps one tiny hint file per ROM (which texture pools the game needed)
+        // so the next session creates them at GL init instead of mid-game. Only the path is
+        // handed over here; the GL thread reads it later, off the launch path.
+        const size_t slash = romPath.find_last_of('/');
+        const std::string rom = slash == std::string::npos ? romPath : romPath.substr(slash + 1);
+        if (!cacheDir.empty() && !rom.empty()) gpu3dSetPoolHint((cacheDir + "/config/gpu3d_pool_" + rom).c_str());
+    }
     mAutoLoadSlot = autoLoadSlot;
     mCustomClockMs = customClockMs > 0 ? customClockMs : -1;
     mInitialShader = initialShader.empty() ? std::string("None")
@@ -1682,8 +1691,13 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
                       "found under %s/shaders or %s/system/shaders",
                       mCacheDir.c_str(), mCacheDir.c_str());
             } else {
+                // sp stays the shader (redimDsTextures and setShaderRuntime start from it);
+                // Scale2X loads its one-pass file when the sizes allow it (pickShaderFile).
+                mFxDfxPath = sp;
+                const std::string loadPath = pickShaderFile(sp);
+                mFxOnePass = (loadPath != sp);
                 jstring shaderJStr =
-                        ((JNIEnv*)mFakeEnv)->NewStringUTF(sp.c_str());
+                        ((JNIEnv*)mFakeEnv)->NewStringUTF(loadPath.c_str());
                 // Pass pos_ptr=0, uv_ptr=192 as byte offsets into
                 // mFxVbo (bound before each fxRender call). Stock
                 // drastic passes (0, 0x8A0) which are offsets into
@@ -1694,7 +1708,7 @@ void DrasticRunner::initSurface(int viewportW, int viewportH,
                 int rc = mFxLoad(mFakeEnv, mFakeCls,
                                  (void*)shaderJStr, 0, 192);
                 ALOGI("DrasticRunner::initSurface: fxLoad(\"%s\") = %d",
-                      sp.c_str(), rc);
+                      loadPath.c_str(), rc);
             }
         }
         // fxSetup args from smali (DraSticGlView$j onSurfaceChanged):
@@ -3249,6 +3263,11 @@ std::atomic<uint32_t> gPresLate{0};
 std::atomic<int> gEmuCpuPct{0};          // emulator thread CPU share over the last second (percent of one core)
 std::atomic<int> gEmuCpuLightSecs{0};    // consecutive seconds with a light emulator thread
 std::atomic<uint32_t> gFlipHookCount{0};
+// Counts hooks that ran to their end for a frame meant for the panel (slot
+// toggle, front pin and staging copy done), parked run-ahead loads included,
+// hidden replay frames not. Bumped with release just before the wake, so a
+// presenter that sees a new value (acquire) also sees the toggled slot.
+std::atomic<uint32_t> gFlipDoneSeq{0};
 std::mutex gFlipMu; std::condition_variable gFlipCv;
 // Zero-copy slot swap, executed by the emulator thread inside the slot-flip
 // hook (a frame boundary): copy the current slot contents into the dma-buf
@@ -3637,6 +3656,8 @@ extern "C" void drasticSlotFlipHook() {
         if (gRaReadyMask) *gRaReadyMask = 0;
         return;
     }
+    // The presenter's toggle wait looks at this instead of the frame's age.
+    gFlipDoneSeq.fetch_add(1, std::memory_order_release);
     // Wake the consumer: it waits on this instead of polling the ready
     // mask (the polling cost ~100 context switches per frame).
     { std::lock_guard<std::mutex> lk(gFlipMu); }
@@ -5085,6 +5106,7 @@ void DrasticRunner::installVblankPacing(uint8_t* base) {
     mprotect(flipPg, ps, PROT_READ | PROT_EXEC);
     mPaceInstalled = true;
     gVblankPeriodUs.store((int64_t)llround(1000000.0 / mPanelHz));
+    mPacerExited.store(false);
     mPacerRun.store(true);
     mPacerThread = std::thread([this] { pacerThread(); });
     mPacerThread.detach();
@@ -5360,6 +5382,32 @@ void DrasticRunner::setVblankPacing(bool on) {
 }
 
 std::atomic<uint32_t> gAudioHoldSeq{0};   // vblank seq of the last deliberate audio-lead hold (see audioLeadHoldTick)
+// Device sleep/wake (noteSleep / noteWake): the lead and the creep floor the pacer had before the sleep, so the wake
+// puts them back instead of starting from whatever the first frames after it measured.
+static std::atomic<int64_t> sSavedLead{INT64_MIN}, sSavedFloor{0};
+static std::atomic<bool> gMarginReset{false};      // noteWake: the margin controller restarts its 20-sample window and its EMA
+static std::atomic<uint32_t> gLastMissSeq{0};      // vblank seq of the last counted pacing miss (the floor only relaxes after a clean window)
+// Raise a vblank-seq deadline, never lower it (wrap safe): the run-ahead burst end and noteWake both set gRaBurstUntilSeq.
+static void seqRaise(std::atomic<uint32_t>& a, uint32_t v) {
+    uint32_t cur = a.load();
+    while ((int32_t)(v - cur) > 0 && !a.compare_exchange_weak(cur, v)) {}
+}
+// pace_floor_relax_frames / pace_floor_relax_us: the creep floor drops by relax_us after every window of relax_frames
+// vblanks without a pacing miss (defaults 300 frames = 5 s, 500 us). relax_us 0 turns the relax off.
+static int64_t paceRelaxFrames() {
+    const int v = property_get_int32("sys.gammaos.drastic_nano.pace_floor_relax_frames", 300);
+    return v < 60 ? 60 : (v > 36000 ? 36000 : v);
+}
+static int64_t paceRelaxUs() {
+    const int v = property_get_int32("sys.gammaos.drastic_nano.pace_floor_relax_us", 500);
+    return v < 0 ? 0 : (v > 12000 ? 12000 : v);
+}
+// The lead cap (pace_lead_max_us): 12000 on the AFBC path (RG DS Plus), 9000 on PRIME. Every write to the lead or to its
+// creep floor stays under it (the miss step, the floor pins, the GPU margin controller and the creep): above it the lead
+// buys nothing, and the pins used to push it past the cap, where the useless-lead rule then dropped the lock.
+static int64_t paceLeadMaxUs() {
+    return property_get_int32("sys.gammaos.drastic_nano.pace_lead_max_us", android::sDrmAfbcMode ? 12000 : 9000);
+}
 void DrasticRunner::reportFrameMiss(int source) {
     if (source == 2) gPresLate.fetch_add(1, std::memory_order_relaxed);   // flip latched a vblank late (any mode)
     if (!gPaceOn.load()) return;   // bypass: the lock is not driving the emulator
@@ -5378,22 +5426,24 @@ void DrasticRunner::reportFrameMiss(int source) {
     // A frame landed a vblank late or stale: back the tick off by a
     // millisecond, and remember this lead as the edge so the creep stops
     // 500 us short of it rather than re-probing it every few seconds
-    // (each probe is a visible stutter). The edge relaxes after ~5 minutes.
+    // (each probe is a visible stutter). The edge holds for 30 s after a real miss (longer when the same edge keeps
+    // missing), then the floor relaxes window by window while no miss comes (see the creep block in vblankTick).
     gMissCount.fetch_add(1);
     const int64_t at = gLeadUs.load();
     const uint32_t seq = gVblSeq.load();
+    gLastMissSeq.store(seq);
     // pace_miss_step_us / pace_lead_max_us / pace_miss_pin_floor: how hard a
     // miss backs the lead off, the lead it may never exceed, and whether two
     // misses pin the creep floor (the RP Duo Lite's DSI lands a flip late a
     // few times a minute on its own; pinning the floor there parks the lead
     // at a value with no latency benefit).
-    static int64_t sStep = -1, sMax = -1; static int sPin = -1;
+    static int64_t sStep = -1; static int sPin = -1;
     if (sStep < 0) {
         const bool prime = !android::sDrmAfbcMode;
         sStep = property_get_int32("sys.gammaos.drastic_nano.pace_miss_step_us", prime ? 500 : 1000);
-        sMax = property_get_int32("sys.gammaos.drastic_nano.pace_lead_max_us", prime ? 9000 : 12000);
         sPin = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", prime ? 0 : 1);
     }
+    const int64_t sMax = paceLeadMaxUs();
     int64_t l = at + sStep;
     if (l > sMax) l = sMax;
     gLeadUs.store(l);
@@ -5401,12 +5451,55 @@ void DrasticRunner::reportFrameMiss(int source) {
     // A single miss is a hiccup (autosave, decompression burst): back off,
     // hold, creep again. Two misses within ten seconds mark this lead as the
     // edge and pin the creep floor just above it.
+    // The pin holds the floor relax off for 30 s. A stable edge is hit again after every relax (the floor drops back
+    // to it, it misses twice more): when the same edge (+-500 us) is pinned again within ten minutes the hold doubles,
+    // 30 s up to 5 min, so a stable edge is re-probed rarely. A transient pins at another edge and keeps the 30 s hold.
     static uint32_t sPrevMissSeq = 0;
+    static int64_t sPinEdgeUs = INT64_MIN;
+    static uint32_t sPinSeq = 0;
+    static int64_t sPinHold = 1800;
     if (sPin && sPrevMissSeq && seq - sPrevMissSeq < 600) {
-        if (at + 500 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 500);
-        gLeadFloorRelaxAt.store(seq + 3600);
+        const bool sameEdge = sPinEdgeUs != INT64_MIN && at >= sPinEdgeUs - 500 && at <= sPinEdgeUs + 500 &&
+                (int32_t)(seq - sPinSeq) < 36000;
+        sPinHold = sameEdge ? std::min<int64_t>(sPinHold * 2, 18000) : 1800;
+        sPinEdgeUs = at;
+        sPinSeq = seq;
+        const int64_t pin = std::min<int64_t>(at + 500, sMax);   // never above the cap: the creep would lift the lead to the floor
+        if (pin > gLeadCreepFloor.load()) gLeadCreepFloor.store(pin);
+        gLeadFloorRelaxAt.store((int64_t)seq + sPinHold);   // 30 s hold after a real miss, longer when the same edge repeats
     }
     sPrevMissSeq = seq;
+}
+
+// Device sleep / wake (lid grace or full sleep, drastic only). The emulator stops producing frames for the
+// whole sleep and the first frames after the wake see a pipeline that restarted cold; before this the misses
+// those frames reported pushed the lead and its creep floor to the cap, where they stayed for minutes.
+// noteSleep keeps the pre-sleep values (first call only: a grace period followed by the full sleep must keep
+// the values from before the grace), noteWake puts them back under the lead cap and starts a short window in
+// which the pacer neither reports misses, drops stale frames nor raises the lead for the margin.
+void DrasticRunner::noteSleep() {
+    if (sSavedLead.load() != INT64_MIN) return;
+    const int64_t lead = gLeadUs.load(), floorUs = gLeadCreepFloor.load();
+    sSavedLead.store(lead);
+    sSavedFloor.store(floorUs);
+    ALOGW("PACE sleep: lead %lld floor %lld saved", (long long)lead, (long long)floorUs);
+}
+
+void DrasticRunner::noteWake() {
+    const int64_t savedLead = sSavedLead.exchange(INT64_MIN);
+    if (savedLead != INT64_MIN) {
+        const int64_t maxUs = paceLeadMaxUs();
+        gLeadUs.store(std::min<int64_t>(savedLead, maxUs));
+        gLeadCreepFloor.store(std::min<int64_t>(sSavedFloor.load(), maxUs));
+    }
+    const uint32_t seq = gVblSeq.load();
+    gLeadHoldUntil.store(seq + 120);                 // no creep for 2 s
+    seqRaise(gRaBurstUntilSeq, seq + 180);          // no miss reports, stale drops or lateness for 3 s
+    gSteadyFrames.store(0);
+    gMarginOk.store(true);
+    gMarginReset.store(true);
+    gLeadFloorRelaxAt.store((int64_t)seq + paceRelaxFrames());
+    ALOGW("PACE wake: lead %lld floor %lld restored", (long long)gLeadUs.load(), (long long)gLeadCreepFloor.load());
 }
 
 // CPU placement experiment (prop-gated, off by default). Masks are hex CPU
@@ -5535,6 +5628,30 @@ static std::atomic<int> gAaTrimPpm{0};
 static std::atomic<uint32_t> gAaTrough{0};           // ring level just before each chunk is added (a fixed phase)
 static std::atomic<int> gAaLowRun{0}, gAaHighRun{0}; // consecutive chunks with the trough under / over the band
 static std::atomic<int> gAaReopen{0};                // error callback asked for a reopen (route change)
+// Wake start on a helper thread (audioWakeBegin): the exclusive stream's start takes a few hundred ms, seconds when the
+// amp driver retries its PLL, and used to sit on the render thread's wake path. gAaLifeMu keeps the stream object single
+// owner across the opener thread, the wake start, the emulator's reopen and the close; the emulator thread only
+// try-locks it and never waits. Nothing that holds it waits for the emulator thread (no lock-order inversion).
+static std::recursive_mutex gAaLifeMu;
+static std::atomic<bool> gAaStartInFlight{false};   // a requestStart runs: the stall watchdog and the reopen leave the stream alone
+static std::atomic<int> gAaWdReset{0};              // the submit hook's stall baseline is stale (sleep, start): take a fresh one
+static std::mutex gAaWakeMu;                        // guards gAaWakeThread and pairs with gAaWakeCv
+static std::condition_variable gAaWakeCv;
+static std::thread* gAaWakeThread = nullptr;        // heap, never freed: a joinable static std::thread would abort at exit
+static std::atomic<bool> gAaWakeDone{true};
+static std::atomic<int64_t> gAaWakeBeginUs{0};      // audioWakeBegin time while a start was begun and not yet reported as ready
+static int64_t aaSteadyUs() {
+    return (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
+}
+// Joins a wake start that is in flight (or finished and not joined yet). Never call it with gAaLifeMu held: the thread needs it.
+static void aaJoinWake() {
+    std::thread t;
+    {
+        std::lock_guard<std::mutex> lk(gAaWakeMu);
+        if (gAaWakeThread && gAaWakeThread->joinable()) t = std::move(*gAaWakeThread);
+    }
+    if (t.joinable()) t.join();
+}
 static std::atomic<uint32_t> gAaCbGapMaxUs{0};       // longest gap between data callbacks this second
 static std::atomic<int> gAaCbRt{-1};                 // callback thread scheduling: 1 FIFO, 0 CFS, -1 unknown
 static std::atomic<int> gAaHoldTicks{0};             // locked mode: vblank ticks the pacer must skip (a held frame)
@@ -5551,6 +5668,84 @@ static inline int aaTarget() { return gAaTargetFrames + gAaTargetBoost.load(std:
 //            // ring level the controller holds (sys audio_aaudio_target)
 static int gAaBurst = 0, gAaBufFrames = 0, gAaBufCap = 0, gAaSharing = -1, gAaPerf = -1, gAaRateGot = 0;
 static inline uint32_t aaLevel() { return gAaHead.load(std::memory_order_acquire) - gAaTail.load(std::memory_order_acquire); }
+// Edge envelopes of the sink. The callback used to step from the last sample straight to digital
+// zero when the ring ran dry (a menu open pauses the emulator, a state load leaves a gap) and from
+// zero straight to the waveform when it refilled: a broadband click at music level. The fast-forward
+// mute did the same to the mixer volume (100 -> 0 -> 100). Three pieces, all in the callback, so the
+// producer side and the ring contents stay as they were:
+//  - an announced gain (gAaMutePause from pauseToggle, gAaMuteFf from the fast-forward toggle) that
+//    slews over 5 ms, so a pause fades the real waveform that is still in the ring before it drains;
+//  - a hold fade for gaps nobody announced (state load, a late chunk, a flush): the last frame played
+//    decays to zero over 5 ms instead of dropping;
+//  - a 2.7 ms ramp-in on the first frames after a gap, crossfaded with what is left of the hold fade.
+// While the ring is fed and the gain is at unity the callback is the plain copy, sample for sample.
+// persist.gammaos.drastic_nano.aa_declick 0 restores the plain copy and the zero fill (and the
+// mixer-volume FF mute); it defaults on for the RG DS Plus only and is read once.
+enum { kAaHold = 240, kAaIn = 128, kAaUnity = 32768, kAaGStep = 137 };   // 5 ms hold fade, 2.7 ms ramp-in, Q15 unity, unity / 240 rounded up
+static std::atomic<int> gAaDeclick{-1};                 // -1 not read yet, 0 off, 1 on
+static std::atomic<int> gAaMutePause{0}, gAaMuteFf{0};  // announced mutes: the emulator pause, the fast-forward mute
+static std::atomic<bool> gAaFfMutedInSink{false};       // the FF-on went through gAaMuteFf, so FF-off clears it instead of restoring a volume
+static bool aaDeclickOn() {
+    int v = gAaDeclick.load(std::memory_order_relaxed);
+    if (v < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        v = android::drastic_settings::getInt("persist.gammaos.drastic_nano.aa_declick", strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0 ? 1 : 0;
+        gAaDeclick.store(v, std::memory_order_relaxed);
+    }
+    return v != 0;
+}
+// Plain statics, not thread_local: one callback thread exists at a time (a reopen closes the old
+// stream first) and the state has to survive the move to a new thread.
+struct AaEdge {
+    int lastL, lastR;   // the last frame emitted, the start of a hold fade
+    int holdL, holdR;   // what the running hold fade decays from (fixed for the whole fade)
+    int holdN;          // hold fade frames left, kAaHold at its start, 0 = none
+    int inN;            // ramp-in frames done, kAaIn = settled (0 = in a gap or just reset)
+    int gain;           // current sink gain, Q15
+};
+static AaEdge sAaEdge = {0, 0, 0, 0, 0, 0, kAaUnity};
+// Renders the n frames of one callback, avail of them from the ring (frames tail .. tail+avail-1)
+// and the rest without data. jumped: the flush moved the tail, so what played before does not join
+// what plays now.
+static void aaEdgeRender(int16_t* out, uint32_t tail, uint32_t avail, uint32_t n, bool jumped) {
+    AaEdge& e = sAaEdge;
+    const int tgt = (gAaMutePause.load(std::memory_order_relaxed) | gAaMuteFf.load(std::memory_order_relaxed)) ? 0 : kAaUnity;   // read once per callback
+    if (jumped) { e.holdL = e.lastL; e.holdR = e.lastR; e.holdN = kAaHold; e.inN = 0; }
+    uint32_t i = 0;
+    if (e.inN == kAaIn && e.holdN == 0 && e.gain == kAaUnity && tgt == kAaUnity) {   // steady play: the plain copy, only the last frame is noted
+        for (; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+        if (avail) { e.lastL = out[avail * 2 - 2]; e.lastR = out[avail * 2 - 1]; }
+    }
+    for (; i < n; i++) {
+        if (e.gain < tgt) { e.gain += kAaGStep; if (e.gain > tgt) e.gain = tgt; }
+        else if (e.gain > tgt) { e.gain -= kAaGStep; if (e.gain < tgt) e.gain = tgt; }
+        else if (i >= avail && e.holdN == 0 && e.inN == 0) {   // dry, faded out and the gain settled: plain silence for the rest
+            memset(out + i * 2, 0, (size_t)(n - i) * 4); e.lastL = 0; e.lastR = 0; break;
+        }
+        int l, r;
+        if (i < avail) {
+            const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2;
+            l = gAaRing[k]; r = gAaRing[k + 1];
+            if (e.gain != kAaUnity) { l = (l * e.gain) >> 15; r = (r * e.gain) >> 15; }
+            if (e.inN < kAaIn || e.holdN > 0) {
+                // The new audio ramps in while what is left of the hold fade ramps out (weights inN and
+                // (kAaIn - inN) of kAaIn), so there is no step when data returns and no overshoot.
+                const int h = e.holdN * (kAaIn - e.inN);
+                l = (l * e.inN + e.holdL * h / kAaHold) / kAaIn;
+                r = (r * e.inN + e.holdR * h / kAaHold) / kAaIn;
+            }
+            if (e.inN < kAaIn) e.inN++;
+            if (e.holdN > 0) e.holdN--;
+        } else {
+            if (e.inN > 0) { e.holdL = e.lastL; e.holdR = e.lastR; e.holdN = kAaHold; e.inN = 0; }   // the first dry frame: fade from what was last played
+            l = e.holdL * e.holdN / kAaHold; r = e.holdR * e.holdN / kAaHold;
+            if (e.holdN > 0) e.holdN--;
+        }
+        out[i * 2] = (int16_t)l; out[i * 2 + 1] = (int16_t)r;
+        e.lastL = l; e.lastR = r;
+    }
+}
 static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* audioData, int32_t numFrames) {
     gAaCallbacks.fetch_add(1, std::memory_order_relaxed);
     {   // The HAL's mmap buffer is 10 ms (5 ms x 2): a callback later than one period lets the DMA replay
@@ -5572,15 +5767,23 @@ static aaudio_data_callback_result_t aaDataCallback(AAudioStream*, void*, void* 
     }
     int16_t* out = static_cast<int16_t*>(audioData);
     uint32_t tail = gAaTail.load(std::memory_order_relaxed);
+    bool jumped = false;
     if (gAaFlushArmed.exchange(0, std::memory_order_acq_rel)) {   // a burst overfilled the ring: keep only the newest audio
         const uint32_t to = gAaFlushTo.load(std::memory_order_relaxed);
-        if ((int32_t)(to - tail) > 0) tail = to;
+        if ((int32_t)(to - tail) > 0) { tail = to; jumped = true; }
     }
-    uint32_t avail = gAaHead.load(std::memory_order_acquire) - tail;
+    const uint32_t head = gAaHead.load(std::memory_order_acquire);
+    uint32_t avail = head - tail;
     uint32_t n = (uint32_t)numFrames; if (avail > n) avail = n;
-    for (uint32_t i = 0; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+    const bool declick = gAaDeclick.load(std::memory_order_relaxed) > 0;   // primed by aaOpen before the stream starts
+    const bool shaped = declick && head != 0;   // silence before the first chunk has no edge to shape
+    if (shaped) aaEdgeRender(out, tail, avail, n, jumped);
+    else {
+        for (uint32_t i = 0; i < avail; i++) { const uint32_t k = ((tail + i) & (kAaRingFrames - 1)) * 2; out[i * 2] = gAaRing[k]; out[i * 2 + 1] = gAaRing[k + 1]; }
+        if (declick) { sAaEdge.inN = 0; sAaEdge.holdN = 0; sAaEdge.lastL = 0; sAaEdge.lastR = 0; }   // before the first chunk and after a reopen: the first audio ramps in
+    }
     if (avail < n) {
-        memset(out + avail * 2, 0, (size_t)(n - avail) * 4);
+        if (!shaped) memset(out + avail * 2, 0, (size_t)(n - avail) * 4);
         if (gAaHead.load(std::memory_order_relaxed) != 0) {   // silence before the first chunk is not an underrun
             gAaXruns.fetch_add(1, std::memory_order_relaxed); gAaUnderFrames.fetch_add(n - avail, std::memory_order_relaxed);
             // The emulator was late with a chunk: hold more audio for a while (one burst per underrun
@@ -5629,11 +5832,12 @@ static int aaOpen() {
     AAudioStream_setBufferSizeInFrames(st, gAaBurst * (bursts < 1 ? 1 : bursts));
     gAaBufFrames = AAudioStream_getBufferSizeInFrames(st); gAaBufCap = AAudioStream_getBufferCapacityInFrames(st); gAaSharing = AAudioStream_getSharingMode(st); gAaPerf = AAudioStream_getPerformanceMode(st); gAaRateGot = AAudioStream_getSampleRate(st);
     gAaTargetFrames = property_get_int32("sys.gammaos.drastic_nano.audio_aaudio_target", 720);
+    aaDeclickOn();   // reads the kill switch now, so the callback only ever sees the settled value
     r = AAudioStream_requestStart(st);
     if (r != AAUDIO_OK) { ALOGW("DrasticRunner: AAudio start failed %d", r); AAudioStream_close(st); return 0; }
     gAaStream = st;
-    ALOGI("DrasticRunner: AAudio sink open: rate %d, burst %d, buffer %d of %d frames, sharing %s, perf %s, ring target %d frames",
-          gAaRateGot, gAaBurst, gAaBufFrames, gAaBufCap, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED", gAaPerf == AAUDIO_PERFORMANCE_MODE_LOW_LATENCY ? "LOW_LATENCY" : "other", gAaTargetFrames);
+    ALOGI("DrasticRunner: AAudio sink open: rate %d, burst %d, buffer %d of %d frames, sharing %s, perf %s, ring target %d frames, declick %d",
+          gAaRateGot, gAaBurst, gAaBufFrames, gAaBufCap, gAaSharing == AAUDIO_SHARING_MODE_EXCLUSIVE ? "EXCLUSIVE" : "SHARED", gAaPerf == AAUDIO_PERFORMANCE_MODE_LOW_LATENCY ? "LOW_LATENCY" : "other", gAaTargetFrames, gAaDeclick.load(std::memory_order_relaxed));
     return 1;
 }
 // Ring keeper, one decision per vblank in either pacing mode: +1 = run one extra emulated frame,
@@ -5647,9 +5851,11 @@ extern std::atomic<int> gQFillTarget;
 // PCM with the normal mixer afterwards, and the home's audio cut in and out until a sleep/wake put
 // it into standby. Stop first (the callback thread drains), then close, on the thread that quits.
 static void aaCloseSink() {
+    std::lock_guard<std::recursive_mutex> life(gAaLifeMu);   // waits for a start in flight on the same stream
     AAudioStream* st = gAaStream;
     if (!st) return;
     gAaudioSink.store(0, std::memory_order_release);
+    gAaMuteFf.store(0, std::memory_order_release);   // the FF mute lives in the sink: without one it must not stay set
     gAaStream = nullptr;
     AAudioStream_requestStop(st);
     aaudio_stream_state_t next = AAUDIO_STREAM_STATE_UNINITIALIZED;
@@ -5724,6 +5930,85 @@ static void aaApplyGammaEq(int16_t* x, size_t frames) {
     for (size_t i = 0; i < n; i++) { float v = tmp[i] * 32768.0f; v = v > 32767.0f ? 32767.0f : (v < -32768.0f ? -32768.0f : v); x[i] = (int16_t)lrintf(v); }
     gAaEqFrames.fetch_add((uint32_t)frames, std::memory_order_relaxed);
 }
+// Sink resampler. The MMAP stream only takes 48 kHz and drastic hands over 44.1 kHz (735 frames per
+// emulated frame; a few chunks at launch come at the 32.8 kHz native mix rate). The old 2-tap linear
+// interpolation rolls the top end off (-1.5 dB at 10 kHz, -4 dB at 16 kHz) and lets the spectral
+// images through: the 34.1 kHz image of a 10 kHz tone is only 23 dB down and folds back to 13.9 kHz,
+// a faint grain on chimes and hi-hats that stock, which plays 44.1 kHz end to end, does not have.
+// This is a 16-tap Kaiser-windowed sinc (beta 7, cutoff at the input's Nyquist): flat within 0.1 dB up
+// to 16 kHz (-0.3 dB at 18 kHz), images about 65 dB or more down for tones up to 16 kHz. 256 phases
+// with linear interpolation between neighbouring phase rows (the coefficient error stays under -94 dB
+// even in the worst case) and one 64-byte row per tap set, so the 16 MACs per channel vectorise. About
+// 26k MACs per 800-frame chunk. The trim on the step and the ring controller in the hook feed it as
+// before.
+// persist.gammaos.drastic_nano.aa_resample 0 restores the linear interpolation; it defaults on for the
+// RG DS Plus only and is read once.
+static constexpr int kAaSincTaps = 16, kAaSincHalf = kAaSincTaps / 2, kAaSincPhases = 256, kAaSincMaxIn = 8192;
+static float sAaSincTab[kAaSincPhases + 1][kAaSincTaps];                 // row p: the kernel at fractional position p / 256 (row 256 = 1.0, the next integer)
+static float sAaSincL[kAaSincTaps + kAaSincMaxIn], sAaSincR[kAaSincTaps + kAaSincMaxIn];   // [last 16 input frames of the previous chunks | this chunk], per channel
+static bool sAaSincReady = false;
+static bool aaSincOn() {
+    static std::atomic<int> sOn{-1};   // -1 not read yet
+    int v = sOn.load(std::memory_order_relaxed);
+    if (v < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        v = android::drastic_settings::getInt("persist.gammaos.drastic_nano.aa_resample", strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0 ? 1 : 0;
+        sOn.store(v, std::memory_order_relaxed);
+    }
+    return v != 0;
+}
+static double aaBesselI0(double x) {
+    double s = 1.0, t = 1.0;
+    for (int k = 1; k < 64 && t > 1e-12 * s; k++) { const double h = x / (2.0 * k); t *= h * h; s += t; }
+    return s;
+}
+static void aaSincInit() {
+    const double beta = 7.0, i0Beta = aaBesselI0(beta);
+    for (int p = 0; p <= kAaSincPhases; p++) {
+        const double frac = (double)p / kAaSincPhases;
+        double v[kAaSincTaps], sum = 0.0;
+        for (int k = 0; k < kAaSincTaps; k++) {
+            const double x = (double)(k - (kAaSincHalf - 1)) - frac;   // tap k reads input frame floor(centre) + k - 7
+            const double r = x / kAaSincHalf;
+            const double w = fabs(r) >= 1.0 ? 0.0 : aaBesselI0(beta * sqrt(1.0 - r * r)) / i0Beta;
+            const double s = fabs(x) < 1e-9 ? 1.0 : sin(M_PI * x) / (M_PI * x);
+            v[k] = s * w; sum += v[k];
+        }
+        for (int k = 0; k < kAaSincTaps; k++) sAaSincTab[p][k] = (float)(v[k] / sum);   // unity gain at DC for every phase
+    }
+    sAaSincReady = true;
+    ALOGI("DrasticRunner: AAudio sink: %d-tap Kaiser sinc resampler, %d phases", kAaSincTaps, kAaSincPhases);
+}
+// Resamples the n interleaved stereo frames in[] (n <= kAaSincMaxIn) into out[] at `step` input frames
+// per output frame, at most maxOut frames. pos is the next output's centre in input frames relative to
+// in[0]; it may be negative, down to -8, and leaves advanced. Every output needs the 8 frames after its
+// centre, so the ones near the end of the chunk wait for the next call (pos then comes back negative)
+// and the stream runs about 8 input frames (0.2 ms at 44.1 kHz) late: chunk edges are as exact as the
+// middle. Returns the frames produced.
+static uint32_t aaSincRun(const int16_t* in, uint32_t n, double& pos, double step, uint32_t maxOut, int16_t* out) {
+    if (!sAaSincReady) aaSincInit();
+    for (uint32_t i = 0; i < n; i++) { sAaSincL[kAaSincTaps + i] = (float)in[i * 2]; sAaSincR[kAaSincTaps + i] = (float)in[i * 2 + 1]; }
+    if (pos < -(double)kAaSincHalf) pos = -(double)kAaSincHalf;   // a chunk that stopped on maxOut: older audio than the history reaches is dropped
+    const double lim = (double)n - kAaSincHalf;
+    uint32_t produced = 0;
+    while (pos < lim && produced < maxOut) {
+        const int i0 = (int)floor(pos);
+        const double ph = (pos - (double)i0) * kAaSincPhases;   // 0 .. 256
+        int p = (int)ph; float t = (float)(ph - (double)p);
+        if (p >= kAaSincPhases) { p = kAaSincPhases - 1; t = 1.0f; }   // pos - i0 rounded up to 1.0
+        const float* a = sAaSincTab[p]; const float* b = sAaSincTab[p + 1];
+        const float* xl = &sAaSincL[i0 + kAaSincTaps - (kAaSincHalf - 1)]; const float* xr = &sAaSincR[i0 + kAaSincTaps - (kAaSincHalf - 1)];
+        float l = 0.0f, r = 0.0f;
+        for (int k = 0; k < kAaSincTaps; k++) { const float w = a[k] + (b[k] - a[k]) * t; l += xl[k] * w; r += xr[k] * w; }
+        const long vl = lrintf(l), vr = lrintf(r);
+        out[produced * 2] = (int16_t)(vl > 32767 ? 32767 : (vl < -32768 ? -32768 : vl));
+        out[produced * 2 + 1] = (int16_t)(vr > 32767 ? 32767 : (vr < -32768 ? -32768 : vr));
+        produced++; pos += step;
+    }
+    memmove(sAaSincL, sAaSincL + n, kAaSincTaps * sizeof(float)); memmove(sAaSincR, sAaSincR + n, kAaSincTaps * sizeof(float));   // the new history
+    return produced;
+}
 // drastic's SLPlayItf lives at .bss +0x3c7d030 (its stop routine at +0x1e320 calls vtable[0] on it
 // with SL_PLAYSTATE_STOPPED). Stop the real player once, then hand drastic a copy of the interface
 // whose SetPlayState does nothing, so its restart after a state load cannot bring the OpenSL track
@@ -5790,7 +6075,8 @@ static void aaStartOpener() {
             if (!aaPcmFree()) waits++;
             else {
                 attempt++;
-                const int o = aaOpen();
+                int o;
+                { std::lock_guard<std::recursive_mutex> life(gAaLifeMu); o = aaOpen(); }
                 if (o > 0) { gAaudioSink.store(1, std::memory_order_release); gAaOpenState.store(1);
                     ALOGI("DrasticRunner: AAudio sink up after %d attempts, %d busy polls, %lld ms", attempt, waits, (long long)(ms() - t0)); return; }
                 if (o < 0) { ALOGW("DrasticRunner: AAudio sink: no fast path here, drastic's OpenSL player takes over"); aaRestartDrasticPlayer(); gAaOpenState.store(-1); return; }
@@ -6296,7 +6582,13 @@ static void raAudioSubmitHookBody(uint8_t* ctx) {
                 static uint32_t sSeenCb = 0; static int64_t sSeenUs = 0;
                 const uint32_t cb = gAaCallbacks.load(std::memory_order_relaxed);
                 const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now().time_since_epoch()).count();
-                if (cb != sSeenCb || sSeenUs == 0) { sSeenCb = cb; sSeenUs = nowUs; }
+                // After a device sleep the baseline is from before it (the stream was stopped, no callbacks): the next chunk
+                // reported a stall and reopened the stream right after every wake. The wake start asks for a fresh baseline,
+                // and the watchdog stays out while a requestStart is running. In flight is read first: the start sets the
+                // reset flag before it clears the in-flight flag, so a hook call that sees 'not in flight' also sees the reset.
+                const bool startInFlight = gAaStartInFlight.load(std::memory_order_acquire);
+                if (startInFlight || gAaWdReset.exchange(0, std::memory_order_acq_rel) != 0) { sSeenCb = cb; sSeenUs = nowUs; }
+                else if (cb != sSeenCb || sSeenUs == 0) { sSeenCb = cb; sSeenUs = nowUs; }
                 else if (gAaStream && ((AAudioStream_getState(gAaStream) == AAUDIO_STREAM_STATE_STARTED && nowUs - sSeenUs > 100000) || nowUs - sSeenUs > 3000000)) {
                     // A stream reports STARTING for up to a second before its first callback (the
                     // mixer that held the PCM is still going to standby); only a STARTED stream that
@@ -6309,19 +6601,25 @@ static void raAudioSubmitHookBody(uint8_t* ctx) {
                 }
             }
             if (gAaReopen.load(std::memory_order_acquire)) {   // route change or stall: the stream is rebuilt
-                gAaReopen.store(0, std::memory_order_relaxed);
-                if (gAaStream) { AAudioStream_close(gAaStream); gAaStream = nullptr; }
-                gAaHead.store(0); gAaTail.store(0);
-                if (aaOpen() <= 0) {
-                    // The service is gone (audioserver or the HAL restarting) or the PCM is busy: the
-                    // opener thread retries with its busy/standby gating and, if the fast path never
-                    // returns, restores drastic's own player. Chunks drop while it works, the same as
-                    // during the first open; the sink no longer stays dead for the rest of the session.
-                    gAaudioSink.store(0, std::memory_order_release); gAaOpenState.store(0);
-                    ALOGW("DrasticRunner: AAudio sink reopen failed, the opener thread retries");
-                    aaStartOpener();
-                    ctx[0x40027] = 1; sAaSetSkip = true;
-                    return;
+                // A wake start, the opener or a close may own the stream right now: never wait for them on this thread. The
+                // request stays set and a later chunk handles it. The lock is only taken (and only held) here.
+                std::unique_lock<std::recursive_mutex> aaLife(gAaLifeMu, std::try_to_lock);
+                if (aaLife.owns_lock() && !gAaStartInFlight.load(std::memory_order_acquire)) {
+                    gAaReopen.store(0, std::memory_order_relaxed);
+                    if (gAaStream) { AAudioStream_close(gAaStream); gAaStream = nullptr; }
+                    gAaHead.store(0); gAaTail.store(0);
+                    if (aaOpen() <= 0) {
+                        // The service is gone (audioserver or the HAL restarting) or the PCM is busy: the
+                        // opener thread retries with its busy/standby gating and, if the fast path never
+                        // returns, restores drastic's own player. Chunks drop while it works, the same as
+                        // during the first open; the sink no longer stays dead for the rest of the session.
+                        gAaudioSink.store(0, std::memory_order_release); gAaOpenState.store(0);
+                        gAaMuteFf.store(0, std::memory_order_release);   // see aaCloseSink
+                        ALOGW("DrasticRunner: AAudio sink reopen failed, the opener thread retries");
+                        aaStartOpener();
+                        ctx[0x40027] = 1; sAaSetSkip = true;
+                        return;
+                    }
                 }
             }
             const uint32_t fin = nin / 2;
@@ -6355,19 +6653,29 @@ static void raAudioSubmitHookBody(uint8_t* ctx) {
             }
             double pos = sPhase; uint32_t produced = 0;
             static int16_t stage[4096 * 2];
-            while (pos < (double)fin && produced < room && produced < 4096) {
-                const int i = (int)floor(pos); const double fr = pos - i;
-                const int16_t* a = (i < 0) ? sLast : &in[(size_t)i * 2];
-                const int16_t* b = (i + 1 < (int)fin) ? &in[(size_t)(i + 1) * 2] : &in[(size_t)(fin - 1) * 2];
-                for (int ch = 0; ch < 2; ch++) { const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr); stage[produced * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); }
-                produced++; pos += step;
+            uint32_t used = fin;                 // input frames this chunk accounts for
+            double lim = (double)fin;            // the position past which the rest of the chunk is not resampled yet
+            if (aaSincOn()) {
+                // Windowed sinc: an output needs the 8 frames after its centre, so the last few wait for
+                // the next chunk (lim sits 8 frames before the end) and pos comes back negative then.
+                used = fin > (uint32_t)kAaSincMaxIn ? (uint32_t)kAaSincMaxIn : fin;
+                lim = (double)used - (double)kAaSincHalf;
+                produced = aaSincRun(in, used, pos, step, room < 4096 ? room : 4096, stage);
+            } else {
+                while (pos < (double)fin && produced < room && produced < 4096) {
+                    const int i = (int)floor(pos); const double fr = pos - i;
+                    const int16_t* a = (i < 0) ? sLast : &in[(size_t)i * 2];
+                    const int16_t* b = (i + 1 < (int)fin) ? &in[(size_t)(i + 1) * 2] : &in[(size_t)(fin - 1) * 2];
+                    for (int ch = 0; ch < 2; ch++) { const long v = lrint(a[ch] + (b[ch] - a[ch]) * fr); stage[produced * 2 + ch] = (int16_t)(v > 32767 ? 32767 : (v < -32768 ? -32768 : v)); }
+                    produced++; pos += step;
+                }
             }
             aaApplyGammaEq(stage, produced);
             for (uint32_t j = 0; j < produced; j++, head++) { const uint32_t k = (head & (kAaRingFrames - 1)) * 2; gAaRing[k] = stage[j * 2]; gAaRing[k + 1] = stage[j * 2 + 1]; }
-            if (pos < (double)fin) gAaOverflowFrames.fetch_add((uint32_t)((fin - pos) / step), std::memory_order_relaxed);
+            if (pos < lim) gAaOverflowFrames.fetch_add((uint32_t)((lim - pos) / step), std::memory_order_relaxed);
             gAaHead.store(head, std::memory_order_release);
             sLast[0] = in[(size_t)(fin - 1) * 2]; sLast[1] = in[(size_t)(fin - 1) * 2 + 1];
-            sPhase = pos - (double)fin;
+            sPhase = pos - (double)used;
             // Let the submit run (microphone open + pump) but skip its output enqueue: see aaSoundOffFlag.
             if (uint32_t* f = aaSoundOffFlag()) { sAaOutOffSaved = *f; *f = 1; sAaOutOffSet = true; }
             else { ctx[0x40027] = 1; sAaSetSkip = true; }   // no library base yet: fall back to the discard byte
@@ -6930,18 +7238,22 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // Optional: drop a lock whose lead the GPU margin keeps at
         // pace_lead_useless_us or more for 5 s, with a backoff before probing
         // again (60 s, doubling to 10 min). Off by default (the threshold sits
-        // above the lead cap): on the RP Duo Lite Sonic Rush measured 16 to 19 ms
-        // frame-done-to-visible locked at the 9 ms cap against 18 to 22 ms in
-        // the panel-rate bypass, so even the capped lock was the better state.
-        static int64_t sLeadHighSinceUs = 0, sUselessUntilUs = 0, sUselessBackoffUs = 60000000;
+        // one above the lead cap, which no lead write exceeds): on the RP Duo Lite
+        // Sonic Rush measured 16 to 19 ms frame-done-to-visible locked at the
+        // 9 ms cap against 18 to 22 ms in the panel-rate bypass, so even the
+        // capped lock was the better state.
+        // sEmuAtDrop / sLastDropMiss: the drop was not caused by the frame time (see the probe below); the useless-lead drop sets them too.
+        static int64_t sLeadHighSinceUs = 0, sUselessUntilUs = 0, sUselessBackoffUs = 60000000, sEmuAtDrop = 0;
+        static bool sLastDropMiss = false;
         {
-            const int64_t useless = property_get_int32("sys.gammaos.drastic_nano.pace_lead_useless_us", 12000);
+            const int64_t useless = property_get_int32("sys.gammaos.drastic_nano.pace_lead_useless_us", (int)(paceLeadMaxUs() + 1));
             if (gPaceOn.load() && !gPaceBypass.load() && gLeadUs.load() >= useless) {
                 if (sLeadHighSinceUs == 0) sLeadHighSinceUs = vblankUs;
                 if (vblankUs - sLeadHighSinceUs > 5000000) {
                     ALOGW("PACE bypass: lead %lld us for 5 s buys nothing over the free-running path, next probe in %lld s",
                           (long long)gLeadUs.load(), (long long)(sUselessBackoffUs / 1000000));
                     gPaceBypass.store(true); sBypassSinceUs = vblankUs; sProbeSinceUs = 0;
+                    sLastDropMiss = true; sEmuAtDrop = 0;   // not the frame time either: the probe below then needs no light scene
                     sUselessUntilUs = vblankUs + sUselessBackoffUs;
                     if (sUselessBackoffUs < 600000000) sUselessBackoffUs *= 2;
                     sLeadHighSinceUs = 0;
@@ -6955,11 +7267,11 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // frames: White 2 measured 54 fps locked vs 59.8 bypassed); scenes
         // that merely hiccuped recover through the run-ahead retry below.
         static int sOverCount = 0;
-        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0, sEmuAtDrop = 0;
+        static int64_t sRaRetryUs = 4000000, sLockedSinceUs = 0;
         if (gPaceOn.load() && emu > sBypassUs) sOverCount++; else sOverCount = 0;
         if (gPaceOn.load() && !gPaceBypass.load()) {
             if (sLockedSinceUs == 0) sLockedSinceUs = vblankUs;
-            if (vblankUs - sLockedSinceUs > 10000000) sRaRetryUs = 4000000;   // held 10 s: reset the backoff
+            if (vblankUs - sLockedSinceUs > 10000000) { sRaRetryUs = 4000000; sUselessBackoffUs = 60000000; sUselessUntilUs = 0; }   // held 10 s: reset the backoffs
         } else {
             sLockedSinceUs = 0;
         }
@@ -6970,7 +7282,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         // (30 misses a second for 20 s, 30 fps presented) and ran 59.8 at the panel rate.
         // pace_miss_trip misses within a second (default 5: the title screen misses every flip, so five arrive in 170 ms; Pokemon under the lock showed at most 5 in a second and lives in the bypass anyway) hand it to the bypass; the light-scene
         // re-probe then backs off exponentially like the run-ahead retry so it cannot flip-flop.
-        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false, sLastDropMiss = false;
+        static uint32_t sMissBase = 0; static int64_t sMissWindowUs = 0; static bool sMissTrip = false;
         static int sMissTripN = 10;
         // Checked every tick against a one-second window (not only at the window's end): a
         // title screen that misses every other vblank reaches the trip in a third of a second
@@ -7017,6 +7329,12 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             }
         } else if (sProbeSinceUs == 0 && vblankUs - sBypassSinceUs > 3000000 && vblankUs >= sUselessUntilUs &&
                    ((gEmuCpuLightSecs.load() >= 3 && (!sLastDropMiss || vblankUs - sBypassSinceUs > sRaRetryUs)) ||
+                    // Without run-ahead, a miss or catch-up drop (or the useless-lead one) at a frame time the lock can hold is also
+                    // retried on the backoff alone, once the emulator thread's busy time per period is under the bypass threshold:
+                    // it must not wait for a 'light' scene (under 55% of a core for 3 s), which a 10 to 12 ms scene never is, or the
+                    // lock never returns. (Run-ahead has its own retry below.)
+                    (gRaMode.load() != 2 && sLastDropMiss && vblankUs - sBypassSinceUs > sRaRetryUs &&
+                     (int64_t)gEmuCpuPct.load() * gVblankPeriodUs.load() / 100 < sBypassUs) ||
                     // run-ahead needs the lock: retry with exponential backoff
                     // (4, 8, 16 .. 64 s), but only while the emulator's average
                     // frame sits near the threshold. A scene well over it can
@@ -7067,25 +7385,43 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
     // GPU margin controller: creep the lead later while the render finishes
     // comfortably before the vblank, back it off as soon as it gets tight.
     // Runs only while the emulator is producing frames.
-    if (gpuDoneUs > 0 && gSteadyFrames.load() >= 120) {
+    // Only while the lock drives the emulator: in the bypass the lead is unused, and a controller that kept raising it there
+    // took the lead to 31 ms on timestamps that were not even in one time base after a wake.
+    // The window and the EMA live out here so noteWake can restart them at once, not 120 frames later when the block runs again.
+    static int64_t sMinMargin = 1 << 30; static int nMargin = 0; static bool sMarginEmaFirst = true;
+    if (gMarginReset.exchange(false)) { sMinMargin = 1 << 30; nMargin = 0; sMarginEmaFirst = true; }
+    if (!gPaceOn.load() || gPaceBypass.load()) sMarginEmaFirst = true;   // the bypass steer owns gGpuMarginEma there; the lock starts its own average again
+    if (gpuDoneUs > 0 && gSteadyFrames.load() >= 120 && gPaceOn.load() && !gPaceBypass.load()) {
         // PRIME path: the GPU-done time is the fence wait that follows the
         // drain of the previous vblank, so it lies past vblankUs; the commit
         // it precedes targets the next vblank, which is the margin that matters.
         int64_t margin = vblankUs - gpuDoneUs;
         if (margin < 0 && !android::sDrmAfbcMode) margin += gVblankPeriodUs.load();
-        static int64_t sMinMargin = 1 << 30; static int nMargin = 0;
-        if (margin < sMinMargin) sMinMargin = margin;
-        if (++nMargin >= 20) {
+        // A margin outside -1 .. +2 periods is a stale or foreign timestamp (after a wake it read -25 s to -100 s and grew by the
+        // time elapsed): no sample, instead of a 'tight margin' that raised the lead every 20 ticks.
+        const int64_t perM = gVblankPeriodUs.load();
+        const bool marginValid = margin >= -perM && margin <= 2 * perM;
+        if (marginValid) {
+            // The PACE line's margin= field: it showed the bypass steer's last value for as long as the lock held, because only that
+            // steer wrote it. Same 1/8 weight as the steer's own average.
+            gGpuMarginEma.store(sMarginEmaFirst ? margin : (gGpuMarginEma.load(std::memory_order_relaxed) * 7 + margin) / 8, std::memory_order_relaxed);
+            sMarginEmaFirst = false;
+        }
+        if (marginValid && margin < sMinMargin) sMinMargin = margin;
+        if (marginValid && ++nMargin >= 20) {
             const int64_t tight = property_get_int32("sys.gammaos.drastic_nano.pace_margin_tight_us", 1500);
             const int64_t comfy = property_get_int32("sys.gammaos.drastic_nano.pace_margin_ok_us", 3000);
             if (sMinMargin < tight) {
-                const int64_t at = gLeadUs.load();
-                gLeadUs.store(at + 500);
+                const int64_t at = gLeadUs.load(), maxUs = paceLeadMaxUs();
+                const int64_t nl = std::max<int64_t>(at, std::min<int64_t>(at + 500, maxUs));   // up to the cap, never down
+                gLeadUs.store(nl);
                 static int sPinM = -1;
                 if (sPinM < 0) sPinM = property_get_int32("sys.gammaos.drastic_nano.pace_miss_pin_floor", android::sDrmAfbcMode ? 1 : 0);
-                if (sPinM && at + 250 > gLeadCreepFloor.load()) gLeadCreepFloor.store(at + 250);
-                gLeadFloorRelaxAt.store(gVblSeq.load() + 3600);
-                ALOGW("PACE tight margin %lld us at lead %lld", (long long)sMinMargin, (long long)at);
+                const int64_t pinM = std::min<int64_t>(at + 250, maxUs);
+                if (sPinM && pinM > gLeadCreepFloor.load()) gLeadCreepFloor.store(pinM);
+                // 10 s hold after a tight margin; it never shortens the longer hold a repeated miss edge earned
+                gLeadFloorRelaxAt.store(std::max<int64_t>(gLeadFloorRelaxAt.load(), (int64_t)gVblSeq.load() + 600));
+                if (nl != at) ALOGW("PACE tight margin %lld us at lead %lld", (long long)sMinMargin, (long long)at);   // at the cap it would repeat every 20 ticks
             }
             gMarginOk.store(sMinMargin >= comfy);
             sMinMargin = 1 << 30; nMargin = 0;
@@ -7143,13 +7479,32 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
         }
     }
     // Creep the lead in while frames land on time: 50 us every 20 frames,
-    // floor pace_lead_min_us (default 300).
+    // floor pace_lead_min_us (default -6000).
     {
         static uint32_t clean = 0;
         const uint32_t seq = gVblSeq.load();
-        if (gLeadFloorRelaxAt.load() > 0 && seq >= (uint32_t)gLeadFloorRelaxAt.load()) {
-            gLeadFloorRelaxAt.store(seq + 3600);
-            gLeadCreepFloor.store(gLeadCreepFloor.load() - 250);
+        // The creep floor (pinned above the edge by a miss or a tight margin, or restored by noteWake) comes back down in
+        // windows of pace_floor_relax_frames (300 = 5 s): at the end of a window with no counted miss in it, with the
+        // margin comfortable and the emulator producing, it drops by pace_floor_relax_us (500), never below
+        // pace_lead_min_us. A pin holds the next window off (30 s after a miss, doubling up to 5 min while the same edge
+        // keeps being pinned, 10 s after a tight margin). A lead the pins had taken to the 12000 cap is back near 6500
+        // after about 55 s of clean frames; the creep follows the floor.
+        const int64_t relaxAt = gLeadFloorRelaxAt.load();
+        if (relaxAt > 0 && (int32_t)(seq - (uint32_t)relaxAt) >= 0) {
+            const int64_t frames = paceRelaxFrames(), relaxUs = paceRelaxUs();
+            gLeadFloorRelaxAt.store((int64_t)seq + frames);   // the next window starts now
+            const int64_t minFloor = property_get_int32("sys.gammaos.drastic_nano.pace_lead_min_us", -6000);
+            const int64_t curFloor = gLeadCreepFloor.load();
+            if (relaxUs > 0 && curFloor > minFloor && gSteadyFrames.load() >= 120 && gMarginOk.load() &&
+                    (int32_t)(seq - gLastMissSeq.load()) >= frames) {
+                const int64_t nf = std::max<int64_t>(curFloor - relaxUs, minFloor);
+                gLeadCreepFloor.store(nf);
+                static int64_t sRelaxLogUs = 0;
+                if (vblankUs - sRelaxLogUs >= 10000000) {
+                    sRelaxLogUs = vblankUs;
+                    ALOGW("PACE floor relaxed to %lld", (long long)nf);
+                }
+            }
         }
         if (gSteadyFrames.load() >= 120 && gMarginOk.load() && seq >= (uint32_t)gLeadHoldUntil.load() && ++clean >= 20) {
             clean = 0;
@@ -7159,6 +7514,7 @@ void DrasticRunner::vblankTick(int64_t vblankUs, int64_t gpuDoneUs) {
             // late frame and pins a creep floor just above the edge.
             int64_t floorUs = property_get_int32("sys.gammaos.drastic_nano.pace_lead_min_us", -6000);
             if (gLeadCreepFloor.load() > floorUs) floorUs = gLeadCreepFloor.load();
+            if (floorUs > paceLeadMaxUs()) floorUs = paceLeadMaxUs();   // a floor above the cap would lift the lead past it
             int64_t l = gLeadUs.load() - 50;
             if (l < floorUs) l = floorUs;
             gLeadUs.store(l);
@@ -7471,6 +7827,7 @@ void DrasticRunner::pacerThread() {
         gPaceCv.notify_all();
         audioLeadExtraTick(target);
     }
+    mPacerExited.store(true);   // nothing of this object is touched past here (shutdown() waits for it)
 }
 
 // Waits for the emulated frame of THIS period. drastic's per-screen ready
@@ -7497,6 +7854,37 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     volatile uint8_t* mask = mArm64Base + 0x3f2db80;
     const auto t0 = std::chrono::steady_clock::now();
     const int64_t nowUs = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(t0.time_since_epoch()).count();
+    // The mask can be set a few microseconds before the slot-flip hook has
+    // toggled the slot. The old test for that window (the frame finished
+    // within the last 1.5 ms) never passed for a frame that was ready early,
+    // which under the lock is nearly every frame: all 40 sleeps ran and the
+    // render started 2.6 ms after the vblank. Instead wait only while no hook
+    // has run to its end since the last time the mask was cleared here (the
+    // marker is taken at every clear, so a dropped or hidden frame's hook
+    // cannot pass for the next frame's). persist.gammaos.drastic_nano.flip_seq_spin
+    // 0 brings the age test back; it defaults on for the RG DS Plus only.
+    static uint32_t sFlipSeqAtClear = 0;
+    static const bool sSeqSpin = [] {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        return android::drastic_settings::getInt("persist.gammaos.drastic_nano.flip_seq_spin",
+                strcmp(dev, "anbernicrgdsplus") == 0 ? 1 : 0) != 0;
+    }();
+    auto markCleared = [&] { sFlipSeqAtClear = gFlipDoneSeq.load(std::memory_order_acquire); };
+    auto spinForToggle = [&] {
+        int i = 0;
+        for (; i < 40 && (sSeqSpin ? gFlipDoneSeq.load(std::memory_order_acquire) == sFlipSeqAtClear
+                                   : gProducerDoneUs.load() < nowUs - 1500); i++) usleep(50);
+        // Rate of the spin for the A/B: frames that slept at all and the sleeps in total.
+        static int64_t sSpinLogUs = 0; static uint32_t sFrames = 0, sSpun = 0, sSleeps = 0;
+        sFrames++; if (i) { sSpun++; sSleeps += i; }
+        if (!sSpinLogUs) sSpinLogUs = nowUs;
+        if (nowUs - sSpinLogUs >= 10000000) {
+            ALOGI("PACE toggle spin 10 s (%s): %u frames, %u waited, %u sleeps",
+                  sSeqSpin ? "hook sequence" : "frame age", sFrames, sSpun, sSleeps);
+            sSpinLogUs = nowUs; sFrames = sSpun = sSleeps = 0;
+        }
+    };
     // With the lock off (bypass for a heavy scene, fast-forward, or not
     // wanted) the emulator runs on its own timer and is not phase-aligned
     // with our vblank: waiting here would stall the presenter by up to the
@@ -7508,7 +7896,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         // here chained the presenter to the emulator's flips and made it miss
         // every other vblank, an uneven 1 or 2 refresh hold per frame).
         if (mFastForwardOn && gFfStageWant.load(std::memory_order_relaxed) && gFfStagePub.load(std::memory_order_acquire) >= 2) {
-            if (*mask != 0) { *mask = 0; gRaFreshVisible.store(true); }
+            if (*mask != 0) { *mask = 0; markCleared(); gRaFreshVisible.store(true); }
             return true;
         }
         if (*mask == 0 && mPaceInstalled) {
@@ -7522,8 +7910,9 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
             }
         }
         if (*mask != 0) {
-            for (int i = 0; i < 40 && gProducerDoneUs.load() < nowUs - 1500; i++) usleep(50);
+            spinForToggle();
             *mask = 0;
+            markCleared();
             gRaFreshVisible.store(true);
             gLastFrameUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count());
@@ -7531,7 +7920,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         return true;   // never a pacing miss while the lock is off
     }
     bool dropped = false;
-    if (gRaBurst.load()) *mask = 0;   // never present a replay frame
+    if (gRaBurst.load()) { *mask = 0; markCleared(); }   // never present a replay frame
     // Right after a replay burst the shown frame is legitimately late; do
     // not judge it stale (that would drop it and creep the lead).
     const bool afterBurst = (int32_t)(gVblSeq.load() - gRaBurstUntilSeq.load()) < 0;
@@ -7552,6 +7941,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
     if (mLastWaitImmediate && !afterBurst && gSteadyFrames.load() >= 120 &&
         nowUs - gProducerDoneUs.load() > staleUs) {
         *mask = 0;
+        markCleared();
         dropped = true;
         mLastWaitImmediate = false;
         static int sDropLog = 0;
@@ -7566,7 +7956,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         std::unique_lock<std::mutex> lk(gFlipMu);
         const int64_t deadline = nowUs + timeoutUs;
         while (*mask == 0 || gRaBurst.load()) {
-            if (gRaBurst.load()) *mask = 0;
+            if (gRaBurst.load()) { *mask = 0; markCleared(); }
             const int64_t now2 = (int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
                     std::chrono::steady_clock::now().time_since_epoch()).count();
             if (now2 >= deadline) return dropped;
@@ -7574,8 +7964,10 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         }
         lk.unlock();
         // The hook fires after the producer's slot toggle; if the mask was
-        // already set at entry we may be ahead of the toggle by microseconds.
-        for (int i = 0; i < 40 && gProducerDoneUs.load() < nowUs - 1500; i++) usleep(50);
+        // already set at entry we may be ahead of the toggle by microseconds
+        // (spinForToggle returns at once when a hook has finished since the
+        // last clear, which is the normal case for a frame that was ready early).
+        spinForToggle();
         // Waited into the next period: the frame meant for this vblank was
         // gone (a hiccup consumed it) and we just took the next vblank's, so
         // every following flip would land a vblank late for as long as the
@@ -7602,6 +7994,7 @@ bool DrasticRunner::waitProducerFrame(int timeoutUs) {
         }
     }
     *mask = 0;
+    markCleared();
     gRaFreshVisible.store(true);
     if (gSteadyFrames.fetch_add(1) == 0) ALOGW("PACE first emulated frame");
     gLastFrameUs.store((int64_t)std::chrono::duration_cast<std::chrono::microseconds>(
@@ -8793,6 +9186,10 @@ void DrasticRunner::pauseToggle(bool pause) {
     if (!mInitialized || !mPauseSystem) return;
     if (pause == mPaused) return;
     const int64_t t0 = android::elapsedRealtimeNano();
+    // Announce the pause to the AAudio sink first: the ring still holds 15 to 30 ms of the real
+    // waveform, which the sink fades out over 5 ms before it drains (and fades back in once the
+    // emulator feeds it again). It follows mPaused, so every resume path clears it.
+    if (aaDeclickOn()) gAaMutePause.store(pause ? 1 : 0, std::memory_order_release);
     mPauseSystem(mFakeEnv, mFakeCls, pause ? 1 : 0);
     mPaused = pause;
     ALOGI("DrasticRunner::pauseToggle: paused=%d (%.1f ms)", pause ? 1 : 0,
@@ -8800,6 +9197,9 @@ void DrasticRunner::pauseToggle(bool pause) {
 }
 
 void DrasticRunner::setAudioSleep(bool asleep) {
+    // A wake start still in flight finishes first. Joined before the lock is taken: the start thread needs it.
+    if (asleep) aaJoinWake();
+    std::lock_guard<std::recursive_mutex> life(gAaLifeMu);
     AAudioStream* st = gAaStream;
     if (!st) return;
     if (asleep) {
@@ -8808,12 +9208,66 @@ void DrasticRunner::setAudioSleep(bool asleep) {
         AAudioStream_waitForStateChange(st, AAUDIO_STREAM_STATE_STOPPING, &next, 200000000LL);
         ALOGI("DrasticRunner: AAudio sink stopped for the device sleep (state %d)", next);
     } else {
+        // While the start runs the submit hook's stall watchdog and reopen stay away from the stream. The reset flag is set
+        // before the in-flight flag falls (the hook reads them in the opposite order), so the hook never judges the stream
+        // against the callback baseline from before the sleep.
+        gAaStartInFlight.store(true, std::memory_order_release);
         const aaudio_result_t r = AAudioStream_requestStart(st);
+        gAaWdReset.store(1, std::memory_order_release);
+        gAaStartInFlight.store(false, std::memory_order_release);
         ALOGI("DrasticRunner: AAudio sink restarted after the device sleep (%d)", r);
         // A route change while stopped (radios off, the DP panel reconnecting) disconnects the
         // stream; the existing reopen path picks that up from the error callback.
         if (r != AAUDIO_OK) gAaReopen.store(1, std::memory_order_release);
     }
+}
+
+// Wake: the start runs on its own thread so the render thread can bring the panels back in the meantime. The
+// start usually takes a few hundred ms, but seconds when the amp driver is still retrying its PLL after a deep
+// sleep; audioWakeWait gives it a bounded time and the unpause never waits for the rest.
+void DrasticRunner::audioWakeBegin() {
+    std::thread old;
+    {
+        std::lock_guard<std::mutex> lk(gAaWakeMu);
+        if (gAaWakeThread && gAaWakeThread->joinable()) {
+            if (!gAaWakeDone.load(std::memory_order_acquire)) return;   // a start is still running: audioWakeWait waits for it
+            old = std::move(*gAaWakeThread);                            // a finished one: reap it
+        }
+    }
+    if (old.joinable()) old.join();
+    gAaWakeBeginUs.store(0);   // a start that timed out earlier and was joined at the sleep must not leak into this wake's log
+    if (!gAaStream) return;   // OpenSL path or no sink yet: nothing to start
+    std::lock_guard<std::mutex> lk(gAaWakeMu);
+    if (!gAaWakeThread) gAaWakeThread = new std::thread();
+    gAaWakeDone.store(false, std::memory_order_release);
+    gAaWdReset.store(1, std::memory_order_release);
+    gAaWakeBeginUs.store(aaSteadyUs());
+    *gAaWakeThread = std::thread([this] {
+        pthread_setname_np(pthread_self(), "dn-aawake");
+        // This thread inherited the render thread's SCHED_FIFO class: back to the time-sharing class, a little above normal.
+        struct sched_param sp = {};
+        pthread_setschedparam(pthread_self(), SCHED_OTHER, &sp);
+        setpriority(PRIO_PROCESS, (id_t)syscall(SYS_gettid), -10);
+        setAudioSleep(false);
+        gAaWdReset.store(1, std::memory_order_release);
+        { std::lock_guard<std::mutex> l(gAaWakeMu); gAaWakeDone.store(true, std::memory_order_release); }
+        gAaWakeCv.notify_all();
+    });
+}
+
+bool DrasticRunner::audioWakeWait(int timeoutMs) {
+    if (timeoutMs < 0) timeoutMs = 0;
+    const int64_t begun = gAaWakeBeginUs.load();
+    bool ready;
+    {
+        std::unique_lock<std::mutex> lk(gAaWakeMu);
+        ready = gAaWakeCv.wait_for(lk, std::chrono::milliseconds(timeoutMs), [] { return gAaWakeDone.load(std::memory_order_acquire); });
+    }
+    if (ready) aaJoinWake();
+    if (begun == 0) return ready;   // no start was begun (or it was already reported)
+    if (ready) gAaWakeBeginUs.store(0);
+    ALOGI("DrasticRunner: AAudio sink start %s after %lld ms", ready ? "ready" : "still starting", (long long)((aaSteadyUs() - begun) / 1000));
+    return ready;
 }
 
 bool DrasticRunner::saveStateSlot(int slot) {
@@ -8843,8 +9297,9 @@ bool DrasticRunner::saveAutosave() {
     // Slot 9 is drastic's reserved autosave slot (what the
     // drastic-android-mod auto-resumes from). saveStateSlot refuses 9
     // on purpose; this path is the sanctioned exception used on a
-    // graceful exit.
-    int rc = mSaveState(mFakeEnv, mFakeCls, 9);
+    // graceful exit. Explicitly the non-blocking form: the library tests the fourth argument, which
+    // this call used to leave to whatever the caller's register held.
+    int rc = mSaveState(mFakeEnv, mFakeCls, 9, 0);
     ALOGI("DrasticRunner::saveAutosave (slot 9) = %d", rc);
     return true;
 }
@@ -10104,6 +10559,15 @@ bool DrasticRunner::ramStateSave(RamStateTiming* t, int timeoutUs) {
     return ok;
 }
 
+// The request byte is what the JNI sets and the emulator thread clears once it has serialised the state
+// into the writer's buffer (see the notes above kRaMasterOff): from then on the save needs neither a
+// frame nor the panel, only the writer thread and the file system.
+bool DrasticRunner::waitSaveCaptured(int timeoutUs) {
+    // mPaceInstalled: the offsets are only trusted on a library whose bytes the hook install matched.
+    if (!mInitialized || !mArm64Base || !mPaceInstalled) return false;
+    return raPollZero(mArm64Base + kRaMasterOff + kRaSaveReqOff, timeoutUs);
+}
+
 bool DrasticRunner::ramStateLoad(int64_t* loadUs, int timeoutUs) {
     if (!mInitialized || !mLoadState || !mArm64Base) return false;
     if (fakejni::ramStateFd(kRamStateSlot) < 0) return false;
@@ -11202,7 +11666,7 @@ bool DrasticRunner::runAheadTryBurst(bool atTick) {
         }
         if (audioSkip) *audioSkip = 0;
         gRaBurst.store(false, std::memory_order_release);
-        gRaBurstUntilSeq.store(gVblSeq.load() + 8);
+        seqRaise(gRaBurstUntilSeq, gVblSeq.load() + 8);   // never shortens the window noteWake opened
         const int64_t dt = raNowUs() - b0;
         {
             // Cost estimates for the fit policy: EMA with a 12% guard band on the
@@ -12206,13 +12670,23 @@ void DrasticRunner::setFastForward(bool on) {
     // skip and amplifies the perceived choppiness. Mute it on FF and
     // restore the user's exact volume on release (what mGBA/Dolphin/RA
     // all do). Keep the engine running -- only zero the volume. Gated by
-    // persist.gammaos.drastic_nano.ff_mute (default 1).
+    // persist.gammaos.drastic_nano.ff_mute (default 1). With the AAudio
+    // sink up the mute is the sink's own 5 ms gain ramp (gAaMuteFf) and
+    // the mixer volume stays untouched, so neither edge steps; without it
+    // (OpenSL, or aa_declick 0) the volume goes to 0 and back as before.
     if (mSetAudioVolume) {
         if (on) {
             if (android::drastic_settings::getInt("persist.gammaos.drastic_nano.ff_mute", 1)) {
-                mPreFfVolume = mCurVolume;
-                setVolumeRuntime(0);
+                if (gAaudioSink.load(std::memory_order_acquire) && aaDeclickOn()) {
+                    gAaFfMutedInSink.store(true, std::memory_order_relaxed);
+                    gAaMuteFf.store(1, std::memory_order_release);
+                } else {
+                    mPreFfVolume = mCurVolume;
+                    setVolumeRuntime(0);
+                }
             }
+        } else if (gAaFfMutedInSink.exchange(false, std::memory_order_relaxed)) {
+            gAaMuteFf.store(0, std::memory_order_release);   // also right when the sink went away meanwhile: the volume was never lowered
         } else if (mPreFfVolume >= 0) {
             setVolumeRuntime(mPreFfVolume);
             mPreFfVolume = -1;
@@ -12279,6 +12753,17 @@ void DrasticRunner::redimDsTextures() {
     mFxTexW = newW;
     mFxTexH = newH;
 
+    // Scale2X has a one-pass file for exactly the hi-res size (pickShaderFile): when this toggle
+    // moves the shader in or out of that case, load the other file. setShaderRuntime does the
+    // fxLoad, the fxSetup at the new size and the final-pass patch itself, so it takes the place
+    // of the resequence below. It takes the swap guard too, so give it back first.
+    if (!mFxDfxPath.empty() && (pickShaderFile(mFxDfxPath) != mFxDfxPath) != mFxOnePass) {
+        const std::string path = mFxDfxPath;
+        mShaderSwapInFlight.store(false);
+        if (setShaderRuntime(path)) return;
+        mShaderSwapInFlight.store(true);   // refused: the resequence below keeps the loaded file
+    }
+
     // Re-run fxSetup so drastic's pass-resolution uniforms match the new
     // texture size, then re-assert the final-pass FBO redirect (fxSetup's
     // teardown can reset the final pass.fbo, which would otherwise leave
@@ -12291,6 +12776,35 @@ void DrasticRunner::redimDsTextures() {
 
     mShaderGen.fetch_add(1, std::memory_order_relaxed);
     mShaderSwapInFlight.store(false);
+}
+
+// Scale2X draws its 2x intermediate at the size of a hi-res panel half and then copies it 1:1
+// onto the panel. That is two more full-panel passes per screen, and the second screen's
+// intermediate pass rewrites a texture the first screen's copy is still reading, which makes the
+// driver end the render pass and reload the combined target. When the final pass is exactly twice
+// the hi-res DS texture per screen the copy is the identity, so shaders/hires/Scale2X.dfx runs
+// the same scale2x.dsd as the only pass and writes the panel directly: the same picture. The
+// final pass fills mOffscreenW x mOffscreenH/2 per screen, and the direct AFBC target is the same
+// size. Anything else (native resolution, another scale, the per-slot paths that never opt in)
+// gets the file it asked for.
+std::string DrasticRunner::pickShaderFile(const std::string& dfxPath) const {
+    static const char kPlain[] = "/Scale2X.dfx";
+    const size_t kLen = sizeof(kPlain) - 1;
+    if (!mScale2xOnePassOk || dfxPath.size() <= kLen ||
+        dfxPath.compare(dfxPath.size() - kLen, kLen, kPlain) != 0) return dfxPath;
+    int hiW = 0, hiH = 0;
+    dsTexDims(true, &hiW, &hiH);
+    if (mDsTexW != hiW || mDsTexH != hiH ||
+        mOffscreenW != hiW * 2 || mOffscreenH != hiH * 4) return dfxPath;
+    // The shipped files are links into the system image; a same-named file in the user's shaders
+    // folder replaces the link, and then the user's version is the one to load.
+    const std::string dir = dfxPath.substr(0, dfxPath.size() - kLen);
+    struct stat st;
+    for (const char* f : { "/Scale2X.dfx", "/scale2x.dsd" }) {
+        if (lstat((dir + f).c_str(), &st) != 0 || !S_ISLNK(st.st_mode)) return dfxPath;
+    }
+    const std::string variant = dir + "/hires/Scale2X.dfx";
+    return access(variant.c_str(), R_OK) == 0 ? variant : dfxPath;
 }
 
 bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
@@ -12318,8 +12832,13 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
     }
     mLastShaderSwap = std::chrono::steady_clock::now();
     mSwapCounter++;
-    ALOGI("DrasticRunner::setShaderRuntime[#%d]: \"%s\" begin",
-          mSwapCounter, absDfxPath.c_str());
+    // The file the caller named stays the shader (the saved name, the hi-res toggle's reselect);
+    // what gets loaded may be its one-pass variant (pickShaderFile).
+    mFxDfxPath = absDfxPath;
+    const std::string loadPath = pickShaderFile(absDfxPath);
+    mFxOnePass = (loadPath != absDfxPath);
+    ALOGI("DrasticRunner::setShaderRuntime[#%d]: \"%s\" begin%s",
+          mSwapCounter, absDfxPath.c_str(), mFxOnePass ? " (one-pass variant)" : "");
 
     // Pause drastic so the DS producer thread is not racing our GL
     // state mutation. Restore the pause state afterwards; the overlay
@@ -12339,7 +12858,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
     // the "invalid chunk state" aborts seen without this finish.
     glFinish();
 
-    jstring jp = ((JNIEnv*)mFakeEnv)->NewStringUTF(absDfxPath.c_str());
+    jstring jp = ((JNIEnv*)mFakeEnv)->NewStringUTF(loadPath.c_str());
     // Use the same pos_ptr/uv_ptr layout as init (bytes 0 and 192
     // inside mFxVbo). Stock drastic passes (0, 0x8A0) referencing its
     // internal pre-built VBO; we build our own VBO in initSurface so
@@ -12442,7 +12961,7 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
 
     int rc = mFxLoad(mFakeEnv, mFakeCls, (void*)jp, 0, 192);
     ALOGI("DrasticRunner::setShaderRuntime[#%d]: fxLoad(\"%s\") = %d",
-          mSwapCounter, absDfxPath.c_str(), rc);
+          mSwapCounter, loadPath.c_str(), rc);
 
     dumpFxCtxState("post-fxLoad");
     fbOk = glIsFramebuffer(mOffscreenFbo);
@@ -12477,6 +12996,19 @@ bool DrasticRunner::setShaderRuntime(const std::string& absDfxPath) {
 }
 
 void DrasticRunner::shutdown() {
+    // The pacer is a detached thread that ticks the emulator through the file-scope pacing mutexes and
+    // reads members of this object; nothing ever stopped it, so it outlived the process's static
+    // destructors and locked a destroyed mutex (init reported 'received signal 6'). Stop it first:
+    // pacing off also makes the emulator thread's frame wait return at once, so the pause below does
+    // not sit on 50 ms free-run timeouts. The wait is bounded, a stuck pacer must never hang the exit.
+    gPaceOn.store(false);
+    mPacerRun.store(false);
+    { std::lock_guard<std::mutex> l(gPaceMu); }
+    gPaceCv.notify_all();
+    { std::lock_guard<std::mutex> l(gRaPokeMu); }
+    gRaPokeCv.notify_all();
+    for (int i = 0; i < 20 && mPaceInstalled && !mPacerExited.load(); i++) usleep(2000);
+    aaJoinWake();    // a wake start still in flight uses the stream: let it finish before the close
     aaCloseSink();   // release the exclusive MMAP stream before drastic's own teardown
     // Stop the background pixel-pull thread FIRST so it unblocks
     // from getScreenBuffers and stops calling into drastic state

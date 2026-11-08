@@ -2785,6 +2785,11 @@ public class AppStandbyController
         }
 
         String getActiveNetworkScorer() {
+            // GammaOS Nano: minimal boot never starts NetworkScoreService, and getSystemService()
+            // logs a WTF with a stack trace on every lookup of a service that is not published.
+            if (ServiceManager.getService(Context.NETWORK_SCORE_SERVICE) == null) {
+                return null;
+            }
             NetworkScoreManager nsm = (NetworkScoreManager) mContext.getSystemService(
                     Context.NETWORK_SCORE_SERVICE);
             return nsm != null ? nsm.getActiveScorerPackage() : null;

@@ -1939,8 +1939,18 @@ void NanoMenu::forceRescanAllSystems() {
     // results in mBgScanResults; the render loop swaps them in when ready.
     if (mBgScanThreadRunning) return; // already scanning
     mBgScanThreadRunning = true;
+    // The thread works on a snapshot of the scan inputs: the Game Systems editor adds, erases and
+    // swaps mXmbSystems entries on the render thread while a scan runs. roms and displayNames stay out.
+    std::vector<XmbSystem> jobs;
+    jobs.reserve(mXmbSystems.size());
+    for (const auto& s : mXmbSystems) {
+        XmbSystem j;
+        j.id = s.id; j.enabled = s.enabled; j.romDir = s.romDir; j.acceptExts = s.acceptExts;
+        j.scanSources = s.scanSources; j.disabledDefaultFolders = s.disabledDefaultFolders;
+        jobs.push_back(std::move(j));
+    }
     ALOGI("NanoMenu: launching background scan thread");
-    std::thread(&NanoMenu::bgScanThreadFunc, this).detach();
+    std::thread(&NanoMenu::bgScanThreadFunc, this, std::move(jobs)).detach();
 }
 
 // Re-scan the whole ROM library after a scan-behaviour toggle (Scan ROM
@@ -1959,17 +1969,21 @@ void NanoMenu::romRescanFromSettings() {
 }
 
 // Background thread: scans all systems and stores results for the render
-// thread to pick up. Never touches sys.roms/displayNames directly -- only
-// writes to mBgScanResults behind a mutex.
-void NanoMenu::bgScanThreadFunc() {
-    int numSys = (int)mXmbSystems.size();
+// thread to pick up. Never touches mXmbSystems -- it works on the snapshot
+// `jobs` and only writes to mBgScanResults behind a mutex. Results carry the
+// system id, so the render thread matches them up even if the list changed.
+void NanoMenu::bgScanThreadFunc(std::vector<XmbSystem> jobs) {
+    nanoThreadNormalPriority();   // started from the FIFO 80 / nice -20 render thread; not latency critical
+    int numSys = (int)jobs.size();
     std::vector<BgScanResult> results(numSys);
 
     for (int si = 0; si < numSys; si++) {
-        const auto& sys = mXmbSystems[si];
+        const auto& sys = jobs[si];
         auto& res = results[si];
+        res.id = sys.id;
         res.valid = false;
         if (!sys.enabled) continue;   // disabled systems are never scanned
+        res.attempted = true;
 
         std::vector<std::string> scanPaths = buildScanCandidates(sys);
 
@@ -2079,16 +2093,12 @@ void NanoMenu::loadXmbRecent() {
 }
 
 void NanoMenu::saveXmbRecent() {
-    int fd = open(kXmbRecentFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kXmbRecentFile, 0644);
-    for (const auto& e : mXmbRecent) {
-        std::string block = e.romPath + "\n" + e.coreSo + "\n" + e.launchPkg + "\n"
-            + e.launchIntent + "\n" + e.displayName + "\n" + e.systemName + "\n"
-            + e.romDir + "\n\n";
-        write(fd, block.c_str(), block.size());
-    }
-    close(fd);
+    std::string text;
+    for (const auto& e : mXmbRecent)
+        text += e.romPath + "\n" + e.coreSo + "\n" + e.launchPkg + "\n" + e.launchIntent + "\n"
+              + e.displayName + "\n" + e.systemName + "\n" + e.romDir + "\n\n";
+    if (!writeFileDurable(kXmbRecentFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kXmbRecentFile, errno);
 }
 
 // ---- User Collections (cross-system game groups) --------------------------------------------
@@ -2116,16 +2126,14 @@ void NanoMenu::loadCollections() {
 }
 
 void NanoMenu::saveCollections() {
-    int fd = open(kCollectionsFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kCollectionsFile, 0644);
+    std::string text;
     for (const auto& c : mXmbCollections) {
-        std::string block = c.name + "\n";
-        for (const auto& r : c.roms) block += r + "\n";
-        block += "\n";
-        ssize_t w = write(fd, block.c_str(), block.size()); (void)w;
+        text += c.name + "\n";
+        for (const auto& r : c.roms) text += r + "\n";
+        text += "\n";
     }
-    close(fd);
+    if (!writeFileDurable(kCollectionsFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kCollectionsFile, errno);
 }
 
 // Resolve a stored ROM path to a live (system, rom) index so a collection game reuses the normal
@@ -2232,14 +2240,10 @@ void NanoMenu::loadFavorites() {
 }
 
 void NanoMenu::saveFavorites() {
-    int fd = open(kFavoritesFile, O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (fd < 0) return;
-    chmod(kFavoritesFile, 0644);
-    for (const auto& r : mXmbFavorites) {
-        std::string ln = r + "\n";
-        ssize_t w = write(fd, ln.c_str(), ln.size()); (void)w;
-    }
-    close(fd);
+    std::string text;
+    for (const auto& r : mXmbFavorites) text += r + "\n";
+    if (!writeFileDurable(kFavoritesFile, text, 0644))
+        ALOGW("NanoMenu: saving %s failed (errno %d)", kFavoritesFile, errno);
 }
 
 bool NanoMenu::isFavorite(const std::string& romPath) const {
@@ -2745,6 +2749,13 @@ void NanoMenu::launchXmbGame() {
     // first was a dead no-op: once an app is behind it the home runs as the resident overlay, so
     // launching from the overlay or after returning to the theme did nothing.
     if (mOverlayMode) { overlayLaunchGame(); return; }
+    // RG DS Plus Menu tap (NanoMenuResume.cpp): this launch notes its own ROM below. For the whole
+    // call the emulator package it arms through armAppLaunchTrigger is not an app to remember.
+    struct ResumeGameScope {
+        bool& flag;
+        explicit ResumeGameScope(bool& f) : flag(f) { flag = true; }
+        ~ResumeGameScope() { flag = false; }
+    } resumeGameScope(mResumeInGameLaunch);
     int sysIdx, gameIdx;
 
     // GammaOS Nano: gate the entire XMB launch path until the system
@@ -2785,6 +2796,7 @@ void NanoMenu::launchXmbGame() {
         } else if (!coreSoExists(re.coreSo)) {
             showEmuMissingMsg(re.displayName, false); return;
         }
+        nanoResumeNoteGame(re.romPath);   // every refusal is behind us: this game is the last one launched
 
         // Move to front of recent list -- only on disk, not in-memory.
         // Modifying the vector causes a visible shuffle during the
@@ -2972,6 +2984,7 @@ void NanoMenu::launchXmbGame() {
     } else if (!coreSoExists(sys.coreSo)) {
         showEmuMissingMsg(sys.name, false); return;
     }
+    nanoResumeNoteGame(romPath);   // every refusal is behind us: this game is the last one launched
 
     if (sys.isStandalone()) {
         std::string fullRomPath = sys.roms[gameIdx];

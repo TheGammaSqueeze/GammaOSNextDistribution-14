@@ -296,22 +296,32 @@ const char TEXT_VERTEX_SHADER[] = R"(
 const char TEXT_FRAGMENT_SHADER[] = R"(
     #extension GL_OES_standard_derivatives : enable
     precision mediump float;
+    // The texture coordinate is carried at full precision where the GPU has it: the glyph atlas
+    // is 1024x2048, and a half-float coordinate cannot name the centre of a texel past v = 0.5
+    // (the step there is one texel), so a 1:1 glyph row in the lower half of the atlas would
+    // sample a texel boundary and blur 50/50. The colour and the rest of the maths stay mediump.
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+    varying highp vec2 vTexCoord;
+    #define UVP highp
+#else
     varying vec2 vTexCoord;
+    #define UVP mediump
+#endif
     varying vec4 vColor;
     uniform sampler2D uTexture;
     uniform float uSharp;    // 0 = plain bilinear; >0 = crisp analytic edge AA (glyphs)
     uniform vec2  uSharpUp;  // >0: sharp-bilinear upscale; xy = source size in TEXELS
     void main() {
-        vec2 uv = vTexCoord;
+        UVP vec2 uv = vTexCoord;
         if (uSharpUp.x > 0.0) {
             // Sharp-bilinear: keep GL_LINEAR (no aliasing) but pre-warp UV toward
             // texel centres by the on-screen magnification, so a half-res icon
             // upscales crisp instead of soft. 1 fetch + a few ALU ops.
-            vec2 ts = 1.0 / uSharpUp;          // texel size in UV
-            vec2 tc = uv * uSharpUp;           // texel-space coord
-            vec2 tf = fract(tc);
-            vec2 w  = fwidth(tc);              // texels per dest pixel (<1 when magnifying)
-            vec2 f  = clamp((tf - 0.5) / max(w, vec2(1e-4)) + 0.5, 0.0, 1.0);
+            UVP vec2 ts = 1.0 / uSharpUp;      // texel size in UV
+            UVP vec2 tc = uv * uSharpUp;       // texel-space coord
+            UVP vec2 tf = fract(tc);
+            UVP vec2 w  = fwidth(tc);          // texels per dest pixel (<1 when magnifying)
+            UVP vec2 f  = clamp((tf - 0.5) / max(w, vec2(1e-4)) + 0.5, 0.0, 1.0);
             uv = (floor(tc) + f) * ts;         // keep the whole texel, sharpen the fraction
         }
         vec4 texel = texture2D(uTexture, uv);

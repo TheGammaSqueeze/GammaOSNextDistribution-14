@@ -12,6 +12,15 @@ on early-init
     setprop log.tag.audio_route I
     setprop log.tag.AW_PowerHAL I
 
+# RG DS Plus (RK3568, 1 GB RAM, all partitions on one microSD): for the first minutes after boot the
+# platform's default timeouts are too tight. Cold app starts exceed the 10 s process-start limit (the
+# MediaProvider process was killed in a loop), and the 60 s watchdog and the 3 s Bluetooth stack
+# start are hit too. Scale them 3x. Build.HW_TIMEOUT_MULTIPLIER and the native readers pick the value
+# up when zygote and the services start; /vendor/build.prop (ro.gammaos.device) is loaded before
+# early-init runs.
+on early-init && property:ro.gammaos.device=anbernicrgdsplus
+    setprop ro.hw_timeout_multiplier 3
+
 on post-fs
     start gammaos_on_boot
     mount none /system/etc/usb_audio_policy_configuration.xml /vendor/etc/usb_audio_policy_configuration.xml bind
@@ -87,7 +96,162 @@ on property:persist.gammaos.ultra_low_power_saving_mode=true
 on property:persist.gammaos.ultra_low_power_saving_mode=false
     setprop persist.gammaos.ultra_low_power_saving_mode 0
 
+# Same self-heal for the gamepad and DC-dimming toggles: older toolbox builds wrote
+# "true"/"false", but the gammapad.rc and init.rc triggers only match 1/0. Rewriting
+# to 1/0 fires those triggers. Not a loop: 1/0 do not re-match the true/false triggers.
+on property:persist.gammaos.gamepad.enable=true
+    setprop persist.gammaos.gamepad.enable 1
+
+on property:persist.gammaos.gamepad.enable=false
+    setprop persist.gammaos.gamepad.enable 0
+
+on property:persist.gammaos.dcdimmingemulation=true
+    setprop persist.gammaos.dcdimmingemulation 1
+
+on property:persist.gammaos.dcdimmingemulation=false
+    setprop persist.gammaos.dcdimmingemulation 0
+
 service watchdogd-gsi /system/bin/watchdogd 10 20
     class core
     oneshot
     seclabel u:r:watchdogd:s0
+
+# RG DS Plus: the vendor init pins the Mali power policy to always_on (tearing workaround) and the
+# Rockchip kbase platform holds the "gpu" kernel wakeup source while the GPU is powered, so
+# /sys/power/wakeup_count never returns and Android autosuspend cannot run. While the screen is off
+# let the idle GPU power down (which drops that wakeup source); always_on returns with the screen.
+on property:sys.screen.state=off && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/devices/platform/fde60000.gpu/power_policy coarse_demand
+
+on property:sys.screen.state=on && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/devices/platform/fde60000.gpu/power_policy always_on
+
+# The vendor force_sleep -> sleep.sh loop writes 'mem' to /sys/power/state without the wakeup_count
+# handshake, so it ignores kernel wakelocks. Do not run it while the nano home keeps music playing
+# with the screen off (it publishes sys.gammaos.nano.keep_audio next to its nano_music wakelock),
+# and restart it when the music stops while the screen is still off. force_sleep sets the
+# battery_charging LED to heartbeat for its 5 s countdown, so clear it again when stopping it early.
+on property:init.svc.force_sleep=running && property:sys.gammaos.nano.keep_audio=1
+    stop force_sleep
+    write /sys/class/leds/battery_charging/trigger none
+
+on property:init.svc.cpu_screen_off=running && property:sys.gammaos.nano.keep_audio=1
+    stop cpu_screen_off
+
+on property:sys.gammaos.nano.keep_audio=0 && property:sys.screen.state=off && property:persist.gammaos.ultra_low_power_saving_mode=1 && property:sys.gammaos.usb.connected=0 && property:sys.boot_completed=1
+    start force_sleep
+
+# RG DS Plus: drastic-nano is awake again (lid opened, power pressed) while PowerManager may still be on its
+# way back from the sleep drastic asked for. The vendor force_sleep -> sleep.sh loop ignores wakelocks and
+# would suspend the device under the running game: stop it, as for keep_audio. drastic publishes awake=0
+# before it asks for a sleep, so its own sleeps are not touched.
+on property:init.svc.force_sleep=running && property:sys.gammaos.drastic_nano.awake=1 && property:sys.gammaos.drastic_nano.lid_owner=1 && property:ro.gammaos.device=anbernicrgdsplus
+    stop force_sleep
+    write /sys/class/leds/battery_charging/trigger none
+
+on property:init.svc.cpu_screen_off=running && property:sys.gammaos.drastic_nano.awake=1 && property:sys.gammaos.drastic_nano.lid_owner=1 && property:ro.gammaos.device=anbernicrgdsplus
+    stop cpu_screen_off
+
+# RG DS Plus: the vendor 8821cs.ko logs at the Realtek INFO level (H2C dumps, every cfg80211 poll),
+# about three lines a second while connected, which rolls the kernel log over within minutes. Keep
+# warnings, errors and the suspend/resume prints. Every module load resets the parameter to 4; the
+# Wi-Fi HAL sets wlan.driver.status=ok after each load, so it is written again.
+on property:wlan.driver.status=ok && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/module/8821cs/parameters/rtw_drv_log_level 3
+
+# RG DS Plus: 8821cs resumes from its own workqueue, so the kernel resume does not wait about 1 s for the
+# firmware reload. persist.gammaos.wifi.sync_resume=1 brings back the synchronous resume (escape hatch).
+# Every module load resets the parameter; wlan.driver.status=ok follows each load.
+on property:wlan.driver.status=ok && property:persist.gammaos.wifi.sync_resume=1 && property:ro.gammaos.device=anbernicrgdsplus
+    write /sys/module/8821cs/parameters/rtw_resume_async 0
+
+# RG DS Plus nano: MediaProvider (an APEX priv-app, never preopted) runs from its APK because the ART
+# background dexopt job waits for IDLE, which nano never reaches. Its cold start then verifies the
+# dex on every boot (Verify dex file 630 ms + 385 VerifyClass 785 ms) on the way to the FUSE mount
+# that the first game launch after boot waits for. Verify it once, a minute after storage is up (the
+# compile runs at background priority). Without -f an existing result is a no-op, so later boots only
+# pay for the cmd call. The result goes to logcat, tag gammaos_mp_verify.
+service gammaos_mp_verify /system/bin/sh -c "sleep 60; /system/bin/cmd package compile -m verify com.android.providers.media.module 2>&1 | /system/bin/log -t gammaos_mp_verify"
+    user root
+    group root system
+    seclabel u:r:gammaoscustomization:s0
+    oneshot
+    disabled
+
+on property:sys.gammaos.nano.ext_storage_ready=1 && property:ro.gammaos.device=anbernicrgdsplus && property:sys.gammaos.minimal_boot=1
+    start gammaos_mp_verify
+
+# RG DS Plus: the vendor esde_fix.sh re-checks the ES-DE themes bind mount every 5 s by forking
+# cmd package list, head, sed, awk and mountpoint, about 70 ms of CPU a second, also when ES-DE is
+# not installed. A watcher publishes whether ES-DE is installed (again after every packages.list
+# rewrite) and esde_fix only runs while it is. The watcher starts at boot, which runs in nano and in
+# full mode after post-fs-data has switched init to the default mount namespace (so it sees the
+# mounts of esde_fix) and before boot_completed (so the vendor start of esde_fix is undone at once).
+# Nano never fires zygote-start, so that event cannot be used here.
+service gammaos_esde_gate /system/bin/gammaos-on-boot.sh --esde-gate
+    disabled
+
+on boot && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_esde_gate
+
+# RG DS Plus: every device IRQ runs on CPU0, and the vendor init.rk356x.rc pin that should move the
+# VOP IRQ to CPU1 names IRQ 38, which is the IEP on kernel 6.1. The script finds the VOP and GPU IRQs
+# by name and pins them (VOP to CPU1, GPU to CPU2; CPU3 stays free for the emulator thread). Suspend
+# resets the pins (the secondary CPUs go offline), so it runs again at every screen on. The
+# persist.gammaos.irq_spread=0 kill switch is read by the script.
+service gammaos_irq_spread /system/bin/gammaos-on-boot.sh --irq-spread
+    oneshot
+    disabled
+
+on boot && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_irq_spread
+
+on property:sys.screen.state=on && property:ro.gammaos.device=anbernicrgdsplus
+    start gammaos_irq_spread
+
+# RG DS Plus: the vendor setclock_max / setclock_stock / setclock_powersave services (init.gammaos_power.rc)
+# are separate oneshot scripts that run side by side, and the last one to write a node wins. A powersave
+# run that the vendor screen-off trigger or a nano sleep path started before a suspend often ends after
+# the wake's setclock_max/stock run, which left the GPU at 400 MHz and the CPU at 1416 MHz until a reboot
+# although persist.gammaos.performance_mode was max. While the device is awake (screen on, and no nano
+# process putting it to sleep) a foreign setclock run that ends starts the persisted mode's service
+# again (R1), and that service runs once more after the run in progress (R2, through the clock_rerun
+# marker; `start` on a running oneshot does nothing), so its writes come after everything the foreign
+# run wrote. The rerun flag is cleared before the service starts and only R1 sets it, so it cannot loop.
+# The nano processes set sys.gammaos.nano.clock_hold=1 before their own pre-sleep powersave run
+# (NanoClockProfile.h) so R1 does not undo it; init clears it at every screen on, so a process that dies
+# mid-sleep cannot leave it set. There are no rules for the powersave mode.
+on property:sys.screen.state=on && property:ro.gammaos.device=anbernicrgdsplus
+    setprop sys.gammaos.nano.clock_hold 0
+
+# mode max: R1 on a powersave or stock run ending, R2 on the service itself ending
+on property:init.svc.setclock_powersave=stopped && property:persist.gammaos.performance_mode=max && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    start setclock_max
+    setprop sys.gammaos.nano.clock_rerun max
+
+on property:init.svc.setclock_stock=stopped && property:persist.gammaos.performance_mode=max && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    start setclock_max
+    setprop sys.gammaos.nano.clock_rerun max
+
+on property:init.svc.setclock_max=stopped && property:sys.gammaos.nano.clock_rerun=max && property:persist.gammaos.performance_mode=max && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    setprop sys.gammaos.nano.clock_rerun 0
+    start setclock_max
+
+# mode stock: the same with a powersave or max run ending
+on property:init.svc.setclock_powersave=stopped && property:persist.gammaos.performance_mode=stock && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    start setclock_stock
+    setprop sys.gammaos.nano.clock_rerun stock
+
+on property:init.svc.setclock_max=stopped && property:persist.gammaos.performance_mode=stock && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    start setclock_stock
+    setprop sys.gammaos.nano.clock_rerun stock
+
+on property:init.svc.setclock_stock=stopped && property:sys.gammaos.nano.clock_rerun=stock && property:persist.gammaos.performance_mode=stock && property:sys.screen.state=on && property:sys.gammaos.nano.clock_hold=0 && property:ro.gammaos.device=anbernicrgdsplus
+    setprop sys.gammaos.nano.clock_rerun 0
+    start setclock_stock
+
+on property:init.svc.esde_fix=running && property:sys.gammaos.esde_installed=0 && property:ro.gammaos.device=anbernicrgdsplus
+    stop esde_fix
+
+on property:sys.gammaos.esde_installed=1 && property:sys.boot_completed=1 && property:sys.user.0.ce_available=true && property:persist.sys.device_provisioned=1 && property:ro.gammaos.device=anbernicrgdsplus
+    start esde_fix

@@ -719,6 +719,11 @@ static void startDrasticQrTestWatcher() {
 //
 // If libdrastic itself isn't in the cache, we still preload the
 // Android-side libs because they're useful for any future cached run.
+//
+// Which copies of libdrastic, game_database.xml and the BIOS get READ (page cache only) depends
+// on who will open them: drastic-nano's own files (/system/lib64, /system/etc/drastic-nano,
+// /data/system/drastic-nano) normally, the nano_cache copies only for a primed Quick Resume,
+// the smoke run or the DraStic APK launch. See the decision inside the thread.
 static void startDrasticLibPreloadThread() {
     std::thread([]() {
         pthread_setname_np(pthread_self(), "drastic-preload");
@@ -771,30 +776,10 @@ static void startDrasticLibPreloadThread() {
         const char* arm64Path =
                 "/data/system/nano_cache/drastic/libdrastic_arm64.so";
         bool cacheReady = (access(arm64Path, R_OK) == 0);
-        if (!cacheReady) {
-            ALOGI("drastic preload: cache not populated, skipping "
-                  "libOpenSLES + runner warmup to keep linker lock off "
-                  "the NanoMenu EGL init path");
-            int64_t t_end = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-            ALOGI("drastic preload: total %lldms", t_end - t0);
-            return;
-        }
 
-        // (B) libdrastic's runtime-dlopen'd deps, observed via strace
-        // inside the startGame thread. Each of these is a system lib
-        // that drastic opens LATER (not at JNI_OnLoad time), so our
-        // static preload of libdrastic_arm64.so doesn't cover them.
-        // They're cheap individually (<10ms each warm) but hit the
-        // critical path inside drastic's startGame when cold.
-        warmLib("libandroid.so");
-        warmLib("libxml2.so");
-        warmLib("android.hardware.power@1.1.so");
-        warmLib("android.hardware.power-V5-ndk.so");
-
-        // libdrastic_{cpu,arm64}.so: cache is populated (we early-
-        // returned above when it wasn't), so warm them too so the
-        // user-visible dlopen in DrasticRunner::init is a pure cache
-        // hit.
+        // Read a file front to back into a throwaway buffer so its pages are in the page
+        // cache afterwards. Read-only, takes no linker lock (unlike warmLib) and maps nothing,
+        // so it is safe on any device at any point of the boot.
         auto warmFile = [](const char* path, off_t len) {
             int fd = open(path, O_RDONLY | O_CLOEXEC);
             if (fd < 0) {
@@ -827,11 +812,149 @@ static void startDrasticLibPreloadThread() {
                   e - s);
             close(fd);
         };
-        // The two drastic libraries are read, not mapped: a dlopen in the home left
+
+        // Which drastic files will actually be opened? drastic-nano, the launcher, never reads
+        // the nano_cache copies: it dlopens libdrastic from /system/lib64, links game_database.xml
+        // into /system/etc/drastic-nano, keeps its own BIOS copies under /data/system/drastic-nano
+        // and opens the ROM at its real path (drastic-nano DrasticAssets: systemDir, systemLibDir,
+        // seedRoot). nano_cache/drastic feeds only the in-home Quick Resume preview (DrasticRunner
+        // dlopens the patched libdrastic from there and reads the staged ROM), the debug smoke run
+        // and the DraStic APK launch. So warm drastic-nano's own files, and the nano_cache copies
+        // only while one of those other consumers is live. Warming the copies instead left the
+        // real files cold at the first launch and cost ~0.5 s of microSD reads (the 16 MB ROM
+        // copy) plus page cache churn on every home start.
+        //
+        // Same paths and developer override (sys.gammaos.drastic_nano.sysdir) as DrasticAssets.
+        static const char* const kSysDirDefault = "/system/etc/drastic-nano";
+        std::string sysDir = kSysDirDefault;
+        std::string libDir = "/system/lib64";
+        {
+            char v[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.gammaos.drastic_nano.sysdir", v, "");
+            struct stat st;
+            if (v[0] == '/' && stat(v, &st) == 0 && S_ISDIR(st.st_mode)) {
+                sysDir = v;
+                const std::string devLib = sysDir + "/lib";
+                if (sysDir != kSysDirDefault &&
+                    access((devLib + "/libdrastic_arm64.so").c_str(), R_OK) == 0) {
+                    libDir = devLib;
+                }
+            }
+        }
+        const std::string sysArm64 = libDir + "/libdrastic_arm64.so";
+        const bool sysReady = (access(sysArm64.c_str(), R_OK) == 0);
+
+        // (B) libdrastic's runtime-dlopen'd deps, observed via strace
+        // inside the startGame thread. Each of these is a system lib
+        // that drastic opens LATER (not at JNI_OnLoad time), so our
+        // static preload of libdrastic_arm64.so doesn't cover them.
+        // They're cheap individually (<10ms each warm) but hit the
+        // critical path inside drastic's startGame when cold.
+        // dlopen takes the linker lock, so, as before, only a device with a populated
+        // cache runs the dlopen based warms; a device without one gets the file reads below only.
+        // They depend on the cache alone, so they run before the persist-prop wait below. That wait
+        // times out on the RG DS Plus; after it the dlopens would overlap NanoMenu's EGL bring-up and
+        // hold the linker lock it needs.
+        if (cacheReady) {
+            warmLib("libandroid.so");
+            warmLib("libxml2.so");
+            warmLib("android.hardware.power@1.1.so");
+            warmLib("android.hardware.power-V5-ndk.so");
+        }
+
+        // The Quick Resume / smoke decision reads persist props, and those can still be loading
+        // this early (the RG DS Plus publishes them well after gammaos-nano starts; see
+        // runDrasticInitIfNeeded). Give them the same 2 s window that check gets, so a primed
+        // Quick Resume still finds its nano_cache copies warm; past it runDrasticInitIfNeeded has
+        // concluded "no Quick Resume" too. Only needed when there is a cache to choose over.
+        // The chain-block disarm in qrResumeChainBlocked() is deliberately not called here (it has
+        // a side effect); the rare blocked chain just keeps the old warm for one boot.
+        bool qrOrSmoke = false;
+        if (cacheReady) {
+            char ready[PROPERTY_VALUE_MAX] = {};
+            property_get("ro.persistent_properties.ready", ready, "");
+            int waited = 0;
+            while (strcmp(ready, "true") != 0 && waited < 2000) {
+                usleep(10 * 1000);
+                waited += 10;
+                property_get("ro.persistent_properties.ready", ready, "");
+            }
+            char smoke[PROPERTY_VALUE_MAX] = {};
+            char qp[PROPERTY_VALUE_MAX] = {};
+            char qc[PROPERTY_VALUE_MAX] = {};
+            property_get("persist.gammaos.nano.drastic_smoke", smoke, "0");
+            property_get("persist.gammaos.nano.qr_prepared", qp, "0");
+            property_get("persist.gammaos.nano.qr_core", qc, "");
+            qrOrSmoke = !(smoke[0] == 0 || strcmp(smoke, "0") == 0) ||
+                        (strcmp(qp, "1") == 0 && strcmp(qc, "drastic") == 0);
+            ALOGI("drastic preload: persist props %s after %dms, qr/smoke=%d",
+                  strcmp(ready, "true") == 0 ? "ready" : "not ready", waited,
+                  qrOrSmoke ? 1 : 0);
+        }
+        char dnProp[PROPERTY_VALUE_MAX] = {};
+        property_get("persist.gammaos.nano.drastic_nano", dnProp, "0");
+        const bool nanoTarget = sysReady && !qrOrSmoke && dnProp[0] == '1';
+
+        if (!cacheReady && !nanoTarget) {
+            ALOGI("drastic preload: cache not populated, skipping "
+                  "libOpenSLES + runner warmup to keep linker lock off "
+                  "the NanoMenu EGL init path");
+            int64_t t_end = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            ALOGI("drastic preload: total %lldms", t_end - t0);
+            return;
+        }
+
+        // The drastic libraries are read, not mapped: a dlopen in the home left
         // libdrastic's 62 MB BSS and text locked here for the life of the process
         // (see warmLib). Reading the files puts them in the page cache just the same.
-        warmFile(cpuPath, 0);
-        warmFile(arm64Path, 0);
+        if (nanoTarget) {
+            ALOGI("drastic preload: warming drastic-nano's own files (%s, %s)",
+                  libDir.c_str(), sysDir.c_str());
+            warmFile(sysArm64.c_str(), 0);
+            warmFile((libDir + "/libdrastic_cpu.so").c_str(), 0);
+            // game_database.xml is 1.6 MB, read and parsed linearly on the startGame thread.
+            warmFile((sysDir + "/game_database.xml").c_str(), 0);
+            // The BIOS and firmware drastic-nano seeded into its private root (~20 KB, but
+            // on the critical path); drastic_assets::kRootDefault.
+            static const char* const kRoot = "/data/system/drastic-nano/DraStic";
+            warmFile((std::string(kRoot) + "/system/drastic_bios_arm9.bin").c_str(), 0);
+            warmFile((std::string(kRoot) + "/system/drastic_bios_arm7.bin").c_str(), 0);
+            warmFile((std::string(kRoot) + "/system/nds_firmware_modified.bin").c_str(), 0);
+
+            // The one nano_cache file drastic-nano does read is the extract of a ZIPPED ROM
+            // (nano_cache/drastic/rom/*.nds beside a ".src" marker "size:mtime:basename",
+            // drastic-nano cacheSrcId): a relaunch of the same zip reuses it. A plain .nds is
+            // opened at its real path, so a ROM copy sitting there (a Quick Resume staging
+            // leftover) is never read. Warm the extract only when the ROM launched last is the
+            // zip it came from; the first 16 MB is enough, the rest is demand paged.
+            const std::string lastRom = readPathFile("/data/system/nano_drastic_nano_rom.txt");
+            const size_t lastSlash = lastRom.rfind('/');
+            const std::string lastBase = (lastSlash == std::string::npos)
+                    ? lastRom : lastRom.substr(lastSlash + 1);
+            if (lastBase.size() > 4 &&
+                strcasecmp(lastBase.c_str() + lastBase.size() - 4, ".zip") == 0) {
+                const char* romDir = "/data/system/nano_cache/drastic/rom";
+                const std::string src = readPathFile(
+                        (std::string(romDir) + "/.src").c_str());
+                size_t c = src.find(':');
+                if (c != std::string::npos) c = src.find(':', c + 1);
+                if (c != std::string::npos && src.compare(c + 1, std::string::npos, lastBase) == 0) {
+                    DIR* d = opendir(romDir);
+                    if (d) {
+                        struct dirent* e;
+                        while ((e = readdir(d)) != nullptr) {
+                            const size_t n = strlen(e->d_name);
+                            if (n > 4 && strcasecmp(e->d_name + n - 4, ".nds") == 0) {
+                                warmFile((std::string(romDir) + "/" + e->d_name).c_str(),
+                                         16 * 1024 * 1024);
+                                break;
+                            }
+                        }
+                        closedir(d);
+                    }
+                }
+            }
+        }
 
         // Prefetch drastic's cold-read data files into the page cache.
         // At boot time these are on f2fs that hasn't been touched yet,
@@ -857,7 +980,14 @@ static void startDrasticLibPreloadThread() {
         // to boot. 16 MB covers all of that for every DS title.
         auto fadviseWillneed = warmFile;  // alias, kept for clarity
 
-        if (cacheReady) {
+        // The nano_cache copies below are read by the in-home Quick Resume preview, the smoke
+        // run and the DraStic APK launch (see the decision above); drastic-nano does not read
+        // them. Here the cache is populated (a cache-less device took the nanoTarget branch or
+        // returned), so warm the libraries too so the user-visible dlopen in DrasticRunner::init
+        // is a pure cache hit.
+        if (!nanoTarget) {
+            warmFile(cpuPath, 0);
+            warmFile(arm64Path, 0);
             fadviseWillneed(
                 "/data/system/nano_cache/drastic/game_database.xml", 0);
             fadviseWillneed(
@@ -933,6 +1063,13 @@ static void startDrasticLibPreloadThread() {
                 }
                 closedir(appsDir);
             }
+        }
+
+        if (!cacheReady) {
+            // Only the file reads above: no dlopen based warm without a populated cache (see (B)).
+            int64_t t_end = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+            ALOGI("drastic preload: total %lldms", t_end - t0);
+            return;
         }
 
         // (A) libdrastic's static DT_NEEDED heavy dep, warmed LAST.
@@ -1195,6 +1332,9 @@ int main(int argc, char** argv) {
     ALOGI("GammaOS Nano starting... (earlyDrmFd=%d)", gEarlyDrmFd);
 
     property_set("sys.gammaos.nano.drm_active", "0");
+    // A home that died while parked leaves the SurfaceFlinger-home flag up; this one may be a DRM
+    // home, whose panels drastic-nano's exit must not hand to the composer's power cycle.
+    property_set("sys.gammaos.drastic_nano.home_sf", "0");
 
     // SYNCHRONOUSLY patch libdrastic_arm64.so in the cache BEFORE
     // any other drastic work. The patch short-circuits drastic's

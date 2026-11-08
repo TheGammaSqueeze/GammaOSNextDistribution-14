@@ -54,6 +54,7 @@
 #include <optional>
 #include <unordered_map>
 #include <unordered_set>
+#include <vector>
 
 #include <InputListener.h>
 #include <InputReporterInterface.h>
@@ -184,6 +185,13 @@ private:
     sp<Looper> mLooper;
 
     std::shared_ptr<const EventEntry> mPendingEvent GUARDED_BY(mLock);
+
+    // GammaOS Nano: sys.gammaos.nano.drop_input as notifyKey/notifyMotion last saw it, and the last joystick motion of
+    // each device dropped while it was set (replayed when it clears).
+    bool mGammaDropping GUARDED_BY(mLock) = false;
+    std::unordered_map<int32_t, NotifyMotionArgs> mGammaDroppedJoystick GUARDED_BY(mLock);
+    std::vector<NotifyMotionArgs> gammaDropInputEdge(bool dropNow) EXCLUDES(mLock);
+
     std::deque<std::shared_ptr<const EventEntry>> mInboundQueue GUARDED_BY(mLock);
     std::deque<std::shared_ptr<const EventEntry>> mRecentQueue GUARDED_BY(mLock);
 

@@ -11,6 +11,7 @@
 #include <string.h>
 #include <sys/epoll.h>
 #include <sys/inotify.h>
+#include <sys/ioctl.h>
 #include <sys/stat.h>
 #include <sys/sysmacros.h>
 #include <sys/wait.h>
@@ -37,6 +38,20 @@ static constexpr const char* HIDDEN_NODES_FILE = "/data/misc/gammapad/hidden_nod
 static constexpr int MAX_EPOLL_EVENTS = 16;
 static constexpr int CONFIG_CHECK_INTERVAL_MS = 1000;
 static constexpr int HOTPLUG_SETTLE_MS = 100;
+
+namespace {
+
+// gammapad's own uinput nodes (virtual pad, mouse, touchscreen) carry a "gammapad-" phys: they need no settle time.
+bool isOwnVirtualNode(const std::string& path) {
+    const int fd = open(path.c_str(), O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+    if (fd < 0) return false;
+    char phys[64] = {};
+    const bool own = ioctl(fd, EVIOCGPHYS(sizeof(phys) - 1), phys) >= 0 && strncmp(phys, "gammapad-", 9) == 0;
+    close(fd);
+    return own;
+}
+
+}  // namespace
 
 // epoll data tags to distinguish event sources
 enum EpollTag : uint32_t {
@@ -353,6 +368,12 @@ void GamepadManager::run() {
             checkForegroundApp();
             // Check for external mouse mode toggle (QS tile) and combo timeout
             if (mMouseMode) {
+                using android::base::GetIntProperty;
+                // drm_active is not part of it: the RetroArch preview has it too, and the DRM home switches the mode
+                // off itself (NanoMenu.cpp mouseModeHomeGuard).
+                const bool nanoSession = GetIntProperty("sys.gammaos.drastic_nano.session", 0) == 1 ||
+                        GetIntProperty("sys.gammaos.azahar_nano.session", 0) == 1;
+                mMouseMode->setSessionBlock(nanoSession);
                 if (mMouseMode->checkExternalToggle()) {
                     drainMouseFlushEvents();
                 }
@@ -684,6 +705,7 @@ void GamepadManager::rebuildGlobalMaps() {
 
     // Push the global merged maps to the transformer (used as fallback)
     mTransformer->setDeviceMaps(mAbsMap, mKeyMap);
+    mMapsFd = -1;
 
     LOG(INFO) << "Global maps rebuilt: "
               << mDiscoveredAxes.size() << " axes, "
@@ -984,6 +1006,7 @@ void GamepadManager::createVirtualGamepadFromDiscovery() {
 void GamepadManager::releaseDevice(int fd) {
     auto it = mDevices.find(fd);
     if (it == mDevices.end()) return;
+    if (fd == mMapsFd) mMapsFd = -1;
 
     mForceFeedback->cancelDevice(fd);
 
@@ -1021,8 +1044,10 @@ void GamepadManager::handleInputEvent(int fd) {
     // Set per-device axis/key maps so the transformer uses the correct
     // .kl mapping for this specific controller (different controllers
     // may have different axis layouts even with the same axis codes).
-    if (!devIt->second.absMap.empty() || !devIt->second.keyMap.empty()) {
+    if (fd != mMapsFd &&
+            (!devIt->second.absMap.empty() || !devIt->second.keyMap.empty())) {
         mTransformer->setDeviceMaps(devIt->second.absMap, devIt->second.keyMap);
+        mMapsFd = fd;
     }
 
     bool mouseActive = mMouseMode && mMouseMode->isActive();
@@ -1095,6 +1120,14 @@ void GamepadManager::handleInputEvent(int fd) {
     }
 }
 
+// Write the events the transformer queued outside the event loop (a config reload releasing combo targets).
+void GamepadManager::flushTransformerExtras() {
+    for (const auto& extra : mTransformer->getExtraEvents()) {
+        mVirtualGamepad->writeEvent(extra);
+    }
+    mTransformer->clearExtraEvents();
+}
+
 void GamepadManager::drainMouseFlushEvents() {
     if (!mMouseMode) return;
     const auto& flushEvents = mMouseMode->getFlushEvents();
@@ -1130,9 +1163,13 @@ void GamepadManager::handleInotifyEvent() {
                 }
                 if (trackedFd < 0) {
                     // New device — grab it.
-                    usleep(HOTPLUG_SETTLE_MS * 1000);
-                    if (grabDevice(path)) {
-                        needRebuild = true;
+                    if (isOwnVirtualNode(path)) {
+                        LOG(INFO) << "Skipping own virtual device without the settle delay: " << path;
+                    } else {
+                        usleep(HOTPLUG_SETTLE_MS * 1000);
+                        if (grabDevice(path)) {
+                            needRebuild = true;
+                        }
                     }
                 } else if (trackedHidden) {
                     // We hid this path (unlinked the source node) yet a fresh
@@ -1246,9 +1283,12 @@ void GamepadManager::checkConfigChange() {
                 }
             }
             mForceFeedback->connectBridge();
+            // loadConfig() may have queued combo-target releases; write them now instead of at the next input event.
+            flushTransformerExtras();
         } else {
             LOG(INFO) << "Lightweight config reload (calibration/transform only)";
             mTransformer->loadConfig();
+            flushTransformerExtras();
             if (mMouseMode) mMouseMode->loadConfig();
             if (mScreenMapMode) mScreenMapMode->loadConfig();
         }
@@ -1277,6 +1317,7 @@ void GamepadManager::checkForegroundApp() {
     // profile for the new foreground package on top of the global config.
     loadPerAppProfiles();
     applyPerAppProfile(fgPkg);
+    flushTransformerExtras();
 
     // A per-app key-emit action target may need advertising on the keyboard.
     refreshVirtualKeyboard();

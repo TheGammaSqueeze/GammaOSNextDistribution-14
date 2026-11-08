@@ -13,6 +13,7 @@
 #include <string.h>
 #include <sys/inotify.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <atomic>
@@ -24,6 +25,8 @@
 #include "DrasticRunner.h"
 #include "NanoMenuDrm.h"
 #include "DrasticSettings.h"
+#include "NanoBrightness.h"
+#include "NanoPmSync.h"
 
 namespace android {
 namespace drastic_input {
@@ -85,6 +88,16 @@ float normAxis(const InputState::Axis& a, float deadzone) {
     return n < 0 ? -scaled : scaled;
 }
 
+// EVIOCGKEY of one device into keys; false when the ioctl fails.
+constexpr size_t kKeyBitsLongs = (KEY_MAX + 8 * sizeof(long)) / (8 * sizeof(long));
+bool readKeyBits(int fd, unsigned long (&keys)[kKeyBitsLongs]) {
+    memset(keys, 0, sizeof(keys));
+    return ioctl(fd, EVIOCGKEY(sizeof(keys)), keys) >= 0;
+}
+bool keyBitSet(const unsigned long (&keys)[kKeyBitsLongs], int code) {
+    return (keys[code / (8 * sizeof(long))] >> (code % (8 * sizeof(long)))) & 1;
+}
+
 } // anonymous namespace
 
 namespace {
@@ -94,18 +107,20 @@ std::atomic<bool> sUserInputSeen{false};
 void closeDeviceFds(InputState* st) {
     for (int fd : st->fds) close(fd);
     st->fds.clear();
+    st->lidFd = -1;   // one of the fds above
     for (int fd : st->touchFds) close(fd);
     st->touchFds.clear();
     st->touchNodeW.clear();
     st->touchNodeH.clear();
     st->touchNodeTop.clear();
+    st->hasTopTouch = false;
 }
 }  // namespace
 
 bool userInputSeen() { return sUserInputSeen.load(std::memory_order_relaxed); }
 
 void scanInputDevices(InputState* st) {
-    closeDeviceFds(st);
+    closeDeviceFds(st);   // also clears lidFd
     st->touchPanelW = 0;
     st->touchPanelH = 0;
     // Watch /dev/input for nodes coming and going so a device that appears after
@@ -176,11 +191,13 @@ void scanInputDevices(InputState* st) {
                         (code % (8 * sizeof(long)))) & 1;
             };
             // KEY_POWER admits the gpio-keys power button device for the DRM
-            // backend: there the framework consumes KEYCODE_POWER inertly while a
-            // drastic session runs (the DRM home swallows it), so the power
-            // gestures must be read from evdev. The SF backend runs as a normal
-            // foreground app and leaves power entirely to PhoneWindowManager, so
-            // it clears admitPowerKey and a power-only node is not opened here.
+            // backend: the power gestures (sleep, menu, power off) are read from
+            // evdev here. PhoneWindowManager still sees the key as well: it leaves
+            // the short press to drastic only while drastic owns the lid
+            // (sys.gammaos.drastic_nano.lid_owner), and the long press always;
+            // elsewhere both act. The SF backend runs as a normal foreground app
+            // and leaves power entirely to PhoneWindowManager, so it clears
+            // admitPowerKey and a power-only node is not opened here.
             const bool powerAdmit = st->admitPowerKey && has(KEY_POWER);
             // The lid switch drives sleep the same way in the DRM backend. On the RG DS it
             // shares a node with keys, but the RP Duo Lite reports it alone on hall_switch
@@ -196,6 +213,7 @@ void scanInputDevices(InputState* st) {
             if (has(BTN_SOUTH) || has(BTN_A) || has(KEY_BACK) ||
                 has(KEY_UP) || has(KEY_VOLUMEUP) || powerAdmit || lidAdmit) {
                 st->fds.push_back(fd);
+                if (lidAdmit) st->lidFd = fd;
                 // Read axis calibration for any sticks / triggers on
                 // this device. Missing axes leave the struct at
                 // defaults (seen=false).
@@ -218,6 +236,11 @@ void scanInputDevices(InputState* st) {
         close(fd);
     }
     closedir(d);
+    bool anyTop = false, anyBottom = false;
+    for (size_t i = 0; i < st->touchNodeTop.size(); i++) {
+        if (st->touchNodeTop[i]) anyTop = true; else anyBottom = true;
+    }
+    st->hasTopTouch = anyTop && anyBottom;
 }
 
 void recalibrateAxes(InputState* st) {
@@ -255,6 +278,29 @@ void closeInputDevices(InputState* st) {
         st->inotifyFd = -1;
     }
     st->rescanDueMs = 0;
+}
+
+int readLidSwitch(const InputState* st) {
+    if (st->lidFd < 0) return -1;
+    unsigned long sw[(SW_MAX + 8 * sizeof(long)) / (8 * sizeof(long))] = {};
+    if (ioctl(st->lidFd, EVIOCGSW(sizeof(sw)), sw) < 0) return -1;
+    return (sw[SW_LID / (8 * sizeof(long))] >> (SW_LID % (8 * sizeof(long)))) & 1;
+}
+
+bool keyHeldNow(const InputState* st, int evCode) {
+    for (int fd : st->fds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys) && keyBitSet(keys, evCode)) return true;
+    }
+    return false;
+}
+
+int lidGraceMs() {
+    if (!drastic_pm::owning()) return 0;
+    int ms = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_grace_ms", 10000);
+    if (ms < 0) ms = 0;
+    if (ms > 60000) ms = 60000;
+    return ms;
 }
 
 namespace {
@@ -434,17 +480,23 @@ int applyPortraitControls(const InputState* st, int physMask, int lsDpad,
 
 // Apply the LS -> stylus remap when analog touch is enabled. Called
 // after gamepad axes are drained for the frame. Mutates st->touchDs*
-// / st->touchHeld when the stick is outside the deadzone. The hard-
-// touch path (gt9xx-0) always wins if the panel is being touched.
+// / st->touchHeld when the stick is outside the deadzone, and lifts the
+// stylus again when the stick is back at rest. The hard-touch path
+// (gt9xx-0) always wins if the panel is being touched.
 void applyAnalogStylus(InputState* st) {
-    if (!st->analogTouchEnabled) return;
-    if (st->touchHeld) return; // real touch wins
+    if (!st->analogTouchEnabled) {
+        if (st->stickStylusActive) {            // switched off while the stick held the stylus
+            st->stickStylusActive = false;
+            if (!st->touchReal) st->touchHeld = false;
+        }
+        return;
+    }
+    if (st->touchReal) { st->stickStylusActive = false; return; }   // a real finger wins
     float nx = normAxis(st->axLX, st->analogDeadzone);
     float ny = normAxis(st->axLY, st->analogDeadzone);
     if (nx == 0.0f && ny == 0.0f) {
-        // Stick at rest: release virtual stylus but keep last coords
-        // for drastic (so idle stylus sits on the bottom screen, not
-        // at 0,0).
+        // Stick at rest: lift the stylus, keep the last coordinates (it rests on the bottom screen, not at 0,0).
+        if (st->stickStylusActive) { st->stickStylusActive = false; st->touchHeld = false; }
         return;
     }
     // Map normalized [-1, 1] to DS (0..255, 0..191), centered.
@@ -455,6 +507,7 @@ void applyAnalogStylus(InputState* st) {
     st->touchDsX = dx;
     st->touchDsY = dy;
     st->touchHeld = true;
+    st->stickStylusActive = true;
 }
 
 // Move the virtual touch cursor for this frame. Direction comes from the left
@@ -509,6 +562,163 @@ bool dispatchNav(int androidKc, bool pressed, InputActions* out) {
     }
 }
 
+// The DS bit a held key gives in gameplay: the user's keymap, else the legacy mapping of pollInputMap's switch
+// (keep the two in step). 0 for special actions and unmapped keys.
+int dsBitForKey(const InputState* st, int code) {
+    const int kc = drastic_prefs::evdevToAndroidKeycode(code);
+    auto it = st->keycodeToAction.find(kc);
+    if (it != st->keycodeToAction.end()) return actionIndexToDsBit(it->second);
+    switch (code) {
+    case BTN_SOUTH: return DrasticRunner::kDsBtnA;
+    case BTN_EAST:  return DrasticRunner::kDsBtnB;
+    case BTN_NORTH: return DrasticRunner::kDsBtnX;
+    case BTN_WEST:  return DrasticRunner::kDsBtnY;
+    case BTN_TL: case KEY_L: return DrasticRunner::kDsBtnL;
+    case BTN_TR: case KEY_R: return DrasticRunner::kDsBtnR;
+    case BTN_START:  return DrasticRunner::kDsBtnStart;
+    case BTN_SELECT: return DrasticRunner::kDsBtnSelect;
+    case KEY_UP:    case BTN_DPAD_UP:    return DrasticRunner::kDsBtnUp;
+    case KEY_DOWN:  case BTN_DPAD_DOWN:  return DrasticRunner::kDsBtnDown;
+    case KEY_LEFT:  case BTN_DPAD_LEFT:  return DrasticRunner::kDsBtnLeft;
+    case KEY_RIGHT: case BTN_DPAD_RIGHT: return DrasticRunner::kDsBtnRight;
+    default: return 0;
+    }
+}
+
+// After a rescan: rebuild the held state from the devices instead of dropping it (a pad sends no events for what is
+// already held). Latches follow the held level so a held FF / cursor key does not toggle again.
+void reseedHeldState(InputState* st) {
+    static const int kCodes[] = {
+        BTN_SOUTH, BTN_EAST, BTN_NORTH, BTN_WEST, BTN_TL, BTN_TR, BTN_TL2, BTN_TR2, BTN_SELECT, BTN_START,
+        BTN_THUMBL, BTN_THUMBR, KEY_L, KEY_R, KEY_UP, KEY_DOWN, KEY_LEFT, KEY_RIGHT,
+        BTN_DPAD_UP, BTN_DPAD_DOWN, BTN_DPAD_LEFT, BTN_DPAD_RIGHT};
+    bool ffHeld = false, cursorHeld = false;
+    for (int fd : st->fds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys)) {
+            for (int code : kCodes) {
+                if (!keyBitSet(keys, code)) continue;
+                if (code == BTN_SELECT) st->selectPhys = true;
+                if (code == BTN_TL2) st->btnL2 = true;
+                if (code == BTN_TR2) st->btnR2 = true;
+                if (code == BTN_THUMBL) st->btnL3 = true;
+                if (code == BTN_THUMBR) st->btnR3 = true;
+                st->dsBtnMask |= dsBitForKey(st, code);
+                auto it = st->keycodeToAction.find(drastic_prefs::evdevToAndroidKeycode(code));
+                if (it != st->keycodeToAction.end()) {
+                    if (it->second == 17) ffHeld = true;
+                    if (it->second == 28) cursorHeld = true;
+                }
+            }
+        }
+        // The hat: a held direction sends no event until it changes.
+        struct input_absinfo hat = {};
+        if (ioctl(fd, EVIOCGABS(ABS_HAT0X), &hat) >= 0 && hat.value != 0) {
+            st->dsBtnMask |= hat.value < 0 ? DrasticRunner::kDsBtnLeft : DrasticRunner::kDsBtnRight;
+            st->hat0xPrev = hat.value;
+        }
+        hat = {};
+        if (ioctl(fd, EVIOCGABS(ABS_HAT0Y), &hat) >= 0 && hat.value != 0) {
+            st->dsBtnMask |= hat.value < 0 ? DrasticRunner::kDsBtnUp : DrasticRunner::kDsBtnDown;
+            st->hat0yPrev = hat.value;
+        }
+    }
+    st->ffWasDown = ffHeld;
+    st->btnFastFwd = ffHeld;
+    st->cursorToggleWasDown = cursorHeld;
+    // A finger on a digitizer that was reopened: touchHeld follows it unless the stick drives the stylus.
+    bool touching = false;
+    for (int fd : st->touchFds) {
+        unsigned long keys[kKeyBitsLongs];
+        if (readKeyBits(fd, keys) && keyBitSet(keys, BTN_TOUCH)) touching = true;
+    }
+    st->touchReal = touching;
+    if (!st->stickStylusActive) st->touchHeld = touching;
+}
+
+// Time of an evdev event in microseconds. drastic-nano never sets EVIOCSCLOCK, so this is
+// CLOCK_REALTIME; only the difference between two events of the same device is used.
+int64_t evTimeUs(const struct input_event& ev) {
+    return (int64_t)ev.time.tv_sec * 1000000LL + ev.time.tv_usec;
+}
+
+// One edge of BACK (or of the Menu action, which shares its state): short release = menu toggle,
+// hold of longBackMs or more = exit. The hold is measured between the press and release events
+// themselves. Input is only drained once per rendered frame, so a stalled frame can drain a
+// press and its release together; timing them at drain time made a real hold look like a
+// tap (menu instead of exit), or a hold near the threshold look like neither.
+void backEdge(InputState* st, bool pressed, const struct input_event& ev,
+              int64_t shortBackMs, int64_t longBackMs, InputActions* out) {
+    if (pressed && !st->backWasDown) {
+        // Still used by the while-held check at the end of pollInputMap.
+        st->backPressStartMs = android::elapsedRealtime();
+        st->backPressEvUs = evTimeUs(ev);
+    }
+    if (!pressed && st->backWasDown) {
+        int64_t held = (evTimeUs(ev) - st->backPressEvUs) / 1000;
+        if (st->backPressEvUs <= 0 || held < 0) {
+            // No usable event times (or the wall clock stepped back during the hold).
+            held = android::elapsedRealtime() - st->backPressStartMs;
+        }
+        if (held >= longBackMs) {
+            out->exitRequested = true;
+        } else if (held < shortBackMs) {
+            out->menuToggle = true;
+        }
+        st->backPressStartMs = 0;
+        st->backPressEvUs = 0;
+    }
+    st->backWasDown = pressed;
+}
+
+// True on the RG DS Plus in nano mode, where the Menu key (gammapad remaps the pad's BTN_MODE
+// to KEY_ALL_APPLICATIONS) belongs to the framework: a tap takes the device back to the
+// launcher and a hold toggles nano's Control Center. Other devices keep the key bindable.
+bool menuKeyIsHome() {
+    static int cached = -1;
+    if (cached < 0) {
+        char dev[PROPERTY_VALUE_MAX] = {0};
+        property_get("ro.gammaos.device", dev, "");
+        cached = (strcmp(dev, "anbernicrgdsplus") == 0 &&
+                  property_get_bool("sys.gammaos.minimal_boot", false)) ? 1 : 0;
+    }
+    return cached == 1;
+}
+
+// One lid edge (the level changed). Hall-effect lid switch, closed = true.
+//  - persist.gammaos.drastic_nano.phys_lid_close on: a close signals the EMULATED DS lid closed right away
+//    (the game sleeps in-emulator, the run loop also darkens the backlight) and arms a delayed device sleep,
+//    so a quick close-then-open just pauses and resumes the game; a sustained close sleeps the device. The
+//    delay is lid_sleep_delay_ms, or with the default (-1) the grace period when one is set, else 2.5 s.
+//    An open signals the DS lid open and cancels the arm.
+//  - otherwise a close while drastic-nano owns the lid and a grace period is set asks for the grace window
+//    (the run loop pauses, darkens and keeps the panels on); with no grace (0, or the lid is not ours) it
+//    asks for the sleep at once, like a short power press. The open edge is consumed by the grace / sleep
+//    loop as the wake.
+void onLidEdge(InputState* st, InputActions* out, bool closed) {
+    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
+        if (closed) {
+            out->physLidClose = true;
+            int delayMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_sleep_delay_ms", -1);
+            if (delayMs < 0) {
+                const int graceMs = lidGraceMs();
+                delayMs = graceMs > 0 ? graceMs : 2500;
+            }
+            st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
+        } else {
+            out->physLidOpen = true;
+            st->lidSleepDueMs = 0;   // cancel the pending device sleep
+        }
+    } else if (closed) {
+        if (lidGraceMs() > 0) {
+            out->lidGraceRequested = true;
+        } else {
+            out->sleepRequested = true;
+            out->sleepByLid = true;
+        }
+    }
+}
+
 } // anonymous namespace
 
 void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
@@ -516,14 +726,23 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   int64_t powerHoldMs, int64_t powerOffHoldMs, InputActions* out) {
     *out = {};
 
+    // The wake path found the lid closed again after it drained the queue: act on it now, as on a close edge.
+    if (st->lidReclosePending) {
+        st->lidReclosePending = false;
+        st->lidClosed = false;
+        onLidEdge(st, out, true);
+        st->lidClosed = true;
+    }
+
     // ---- Hot-plug: rescan when /dev/input changed ----
     // Every reader of this state opened its fds once at startup, so a pad that
     // shows up later (gammapad's virtual pad on a Quick Resume boot that starts
     // us early, a Bluetooth controller pairing mid-game, ueventd recreating a
     // node) was invisible for the rest of the session: no buttons, no way to
     // open the menu or exit. Debounce the burst of inotify events a device
-    // creation produces, then reopen everything and drop any held state, since
-    // a removed pad never sends its releases.
+    // creation produces, then reopen everything and rebuild the held state from
+    // the devices (EVIOCGKEY), since a removed pad never sends its releases and
+    // a new one sends no events for what is already held.
     if (st->inotifyFd >= 0) {
         char buf[1024] __attribute__((aligned(__alignof__(struct inotify_event))));
         ssize_t n;
@@ -546,13 +765,22 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         st->dsBtnMask = 0;
         st->backWasDown = false;
         st->backPressStartMs = 0;
+        st->backPressEvUs = 0;
         st->powerWasDown = false;
         st->powerPressStartMs = 0;
         st->hat0xPrev = 0;
         st->hat0yPrev = 0;
         st->btnL2 = st->btnR2 = st->btnL3 = st->btnR3 = false;
-        ALOGI("DrasticNano::input: /dev/input changed, rescanned (%zu -> %zu nodes)",
-              before, st->fds.size() + st->touchFds.size());
+        st->selectPhys = false;
+        st->selectChordLatched = false;
+        st->selectMaskBit = 0;
+        st->volHeldCode = 0;
+        st->powerPressEvUs = 0;
+        st->powerHoldFired = false;
+        st->powerOffFired = false;
+        reseedHeldState(st);   // what is still held keeps working (a pad sends no event for it)
+        ALOGI("DrasticNano::input: /dev/input changed, rescanned (%zu -> %zu nodes), held mask 0x%x select %d",
+              before, st->fds.size() + st->touchFds.size(), st->dsBtnMask, st->selectPhys ? 1 : 0);
     }
 
     // ---- Drain gamepad event devices ----
@@ -565,46 +793,48 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 sUserInputSeen.store(true, std::memory_order_relaxed);
             }
             if (ev.type == EV_SW && ev.code == SW_LID) {
-                // Hall-effect lid switch. value 1 = lid closed. By default a close edge requests
-                // sleep immediately (same as a short power press); the open edge is consumed by the
-                // sleep loop as the wake. With persist.gammaos.drastic_nano.phys_lid_close on, a
-                // close edge instead signals the EMULATED DS lid closed right away (the game sleeps
-                // in-emulator) AND arms a delayed device sleep, so a quick close-then-open just
-                // pauses and resumes the game without a full sleep/wake, while a sustained close
-                // still sleeps the device. An open edge signals the DS lid open and cancels the arm.
                 const bool closed = (ev.value != 0);
-                if (closed != st->lidClosed) {
-                    if (android::drastic_settings::getBool("persist.gammaos.drastic_nano.phys_lid_close", false)) {
-                        if (closed) {
-                            out->physLidClose = true;
-                            int delayMs = android::drastic_settings::getInt("persist.gammaos.drastic_nano.lid_sleep_delay_ms", 2500);
-                            if (delayMs < 0) delayMs = 0;
-                            st->lidSleepDueMs = android::elapsedRealtime() + delayMs;
-                        } else {
-                            out->physLidOpen = true;
-                            st->lidSleepDueMs = 0;   // cancel the pending device sleep
-                        }
-                    } else if (closed) {
-                        out->sleepRequested = true;
-                    }
-                }
+                if (closed != st->lidClosed) onLidEdge(st, out, closed);
                 st->lidClosed = closed;
                 continue;
             }
             if (ev.type == EV_KEY) {
                 const bool pressed = (ev.value != 0);
 
-                // Volume keys drive the in-app volume / brightness HUDs.
-                // VOL alone = volume (press only); SELECT+VOL = brightness
-                // (press or repeat, so holding SELECT + tapping VOL ramps).
-                // Never routed to a DS button.
+                // The physical Select, before every routing branch (capture, menu, keymap), both edges.
+                if (ev.code == BTN_SELECT && ev.value != 2) {
+                    st->selectPhys = (ev.value != 0);
+                    if (!st->selectPhys) {
+                        st->selectChordLatched = false;   // Select reaches the game again
+                        st->selectMaskBit = 0;
+                        st->volHeldCode = 0;
+                    }
+                }
+
+                // Volume keys: VOL alone = volume (press only); physical SELECT + VOL = brightness, a signed step
+                // count, repeated in software below while both keys are held. value 2 (kernel autorepeat) is ignored:
+                // the chord repeats here, plain volume repeats in PhoneWindowManager. Never a DS button.
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
-                    int dir = (ev.code == KEY_VOLUMEUP) ? 1 : -1;
-                    bool selectHeld =
-                            (st->dsBtnMask & DrasticRunner::kDsBtnSelect) != 0;
-                    if (ev.value == 1 || ev.value == 2) {
-                        if (selectHeld)        out->brightAdjust = dir;
-                        else if (ev.value == 1) out->volAdjust   = dir;
+                    const int dir = (ev.code == KEY_VOLUMEUP) ? 1 : -1;
+                    if (ev.value == 1) {
+                        if (st->selectPhys) {
+                            out->brightAdjust += dir;
+                            if (!st->selectChordLatched) {
+                                // what the physical Select gives the game under the current keymap (0: nothing)
+                                st->selectMaskBit = dsBitForKey(st, BTN_SELECT);
+                                if (st->ownsCursorToggle)
+                                    ALOGI("DrasticNano::input: Select+Vol brightness, Select kept from the game until it is released");
+                            }
+                            st->selectChordLatched = true;
+                            st->volHeldCode = ev.code;
+                            st->volHeldDir = dir;
+                            st->volRepeatDueMs = android::elapsedRealtime() + android::nanobr::kChordRepeatFirstMs;
+                            st->volRepeating = false;
+                        } else {
+                            out->volAdjust = dir;
+                        }
+                    } else if (ev.value == 0 && ev.code == st->volHeldCode) {
+                        st->volHeldCode = 0;
                     }
                     continue;
                 }
@@ -616,36 +846,46 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                     // powerHoldMs = sleep; the hold action fires from the
                     // hold check below (one-shot via powerHoldFired).
                     if (pressed && !st->powerWasDown) {
-                        st->powerPressStartMs = android::elapsedRealtime();
+                        // The press as it happened: a frame that drained it late must not shorten the hold.
+                        struct timespec rt;
+                        clock_gettime(CLOCK_REALTIME, &rt);   // evdev stamps are CLOCK_REALTIME here
+                        int64_t ageMs = ((int64_t)rt.tv_sec * 1000000LL + rt.tv_nsec / 1000 - evTimeUs(ev)) / 1000;
+                        if (ageMs < 0 || ageMs > 2000) ageMs = 0;   // clock step: drain time
+                        st->powerPressStartMs = android::elapsedRealtime() - ageMs;
+                        st->powerPressEvUs = evTimeUs(ev);
                         st->powerHoldFired = false;
                         st->powerOffFired = false;
                     }
                     if (!pressed && st->powerWasDown) {
-                        int64_t held = android::elapsedRealtime() -
-                                       st->powerPressStartMs;
-                        if (!st->powerHoldFired && held < powerHoldMs) {
-                            out->sleepRequested = true;
+                        int64_t held = (evTimeUs(ev) - st->powerPressEvUs) / 1000;
+                        if (st->powerPressEvUs <= 0 || held < 0) held = android::elapsedRealtime() - st->powerPressStartMs;
+                        if (!st->powerHoldFired) {
+                            if (held < powerHoldMs) {
+                                out->sleepRequested = true;
+                            } else {
+                                // the hold check never saw it (the frame stalled across the threshold)
+                                out->xmbOverlayRequested = true;
+                                st->powerHoldFired = true;
+                                ALOGI("DrasticNano::input: KEY_POWER held %lld ms (seen at the release) -> XMB overlay", (long long)held);
+                            }
                         }
                         st->powerPressStartMs = 0;
+                        st->powerPressEvUs = 0;
                     }
                     st->powerWasDown = pressed;
                     continue;
                 }
 
                 if (ev.code == KEY_BACK) {
-                    // Short / long press state tracked via backPressStartMs.
-                    if (pressed && !st->backWasDown) {
-                        st->backPressStartMs = android::elapsedRealtime();
-                    }
-                    if (!pressed && st->backWasDown) {
-                        int64_t held = android::elapsedRealtime() -
-                                       st->backPressStartMs;
-                        if (held < shortBackMs) {
-                            out->menuToggle = true;
-                        }
-                        st->backPressStartMs = 0;
-                    }
-                    st->backWasDown = pressed;
+                    // Short / long press, timed from the event times (see backEdge).
+                    backEdge(st, pressed, ev, shortBackMs, longBackMs, out);
+                    continue;
+                }
+
+                // RG DS Plus: the Menu key is the framework's go-home (PhoneWindowManager
+                // saves and exits through exit_home). Without this it becomes a synthetic
+                // 1204 key that a binding or the remap capture would also act on.
+                if (ev.code == KEY_ALL_APPLICATIONS && menuKeyIsHome()) {
                     continue;
                 }
 
@@ -669,10 +909,27 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 if (ev.code == BTN_THUMBR) st->btnR3 = pressed;
 
                 if (overlayOpen) {
-                    // Route keys to overlay nav. Dispatch edge events
-                    // only on press.
-                    dispatchNav(androidKc, pressed, out);
-                    continue;
+                    // Key D-pads (keyboards, BTN_DPAD_* pads) keep their held level in the mask on both edges, so the
+                    // menu's hold-to-repeat sees them and a release clears them.
+                    int dpadBit = 0;
+                    switch (ev.code) {
+                    case KEY_UP:    case BTN_DPAD_UP:    dpadBit = DrasticRunner::kDsBtnUp;    break;
+                    case KEY_DOWN:  case BTN_DPAD_DOWN:  dpadBit = DrasticRunner::kDsBtnDown;  break;
+                    case KEY_LEFT:  case BTN_DPAD_LEFT:  dpadBit = DrasticRunner::kDsBtnLeft;  break;
+                    case KEY_RIGHT: case BTN_DPAD_RIGHT: dpadBit = DrasticRunner::kDsBtnRight; break;
+                    default: break;
+                    }
+                    if (dpadBit) {
+                        if (ev.value != 0) st->dsBtnMask |= dpadBit;
+                        else               st->dsBtnMask &= ~dpadBit;
+                        continue;
+                    }
+                    // Presses drive the menu (one edge per press, never autorepeat).
+                    if (ev.value == 1) { dispatchNav(androidKc, true, out); continue; }
+                    if (ev.value == 2) continue;
+                    // A release falls through to the gameplay routing so its held bit and the FF / cursor latches
+                    // clear: a button let go inside the menu is not held after it (K3). Edge actions fire on presses
+                    // only, and out->dsBtnMask is blanked below while the menu is open.
                 }
 
                 // Gameplay routing: prefer the user's keymap; fall
@@ -738,7 +995,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // Touch Cursor: edge-toggle the virtual cursor (the new
                         // default R3 behavior, replacing the momentary stylus).
                         case 28:
-                            if (pressed && !st->cursorToggleWasDown) {
+                            if (pressed && !st->cursorToggleWasDown && st->ownsCursorToggle) {
                                 st->cursorMode = !st->cursorMode;
                                 if (st->cursorMode) {
                                     st->cursorX = 128.0f;   // center on enter
@@ -748,16 +1005,16 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                             st->cursorToggleWasDown = pressed;
                             break;
                         // Edge-triggered (fire once on press only).
-                        case 16: if (pressed) out->actSwapScreens = true; break;
+                        case 16: if (ev.value == 1) out->actSwapScreens = true; break;
                         // Save State / Load State: quick-save to / quick-load
                         // from slot 0. Edge actions (fire once on press). The
                         // overlay's update() consumes these even while the menu
                         // is closed, driving DrasticRunner save/loadStateSlot(0).
-                        case 29: if (pressed) out->actQuickSave = true; break;
-                        case 30: if (pressed) out->actQuickLoad = true; break;
+                        case 29: if (ev.value == 1) out->actQuickSave = true; break;
+                        case 30: if (ev.value == 1) out->actQuickLoad = true; break;
                         // Close Lid: edge action (fire once on press). The run loop toggles the
                         // emulated DS hinge, so one press closes the lid and the next opens it.
-                        case 31: if (pressed) out->actCloseLid = true; break;
+                        case 31: if (ev.value == 1) out->actCloseLid = true; break;
                         // Menu action: SAME short-press-overlay /
                         // hold-exit semantics as the literal KEY_BACK
                         // button. The physical Back button on this
@@ -769,19 +1026,10 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                         // backPressStartMs/backWasDown state so the
                         // shared hold check below fires exitRequested.
                         case 20:
-                            if (pressed && !st->backWasDown) {
-                                st->backPressStartMs =
-                                        android::elapsedRealtime();
-                            }
-                            if (!pressed && st->backWasDown) {
-                                int64_t held = android::elapsedRealtime() -
-                                               st->backPressStartMs;
-                                if (held < shortBackMs) {
-                                    out->menuToggle = true;
-                                }
-                                st->backPressStartMs = 0;
-                            }
-                            st->backWasDown = pressed;
+                            // A release inside the menu must not toggle the menu or exit.
+                            if (!overlayOpen)
+                                backEdge(st, pressed, ev, shortBackMs,
+                                         longBackMs, out);
                             break;
                         default: break;
                         }
@@ -834,6 +1082,23 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         }
     }
 
+    // Select+Vol held: another step after kChordRepeatFirstMs, then every kChordRepeatMs, while both are held.
+    if (st->volHeldCode != 0) {
+        if (!st->selectPhys) {
+            st->volHeldCode = 0;
+        } else {
+            const int64_t now = android::elapsedRealtime();
+            if (now >= st->volRepeatDueMs) {
+                out->brightAdjust += st->volHeldDir;
+                st->volRepeatDueMs = now + android::nanobr::kChordRepeatMs;
+                if (!st->volRepeating) {
+                    st->volRepeating = true;
+                    if (st->ownsCursorToggle) ALOGI("DrasticNano::input: Select+Vol held, repeating");
+                }
+            }
+        }
+    }
+
     // Long-press exit detection. Fires when BACK has been held longer
     // than longBackMs; short-press was already handled on release.
     if (st->backPressStartMs > 0) {
@@ -881,7 +1146,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     {
         char cdbg[PROPERTY_VALUE_MAX] = {};
         android::drastic_settings::get("persist.gammaos.drastic_nano.cursor_dbg", cdbg, "0");
-        if (cdbg[0] == '1') st->cursorMode = true;
+        if (cdbg[0] == '1' && st->ownsCursorToggle) st->cursorMode = true;
     }
 
     // Held dpad level (keys + HAT + stick) for the overlay's hold-to-repeat
@@ -927,6 +1192,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                   DrasticRunner::kDsBtnLeft | DrasticRunner::kDsBtnRight |
                   DrasticRunner::kDsBtnA    | DrasticRunner::kDsBtnX     |
                   DrasticRunner::kDsBtnY);
+        if (st->selectChordLatched) out->dsBtnMask &= ~st->selectMaskBit;
         out->touchX = (int)(st->cursorX + 0.5f);
         out->touchY = (int)(st->cursorY + 0.5f);
         out->touchHeld = (st->dsBtnMask & DrasticRunner::kDsBtnA) != 0;
@@ -955,7 +1221,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                 raw = applyPortraitControls(st, physMask, lsDpad, pcRot, atoi(sl));
             }
         }
-        out->dsBtnMask = raw;
+        out->dsBtnMask = st->selectChordLatched ? (raw & ~st->selectMaskBit) : raw;
         out->touchX = st->touchDsX;
         out->touchTop = st->touchTop;
         out->touchY = st->touchDsY;
@@ -970,6 +1236,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
     // within the delay cleared lidSleepDueMs, so only a sustained close reaches here.
     if (st->lidSleepDueMs && st->lidClosed && android::elapsedRealtime() >= st->lidSleepDueMs) {
         out->sleepRequested = true;
+        out->sleepByLid = true;
         st->lidSleepDueMs = 0;
     }
 }

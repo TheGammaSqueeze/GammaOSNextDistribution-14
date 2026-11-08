@@ -40,21 +40,27 @@ using drastic_gfx::rgba;
 bool OverlayMenu::wantsRaBottomPanel() const {
     // Single-screen devices render the RA detail/leaderboards on the one screen
     // via the drill-in (drawRaSingle), not a second-screen panel.
-    return mOpen && mSection == kSec_Achievements && mRa &&
+    // Visible, not open: the panel stays through the menu's fade-out too, so a menu
+    // closed from the Achievements section fades its bottom panel with the rest
+    // instead of snapping it to the plain scrim.
+    return isVisible() && mSection == kSec_Achievements && mRa &&
            mRa->isLoggedIn() && !mOsk.active() && !mSingleScreen;
 }
 
 void OverlayMenu::drawBottomScrim(drastic_gfx::OverlayGfx& gfx) {
     using drastic_gfx::rgba;
+    // At the alpha draw() stepped to this frame (it runs first, on the top panel).
+    drastic_gfx::OverlayGfx::ScopedAlpha fade(gfx, mVisA);
     gfx.fillRect(0, 0, (float)gfx.viewportW(), (float)gfx.viewportH(),
                  rgba(0, 0, 0, 0.72f));
 }
 
 void OverlayMenu::drawRaIndicators(drastic_gfx::OverlayGfx& gfx, float /*sf*/) {
     using drastic_gfx::rgba;
-    // Only over the running game; while the overlay menu is open it has its own
-    // UI (and the achievement list shows the same Measured/Trigger state).
-    if (mOpen) return;
+    // Only over the running game; while the overlay menu is up (open, or fading
+    // out) it has its own UI (and the achievement list shows the same
+    // Measured/Trigger state).
+    if (isVisible()) return;
     if (mRaChallenge.empty() && (!mRaProgressId || mRaProgressText.empty())) return;
 
     const float vw     = (float) gfx.viewportW();
@@ -238,6 +244,9 @@ void OverlayMenu::raHandleTap(float /*nx*/, float ny) {
 
 void OverlayMenu::drawRaBottomPanel(drastic_gfx::OverlayGfx& gfx) {
     using drastic_gfx::rgba;
+    // The whole panel at the menu's fade alpha (see drawBottomScrim); the scope
+    // restores it on each of this function's return paths.
+    drastic_gfx::OverlayGfx::ScopedAlpha fade(gfx, mVisA);
     const float vw = (float)gfx.viewportW();
     const float vh = (float)gfx.viewportH();
     mRaBottomViewH = vh;

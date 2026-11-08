@@ -17,27 +17,28 @@
 #pragma once
 
 #include <stdint.h>
+#include <functional>
 #include <string>
 #include <vector>
 
 namespace android {
 namespace drastic_cheatdb {
 
-struct Record {
-    bool folder = false;
-    uint8_t flags = 0;                 // hdr >> 24 (folder: bit 4 stripped)
-    std::string name, note;
-    std::vector<uint32_t> words;       // cheat only
-    std::vector<Record> children;      // folder only
-};
-
+// A game keeps its records as the bytes the file holds (header word, name, note, words; folders
+// followed by their children), not as a tree. A big user database has 680 000 cheats: a tree of
+// strings and vectors per cheat peaked at half a gigabyte for the merge, on a 1 GB device, while
+// the merge only ever concatenates a game's records and flips enable bits. load() validates every
+// record, counts it, and writes its header word and padding back in the canonical form the old
+// parse-and-serialise round trip produced, so the bytes are safe to copy between databases.
 struct Game {
     std::string code;                  // 4 chars
     uint32_t crc = 0;
     std::string title;
     uint32_t countFlags = 0;           // the count word's high nibble, kept as is
     std::string info;                  // the 0x20 game info bytes
-    std::vector<Record> records;       // top level
+    std::string records;               // all records of the game, top level and folder children
+    int cheats = 0;                    // leaf records in `records` (libdrastic numbers them depth-first)
+    int folders = 0;                   // folder records in `records`
 };
 
 struct Db {
@@ -48,12 +49,24 @@ struct Db {
 // True when the file starts with the R4 magic.
 bool isCheatDb(const std::string& path);
 bool load(const std::string& path, Db* out, std::string* err = nullptr);
-// Atomic (tmp + rename). 0644 like the shipped copy libdrastic reopens read-write.
+// Atomic (tmp + rename), written in chunks so the file is never held in memory a second time.
+// 0644 like the shipped copy libdrastic reopens read-write.
 bool save(const std::string& path, const Db& db, std::string* err = nullptr);
 
-// Leaf (cheat) and folder counts over a record list, in libdrastic's index order
-// (cheats are numbered depth-first, folders in order of appearance).
-void countRecords(const std::vector<Record>& recs, int* cheats, int* folders);
+// A game's identity inside a database: its code and CRC.
+uint64_t gameKey(const Game& g);
+
+// Appends `from`'s records after `into`'s (the user's cheats after the shipped ones). `from` is
+// left without records.
+void appendRecords(Game* into, Game* from);
+
+// One call per cheat whose enable bit is set / per cheat of a game. folder is the name of the
+// folder the cheat sits in, nullptr for a top-level cheat; both strings stay valid for the call.
+using CheatFn = std::function<void(const char* folder, const char* cheat)>;
+using CheatPredicate = std::function<bool(const char* folder, const char* cheat)>;
+void forEachEnabled(const Game& g, const CheatFn& fn);
+// Sets the enable bit of every cheat of the game for which wanted() returns true.
+void enableWhere(Game* g, const CheatPredicate& wanted);
 
 } // namespace drastic_cheatdb
 } // namespace android

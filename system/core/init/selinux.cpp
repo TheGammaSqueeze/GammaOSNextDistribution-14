@@ -55,6 +55,7 @@
 #include <fcntl.h>
 #include <linux/audit.h>
 #include <linux/netlink.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -318,6 +319,51 @@ struct PolicyFile {
     std::string path;
 };
 
+// GammaOS (RG DS Plus): the vendor's precompiled policy never matches this GSI, so secilc compiles
+// the split policy on every boot (3.18 s on the RK3568). The last compiled policy is kept on
+// /metadata, keyed by the content of secilc and of every input CIL. The key also holds a digest of
+// the stored policy, so a torn or stale write is detected and the policy is compiled again.
+constexpr const char kPolicyCacheDir[] = "/metadata/gammaos_sepolicy";
+constexpr const char kPolicyCacheFile[] = "/metadata/gammaos_sepolicy/policy";
+constexpr const char kPolicyCacheKey[] = "/metadata/gammaos_sepolicy/key";
+
+bool PolicyCacheEnabled() {
+    std::string compatible;  // NUL-separated list
+    return android::base::ReadFileToString("/proc/device-tree/compatible", &compatible) &&
+           compatible.find("anbernic,rg-ds-plus") != std::string::npos;
+}
+
+uint64_t Fnv1a(const std::string& data, uint64_t h = 1469598103934665603ULL) {
+    for (unsigned char c : data) {
+        h ^= c;
+        h *= 1099511628211ULL;
+    }
+    return h;
+}
+
+// Every argument but the temporary output path goes into the key (secilc flags, -c version,
+// mapping version), and so does the content of secilc and of every input CIL.
+std::string PolicyCacheKey(const std::vector<const char*>& compile_args,
+                           std::string_view output_path) {
+    uint64_t h = Fnv1a("gammaos-sepolicy-cache-v1\n");
+    for (const char* arg : compile_args) {
+        if (arg == nullptr || output_path == arg) continue;
+        h = Fnv1a(std::string(arg) + "\n", h);
+        if (arg == compile_args[0] || android::base::EndsWith(arg, ".cil")) {
+            std::string data;
+            if (!android::base::ReadFileToString(arg, &data, true /* follow symlinks */)) {
+                return "";
+            }
+            h = Fnv1a(data, h);
+        }
+    }
+    return std::to_string(h);
+}
+
+std::string PolicyDigest(const std::string& policy) {
+    return std::to_string(Fnv1a(policy));
+}
+
 bool OpenSplitPolicy(PolicyFile* policy_file) {
     // IMPLEMENTATION NOTE: Split policy consists of three or more CIL files:
     // * platform -- policy needed due to logic contained in the system image,
@@ -464,11 +510,56 @@ bool OpenSplitPolicy(PolicyFile* policy_file) {
     }
     compile_args.push_back(nullptr);
 
+    std::string cache_key;
+    if (!use_userdebug_policy && PolicyCacheEnabled()) {
+        cache_key = PolicyCacheKey(compile_args, compiled_sepolicy);
+    }
+    if (!cache_key.empty()) {
+        unique_fd cached(open(kPolicyCacheFile, O_RDONLY | O_CLOEXEC | O_BINARY));
+        std::string stored_key, policy;
+        if (cached != -1 && android::base::ReadFileToString(kPolicyCacheKey, &stored_key) &&
+            android::base::ReadFdToString(cached, &policy) && !policy.empty() &&
+            stored_key == cache_key + " " + PolicyDigest(policy) &&
+            lseek(cached.get(), 0, SEEK_SET) == 0) {
+            LOG(INFO) << "Using cached SELinux policy " << kPolicyCacheFile;
+            unlink(compiled_sepolicy);
+            policy_file->fd = std::move(cached);
+            policy_file->path = kPolicyCacheFile;
+            return true;
+        }
+    }
+
     if (!ForkExecveAndWaitForCompletion(compile_args[0], (char**)compile_args.data())) {
         unlink(compiled_sepolicy);
         return false;
     }
     unlink(compiled_sepolicy);
+
+    if (!cache_key.empty()) {
+        std::string policy;
+        if (lseek(compiled_sepolicy_fd.get(), 0, SEEK_SET) == 0 &&
+            android::base::ReadFdToString(compiled_sepolicy_fd, &policy) && !policy.empty()) {
+            const std::string tmp = std::string(kPolicyCacheFile) + ".tmp";
+            mkdir(kPolicyCacheDir, 0700);
+            unlink(kPolicyCacheKey);
+            bool stored = android::base::WriteStringToFile(policy, tmp, 0600, 0, 0) &&
+                          rename(tmp.c_str(), kPolicyCacheFile) == 0;
+            if (!stored) {
+                // Do not leave the temporary file behind on the small /metadata partition.
+                int saved_errno = errno;
+                unlink(tmp.c_str());
+                errno = saved_errno;
+            }
+            if (stored &&
+                android::base::WriteStringToFile(cache_key + " " + PolicyDigest(policy),
+                                                 kPolicyCacheKey, 0600, 0, 0)) {
+                LOG(INFO) << "Stored SELinux policy cache " << kPolicyCacheFile;
+            } else {
+                PLOG(WARNING) << "Could not store the SELinux policy cache";
+            }
+        }
+        lseek(compiled_sepolicy_fd.get(), 0, SEEK_SET);
+    }
 
     policy_file->fd = std::move(compiled_sepolicy_fd);
     policy_file->path = compiled_sepolicy;

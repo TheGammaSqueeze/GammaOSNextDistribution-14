@@ -126,6 +126,12 @@ class AnrHelper {
             TimeoutRecord timeoutRecord, boolean isContinuousAnr) {
         try {
             timeoutRecord.mLatencyTracker.appNotRespondingStarted();
+            // GammaOS: ANR handling is disabled (AnrConsumerThread drops every record). Queueing
+            // would still SIGQUIT the starved app for the early temp dump (ART aborts it on a
+            // SuspendAll timeout), leave a temp_anr_* file nobody deletes and grow mAnrRecords.
+            if (true) {
+                return;
+            }
             final int incomingPid = anrProcess.mPid;
             timeoutRecord.mLatencyTracker.waitingOnAnrRecordLockStarted();
             synchronized (mAnrRecords) {

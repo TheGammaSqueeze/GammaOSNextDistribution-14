@@ -1,0 +1,37 @@
+// Scale2X in one pass, for hi-res 3D when the final pass is exactly twice the DS texture per
+// screen (512x384 in, 1024x768 out). The two-pass Scale2X.dfx draws scale2x.dsd into a 2x
+// intermediate and then copies that 1:1 onto the panel; at this size the copy changes nothing
+// and costs two more full-panel passes per screen. Here scale2x.dsd draws the panel directly.
+// DrasticRunner loads this file in place of ../Scale2X.dfx under exactly that condition (the
+// shader is still called Scale2X). It sits in a subfolder so the shader list does not show it.
+// Keep scale2x.dsd next to this file in step with ../scale2x.dsd.
+=============================================
+<options>
+name=Scale2X
+textures=1
+</options>
+
+<fheader>
+#if GL_ES
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+#endif
+</fheader>
+
+<header>
+uniform mediump vec4 u_texture_size;
+</header>
+
+<texture:0>
+input=framebuffer
+min_filter=GL_NEAREST
+mag_filter=GL_NEAREST
+</texture>
+
+<pass>
+shader=scale2x.dsd
+sampler:u_texture=0
+</pass>

@@ -51,6 +51,11 @@ bool ready();
 // frame). Called when the overlay parks behind a game to reclaim GPU memory.
 void freeWaveSeq();
 
+// Read-ahead (no GL, no module state, any thread) for the two wave files init() reads whole: the
+// parked home calls it from a helper while it takes the panels back, so the first frame after a game
+// finds them in the page cache instead of reading them from the card on the render thread.
+void prewarmAssets();
+
 // Mark the start of a new app frame. NanoMenu::render() calls this exactly once
 // per frame; the FIRST ps3bg::render call of the frame advances the wave/glitter
 // /theme-fade time and rebuilds the work texture, and any further calls in the

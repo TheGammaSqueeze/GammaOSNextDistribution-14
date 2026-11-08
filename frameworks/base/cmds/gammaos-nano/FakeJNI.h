@@ -83,5 +83,10 @@ bool ramStateSetSize(int slot, size_t len);
 // Create (if needed) the RAM file for a virtual savestate path and size it.
 bool ramStateEnsureVirtual(const char* vpath, size_t len);
 
+// The launch auto-load of slot 9: 0 until libdrastic first opens a "<rom>_9.dss" for reading, then 1,
+// or 2 when that open failed (no state to load). Set by the first such open only, so a later quick
+// load does not move it. drastic-nano's launch cover waits for the load to be over with it.
+int slot9LoadState();
+
 } // namespace fakejni
 } // namespace android

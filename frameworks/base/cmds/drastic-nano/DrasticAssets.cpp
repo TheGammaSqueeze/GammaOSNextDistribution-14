@@ -9,10 +9,13 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/stat.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <algorithm>
 #include <string>
+#include <unordered_map>
+#include <unordered_set>
 #include <vector>
 
 #include <cutils/properties.h>
@@ -284,19 +287,24 @@ std::string cheatName4(const std::string& romPath) {
 }
 
 // Enabled bits libdrastic wrote into the previous merged file, keyed by
-// "code|crc|folder|cheat" so a rebuild keeps the user's selections.
-void collectEnabled(const drastic_cheatdb::Db& db, std::vector<std::string>* keys) {
+// "code|crc|folder|cheat" so a rebuild keeps the user's selections. `games` collects the games
+// that have any, so the re-apply below only walks those.
+void collectEnabled(const drastic_cheatdb::Db& db, std::vector<std::string>* keys,
+                    std::unordered_set<uint64_t>* games) {
     for (const auto& g : db.games) {
         const std::string base = g.code + "|" + std::to_string(g.crc) + "|";
-        for (const auto& r : g.records) {
-            if (r.folder) {
-                for (const auto& c : r.children)
-                    if (c.flags & 1) keys->push_back(base + r.name + "|" + c.name);
-            } else if (r.flags & 1) {
-                keys->push_back(base + "|" + r.name);
-            }
-        }
+        const size_t before = keys->size();
+        drastic_cheatdb::forEachEnabled(g, [&](const char* folder, const char* cheat) {
+            keys->push_back(folder ? base + folder + "|" + cheat : base + "|" + cheat);
+        });
+        if (keys->size() != before) games->insert(drastic_cheatdb::gameKey(g));
     }
+}
+
+int64_t monotonicMs() {
+    struct timespec ts = {};
+    clock_gettime(CLOCK_MONOTONIC, &ts);
+    return (int64_t)ts.tv_sec * 1000 + ts.tv_nsec / 1000000;
 }
 
 } // namespace
@@ -335,6 +343,7 @@ void mergeCheats(const std::string& root) {
         return;
     }
 
+    const int64_t t0 = monotonicMs();
     std::string err;
     drastic_cheatdb::Db merged;
     if (!drastic_cheatdb::load(systemDir() + "/usrcheat.dat", &merged, &err)) {
@@ -343,12 +352,19 @@ void mergeCheats(const std::string& root) {
     }
     // Selections libdrastic stored in the file being replaced.
     std::vector<std::string> enabledKeys;
+    std::unordered_set<uint64_t> enabledGames;
     {
         drastic_cheatdb::Db prev;
-        if (isFile(target) && drastic_cheatdb::load(target, &prev)) collectEnabled(prev, &enabledKeys);
+        if (isFile(target) && drastic_cheatdb::load(target, &prev)) collectEnabled(prev, &enabledKeys, &enabledGames);
     }
     struct Split { std::string code; uint32_t crc; int bc, bf, tc, tf; };
     std::vector<Split> splits;
+    // Games by identity. A hash lookup per user game: the database holds thousands on each side,
+    // and a linear search through the merged list and the splits was quadratic. The first of two
+    // games with the same identity wins, like the front-to-back search it replaces.
+    std::unordered_map<uint64_t, size_t> gameAt, splitAt;
+    gameAt.reserve(merged.games.size() * 2);
+    for (size_t i = 0; i < merged.games.size(); i++) gameAt.emplace(drastic_cheatdb::gameKey(merged.games[i]), i);
     int addedGames = 0, addedCheats = 0, usedFiles = 0;
     for (const std::string& f : files) {
         drastic_cheatdb::Db user;
@@ -357,30 +373,29 @@ void mergeCheats(const std::string& root) {
             continue;
         }
         usedFiles++;
+        merged.games.reserve(merged.games.size() + user.games.size());
         for (auto& ug : user.games) {
-            int uc = 0, uf = 0;
-            drastic_cheatdb::countRecords(ug.records, &uc, &uf);
+            const int uc = ug.cheats, uf = ug.folders;
             if (uc == 0) continue;
             addedCheats += uc;
-            drastic_cheatdb::Game* target_game = nullptr;
-            for (auto& g : merged.games)
-                if (g.code == ug.code && g.crc == ug.crc) { target_game = &g; break; }
-            Split* sp = nullptr;
-            for (auto& s : splits)
-                if (s.code == ug.code && s.crc == ug.crc) { sp = &s; break; }
-            if (!target_game) {
-                merged.games.push_back(ug);
-                addedGames++;
+            const uint64_t key = drastic_cheatdb::gameKey(ug);
+            auto gi = gameAt.find(key);
+            if (gi == gameAt.end()) {
                 splits.push_back({ug.code, ug.crc, 0, 0, uc, uf});
+                splitAt.emplace(key, splits.size() - 1);
+                merged.games.push_back(std::move(ug));
+                gameAt.emplace(key, merged.games.size() - 1);
+                addedGames++;
             } else {
-                if (!sp) {
-                    int bc = 0, bf = 0;
-                    drastic_cheatdb::countRecords(target_game->records, &bc, &bf);
-                    splits.push_back({ug.code, ug.crc, bc, bf, bc, bf});
-                    sp = &splits.back();
+                drastic_cheatdb::Game& tg = merged.games[gi->second];
+                auto si = splitAt.find(key);
+                if (si == splitAt.end()) {
+                    splits.push_back({ug.code, ug.crc, tg.cheats, tg.folders, tg.cheats, tg.folders});
+                    si = splitAt.emplace(key, splits.size() - 1).first;
                 }
-                for (auto& r : ug.records) target_game->records.push_back(std::move(r));
-                sp->tc += uc; sp->tf += uf;
+                Split& sp = splits[si->second];
+                drastic_cheatdb::appendRecords(&tg, &ug);
+                sp.tc += uc; sp.tf += uf;
             }
         }
     }
@@ -388,18 +403,12 @@ void mergeCheats(const std::string& root) {
     if (!enabledKeys.empty()) {
         std::sort(enabledKeys.begin(), enabledKeys.end());
         for (auto& g : merged.games) {
+            if (enabledGames.find(drastic_cheatdb::gameKey(g)) == enabledGames.end()) continue;
             const std::string base = g.code + "|" + std::to_string(g.crc) + "|";
-            auto on = [&](const std::string& k) {
-                return std::binary_search(enabledKeys.begin(), enabledKeys.end(), k);
-            };
-            for (auto& r : g.records) {
-                if (r.folder) {
-                    for (auto& c : r.children)
-                        if (on(base + r.name + "|" + c.name)) c.flags |= 1;
-                } else if (on(base + "|" + r.name)) {
-                    r.flags |= 1;
-                }
-            }
+            drastic_cheatdb::enableWhere(&g, [&](const char* folder, const char* cheat) {
+                return std::binary_search(enabledKeys.begin(), enabledKeys.end(),
+                                          folder ? base + folder + "|" + cheat : base + "|" + cheat);
+            });
         }
     }
     if (!drastic_cheatdb::save(target, merged, &err)) {
@@ -412,8 +421,8 @@ void mergeCheats(const std::string& root) {
                      + std::to_string(s.bf) + " " + std::to_string(s.tc) + " " + std::to_string(s.tf) + "\n";
     writeWhole(root + kSplitFile, splitText);
     writeWhole(root + kMergeStamp, stamp);
-    ALOGI("drastic-nano cheats: merged %d user database(s) from %s: %d new games, %d cheats added, %zu games touched",
-          usedFiles, dir.c_str(), addedGames, addedCheats, splits.size());
+    ALOGI("drastic-nano cheats: merged %d user database(s) from %s: %d new games, %d cheats added, %zu games touched, %lld ms",
+          usedFiles, dir.c_str(), addedGames, addedCheats, splits.size(), (long long)(monotonicMs() - t0));
 }
 
 CheatSplit cheatSplitFor(const std::string& root, const std::string& romPath,
@@ -447,7 +456,7 @@ CheatSplit cheatSplitFor(const std::string& root, const std::string& romPath,
     return out;
 }
 
-bool seedRoot(const std::string& root) {
+bool seedRoot(const std::string& root, bool mergeCheatsNow) {
     const std::string sysDir = systemDir();
     if (!isDir(sysDir)) {
         ALOGE("drastic-nano assets: %s missing from the image", sysDir.c_str());
@@ -534,8 +543,10 @@ bool seedRoot(const std::string& root) {
 
     // Every launch: cheap (a few dozen links) and picks up shaders the user added.
     mergeShaders(root);
-    // Every launch too: a stamp makes it a directory listing unless a cheat file changed.
-    mergeCheats(root);
+    // Every launch too: a stamp makes it a directory listing unless a cheat file changed. After an
+    // image update it is the user's whole cheat database again, seconds of work, which the caller
+    // can take off the launch's critical path (mergeCheatsNow = false).
+    if (mergeCheatsNow) mergeCheats(root);
 
     if (fresh) {
         int fd = open(stampPath.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0644);

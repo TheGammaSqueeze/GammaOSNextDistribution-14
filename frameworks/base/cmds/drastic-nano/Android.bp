@@ -61,6 +61,7 @@ cc_binary {
         "DrasticAssets.cpp",
         "DrasticCheatDb.cpp",
         "InputMap.cpp",
+        "NanoPmSync.cpp",
         "OverlayGfx.cpp",
         "OverlayMenu.cpp",
         "OverlayMenuRa.cpp",
@@ -90,6 +91,7 @@ cc_binary {
         "libbase",
         "libbinder",
         "libbinder_ndk",
+        "libpowermanager",   // IPowerManager: the sleep and wake of a DRM session (NanoPmSync)
         "libcutils",
         "liblog",
         "libutils",

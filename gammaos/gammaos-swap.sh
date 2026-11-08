@@ -54,7 +54,37 @@ if [ "$size_mb" -gt "$MAX_MB" ]; then
     size_mb=$MAX_MB
 fi
 
-want_bytes=$((size_mb * 1024 * 1024))
+# RG DS Plus nano: the swap file is read and written on the microSD that also holds the ROMs. Idle I/O class
+# (fallocate, mkswap and swapon inherit it), so a game's reads always go first; the swap partition and zram cover
+# memory until the file is on. Full Android and other devices are unchanged.
+if [ "$(getprop ro.gammaos.device)" = anbernicrgdsplus ] && [ "$(getprop sys.gammaos.minimal_boot)" = 1 ]; then
+    if ionice -c 3 -p $$ 2>/dev/null; then
+        log_i "idle I/O priority (a game's reads go first)"
+    fi
+fi
+
+# RG DS Plus nano: swapon of the file reads every f2fs node block of it from the microSD (2081
+# reads, 2.5 s on an idle system; 9-11 s at boot, overlapping zygote and system_server). zram and
+# the swap partition (2.4 GB, higher priority) cover boot, which used under 200 MB of swap, so the
+# boot-time property trigger leaves the file to the sys.boot_completed start, which waits until
+# the game storage is up. A file that is already active (a resize) is not delayed.
+if [ "$(getprop ro.gammaos.device)" = anbernicrgdsplus ] && [ "$(getprop sys.gammaos.minimal_boot)" = 1 ] \
+        && ! is_active; then
+    if [ "$(getprop sys.boot_completed)" != 1 ]; then
+        log_i "swap file activation deferred until boot completes"
+        exit 0
+    fi
+    if [ "$(cut -d. -f1 /proc/uptime)" -lt 300 ]; then
+        n=0
+        while [ "$(getprop sys.gammaos.nano.ext_storage_ready)" != 1 ] && [ $n -lt 120 ]; do sleep 1; n=$((n + 1)); done
+        sleep 30
+    fi
+fi
+
+# mksh does 32-bit arithmetic, so $((size_mb * 1024 * 1024)) wraps from 2048 MB up (8192 gives 0)
+# and the size checks below never matched: the file was deleted and rewritten on every boot.
+# toybox expr is 64-bit.
+want_bytes=$(expr "$size_mb" \* 1048576)
 have_bytes=$(file_bytes)
 
 # Already active at exactly the requested size -> nothing to do (fast boot path).
@@ -70,9 +100,16 @@ if [ -z "$avail_kb" ]; then
     avail_kb=$(df -k /data 2>/dev/null | awk 'NR==2 {print $4}')
 fi
 if [ -n "$avail_kb" ]; then
-    # If the file already exists at have_bytes we reclaim it, so the net cost is
-    # the difference; be conservative and just check the full requested size.
-    need_kb=$((size_mb * 1024 + 512 * 1024))
+    # An inactive swap file (always the case at boot) is reused or replaced, so only the growth
+    # plus the headroom has to be free. Counting its whole size again deleted a working file at
+    # boot once /data had less than size + 512 MB free. An active file is not credited: if the
+    # swapoff below fails, rm only unlinks it and its blocks stay in use. expr: have_bytes is
+    # 64-bit; expr exits 1 for a result of 0, so only its output is used.
+    have_kb=0
+    if ! is_active; then
+        have_kb=$(expr "$have_bytes" / 1024)
+    fi
+    need_kb=$(expr "$size_mb" \* 1024 + 524288 - "${have_kb:-0}")
     if [ "$avail_kb" -lt "$need_kb" ]; then
         log_i "not enough free space for ${size_mb}MB swap (avail ${avail_kb}KB), leaving swap off"
         teardown
@@ -89,6 +126,7 @@ mkdir -p "$SWAPDIR" 2>/dev/null
 chmod 0700 "$SWAPDIR" 2>/dev/null
 
 if [ ! -f "$SWAPFILE" ] || [ "$have_bytes" != "$want_bytes" ]; then
+    log_i "(re)creating swap file: have ${have_bytes} bytes, want ${want_bytes} bytes"
     rm -f "$SWAPFILE"
     if ! fallocate -l "${size_mb}M" "$SWAPFILE" 2>/dev/null; then
         log_i "fallocate ${size_mb}M failed"
@@ -103,8 +141,9 @@ if ! mkswap "$SWAPFILE" >/dev/null 2>&1; then
     rm -f "$SWAPFILE"
     exit 1
 fi
+swapon_start=$SECONDS
 if swapon "$SWAPFILE" 2>/dev/null; then
-    log_i "swap enabled: ${size_mb}MB at $SWAPFILE"
+    log_i "swap enabled: ${size_mb}MB at $SWAPFILE (swapon took $((SECONDS - swapon_start))s)"
 else
     log_i "swapon failed for $SWAPFILE"
     rm -f "$SWAPFILE"

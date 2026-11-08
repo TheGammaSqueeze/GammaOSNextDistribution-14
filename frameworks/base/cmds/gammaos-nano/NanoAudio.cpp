@@ -877,13 +877,23 @@ void NanoAudioPlayer::decodeThreadFunc(std::string /*path*/) {
         // Direct passthrough of extractor PCM samples (16-bit assumed; WAV).
         const size_t kBuf = 16384;
         std::vector<uint8_t> buf(kBuf);
+        size_t passBytes = 0;   // bytes read since the last wrap (an empty source must not spin)
         while (!mDecodeStop.load()) {
             ssize_t got = AMediaExtractor_readSampleData(ex, buf.data(), kBuf);
-            if (got <= 0) { mEos = true; break; }
+            if (got <= 0) {
+                if (mLoop.load(std::memory_order_relaxed) && passBytes > 0) {   // gapless loop (setLoop)
+                    AMediaExtractor_seekTo(ex, 0, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+                    passBytes = 0;
+                    continue;
+                }
+                mEos = true; break;
+            }
+            passBytes += (size_t)got;
             writeRing(reinterpret_cast<const int16_t*>(buf.data()), (size_t)got / sizeof(int16_t));
             AMediaExtractor_advance(ex);
         }
     } else {
+        size_t passBytes = 0;   // input bytes since the last wrap (an empty source must not spin)
         while (!mDecodeStop.load()) {
             if (!sawInputEos) {
                 ssize_t ib = AMediaCodec_dequeueInputBuffer(codec, 2000);
@@ -891,6 +901,15 @@ void NanoAudioPlayer::decodeThreadFunc(std::string /*path*/) {
                     size_t cap = 0;
                     uint8_t* in = AMediaCodec_getInputBuffer(codec, (size_t)ib, &cap);
                     ssize_t ss = in ? AMediaExtractor_readSampleData(ex, in, cap) : -1;
+                    if (ss < 0 && in && passBytes > 0 && mLoop.load(std::memory_order_relaxed)) {
+                        // Gapless loop: wrap the source and keep feeding the SAME codec. No EOS reaches
+                        // it, so there is no flush, no new component and no pause of the AAudio stream,
+                        // and the ring never runs dry at the loop point.
+                        AMediaExtractor_seekTo(ex, 0, AMEDIAEXTRACTOR_SEEK_PREVIOUS_SYNC);
+                        passBytes = 0;
+                        ss = AMediaExtractor_readSampleData(ex, in, cap);
+                    }
+                    if (ss > 0) passBytes += (size_t)ss;
                     if (ss < 0) {
                         AMediaCodec_queueInputBuffer(codec, (size_t)ib, 0, 0, 0,
                                                      AMEDIACODEC_BUFFER_FLAG_END_OF_STREAM);

@@ -795,6 +795,9 @@ public final class PowerManagerService extends SystemService
         @Override
         public void onDisplayGroupAdded(int groupId) {
             synchronized (mLock) {
+                if (groupId == Display.INVALID_DISPLAY_GROUP) {
+                    return;
+                }
                 if (mPowerGroups.contains(groupId)) {
                     Slog.e(TAG, "Tried to add already existing group:" + groupId);
                     return;
@@ -2532,6 +2535,10 @@ public final class PowerManagerService extends SystemService
     // Schedules a delayed freeze so apps can cleanly suspend first.
     // Also allows us to cancel if we wake before the delay elapses.
     private static final long ULTRA_POWER_FREEZE_DELAY_MS = 5000;
+    // Whether the ULP freeze and hardware park ran and have not been undone. Touched only on
+    // mHandler, which runs both the park (mUltraPowerFreezeRunnable) and the restore
+    // (mUltraPowerWakeRunnable), so the two are serialized.
+    private boolean mGammaUlpParked;
     private final Runnable mUltraPowerFreezeRunnable = new Runnable() {
         @Override
         public void run() {
@@ -2550,8 +2557,33 @@ public final class PowerManagerService extends SystemService
                     && wakefulness != WAKEFULNESS_DREAMING) {
                 return;
             }
-            gammaUlpParkHardware(true);
+            // GammaOS Nano: the home deliberately keeps music playing with the screen off (it holds
+            // the nano_music wakelock and publishes sys.gammaos.nano.keep_audio). A suspended
+            // playback thread keeps mixing but writes nothing, so parking audio would silently
+            // play through the queue. Leave audio running then.
+            final boolean keepAudio =
+                    "1".equals(SystemProperties.get("sys.gammaos.nano.keep_audio", "0"));
+            gammaUlpParkHardware(true, !keepAudio);
+            mGammaUlpParked = true;
             freezeNonSystemApps();
+        }
+    };
+
+    // Undoes the freeze and the hardware park. Posted to mHandler on wake: the cgroup scan, the
+    // audioserver setParameters and the sensorservice dump block, so they must not run under
+    // mLock, and on mHandler a wake that lands while the freeze runs is applied after it.
+    private final Runnable mUltraPowerWakeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            // ULP may have been switched off while asleep: still undo a park that ran.
+            if (!mGammaUlpParked && !isUltraPowerSaveEnabled()) {
+                return;
+            }
+            unfreezeNonSystemApps();
+            if (mGammaUlpParked) {
+                mGammaUlpParked = false;
+                gammaUlpParkHardware(false, true);
+            }
         }
     };
 
@@ -2561,11 +2593,13 @@ public final class PowerManagerService extends SystemService
     // restricted mode disables every active sensor while keeping the registrations, and
     // "enable" re-enables them on wake. Both are the framework's own pause paths, so no app
     // loses its session.
-    private void gammaUlpParkHardware(boolean park) {
-        try {
-            android.media.AudioSystem.setParameters("gammaos_ulp_sleep=" + (park ? "1" : "0"));
-        } catch (Throwable t) {
-            Slog.w(TAG, "GammaOS ULP: audio park " + park + " failed", t);
+    private void gammaUlpParkHardware(boolean park, boolean audio) {
+        if (audio) {
+            try {
+                android.media.AudioSystem.setParameters("gammaos_ulp_sleep=" + (park ? "1" : "0"));
+            } catch (Throwable t) {
+                Slog.w(TAG, "GammaOS ULP: audio park " + park + " failed", t);
+            }
         }
         try {
             final IBinder sensors = android.os.ServiceManager.getService("sensorservice");
@@ -2579,7 +2613,8 @@ public final class PowerManagerService extends SystemService
         } catch (Throwable t) {
             Slog.w(TAG, "GammaOS ULP: sensor park " + park + " failed", t);
         }
-        Slog.i(TAG, "GammaOS ULP: hardware " + (park ? "parked" : "restored"));
+        Slog.i(TAG, "GammaOS ULP: hardware " + (park ? "parked" : "restored")
+                + (audio ? "" : " (audio left running)"));
     }
 
     private void scheduleUltraPowerFreeze() {
@@ -2592,7 +2627,10 @@ public final class PowerManagerService extends SystemService
      * Treat ON / ON_SUSPEND as "on"; everything else (incl. DOZE variants) -> "off".
      */
     private void enforceSysScreenStateFromDisplays() {
-        final DisplayManager dm = mContext.getSystemService(DisplayManager.class);
+        // GammaOS Nano: the target follows wakefulness below, so the display query is dead
+        // work there, and it runs under mLock on every power state update.
+        final boolean nano = gammaAllGroupsInNano();
+        final DisplayManager dm = nano ? null : mContext.getSystemService(DisplayManager.class);
         String target = "off";
         if (dm != null) {
             final Display[] displays = dm.getDisplays();
@@ -2612,7 +2650,7 @@ public final class PowerManagerService extends SystemService
         // keeps reporting ON while the device sleeps: sys.screen.state flipped to "on" every
         // few seconds of sleep (the home relit both panels) and stayed "off" after a wake (the
         // home kept its blank sleep frame on lit panels). In nano mode it follows wakefulness.
-        if (gammaAllGroupsInNano()) {
+        if (nano) {
             synchronized (mLock) {
                 target = getGlobalWakefulnessLocked() == WAKEFULNESS_AWAKE ? "on" : "off";
             }
@@ -2677,12 +2715,11 @@ public final class PowerManagerService extends SystemService
                         + ", details=" + details
                         + ")...");
                 SystemProperties.set("sys.screen.state", "on");
-                if (isUltraPowerSaveEnabled()) {
-                    // Cancel any pending freeze and unfreeze immediately on wake
-                    mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
-                    unfreezeNonSystemApps();
-                    gammaUlpParkHardware(false);
-                }
+                // Cancel any pending freeze; the unfreeze and the hardware restore run on mHandler
+                // (see mUltraPowerWakeRunnable), not under mLock.
+                mHandler.removeCallbacks(mUltraPowerFreezeRunnable);
+                mHandler.removeCallbacks(mUltraPowerWakeRunnable);
+                mHandler.post(mUltraPowerWakeRunnable);
                 mLastGlobalWakeTime = eventTime;
                 mLastGlobalWakeReason = reason;
                 mLastGlobalWakeTimeRealtime = mClock.elapsedRealtime();
@@ -5120,6 +5157,14 @@ public final class PowerManagerService extends SystemService
 
         for (int i = 0; i < displayGroupIds.size(); i++) {
             int displayGroupId = displayGroupIds.get(i);
+            if (displayGroupId == Display.INVALID_DISPLAY_GROUP) {
+                // GammaOS: a display left without a display group (the second internal panel,
+                // pinned by LogicalDisplayMapper) has no group to power. A PowerGroup(-1) would
+                // drive nothing (requestPowerState(-1) is a no-op) but would keep global
+                // wakefulness Awake and the display suspend blocker held after the default group
+                // sleeps, and -1 already means "all groups" for wakelocks.
+                continue;
+            }
             if (displayGroupId == Display.DEFAULT_DISPLAY_GROUP) {
                 // Power group for the default display group is already added.
                 continue;
@@ -6637,7 +6682,9 @@ public final class PowerManagerService extends SystemService
             IntArray groupIds;
 
             if (displayId == Display.INVALID_DISPLAY) {
-                groupIds = mDisplayManagerInternal.getDisplayGroupIds();
+                // GammaOS: DMS also lists INVALID_DISPLAY_GROUP for a display without a group,
+                // which has no PowerGroup and would make goToSleepInternal throw.
+                groupIds = gammaAllPowerGroupIds();
             } else {
                 DisplayInfo displayInfo = mDisplayManagerInternal.getDisplayInfo(displayId);
                 Preconditions.checkArgument(displayInfo != null, "display ID(%d) doesn't exist",

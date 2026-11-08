@@ -186,9 +186,12 @@ GLuint link(GLuint vs, GLuint fs) {
 OverlayGfx::OverlayGfx() {}
 OverlayGfx::~OverlayGfx() { shutdown(); }
 
-bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
+bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4],
+                      bool lazyScriptFaces) {
     mViewportW = viewportW;
     mViewportH = viewportH;
+    mScriptFacesPending = false;
+    mGlobalA = 1.0f;
     for (int i = 0; i < 4; i++) mRot[i] = rotMat[i];
 
     GLuint svs = compile(GL_VERTEX_SHADER,   kSolidVS);
@@ -260,47 +263,39 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
         return false;
     }
     mFtLibrary = lib;
+    // Scale font with viewport height so tiny 480-tall panels still
+    // fit readable text. Target ~22 lines of text on a 480-tall panel.
+    // (Before the faces load: loadFace sets each one to this size.)
+    mFontPx = viewportH / 22;
+    if (mFontPx < 12) mFontPx = 12;
+    if (mFontPx > 32) mFontPx = 32;
     // Load the same font chain gammaos-nano uses (NanoMenuRender.cpp initFonts):
     // a Rodin/theme primary for the authentic XMB Latin look, then the Noto
     // script-fallback faces so CJK/Arabic/Thai/Hebrew glyphs render instead of
     // tofu. Per-glyph, faceForCp() picks the first face that has the codepoint.
     mFtNumFaces = 0;
-    auto tryLoad = [&](const char* path) {
-        if (!path || !*path || mFtNumFaces >= kMaxFtFaces) return;
-        FT_Face f = nullptr;
-        if (FT_New_Face(lib, path, 0, &f) == 0) {
-            mFtFaces[mFtNumFaces++] = f;
-            ALOGI("OverlayGfx: font loaded from %s", path);
-        }
-    };
     // Theme override (same prop as the XMB), else the bundled PS3 Rodin.
     char fontProp[PROP_VALUE_MAX] = {0};
     __system_property_get("persist.gammaos.nano.font", fontProp);
-    if (fontProp[0]) tryLoad(fontProp);
+    if (fontProp[0]) loadFace(fontProp);
     if (mFtNumFaces == 0) {
-        tryLoad("/data/system/nano_xmb/fonts/ps3-rodin-regular.ttf");
+        loadFace("/data/system/nano_xmb/fonts/ps3-rodin-regular.ttf");
         if (mFtNumFaces == 0)
-            tryLoad("/system/etc/nano_xmb/fonts/ps3-rodin-regular.ttf");
+            loadFace("/system/etc/nano_xmb/fonts/ps3-rodin-regular.ttf");
     }
-    // Latin fallbacks + the Noto script faces (CJK/Arabic/Thai/Hebrew).
-    tryLoad("/system/fonts/Roboto-Regular.ttf");
-    tryLoad("/system/fonts/DroidSans.ttf");
-    tryLoad("/system/fonts/NotoSansCJK-Regular.ttc");
-    tryLoad("/system/fonts/NotoNaskhArabic-Regular.ttf");
-    tryLoad("/system/fonts/NotoSansThai-Regular.ttf");
-    tryLoad("/system/fonts/NotoSansHebrew-Regular.ttf");
+    // Latin fallbacks, then the Noto script faces (CJK/Arabic/Thai/Hebrew). A
+    // deferred load keeps the chain order: the script faces are appended after
+    // these when first needed. With no Latin face at all they load now, so the
+    // renderer never starts without a font that it could have had.
+    loadFace("/system/fonts/Roboto-Regular.ttf");
+    loadFace("/system/fonts/DroidSans.ttf");
+    if (lazyScriptFaces && mFtNumFaces > 0) mScriptFacesPending = true;
+    else loadScriptFaces();
     if (mFtNumFaces == 0) {
         ALOGE("OverlayGfx: no system font found");
         return false;
     }
     FT_Face face = (FT_Face)mFtFaces[0];   // primary drives metrics/base size
-    // Scale font with viewport height so tiny 480-tall panels still
-    // fit readable text. Target ~22 lines of text on a 480-tall panel.
-    mFontPx = viewportH / 22;
-    if (mFontPx < 12) mFontPx = 12;
-    if (mFontPx > 32) mFontPx = 32;
-    for (int i = 0; i < mFtNumFaces; i++)
-        FT_Set_Pixel_Sizes((FT_Face)mFtFaces[i], 0, mFontPx);
     mAscent = face->size->metrics.ascender / 64;
     mLineH  = face->size->metrics.height / 64;
     ALOGI("OverlayGfx: font %dpx ascent=%d lineH=%d viewport %dx%d",
@@ -309,6 +304,7 @@ bool OverlayGfx::init(int viewportW, int viewportH, const float rotMat[4]) {
 }
 
 void OverlayGfx::shutdown() {
+    mGlobalA = 1.0f;
     mGlyphs.clear();
     if (mAtlasTex) { glDeleteTextures(1, &mAtlasTex); mAtlasTex = 0; }
     mAtlasX = mAtlasY = mAtlasShelfH = 0;
@@ -323,6 +319,7 @@ void OverlayGfx::shutdown() {
         mFtFaces[i] = nullptr;
     }
     mFtNumFaces = 0;
+    mScriptFacesPending = false;
     if (mFtLibrary) {
         FT_Done_FreeType((FT_Library)mFtLibrary);
         mFtLibrary = nullptr;
@@ -400,7 +397,7 @@ void OverlayGfx::useProgram(GLuint prog) {
 void OverlayGfx::pushSolidVertex(float x, float y, Color c) {
     mSolidVerts.push_back(x); mSolidVerts.push_back(y);
     mSolidVerts.push_back(c.r); mSolidVerts.push_back(c.g);
-    mSolidVerts.push_back(c.b); mSolidVerts.push_back(c.a);
+    mSolidVerts.push_back(c.b); mSolidVerts.push_back(c.a * mGlobalA);
 }
 
 void OverlayGfx::drawSolidQuad(float x, float y, float w, float h, Color c) {
@@ -499,7 +496,7 @@ void OverlayGfx::roundedRect(float x, float y, float w, float h,
     mCurProgram = mRoundProgram;
     glUniform2f(mRoundLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mRoundLocRot, 1, GL_FALSE, mRot);
-    glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a);
+    glUniform4f(mRoundLocColor, c.r, c.g, c.b, c.a * mGlobalA);
     glUniform2f(mRoundLocHalf, hw, hh);
     glUniform1f(mRoundLocRadius, r);
 
@@ -573,7 +570,7 @@ void OverlayGfx::drawImage(GLuint tex, float x, float y, float w, float h,
     mCurProgram = mImageProgram;
     glUniform2f(mImgLocViewport, (float)mViewportW, (float)mViewportH);
     glUniformMatrix2fv(mImgLocRot, 1, GL_FALSE, mRot);
-    glUniform1f(mImgLocAlpha, alpha);
+    glUniform1f(mImgLocAlpha, alpha * mGlobalA);
     glActiveTexture(GL_TEXTURE0);
     glUniform1i(mImgLocSampler, 0);
     // Drive the sharp-bilinear sampler from the texture's native size and the
@@ -618,9 +615,35 @@ void OverlayGfx::destroyTexture(GLuint tex) {
     mImgSizes.erase(tex);
 }
 
+void OverlayGfx::loadFace(const char* path) const {
+    if (!path || !*path || mFtNumFaces >= kMaxFtFaces) return;
+    FT_Face f = nullptr;
+    if (FT_New_Face((FT_Library)mFtLibrary, path, 0, &f) == 0) {
+        FT_Set_Pixel_Sizes(f, 0, mFontPx);
+        mFtFaces[mFtNumFaces++] = f;
+        ALOGI("OverlayGfx: font loaded from %s", path);
+    }
+}
+
+void OverlayGfx::loadScriptFaces() const {
+    mScriptFacesPending = false;
+    loadFace("/system/fonts/NotoSansCJK-Regular.ttc");
+    loadFace("/system/fonts/NotoNaskhArabic-Regular.ttf");
+    loadFace("/system/fonts/NotoSansThai-Regular.ttf");
+    loadFace("/system/fonts/NotoSansHebrew-Regular.ttf");
+}
+
 void* OverlayGfx::faceForCp(uint32_t cp) const {
-    for (int i = 0; i < mFtNumFaces; i++) {
-        if (FT_Get_Char_Index((FT_Face)mFtFaces[i], cp) != 0) return mFtFaces[i];
+    int from = 0;
+    for (;;) {
+        for (int i = from; i < mFtNumFaces; i++) {
+            if (FT_Get_Char_Index((FT_Face)mFtFaces[i], cp) != 0) return mFtFaces[i];
+        }
+        // No loaded face has it: open the deferred script faces (once) and look
+        // through just those, in the order the eager load would have had them.
+        if (!mScriptFacesPending) break;
+        from = mFtNumFaces;
+        loadScriptFaces();
     }
     return mFtNumFaces > 0 ? mFtFaces[0] : nullptr;   // primary (renders .notdef)
 }
@@ -803,7 +826,7 @@ float OverlayGfx::text(const char* s, float x, float y, float scale, Color c) {
         useProgram(mTextProgram);
         glUniform2f(mTextLocViewport, (float)mViewportW, (float)mViewportH);
         glUniformMatrix2fv(mTextLocRot, 1, GL_FALSE, mRot);
-        glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a);
+        glUniform4f(mTextLocColor, c.r, c.g, c.b, c.a * mGlobalA);
         glActiveTexture(GL_TEXTURE0);
         glUniform1i(mTextLocSampler, 0);
         glBindTexture(GL_TEXTURE_2D, mAtlasTex);

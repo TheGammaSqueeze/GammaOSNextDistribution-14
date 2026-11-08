@@ -20,6 +20,7 @@
 #include <math.h>
 #include <stdint.h>
 #include <functional>
+#include <initializer_list>
 #include <string>
 #include <vector>
 #include <set>
@@ -131,11 +132,24 @@ void nanoBtLpmSuspendGate(bool screenOff, bool& disabled);
 // loadInstalledApps can honour persist.gammaos.nano.extra_apps (force-show vendor apps).
 std::vector<std::string> nanoPkgListRead(const char* baseProp);
 
+// RG DS Plus Menu tap in the launcher (NanoMenuResume.cpp): what the home launched last, kept in
+// /data/system/nano_last_launch.txt so a restarted home still knows it. sys.gammaos.nano.last_launch
+// is the "something was launched since this boot" gate, so a reboot forgets it. The game record is
+// the ROM path; the app record is the package plus an optional tab-delimited launch intent
+// (Settings, a browser URL). Defined in NanoMenuResume.cpp; safe to call from any thread.
+void nanoResumeNoteGame(const std::string& romPath);
+void nanoResumeNoteApp(const std::string& pkg, const std::string& intent);
+
 // Adapter that lets the shared NanoSliderHud spec draw through NanoMenu's
 // private GL primitives (drawQuad/drawText/measureText). Defined in
 // NanoMenuSystem.cpp; friended so the volume/brightness HUD matches the
 // drastic-nano overlay 1:1.
 struct NanoMenuSliderBackend;
+
+// DSi vector chrome layer tables (defined in NanoMenuNdsChrome.cpp).
+struct NdsVecLayer;
+struct NdsVecStop;
+struct NdsVecHole;
 
 static const int MAX_PARTICLES = 150;
 static const int NUM_EFFECTS = 22; // total effect IDs (some disabled)
@@ -376,6 +390,7 @@ private:
     void checkInputHotplug();
     void pollInput();
     bool selectKeyHeld() const;   // live SELECT state via EVIOCGKEY (not the sticky flag)
+    bool keyHeldAny(std::initializer_list<int> codes) const;   // live state of any of these keys via EVIOCGKEY
     // DRM-direct sleep: blank panels + backlights, drive PowerManager
     // suspend, block until a wake (power press or lid open), then
     // re-commit the modeset and restore. Shared by the power short-press
@@ -387,11 +402,15 @@ private:
     // takes the panel back on the same EGL context and resumes this menu state.
     bool drasticParkEnabled() const;
     bool drasticParkSession();
-    void drasticParkPageOutAll();   // park: every mapping to zram, file-backed included
+    void drasticParkPageOutAll(int pass);   // park: pass 0 the anonymous mappings to zram, pass 1 the file-backed ones
+    // After a return hand-off drastic-nano may still be saving while this home is back on screen: wait
+    // (bounded) for that process to be gone before the home leaves for anything but a DS game, so the
+    // launch does not overlap it or have its session_done start a home over the launched app.
+    void drasticTailWaitBeforeLaunch();
     std::atomic<bool> mDrasticParked{false};
     // CPU clock/governor while the screen is off: drop to powersave on screen-off and
     // re-apply the user's persisted performance mode on wake (NanoMenu.cpp).
-    void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated)
+    void nanoApplyPerfClock(const char* mode);   // run /vendor/bin/setclock_<mode>.sh (validated; the RG DS Plus starts the service via init)
     void nanoRestorePerfClock();                 // re-apply persist.gammaos.performance_mode
     void handleUp();
     void handleDown();
@@ -769,9 +788,7 @@ private:
 
     // Brightness control
     void adjustBrightness(int direction);
-    bool setBrightnessViaHal(int brightness);
     void applyBrightness();
-    void syncBrightnessToAndroid();
     int readAndroidBrightness();
     void renderBrightnessBar();
     // DSi / Minima themed volume+brightness HUD (the XMB / in-app / drastic path keeps the shared
@@ -1051,6 +1068,9 @@ private:
     // In-game URL launch: start the chosen browser on the URL via ACTION_VIEW.
     bool overlayLaunchUrl(const std::string& pkg, const std::string& comp,
                           const std::string& url);
+    // RG DS Plus Menu tap (NanoMenuResume.cpp): start an app through the launch intent the home
+    // recorded for it (Settings, a browser URL), as `am start` options.
+    bool overlayLaunchIntent(const std::string& pkg, const std::string& intent);
     // Shared overlay launch primitive: cleanly exit whatever is running (ESC +
     // save-state wait for RetroArch/DraStic, force-stop for other apps), then run
     // the prebuilt `am start ...` command for the new target. Tracks launch_app +
@@ -1092,6 +1112,7 @@ private:
     // overlay layer up (occluding the dying old app / blank) until the new app is
     // resumed, so the user never sees the old frame or black between the two.
     bool mOverlayLaunchPending = false;
+    bool mLaunchDrainReset = false;   // resetHeldInputState ran for this pending launch (once per launch)
     std::string mOverlayLaunchTarget;
     int64_t mOverlayLaunchStartMs = 0;
     int64_t mOverlayLaunchLastCheckMs = 0;
@@ -1293,8 +1314,29 @@ private:
 
     // Brightness / power
     bool mSelectHeld;
-    bool mSelectSearchArmed = false;  // XMB SELECT tap pending: open the search OSK on release
-    bool mSelectVolChord    = false;  // a Volume key was pressed while SELECT held -> suppress the OSK tap
+    // SELECT acts on its release, and only when no chord happened while it was held (Select+Vol brightness,
+    // Select+Power shader hatch): the action armed at the press.
+    enum SelectAction : uint8_t { kSelNone = 0, kSelOskLang, kSelPvInfo, kSelVidOsd, kSelSearch };
+    SelectAction mSelectArmed = kSelNone;
+    bool mSelectVolChord = false;      // a chord happened while SELECT was held (existing name, now any chord)
+    // K29: VOL presses of the current pollInput batch read while SELECT was down in the live bitmap but not tracked as
+    // held; decided at the end of the batch (resolveDeferredVolume): a SELECT press in the same batch makes them a
+    // chord, otherwise they stay volume.
+    int mVolDeferred[4] = {};
+    int mVolDeferredN = 0;
+    bool mSelectPressInBatch = false;
+    // Select+Vol hold-repeat: the volume key held for the chord (0 none), direction, next repeat (uptime ms).
+    int mBrightChordKey = 0;
+    int mBrightChordDir = 0;
+    int64_t mBrightChordDueMs = 0;
+    bool mBrightChordRepeating = false;
+    // HAT axes, each with its own held direction (K34).
+    int mHatX = 0, mHatY = 0;
+    void resetHeldInputState(const char* why);
+    void navRearm(NavDir dir);   // hold a direction for the repeat without firing a step
+    void brightChordPress(int volCode);
+    void resolveDeferredVolume();
+    void tickBrightChord();
     bool mStartHeld = false;   // for the START+SELECT PS3 boot-intro re-trigger
     int64_t mPowerPressTime;
     int mBrightness;
@@ -1314,6 +1356,24 @@ private:
     bool mShowLaunchBusy;
     int mLaunchBusyTimer;
     bool mLaunchPending;
+
+    // DSi cold-boot progress bar in the bottom screen's name balloon (nano home, DSi theme,
+    // ext_storage_ready still 0 when nano starts). Six boot milestones (CLOCK_BOOTTIME ms,
+    // seen[] = when each was reached, hist[] = their learned times); the last one,
+    // ext_storage_ready, is the 100 % point and the same signal isLaunchReady() waits for.
+    // See bootProgTick().
+    struct BootProg {
+        bool init = false, enabled = false, sameBuild = false;
+        bool started = false, timedOut = false, saved = false;
+        int64_t initMs = 0, lastPollMs = 0, readyMs = 0;
+        int64_t drawnMs = 0;               // uptimeMillis() when the bar was last drawn
+        int64_t seen[6] = {};
+        int32_t hist[6] = {};
+        float shown = 0.f, alpha = 0.f;
+    } mBootProg;
+    void bootProgTick();
+    bool bootProgLoad();
+    void bootProgSave();
 
     // Battery state (cached, refreshed ~1/s from pollBattery())
     int mBatteryPercent;      // -1 if unknown / no battery
@@ -1635,6 +1695,21 @@ private:
             0.97f, 0.255f,
             1.0f };   // white tile pillow (identity tint)
     }
+    // Dark variant: remaps a light-firmware chrome grey (the balloon tail and the frame notch are
+    // pixel art in the light balloon's greys) through the light bevel ramp onto the dark one, so
+    // the art follows the dark balloon's inverted bevel instead of showing white flecks under it.
+    // Light theme: identity, bit-identical. The two-argument form takes a ndsPal() the caller
+    // already built, so a per-pixel loop does not rebuild the palette for every quad.
+    float ndsChromeGrey(float v, const NdsPal& p) const {
+        if (!mNdsDark) return v;
+        static const float L[5] = { 0.318f, 0.635f, 0.765f, 0.859f, 0.984f };   // light bevel0..4 (ndsPal)
+        const float D[5] = { p.bevel0, p.bevel1, p.bevel2, p.bevel3, p.bevel4 };   // dark ramp, so a retune follows
+        if (v <= L[0]) return D[0];
+        for (int i = 1; i < 5; i++)
+            if (v <= L[i]) return D[i - 1] + (v - L[i - 1]) / (L[i] - L[i - 1]) * (D[i] - D[i - 1]);
+        return D[4];
+    }
+    float ndsChromeGrey(float v) const { return mNdsDark ? ndsChromeGrey(v, ndsPal()) : v; }
     bool mMinimaTheme = false;    // persist.gammaos.nano.minima (Minima list theme, NextUI-inspired; rides the XMB
                                   // infrastructure like the DSi theme and swaps the home render/nav/sfx/boot)
     // ES-DE theme engine: the fourth home theme (persist.gammaos.nano.ndstheme=3). Parses
@@ -2041,6 +2116,8 @@ private:
     NdsPal ndsTopPal() const;                                       // ndsPal() with the mint canvas + teal text recoloured to a non-Original accent
     bool   ndsEffectActive() const { return mNdsTheme && mCurrentEffect != 0; }   // a Background Effect replaces the DSi wallpaper/field
     void   drawNdsEffectBackdrop();                                 // render the effect (via its FBO) full-panel once per frame per panel
+    void   drawNdsTopBackdrop(float rx, float ry, float rw, float rh, float scale, const NdsPal& p);   // DSi top-screen backdrop: effect, else wallpaper, else flat field + edge columns (none in an in-game scrim); shared by renderNdsTop and the Information page
+    void   drawNdsMintCanvas(float px, float py, float pw, float ph, float scale, const NdsPal& p);    // DSi top-screen mint canvas (bevel + inset rings, 85 percent mint field) at full alpha; shared by renderNdsTop and the Information page
     bool   ndsFxOverlayReady() const;                               // this panel's effect texture was rendered this frame
     void   ndsFxOverlay(float x, float y, float w, float h, float alpha);   // re-blit the effect over a chrome band (= chrome at 1-alpha)
     void   drawRoundedRing(float x, float y, float w, float h, float radius, float thick,
@@ -2086,6 +2163,44 @@ private:
     void drawNdsPillGrad(float x0, float y0, float wpx, float hpx,
                          float radLeftDS = 3.0f, float radRightDS = 3.0f,
                          bool flat = false, float fr = 0.0f, float fg = 0.0f, float fb = 0.0f);  // 21-stop favColor pill; per-side corner radii (DS px); flat=grey-rim mode
+    void drawNdsBootProgress(float x, float y, float w, float h, float a);  // cold-boot progress bar in the name balloon (mBootProg.shown)
+    // ---- DSi vector chrome (NanoMenuNdsChrome.cpp) ----
+    // The chrome that came from the firmware as 1x pixel art (the selection frame, the carousel
+    // tiles, the balloon tail and frame notch, the scrollbar arrows / thumb / ticks, the light
+    // message box and the glossy buttons) is drawn as SDF shapes with analytic anti-aliasing at
+    // panel resolution, in the art's own colour bands. persist.gammaos.nano.nds.vector_chrome=0
+    // keeps the sprites and pixel quads; ndsVecInit reads it with the DSi assets and builds the
+    // program, and ndsVecChrome() stays false if that fails, so the old path is the fallback.
+    // ensureNdsAssets runs it before the texture loads and leaves mNdsFrameTex / mNdsTileTex at 0
+    // while ndsVecChrome() is true.
+    struct NdsVecShape {                      // one SDF shape in device px, relative to each instance's centre
+        int   mode = 0;                       // 0 rounded rect, 1 ellipse, 2 triangle
+        float hw = 0.0f, hh = 0.0f;           // rect half size / ellipse semi-axes
+        float r[4] = {0.0f, 0.0f, 0.0f, 0.0f};   // rect corner radii: tl, tr, br, bl
+        float holeX = 0.0f, holeY = 0.0f, holeHw = 0.0f, holeHh = 0.0f, holeR = 0.0f;   // rounded cut-out (holeHw <= 0: none)
+        float cutY = 0.0f, cutK = 0.0f, cutSign = 0.0f;   // keep where cutSign * (y - cutY - cutK * x * x) >= 0 (0: no cut)
+        float tri[6] = {0.0f, 0.0f, 0.0f, 0.0f, 0.0f, 0.0f};   // triangle corners
+    };
+    bool mNdsVecChrome = false;
+    bool ndsVecChrome() const { return mNdsVecChrome; }
+    void ndsVecInit();
+    void ndsVecBegin(const NdsVecShape& s);   // flushes the solid batch, uploads the shape
+    void ndsVecAdd(float cx, float cy, const float* stopY, const float* stopRgb, int nStops,
+                   float alpha, bool mirrorX = false);   // one instance; stopY relative to cy, rgb triplets
+    void ndsVecEnd();
+    void ndsVecLayers(const NdsVecLayer* L, int n, const NdsVecStop* stops, const NdsVecHole* holes,
+                      int colour, float tint, float ox, float oy, float sx, float sy,
+                      const float* instX, const float* instY, int nInst, float alpha);
+    void drawNdsVecRect(float x, float y, float w, float h, const float radii[4],
+                        const float* stopY, const float* stopRgb, int nStops, float alpha);   // radii tl,tr,br,bl; stopY absolute
+    void drawNdsVecTri(float x0, float y0, float x1, float y1, float x2, float y2,
+                       float r, float g, float b, float a);
+    void drawNdsVecFrame(float x, float y, float w, float h, float alpha);
+    void drawNdsVecTiles(const float* x, const float* y, int n, float scale, float tint);
+    void drawNdsVecPointer(float ox, float oy, float scale, float alpha);
+    void drawNdsVecDialogBox(float x, float y, float w, float h);
+    void drawNdsVecTicks(const float* bevelX, int nBevel, const float* flatX, const float* anchorX,
+                         float y180, float ux, float uy, bool dark);
     void ndsTouchFrame();         // DSi carousel touch: tap a tile / L-R button, drag to scroll (bottom panel)
     void ndsSubmenuTouch();       // DSi submenu list touch: tap a row to enter, tap Back to pop
     void ndsPickerTouch();        // DSi picker list touch (Time Zone / System Language): tap a row to pick
@@ -2118,6 +2233,7 @@ private:
     int   ndsFocusCount() const;           // number of cards in the focused carousel
     bool  ndsPlayerActive() const;         // a media player is up -> show the XMB player, not the carousel
     bool  ndsDlgIsSidePanel() const;       // the active dialog is a chooser/slider (list) vs a confirm (buttons)
+    void  ndsDropStaleDlgClose();          // DSi: another modal took the screen mid dialog-close -> drop the close nobody ticks
     void  ndsSaveReturnPath();             // persist the nav path (cat + stack sels) before a launch-exit
     // How long the home holds the exit after a launch is armed (mLaunchFadeStart) so the
     // launch effect can finish on screen: the DSi theme plays a tile lift + sparkle ring +
@@ -2140,6 +2256,19 @@ private:
     // short, so there it is deferred to the moment the effect completes (pollInput's exit gate).
     void  armAppLaunchTrigger();
     bool  mLaunchTriggerDeferred = false;
+    // RG DS Plus (persist.gammaos.nano.menu_resume): a short tap of the Menu key while the home is
+    // in front starts the last game or app the home launched, through the same launch the touch
+    // screen uses. A hold is the Control Center's, and a tap while a game runs is the framework's
+    // go-home (PhoneWindowManager), so this only acts with nothing running. NanoMenuResume.cpp.
+    int64_t mMenuTapDownUs = 0;            // evdev time (us) of a fresh Menu press that may still end as a tap, 0 = none
+    bool    mResumeInGameLaunch = false;   // inside launchXmbGame: the emulator it arms is not an "app" to remember
+    bool    menuResumeKey(int fd, int value, int64_t evUs);   // pollInput: a Menu key edge (value 1 press, 0 release); true = consumed
+    bool    menuResumeAllowed();           // the home is idle and in front: nothing modal, launching or running
+    bool    menuResumeLaunch();            // start the last game or app; true when a launch is under way
+    bool    menuResumeDispatch(const Ps3Item& it);   // launch one PS3_RECENT / PS3_ROM / PS3_APP item as the home's own select does
+    bool    menuResumeHopDsi(const Ps3Item& want);   // DSi: put the carousel on the card to launch; false = not found (nav is the caller's to restore)
+    bool    menuResumeLaunchApp(const std::string& pkg, const std::string& intent);   // an app with its own launch intent
+    void    resumeNoteLaunch();            // armAppLaunchTrigger: remember the app being launched
     void  ndsSfxPreload(int which);        // decode a DSi clip ahead of its first trigger (idle)
     void  ndsRestoreReturnPath();          // on the fresh return process, drill back to the launched card
     float mNdsCamera = 3.0f;      // carousel scroll position (slot units, fractional while sliding)
@@ -2179,6 +2308,10 @@ private:
     int  mNdsNumIdx  = -1;        // mFtFaces index of dsvecnum.ttf (digits), -1 = not loaded
     int  mEsdeDefaultFace = -1;  // mFtFaces index of Akrobat (ES-DE default for no-fontPath text), -1 = UI font
     bool mNdsFontPref = false;    // when true, ensureGlyph tries the DSVec faces first
+    // Largest size a mono glyph is rasterised at. Beyond it the quad is stretched from this size,
+    // which blurs it. The DSi theme draws its 80 px watermark and 120 px readout well past the
+    // 64 px master, so it gets a higher cap (colour emoji stay normalised to mFontSize).
+    int glyphRasterCap() const { return mNdsFontPref ? 128 : mFontSize; }
     // ES-DE theme fonts: a text element carries a fontPath (e.g. Art Book Next's Mulish); the
     // ES-DE renderer resolves it to an mFtFaces index via esdeFontFace() and passes that as the
     // preferFace to drawText/measureText so the glyph is rasterised from the theme's own typeface
@@ -2200,7 +2333,8 @@ private:
     // DSi-styled modal overlays for the stacked-carousel nav (user redesign): the option
     // menu + list/slider choosers render as the DSi System Settings glossy list (side panel),
     // and confirm dialogs (System Update, exit settings) render as the DSi message box.
-    void   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list
+    bool   renderNdsSidePanel(float rx, float ry, float rw, float rh);  // choosers / option menu -> settings list; false = drew nothing (its close just finished)
+    void   drawNdsSideFadeIn(float rx, float ry, float rw, float rh);   // black quad fading out after a side panel closed (carousel or list underneath)
     void   renderNdsDialog(float rx, float ry, float rw, float rh);     // Yes/No confirm -> DSi message box
     // DSi-styled full-screen picker list (System Language / Time Zone): the dense scrollable
     // glossy-button list from the web Country/Language screens, replacing the XMB language list
@@ -2224,6 +2358,8 @@ private:
     // fades in from black on every submenu enter or Back, masking the instant stack switch.
     int    mNdsPrevStackDepth = -1;
     int64_t mNdsSubTransStart = 0; // uptimeMillis the current enter/back transition began (0 = none)
+    int64_t mNdsSideFadeInT0 = 0;  // uptimeMillis the carousel/list began fading in from black after a side panel closed (0 = none)
+    bool    mNdsSidePanelShown = false; // renderNdsSidePanel drew the last pass: its falling edge starts the fade above
     int    mNdsTransDir = 0;       // +1 = drilled down (cards fall in from top), -1 = backed up (rise from bottom)
     int    mNdsSubDownSel = 0;     // submenu selection at touch-down (vertical drag-scroll anchor)
     // DSi list momentum scroll + draggable scrollbar (web launcher.js scrub/fling model, 1:1): the
@@ -2253,6 +2389,20 @@ private:
     // into its own slot (SA_NDS_FAN) so it can cross-fade with the boxart in the mint panel.
     GLuint mNdsFanTex = 0; int mNdsFanW = 0, mNdsFanH = 0;
     std::string mNdsFanPath;      // fanart path currently loaded into mNdsFanTex ("" = none)
+    // The cover shown big on the DSi top screen: decoded once more at the size it is drawn (the
+    // 256 px tile cache would be stretched ~1.9x). [0] = the focused ROM, [1] = the one that just
+    // left focus, kept for the 220 ms game-to-game dissolve. rom is set when the cover is asked for
+    // (tex stays 0 until it lands), so a failed decode is not retried every frame.
+    struct NdsHiBox { GLuint tex = 0; int w = 0, h = 0; float ar = 1.0f; std::string rom; };
+    NdsHiBox mNdsHiBox[2];
+    int mNdsArtFitW = 0, mNdsArtFitH = 0;   // box the hi-res cover/fanart were asked for (a layout change re-asks)
+    // The focused item's system glyph re-decoded at 256 px for the top screen's 288 px icon (the
+    // shared icon textures are 128 px). One entry; mNdsTopHiIdx is the mIconTextures slot it is for.
+    GLuint mNdsTopHiTex = 0; int mNdsTopHiIdx = -1;
+    GLuint ndsTopHiIcon(GLuint baseTex);   // hi-res copy of an mIconTextures glyph, or baseTex
+    void ndsHiBoxFocus(const std::string& rom, const std::string& boxFile, int fitW, int fitH);
+    void ndsHiBoxFree();
+    void ndsHiBoxDrop(const std::string& rom);   // one ROM's cover changed or was removed
     std::string mNdsPreviewRom;   // ROM path the preview art is currently focused on
     float mNdsPreviewT0 = -1.0f;  // mEffectTime the current preview began (drives the box<->fan cross-fade)
     std::string mNdsPrevPreviewRom;  // outgoing game held for the game-to-game preview dissolve
@@ -2311,8 +2461,9 @@ private:
     int    mPs3DlgSel = 0;
     int    mPs3DlgOrigSel = 0;     // value at open, for revert on cancel
     float  mPs3DlgAnim = 0.0f;     // open slide/fade 0->1
-    bool   mPs3DlgClosing = false; // side-panel dismiss fade-out in flight (kind 1)
-    float  mPs3DlgCloseAnim = 0.0f;// close fade alpha 1->0 (reverse of mPs3DlgAnim)
+    uint64_t mPs3DlgAnimHb = ~0ULL;// heartbeat of the last DSi Information page ramp step (top + bottom share one step per frame)
+    bool   mPs3DlgClosing = false; // dismiss animation in flight (kind 1 side panel; DSi kind-0 message box / side panel)
+    float  mPs3DlgCloseAnim = 0.0f;// close alpha 1->0 (reverse of mPs3DlgAnim)
     bool   mPs3DlgBlurValid = false;
     const Ps3SettingBinding* mPs3DlgBinding = nullptr;  // active settings-bound chooser (else null)
     std::unordered_map<std::string, std::string> mPs3BindCache;  // cached bound values by leaf label
@@ -2534,13 +2685,15 @@ private:
     // cramped narrow body below. renderNdsInfoPage / renderMinimaInfoPage branch on this.
     bool   mPs3DlgHelp = false;
     int    mNdsInfoPage = 0;               // current description page (L/R paginate)
+    int    mNdsDlgClosePage = 0;           // page a closing paged DSi message box keeps drawing (mNdsInfoPage is already reset)
     int    mNdsInfoPageCount = 1;          // total pages (computed each render; 1 -> hide L/R)
     void   renderNdsInfoPage(float rx, float ry, float rw, float rh, int part);  // 0=full(single) 1=top(cover+meta) 2=bottom(description)
     void   ndsInfoPage(int dir);           // L/R: turn the info page (clamped)
     bool   ndsGameInfoActive() const { return mPs3DlgGameInfo && (mPs3DlgActive || mPs3DlgClosing); }
     // A kind-0 info dialog (single OK, no Yes/No, not a side-panel chooser) whose body overflows
-    // one panel and therefore paginates with L/R (System Information, music tags, ...).
-    bool   ndsDlgInfoPaged() const { return (mPs3DlgActive || mPs3DlgClosing) && !mPs3DlgGameInfo
+    // one panel and therefore paginates with L/R (System Information, music tags, ...). Active only:
+    // while the box slides away (closing) L/R belong to the carousel again.
+    bool   ndsDlgInfoPaged() const { return mPs3DlgActive && !mPs3DlgGameInfo
                                           && !ndsDlgIsSidePanel() && (int)mPs3DlgOptions.size() <= 1
                                           && mNdsInfoPageCount > 1; }
     // App Information page (kind-0 dialog, filled asynchronously): "info" on an app sets
@@ -3709,7 +3862,7 @@ private:
     void scraperArtTick();               // per-frame: toggle cache + free-on-leave-Game + saDrainArt (both themes)
     // Decode scraped art to a GL texture via stb_image (AImageDecoder silently
     // fails on the scrape PNGs on this device; stb_image works, same as the cinfo
-    // bg). maxDim>0 downscales (nearest) to bound VRAM. Render thread only.
+    // bg). maxDim>0 downscales (area average) to bound VRAM. Render thread only.
     GLuint scraperDecodeTex(const std::string& path, int maxDim, float* outAR);
     // ---- async scraper-art decode (mirrors the photo-viewer worker) ----------
     // ONE worker for ALL scraper art (boxart icons + hover fanart + Information
@@ -3717,10 +3870,12 @@ private:
     // the render thread, so opening a Game system or Information never hitches.
     // Lazy-started on the first request; fully stopped+joined (zero threads/CPU at
     // idle) by scraperFreeBoxart on leaving Game / occlusion / the 96-cache backstop.
-    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN, SA_CART_BOX };
-    struct SaDecReq { std::string path; int maxDim = 0; int target = 0; std::string key; uint64_t gen = 0; };
+    enum ScrapeArtTarget { SA_BOX = 0, SA_CINFO_FAN, SA_DLG_FAN, SA_DLG_BOX, SA_NDS_FAN, SA_CART_BOX, SA_NDS_BOX };
+    // fitW/fitH > 0: shrink (never enlarge) to fit inside that box, keeping the aspect, instead of
+    // capping the long side at maxDim. fill = the result reaches the box on its limiting axis.
+    struct SaDecReq { std::string path; int maxDim = 0; int fitW = 0, fitH = 0; int target = 0; std::string key; uint64_t gen = 0; };
     struct SaDecRes { std::string path; int target = 0; std::string key; int w = 0, h = 0; float ar = 1.0f;
-                      uint64_t gen = 0; std::vector<uint8_t> px; };
+                      bool fill = false; uint64_t gen = 0; std::vector<uint8_t> px; };
     std::thread mSaDecThread;
     std::mutex mSaDecMutex;
     std::condition_variable mSaDecCv;
@@ -3731,11 +3886,18 @@ private:
     std::atomic<bool> mSaDecStarted{false};
     std::atomic<uint64_t> mSaDecGen{0};          // bumped on teardown to drop stale results
     bool scraperDecodeRGBACpu(const std::string& path, int maxDim, int* outW, int* outH,
-                              float* outAR, std::vector<uint8_t>& out);   // GL-free
+                              float* outAR, std::vector<uint8_t>& out,
+                              int fitW = 0, int fitH = 0);   // GL-free
     void saStartArtWorker();
     void saStopArtWorker();
     void saArtThreadFunc();
-    void saRequestArt(const std::string& path, int maxDim, int target, const std::string& key);
+    void saRequestArt(const std::string& path, int maxDim, int target, const std::string& key,
+                      int fitW = 0, int fitH = 0);
+    // The focused cover / fanart the DSi top screen wants right now ("" = none). Requests for any
+    // other path are dropped before decoding, so a fast scroll does not queue a full-size decode per
+    // focus step. Guarded by mSaDecMutex.
+    std::string mSaWantNdsBox, mSaWantNdsFan;
+    void saWantNdsArt(const std::string& box, const std::string& fan);
     void saDrainArt();                           // render thread: upload + route results
     // persistence + lazy load
     int64_t musicConfigStamp() const;
@@ -5014,7 +5176,9 @@ private:
     // CC is up with no bottom app, the bottom panel while a bottom app runs, and cleared (-1) when the CC is
     // not active. The framework (RootWindowContainer) honours the pin only if that display has a focused app.
     void   ccSetFocusDisplay(int disp);
-    int    mCcFocusDisplay = -1;           // last value written to sys.gammaos.nano.focus.display
+    int    mCcFocusDisplay = -1;           // last value written to sys.gammaos.nano.focus.display (the prop
+                                           // itself is compared too: PhoneWindowManager's Menu exit writes it)
+    bool   ccMenuExitInflight();           // PhoneWindowManager's Menu exit is releasing drop_input for its ESC
     // Focus RING: a ~1s glowing edge pulse on the screen that just took the controller (SF/app mode
     // only). Stamped in ccSetFocusDisplay on a real focus change; driven by uptimeMillis() so it is
     // independent of which park branch renders (mFrameDt is not refreshed on the bottom-app branch).
@@ -5041,7 +5205,9 @@ private:
     // or a grid-launched bottom app (which normally hides the CC). Toggled by ccPollAllAppsKey() draining the
     // gamepad key device in the park loop; folded into controlCenterActive() and the bottom-app park branch.
     bool   mCcForceVisible = false;        // KEY_ALL_APPLICATIONS override: keep the CC shown over an app
+    int64_t mCcMenuDownUs = 0;             // RG DS Plus: evdev time (us) of the Menu key press, 0 = not down
     bool   ccPollAllAppsKey();             // drain the key device; true on a KEY_ALL_APPLICATIONS down-edge
+                                           // (on the RG DS Plus: on the release of a Menu hold of 600 ms or more)
     // BACK-hold summon: PhoneWindowManager writes sys.gammaos.nano.cc.summon=1 instead of exiting when
     // the grid-launched bottom app has focus; the park loop consumes it like a KEY_ALL_APPLICATIONS
     // down-edge (force-visible on), and the secondary layer fades and rises in over the app.
@@ -5221,13 +5387,15 @@ private:
         std::vector<std::string> displayNames;
         std::vector<std::string> activePaths;
         std::string activePath;
-        bool valid;              // true if scan found at least one path
+        std::string id;          // XmbSystem::id of the snapshot entry this result belongs to
+        bool attempted = false;  // true if the scan ran for this entry (it was enabled in the snapshot)
+        bool valid = false;      // true if scan found at least one path
     };
     std::mutex mBgScanMutex;
     std::vector<BgScanResult> mBgScanResults; // one per system, guarded by mutex
     bool mBgScanResultReady;                  // set by thread, cleared by render loop
     bool mBgScanThreadRunning;                // true while thread is active
-    void bgScanThreadFunc();                  // the thread entry point
+    void bgScanThreadFunc(std::vector<XmbSystem> jobs);   // works on a render-thread snapshot, never on mXmbSystems
 
     // Settings column. Pinned as the leftmost XMB column at sentinel index -2.
     // Order: -2 Settings | -1 Recently Played | 0..N-1 Systems.

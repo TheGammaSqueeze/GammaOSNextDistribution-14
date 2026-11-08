@@ -49,7 +49,15 @@ public:
     // (drastic-nano passes the panel dimensions of its primary AHB
     // target). The 2x2 rotation matrix is the same one the runner
     // uses (sDrmRotMat), column-major.
-    bool init(int viewportW, int viewportH, const float rotMat[4]);
+    // lazyScriptFaces: open the CJK/Arabic/Thai/Hebrew faces only when a glyph
+    // is asked for that the Rodin/Roboto/DroidSans faces do not have, instead of
+    // in init. For short-lived renderers that show Latin text (the loading
+    // screen): the CJK collection alone costs tens of ms on a cold SD card.
+    // The face order, and so the glyph chosen for every codepoint, is the same
+    // as with the eager load. Long-lived overlays keep the default so no face is
+    // read from the card mid-game.
+    bool init(int viewportW, int viewportH, const float rotMat[4],
+              bool lazyScriptFaces = false);
 
     // Release all GL resources. Safe to call more than once.
     void shutdown();
@@ -125,6 +133,24 @@ public:
     // Measure-only variant (no draw). Same math as text().
     float measure(const char* s, float scale) const;
 
+    // Global opacity multiplied into the alpha of everything drawn: solid rects,
+    // outlines, triangles and stars (baked per vertex, so the solid batch stays
+    // valid across a change), rounded rects, text and images. Lets the menu fade
+    // as a whole without every call site knowing about it. 1 by default, clamped
+    // to 0..1. Prefer ScopedAlpha so an early return cannot leave it dimmed for
+    // the OSK, the exit fill or the next frame.
+    void  setGlobalAlpha(float a) { mGlobalA = a < 0.f ? 0.f : (a > 1.f ? 1.f : a); }
+    float globalAlpha() const { return mGlobalA; }
+    struct ScopedAlpha {
+        ScopedAlpha(OverlayGfx& g, float a) : mG(g), mPrev(g.globalAlpha()) { g.setGlobalAlpha(a); }
+        ~ScopedAlpha() { mG.setGlobalAlpha(mPrev); }
+        ScopedAlpha(const ScopedAlpha&) = delete;
+        ScopedAlpha& operator=(const ScopedAlpha&) = delete;
+    private:
+        OverlayGfx& mG;
+        float mPrev;
+    };
+
     // Raster-only mode: text() rasterizes and caches every glyph of the run in
     // the atlas but issues no draw, and the solid/round/image primitives draw
     // nothing. The menu uses it once at start-up to draw every page "blind" so
@@ -174,9 +200,12 @@ private:
     // Primary (Rodin/theme) face plus script-fallback faces (CJK/Arabic/Thai/
     // Hebrew), mirroring gammaos-nano's chain so overlay text renders every
     // translated locale instead of tofu boxes for glyphs the primary lacks.
+    // Mutable because faceForCp (const, on the glyph path) appends the script
+    // faces on first need when init was asked to defer them.
     static const int kMaxFtFaces = 10;
-    void* mFtFaces[kMaxFtFaces] = {};
-    int   mFtNumFaces = 0;
+    mutable void* mFtFaces[kMaxFtFaces] = {};
+    mutable int   mFtNumFaces = 0;
+    mutable bool  mScriptFacesPending = false;
     int   mFontPx = 18;        // base pixel height
     int   mAscent = 0;
     int   mLineH  = 0;
@@ -200,6 +229,7 @@ private:
     mutable int mAtlasX = 0, mAtlasY = 0, mAtlasShelfH = 0;   // shelf packer cursor
     mutable std::vector<float> mTextVerts;                    // scratch, reused per run
     bool mRasterOnly = false;
+    float mGlobalA = 1.0f;    // see setGlobalAlpha
     GLuint mCurProgram = 0;   // last program this renderer bound (skips redundant re-binds)
 
     void drawSolidQuad(float x, float y, float w, float h, Color c);
@@ -218,6 +248,10 @@ private:
     // Pick the first loaded face that has a glyph for this codepoint (script
     // fallback), or the primary face if none does. Returns an FT_Face (void*).
     void* faceForCp(uint32_t cp) const;
+    // Open one font file as the next face in the chain, at the base pixel size.
+    void loadFace(const char* path) const;
+    // Append the CJK/Arabic/Thai/Hebrew faces (the tail of the chain).
+    void loadScriptFaces() const;
 };
 
 } // namespace drastic_gfx

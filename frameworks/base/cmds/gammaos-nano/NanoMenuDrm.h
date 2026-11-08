@@ -80,9 +80,15 @@ struct DrmDisplay {
     uint32_t clCrtcXProp = 0, clCrtcYProp = 0, clCrtcWProp = 0, clCrtcHProp = 0;
     uint32_t clSrcXProp = 0, clSrcYProp = 0, clSrcWProp = 0, clSrcHProp = 0;
     uint32_t clBlendProp = 0, clAlphaProp = 0; uint64_t clBlendNone = 0;
+    uint32_t clRotationProp = 0;
     uint32_t clInFenceProp = 0;
     uint32_t smartCrtcIdProp = 0; // Smart primary CRTC_ID prop (to disable it)
     bool     clConfigured = false;
+    // Wake relight (drmWakeRelightBegin, drastic AFBC path): the CRTC and connector props of the
+    // one-modeset-per-CRTC atomic commit and the CRTC's mode blob, all found once per session (0 until
+    // then); wakePending while that commit's flip event is still to come.
+    uint32_t crtcActiveProp = 0, crtcModeIdProp = 0, connCrtcIdProp = 0, modeBlobId = 0;
+    bool     wakePending = false;
 };
 
 struct AhbRenderTarget {
@@ -273,10 +279,32 @@ extern int64_t sDrmRescanDeadlineNs;
 EGLConfig getEglConfig(const EGLDisplay& display, bool wantAlpha = false);
 int drmCrtcSlot(uint32_t crtcId);
 void drmPaceWithoutVsync();
-bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out);
+// argb is the fill (0 = gDrmSplashArgb).
+bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out, uint32_t argb = 0);
+// The colour drmEarlySplash fills its dumb buffers with (0xAARRGGBB, the panel's scanout is XRGB):
+// the first panel's and the other panel's. Dark by default. drastic-nano sets them from the home's
+// white launch hand-off (so its splash stays white) just before drmEarlySplash and puts them back
+// after, so a rescan or a relaunch splash stays dark.
+extern uint32_t gDrmSplashArgb;
+extern uint32_t gDrmSplashArgbSec;
+// `argb` seen through a display colour matrix (twelve values, column-major 3x3 then the offset, the
+// layout of drmSetColorMatrix): the same transform the GL passes apply to a colour.
+inline uint32_t drmTintArgb(const float m[12], uint32_t argb) {
+    const float r = (float)((argb >> 16) & 0xff) / 255.0f;
+    const float g = (float)((argb >> 8) & 0xff) / 255.0f;
+    const float b = (float)(argb & 0xff) / 255.0f;
+    auto q = [](float v) -> uint32_t { return (uint32_t)((v < 0.0f ? 0.0f : v > 1.0f ? 1.0f : v) * 255.0f + 0.5f); };
+    const uint32_t R = q(m[0] * r + m[3] * g + m[6] * b + m[9]);
+    const uint32_t G = q(m[1] * r + m[4] * g + m[7] * b + m[10]);
+    const uint32_t B = q(m[2] * r + m[5] * g + m[8] * b + m[11]);
+    return (argb & 0xff000000u) | (R << 16) | (G << 8) | B;
+}
 bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stage);
 void drmRescanDisplays();
-void drmEarlySplash(int existingFd = -1);
+// With no existingFd the call opens card0 and waits up to masterWaitMs for DRM master (a relaunch's
+// outgoing drastic-nano may still hold it); drastic-nano's setupDisplay passes what is left of its
+// one deadline. gammaos-nano's callers pass an fd that already is master.
+void drmEarlySplash(int existingFd = -1, int masterWaitMs = 4000);
 // Tear down everything drmEarlySplash() set up: RMFB the dumb buffer fb_ids,
 // DROP_MASTER, close the DRM fd, clear sDrmActive/sDrmDisplays/sDrmZeroCopy,
 // and publish sys.gammaos.nano.drm_active=0. Used by readyToRun() to abandon
@@ -284,6 +312,9 @@ void drmEarlySplash(int existingFd = -1);
 // where libEGL needs SurfaceFlinger binder to return a usable EGL config) so
 // that the SF window-surface fallback path can take over without leaking master.
 void drmReleaseEarly();
+// Open card0 for a client that does not present and give back the master the kernel makes of an
+// opener while nobody holds it (the Screen Calibration worker, the refresh probe). -1 on failure.
+int drmOpenCard0NoMaster();
 double drmProbePrimaryRefreshHz();
 int64_t drmLastGpuDoneUs();
 bool drmDeferDrainActive();
@@ -354,6 +385,19 @@ inline void drmFrameEnd(EGLDisplay dpy, EGLSurface surf) {
 }
 void drmPushFrame(uint32_t glWidth, uint32_t glHeight);
 void drmStop();
+// drmStop() for the parked home's hand-off to drastic-nano, without the black gap: first every
+// panel is switched to a plain `argb` frame (seen through the display colour matrix, so it matches
+// the home's own tinted white), then the ring is torn down and master dropped as drmStop() does,
+// but the DRM fd and those frames are kept (the "baton") so removing the ring leaves the panels lit.
+// sys.gammaos.nano.drm_active is left alone (SurfaceFlinger must not cycle HWC power in the gap).
+// Returns false when the baton could not be set up; the call is then a plain drmStop().
+bool drmStopKeepBaton(uint32_t argb, uint32_t argbSec = 0);   // argbSec: the non primary panel's colour, when it differs
+bool drmBatonActive();
+// True once drastic-nano's own frame has replaced the baton on the panels (a panel's grace period of
+// 300 ms after the first one counts as replaced), polled on the baton fd, which needs no master.
+bool drmBatonReplaced();
+// Frees the baton frames and closes the fd; idempotent. A frame still on a panel goes dark then.
+void drmBatonRelease();
 
 // Build the logical->panel "install" transform that the XMB applies in
 // NanoMenu::initShaders(), derived purely from the DRM orientation + user
@@ -374,8 +418,30 @@ void nanoSetOverlayRenderRotation(int rot);
 // the render thread, before relighting the backlight.
 // Returns the number of CRTCs that did not come back (the DP bridge can take a moment).
 int drmResumeRecommit();
+// ---- Wake relight and self re-bind (drastic AFBC/Cluster path; the home keeps drmResumeRecommit) ----
+// True when drmWakeRelightBegin will use atomic commits: sDrmAfbcMode, wake_atomic > 0 and no atomic
+// relight failed earlier in this session. Render thread only.
+bool drmWakeRelightAtomicOk();
+// Relights every display. Atomic: ONE modeset per CRTC that also binds the Cluster planes to the ring slot
+// that was last on the glass (wake_atomic=2: nonblocking, both CRTCs come up in parallel; 1: blocking, one
+// after the other). A display whose commit is refused is relit at once by the legacy recommit. Not atomic:
+// runs drmResumeRecommit() once. Returns the number of displays it could not light at all (the caller may
+// retry with drmResumeRecommit, as for the DP bridge). Clears the panels-off state. Render thread only.
+int  drmWakeRelightBegin();
+// Waits up to timeoutMs for the nonblocking commits of drmWakeRelightBegin (their flip events). A display that
+// times out is relit by the legacy recommit. Returns the number still dark. Returns 0 at once after a
+// blocking, legacy or failed Begin. Render thread only.
+int  drmWakeRelightWait(int timeoutMs);
+// Unthrottled: true when /sys/power/suspend_stats/success differs from the value drmSuspendMarkSeen() stored.
+bool drmSuspendCountChanged();
+// D4: true (once, then throttled: 2 s, 10 s after 5 re-binds with no successful flip) when the AFBC commits
+// failed rebind_fail_frames frames in a row on any path (EBUSY excluded). False when !sDrmAfbcMode or
+// while the panels are off on purpose. Render thread only.
+int  drmRebindFailRun();          // the failed-frame run that triggered the request, for the log
+bool drmTakeRebindRequest();
 // Screen off on the DRM home: every CRTC off (panels asleep, bridge down); returns the
-// number that refused. drmResumeRecommit turns them back on.
+// number that refused. drmResumeRecommit (or drmWakeRelightBegin) turns them back on. A commit
+// the flip thread still has in flight is waited for first.
 int drmPanelsPowerOff();
 bool drmPanelsAreOff();
 void drmRecoverPanelsTick();   // sys.gammaos.nano.dp_recover=1: re-prepare the primary so the kernel re-powers the DP bridge, then re-commit the secondary
@@ -387,7 +453,7 @@ bool drmSuspendCycleDetected();
 void drmSuspendMarkSeen();
 // Parked home: take DRM master back after drastic-nano exited and rebuild the ring.
 void drmRememberInstallMatrix();   // call before drmStop() when the home will park
-bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs);
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs, uint32_t splashArgb = 0);   // splashArgb: the splash frame's colour (0 = dark)
 
 } // namespace android
 

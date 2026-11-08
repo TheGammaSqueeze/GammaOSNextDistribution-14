@@ -160,6 +160,12 @@ public:
     // persist.gammaos.nano.drastic_render_scale; 0 = follow the prop). Call before
     // initSurface(). The DRM dual-panel path forces 1 when Half Resolution is off.
     void setFxRenderScale(int scale) { mFxScaleOverride = scale; }
+    // Let Scale2X load shaders/hires/Scale2X.dfx (one pass) at hi-res 3D when the final pass is
+    // exactly 2x the DS texture per screen (see pickShaderFile). Only the AFBC dual-panel
+    // presenter sets it: its final pass is always a full panel half, while the per-slot paths
+    // draw rects of any size. drastic-nano keeps it off by default (the one-pass file measured
+    // slower on the device, see main.cpp). Call before initSurface().
+    void setOnePassScale2x(bool on) { mScale2xOnePassOk = on; }
 
     // Render both DS screens into the offscreen FBO via drastic's
     // renderFrame. Must be called ONCE per frame, BEFORE any
@@ -277,6 +283,20 @@ public:
     // bypasses AudioFlinger's mixer threads, so the framework's ultra low power park cannot.
     void setAudioSleep(bool asleep);
 
+    // Wake: starts the AAudio sink again on a helper thread (setAudioSleep(false) semantics) and returns at
+    // once. audioWakeWait waits up to timeoutMs and returns true when the start finished. The start goes on
+    // in the background otherwise, and the emulator thread never waits for it. setAudioSleep(true), shutdown
+    // and the destructor join a start still in flight.
+    void audioWakeBegin();
+    bool audioWakeWait(int timeoutMs);
+
+    // Device sleep/wake for the pacer: noteSleep saves the lead and the creep floor (first call per sleep
+    // only, so a grace period followed by a full sleep keeps the pre-grace values); noteWake restores them
+    // (under the lead cap) and starts a short re-acquire window (no miss reports, stale drops or margin
+    // raises). Render thread. Harmless to call when nothing was saved.
+    void noteSleep();
+    void noteWake();
+
     // Mid-session save / load. slot is 0..8 (9 is drastic's reserved
     // autosave slot -- callers must not pass 9). Writes to / reads
     // from <cacheDir>/savestates/<rom_basename>_<slot>.dss. On the
@@ -382,6 +402,12 @@ public:
     // save was invoked. The write is processed by drastic's worker
     // thread; the caller should leave a brief window before quitSystem.
     bool saveAutosave();
+
+    // True once the emulator thread has taken a queued save request (the request byte at master+0x4b5
+    // is clear): the state is then serialised into the writer's buffer, so it no longer needs a frame,
+    // the presenter or the panel. The write itself is still running; the caller waits for the file as
+    // before. False on a timeout, or when the vblank hooks (and so the library base) are not installed.
+    bool waitSaveCaptured(int timeoutUs);
 
     // Reset the emulated DS (power cycle). Equivalent to the "Reset"
     // menu action in the real drastic app. Safe to call at any time
@@ -681,7 +707,9 @@ private:
     typedef void (*setAutosaveInterval_t)(void* env, void* cls,
                                           int intervalSeconds);
     typedef void (*setAudioVolume_t)(void* env, void* cls, int vol);
-    typedef int  (*saveState_t)(void* env, void* cls, int slot);
+    // The fourth argument is the blocking flag (libdrastic tests w3 at entry): 0 queues the save for
+    // the emulator thread and returns, non-zero returns once the file is written. Every caller passes it.
+    typedef int  (*saveState_t)(void* env, void* cls, int slot, int blocking);
     typedef int  (*loadState_t)(void* env, void* cls, int slot);
     typedef void (*resetDS_t)  (void* env, void* cls);
 
@@ -1075,6 +1103,7 @@ private:
     bool raArmLoad(uint8_t* buf, size_t len);
     std::thread mPacerThread;
     std::atomic<bool> mPacerRun{false};
+    std::atomic<bool> mPacerExited{false};   // set by pacerThread() when its loop ends (shutdown waits for it)
 
     // Shader-swap throttle / re-entrance guard. The overlay menu's Shader
     // row calls setShaderRuntime on every navLeft/Right, and drastic's
@@ -1086,6 +1115,15 @@ private:
     // faster than it can settle.
     std::chrono::steady_clock::time_point mLastShaderSwap;
     std::atomic<bool> mShaderSwapInFlight{false};
+    // The shader the caller asked for, as its absolute .dfx path (initSurface, setShaderRuntime):
+    // the plain Scale2X.dfx even while its one-pass variant is what is loaded, so the hi-res
+    // toggle can pick the file again. mFxOnePass says the variant is the loaded pass list.
+    std::string mFxDfxPath;
+    bool mFxOnePass = false;
+    bool mScale2xOnePassOk = false;   // see setOnePassScale2x()
+    // The file to fxLoad for dfxPath at the current DS texture and offscreen size: the one-pass
+    // Scale2X variant when it applies, else dfxPath itself.
+    std::string pickShaderFile(const std::string& dfxPath) const;
     // Monotonic swap counter. Logged on every setShaderRuntime call so
     // we can correlate the "crashes after N swaps" mode with the exact
     // fx_ctx state at the moment of failure.

@@ -1981,9 +1981,11 @@ public final class SystemServer implements Dumpable {
         // app was ever dexopted on a nano device (no install-time dexopt, no background
         // dexopt job, and `pm compile` refused with "ART Service is not ready"), so every
         // cold app start verified and interpreted its dex straight from the APK. It only
-        // registers the manager and schedules the background job on LOCKED_BOOT_COMPLETED;
-        // JobScheduler runs in minimal boot (StartJobScheduler_Nano), and the job keeps its
-        // idle + charging constraints so it never competes with a running game.
+        // registers the manager and schedules the background job; minimal boot skips
+        // LOCKED_BOOT_COMPLETED, so there the job is scheduled on USER_UNLOCKED instead (see
+        // DexOptHelper.initializeArtManagerLocal). JobScheduler runs in minimal boot
+        // (StartJobScheduler_Nano), and the job keeps its idle + charging constraints so it
+        // never competes with a running game.
         t.traceBegin("ArtManagerLocal");
         DexOptHelper.initializeArtManagerLocal(context, mPackageManagerService);
         t.traceEnd();
@@ -4215,8 +4217,10 @@ public final class SystemServer implements Dumpable {
 
             // Wait for user to select RetroArch, then enable screen (kills overlay).
             new Thread(() -> {
-                while (!"1".equals(SystemProperties.get("service.bootanim.nano_retroarch"))) {
-                    if ("1".equals(SystemProperties.get("service.bootanim.nano_boot"))) {
+                // getInt reads the flags without allocating a String per poll (these props are
+                // only ever "0" or "1").
+                while (SystemProperties.getInt("service.bootanim.nano_retroarch", 0) != 1) {
+                    if (SystemProperties.getInt("service.bootanim.nano_boot", 0) == 1) {
                         Slog.i(TAG, "GammaOS Nano: user chose full boot");
                         return;
                     }
@@ -4257,8 +4261,12 @@ public final class SystemServer implements Dumpable {
                 // sys.gammaos.nano.ext_storage_ready=1 once it reports
                 // mounted; nano's QR preview keeps rendering until it flips.
                 boolean extStorageReady = false;
+                // Each probe takes StorageManagerService.mLock (and logs a warning until the
+                // primary volume exists), so probe about every 250 ms while do_launch is still
+                // checked every 25 ms.
+                int storageProbeTick = 0;
                 while (true) {
-                    if (!extStorageReady) {
+                    if (!extStorageReady && (storageProbeTick++ % 10) == 0) {
                         try {
                             if (android.os.Environment.MEDIA_MOUNTED.equals(
                                     android.os.Environment.getExternalStorageState())) {
@@ -4272,7 +4280,9 @@ public final class SystemServer implements Dumpable {
                             // Storage service not registered yet: not ready.
                         }
                     }
-                    if (!"1".equals(SystemProperties.get("sys.gammaos.nano.do_launch"))) {
+                    // do_launch is reset to "0" after every use, so a String get() would
+                    // allocate on each of these 25 ms polls.
+                    if (SystemProperties.getInt("sys.gammaos.nano.do_launch", 0) != 1) {
                         try { Thread.sleep(25); } catch (InterruptedException ignored) {}
                         continue;
                     }
@@ -4286,8 +4296,9 @@ public final class SystemServer implements Dumpable {
                     // Bounded so a storage failure degrades to the old
                     // behavior instead of never launching.
                     for (int i = 0; i < 1200 && !extStorageReady; i++) {
+                        // Probe every 10th pass (~250 ms); the 30 s bound is unchanged.
                         try {
-                            if (android.os.Environment.MEDIA_MOUNTED.equals(
+                            if (i % 10 == 0 && android.os.Environment.MEDIA_MOUNTED.equals(
                                     android.os.Environment.getExternalStorageState())) {
                                 SystemProperties.set(
                                         "sys.gammaos.nano.ext_storage_ready", "1");
@@ -4658,7 +4669,11 @@ public final class SystemServer implements Dumpable {
      */
     private void startNanoDisplayBridge(Context context) {
         final android.content.ContentResolver cr = context.getContentResolver();
-        final String[] last = { null, null };
+        // Last values written to the provider: r, g, b (percent) and reading (0/1). -1 means
+        // "nothing written yet", so the first sync always writes. Kept as ints so a quiet tick
+        // allocates nothing: this runs every 100 ms for the whole uptime, and the String.format
+        // it used to do on every tick was the main steady garbage in system_server's heap.
+        final int[] last = { -1, -1, -1, -1 };
         final Runnable sync = () -> {
             try {
                 int r = SystemProperties.getInt("persist.gammaos.nano.display.cal_r", 100);
@@ -4667,20 +4682,24 @@ public final class SystemServer implements Dumpable {
                 r = Math.max(0, Math.min(100, r));
                 g = Math.max(0, Math.min(100, g));
                 b = Math.max(0, Math.min(100, b));
-                String rgb = String.format(java.util.Locale.US, "%.3f %.3f %.3f",
-                        r / 100f, g / 100f, b / 100f);
-                if (!rgb.equals(last[0])) {
-                    last[0] = rgb;
+                if (r != last[0] || g != last[1] || b != last[2]) {
+                    String rgb = String.format(java.util.Locale.US, "%.3f %.3f %.3f",
+                            r / 100f, g / 100f, b / 100f);
                     lineageos.providers.LineageSettings.System.putString(cr,
                             lineageos.providers.LineageSettings.System.DISPLAY_COLOR_ADJUSTMENT,
                             rgb);
+                    last[0] = r;
+                    last[1] = g;
+                    last[2] = b;
                 }
-                String reading = SystemProperties.get("persist.gammaos.nano.display.reading", "0");
-                if (!reading.equals(last[1])) {
-                    last[1] = reading;
+                int reading =
+                        SystemProperties.getInt("persist.gammaos.nano.display.reading", 0) == 1
+                                ? 1 : 0;
+                if (reading != last[3]) {
                     lineageos.providers.LineageSettings.System.putInt(cr,
                             lineageos.providers.LineageSettings.System.DISPLAY_READING_MODE,
-                            "1".equals(reading) ? 1 : 0);
+                            reading);
+                    last[3] = reading;
                 }
             } catch (Throwable e) {
                 Slog.w(TAG, "GammaOS Nano: display bridge sync failed", e);

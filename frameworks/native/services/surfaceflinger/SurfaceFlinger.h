@@ -236,6 +236,13 @@ public:
     // GammaOS: sys.gammaos.nano.drm_active as seen at the previous commit. Starts true so the
     // first commit after SF starts also re-asserts the HWC power state (see commit()).
     bool mGammaNanoDrmWasActive = true;
+    // GammaOS: the last power mode each physical display's composer was given (key: display id value; an
+    // entry exists once the display got its first ON), and whether a change was held back while a nano
+    // process drove the panels (gammaSetHwcPowerMode). Main thread only.
+    std::unordered_map<uint64_t, hal::PowerMode> mGammaHwcPowerSent;
+    bool mGammaHwcPowerDeferred = false;
+    void gammaSetHwcPowerMode(PhysicalDisplayId displayId, bool isInternal, hal::PowerMode mode)
+            REQUIRES(mStateLock, kMainThreadContext);
 
     // The offset in nanoseconds to use when VsyncController timestamps present fence
     // signaling time.

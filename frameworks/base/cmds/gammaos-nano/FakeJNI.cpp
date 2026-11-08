@@ -13,11 +13,13 @@
 
 #include "FakeJNI.h"
 
+#include <atomic>
 #include <cstring>
 #include <cstdarg>
 #include <cstdint>
 #include <cstdlib>
 #include <errno.h>
+#include <limits.h>
 #include <fcntl.h>
 #include <unistd.h>
 #include <sys/stat.h>
@@ -28,6 +30,7 @@
 #include <set>
 #include <vector>
 #include <memory>
+#include <cutils/properties.h>
 #include <utils/Log.h>
 
 namespace android {
@@ -418,6 +421,27 @@ static int ramReopen(int memfd, int flags) {
     return fd;
 }
 
+// Stamp a state file with the time it was written, once it is at its final path.
+//
+// The slot files live on the FUSE storage view (the savestates dir is a symlink into it), and a
+// rename over an existing file there leaves the file on the lower filesystem with the REPLACED
+// file's mtime: measured on the RG DS Plus, the new inode (new size) kept the old one's mtime to
+// the nanosecond, while the FUSE view's own cached attributes showed the new mtime. Whatever reads
+// the lower path (/data/media/0/..., a shell, a backup) or reads through FUSE after the cached
+// attributes are dropped (a reboot) then saw a rewritten slot 9 with a days-old date. A
+// utimensat(now) on the final path after the rename sets both views (25 of 25 rewrites correct
+// under a polling stat, against 8 of 8 stale without it). Unlinking the old file first would give
+// the right mtime too, but would leave no slot file at all if the process died in between.
+// Kill switch: sys.gammaos.drastic_nano.dss_touch=0.
+static void stampStateTime(const std::string& to) {
+    if (!property_get_bool("sys.gammaos.drastic_nano.dss_touch", true)) return;
+    const struct timespec now[2] = {{0, UTIME_NOW}, {0, UTIME_NOW}};   // the call toybox touch makes
+    if (utimensat(AT_FDCWD, to.c_str(), now, 0) != 0) {
+        // The state itself is written and in place; only its date is off.
+        ALOGW("FakeJNI: ram state stamp %s failed errno=%d", to.c_str(), errno);
+    }
+}
+
 // Copy a memfd's bytes to a disk file, atomically (sibling temp + rename).
 static bool ramMaterialize(int memfd, const std::string& to) {
     struct stat st = {};
@@ -449,6 +473,7 @@ static bool ramMaterialize(int memfd, const std::string& to) {
     close(out);
     if (ok && rename(tmp.c_str(), to.c_str()) != 0) ok = false;
     if (!ok) { unlink(tmp.c_str()); ALOGW("FakeJNI: ram state materialize to %s failed errno=%d", to.c_str(), errno); }
+    else stampStateTime(to);
     return ok;
 }
 
@@ -466,9 +491,22 @@ static int ramGetOrCreateLocked(const std::string& real, bool create) {
     return fd;
 }
 
+// See slot9LoadState() in FakeJNI.h.
+static std::atomic<int> sSlot9LoadState{0};
+int slot9LoadState() { return sSlot9LoadState.load(std::memory_order_relaxed); }
+
 static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     std::string realPath = translateVirtualPath(vpath);
     int flags = translateOpenMode(mode);
+
+    // The launch auto-load reads the slot-9 state: note its first open (and whether it opened).
+    const bool slot9Read = (flags & O_ACCMODE) == O_RDONLY && !(flags & O_CREAT) &&
+            realPath.size() >= 6 && realPath.compare(realPath.size() - 6, 6, "_9.dss") == 0;
+    auto noteSlot9 = [&](bool opened) {
+        int expect = 0;
+        if (slot9Read && sSlot9LoadState.compare_exchange_strong(expect, opened ? 1 : 2))
+            ALOGI("FakeJNI: slot 9 state opened for reading (%s)", opened ? "ok" : "failed");
+    };
 
     {
         int slot = 0;
@@ -479,6 +517,7 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
             if (fd < 0 && memfd >= 0) {
                 ALOGW("FakeJNI: ram state reopen failed for \"%s\" errno=%d", realPath.c_str(), errno);
             }
+            noteSlot9(fd >= 0);
             ALOGI("FakeJNI: ram open: \"%s\" mode=%s memfd=%d fd=%d slot=%d", realPath.c_str(),
                   mode ? mode : "(null)", memfd, fd, slot);
             return allocHandle(fd, realPath.c_str());
@@ -491,6 +530,27 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
     // See redirectFuseToDirect. Pure O_RDONLY only; writes are never rewritten.
     if ((flags & O_ACCMODE) == O_RDONLY && !(flags & O_CREAT)) {
         std::string direct = redirectFuseToDirect(realPath);
+        // The savestates dir under the private root is a symlink into the FUSE view
+        // (drastic_assets::seedRoot), so the string prefix above never matches it and a
+        // state load (the slot 9 autoload: 2.2 MB, a 1 s stall before the first emulated
+        // frame) read every page through the MediaProvider daemon, with no passthrough.
+        // Resolve the link for a .dss and give that path the same redirect and the same
+        // regular-file / readable / same-size checks. Only states: a .sav is small, gains
+        // nothing, and is also opened read-write, so its reads stay on the same FUSE view as
+        // its writes. Writes are never redirected, and the autosave is fsynced and renamed
+        // through FUSE before the next launch reads it.
+        if (direct == realPath) {
+            const char* base = baseNameOf(realPath);
+            const size_t bl = strlen(base);
+            if (bl > 4 && strcmp(base + bl - 4, ".dss") == 0) {
+                char rp[PATH_MAX];
+                if (realpath(realPath.c_str(), rp)) {
+                    const std::string resolved = rp;
+                    const std::string d2 = redirectFuseToDirect(resolved);
+                    if (d2 != resolved) direct = d2;   // only when the resolved path really maps to the direct fs
+                }
+            }
+        }
         if (direct != realPath) {
             ALOGI("FakeJNI: read-only open redirected to direct fs: \"%s\" -> \"%s\"",
                   realPath.c_str(), direct.c_str());
@@ -515,8 +575,10 @@ static NativePathHandleShim* dispatchOpen(const char* vpath, const char* mode) {
               mode ? mode : "(null)", errno, strerror(errno));
         // Still return a shim with fd=-1 so drastic can distinguish
         // "file not found" from a hard failure by reading .fileFd.
+        noteSlot9(false);
         return allocHandle(-1, realPath.c_str());
     }
+    noteSlot9(true);
     ALOGI("FakeJNI: open ok: vpath=\"%s\" real=\"%s\" mode=\"%s\" fd=%d",
           vpath, realPath.c_str(), mode ? mode : "(null)", fd);
     return allocHandle(fd, realPath.c_str());

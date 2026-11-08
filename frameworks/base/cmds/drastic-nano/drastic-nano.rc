@@ -35,6 +35,15 @@ service drastic-nano /system/bin/drastic-nano
 # calls, it just cannot present to the panel because master is ours.
 # Mirrors gammaos-nano's QR preview pattern.
 on property:sys.gammaos.drastic_nano.start=1
+    # The panel hand-back flags of the previous session (see main.cpp, handPanelToHome) first, before
+    # the trigger is consumed, so nothing that waits for the start can see them stale. Nobody is
+    # parked on this path: the home was stopped.
+    setprop sys.gammaos.drastic_nano.panel_free 0
+    setprop sys.gammaos.drastic_nano.panel_taken 0
+    setprop sys.gammaos.nano.parked 0
+    # The home is stopped here, so no SurfaceFlinger home is parked any more (see main.cpp, the
+    # early SurfaceFlinger gate at the exit); the restarted home may be a DRM home.
+    setprop sys.gammaos.drastic_nano.home_sf 0
     setprop sys.gammaos.drastic_nano.start 0
     setprop sys.gammaos.drastic_nano.session_done 0
     # Stop gammaos-nano explicitly. In the production XMB flow the
@@ -62,6 +71,8 @@ on property:sys.gammaos.drastic_nano.start=1
 # the still-running service and the parked home wakes itself on the session
 # property. The overlay stop stays for parity with start=1.
 on property:sys.gammaos.drastic_nano.start=2
+    setprop sys.gammaos.drastic_nano.panel_free 0
+    setprop sys.gammaos.drastic_nano.panel_taken 0
     setprop sys.gammaos.drastic_nano.start 0
     setprop sys.gammaos.drastic_nano.session_done 0
     stop gammaos-nano-overlay
@@ -81,6 +92,10 @@ on property:sys.gammaos.drastic_nano.start=2
 # master), so starting it early is harmless: it just waits for the activity's
 # Surface while the home hands off.
 on property:sys.gammaos.drastic_nano.start_sf=1
+    setprop sys.gammaos.drastic_nano.panel_free 0
+    setprop sys.gammaos.drastic_nano.panel_taken 0
+    setprop sys.gammaos.nano.parked 0
+    setprop sys.gammaos.drastic_nano.home_sf 0
     setprop sys.gammaos.drastic_nano.start_sf 0
     setprop sys.gammaos.drastic_nano.session_done 0
     start drastic-nano
@@ -112,3 +127,14 @@ on property:sys.gammaos.drastic_nano.session_done=1
     setprop service.bootanim.nano_retroarch 0
     start gammaos-nano
 
+# drastic-nano owns the lid and the device sleep for its DRM game session (PhoneWindowManager
+# notifyLidSwitchChanged, device/gammaos/gammaos.rc). However the service ends (exit, crash, kill), the
+# framework gets the lid back and the vendor suspend loop is no longer held off. The session flag and the
+# published volume target end with it too.
+on property:init.svc.drastic-nano=stopped
+    setprop sys.gammaos.drastic_nano.lid_owner 0
+    setprop sys.gammaos.drastic_nano.awake 0
+    # A session that ended without its tail (SIGKILL, LMK) must not look live to the framework: the BACK hold
+    # would ask a dead drastic-nano for exit_home and overlay raises would be suppressed. A relaunch sets it again.
+    setprop sys.gammaos.drastic_nano.session 0
+    setprop sys.gammaos.nano.vol_target 0

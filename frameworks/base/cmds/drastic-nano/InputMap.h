@@ -46,6 +46,9 @@ struct InputState {
     // Short/long-press BACK tracking.
     bool backWasDown = false;
     int64_t backPressStartMs = 0;
+    // The press time taken from the event itself (evdev clock, in us), so the release can
+    // measure the real hold even when one render frame drains the press and the release together.
+    int64_t backPressEvUs = 0;
 
     // Short/long-press POWER tracking (short release = sleep, hold =
     // toggle the in-game menu). powerHoldFired latches the hold action
@@ -74,6 +77,12 @@ struct InputState {
     // a close edge arms a delayed device sleep at this elapsedRealtime() deadline; an open edge clears
     // it. 0 = no pending sleep. The event poll requests the sleep once the deadline passes.
     int64_t lidSleepDueMs = 0;
+    // The event node that reports SW_LID (set by scanInputDevices on the DRM backend), for EVIOCGSW: the level
+    // of the switch right now, whatever events are still queued. -1 = none.
+    int lidFd = -1;
+    // The lid was found closed again right after a wake: the next pollInputMap turns it into a close edge, as
+    // if the event had arrived after the wake (the wake drain would otherwise throw it away).
+    bool lidReclosePending = false;
 
     // Touchscreen state. A unit can expose more than one touch node for
     // the same panel (for example a MediaTek "mtk-tpd" alongside the
@@ -90,6 +99,9 @@ struct InputState {
     // persist.gammaos.nano.cc.touchdev and any other is the top panel's.
     std::vector<int> touchNodeW, touchNodeH;
     std::vector<bool> touchNodeTop;
+    // Both a top-panel and a bottom-panel digitizer were identified (cc.touchdev set and matching
+    // one of two or more nodes). Only then does the render loop gate the stylus by panel.
+    bool hasTopTouch = false;
     // The last touch came from the top panel; its touchDs fraction is then already turned
     // into the top panel's landscape frame by persist.gammaos.nano.osk_touch_swap/flipx/flipy.
     bool touchTop = false;
@@ -146,6 +158,28 @@ struct InputState {
     // single flick).
     int  hat0xPrev = 0;
     int  hat0yPrev = 0;
+
+    // The physical Select (BTN_SELECT) level from its own press and release events, whatever the keymap or the menu
+    // do with it: Select+Vol is brightness exactly while it is held, as in PhoneWindowManager
+    // (gammaSelectPhysicallyHeld). Re-seeded from EVIOCGKEY after a rescan and after a wake.
+    bool selectPhys = false;
+    // A Select+Vol chord happened while Select is held: the DS bit the physical Select produces (selectMaskBit,
+    // dsBitForKey at the latch; 0 = nothing to mask) is kept out of out->dsBtnMask until the physical release.
+    bool selectChordLatched = false;
+    int selectMaskBit = 0;
+    // Select+Vol hold-repeat: the volume key held for the chord (0 = none), its direction, the next repeat
+    // (elapsedRealtime ms), and whether the repeat has started (for the log).
+    int volHeldCode = 0;
+    int volHeldDir = 0;
+    int64_t volRepeatDueMs = 0;
+    bool volRepeating = false;
+    // POWER press time from the event itself (evdev clock, us), as backPressEvUs.
+    int64_t powerPressEvUs = 0;
+    // The left stick drives the stylus right now (Analog Stick -> Stylus); a real finger always wins.
+    bool stickStylusActive = false;
+    // This state may toggle the Touch Cursor (action 28) and honour cursor_dbg. False for the fast input thread:
+    // the render loop owns the cursor mode and tells that thread when it may forward (main.cpp fastOwnsNow).
+    bool ownsCursorToggle = true;
 
     // Derived: which Android keycode is currently held? Tracked for
     // the "capture key" overlay mode (controls remap).
@@ -211,8 +245,9 @@ struct InputActions {
     bool navRightHeld = false;
 
     // In-app volume / brightness adjust (from the volume keys: VOL alone =
-    // volume, SELECT+VOL = brightness). -1 / 0 / +1. Drives the slider HUDs
-    // since the SurfaceFlinger system HUDs never appear on the DRM path.
+    // volume, SELECT+VOL = brightness). volAdjust is -1 / 0 / +1; brightAdjust is the
+    // signed number of brightness steps this frame (presses and repeats). Drives the
+    // slider HUDs since the SurfaceFlinger system HUDs never appear on the DRM path.
     int volAdjust = 0;
     int brightAdjust = 0;
 
@@ -222,8 +257,15 @@ struct InputActions {
     bool exitRequested = false;
     // Short POWER press (released before powerHoldMs) = system sleep.
     // Also set on a lid-close edge (hall sensor) so closing the lid
-    // sleeps exactly like a short power press.
+    // sleeps exactly like a short power press, unless a grace period applies
+    // (lidGraceRequested).
     bool sleepRequested = false;
+    // The sleep was asked for by the lid (a close edge without grace, or the delayed sleep of phys_lid_close),
+    // not by the power key.
+    bool sleepByLid = false;
+    // Lid close edge while drastic-nano owns the lid and a grace period is set: pause and darken at once and
+    // keep the panels on for the grace period (main.cpp lidGrace) instead of sleeping the device.
+    bool lidGraceRequested = false;
     // POWER held >= powerHoldMs = raise the in-game overlay menu
     // (one-shot edge).
     bool xmbOverlayRequested = false;
@@ -282,6 +324,17 @@ void pollInputMap(InputState* st,
 
 // Close all fds owned by state (devices and the hot-plug watch) and reset the vectors.
 void closeInputDevices(InputState* st);
+
+// Level of the lid switch right now (EVIOCGSW on lidFd): 1 closed, 0 open, -1 unknown (no lid node).
+int readLidSwitch(const InputState* st);
+
+// True when evCode (a KEY_*/BTN_* code) is down right now on any of st->fds (EVIOCGKEY).
+bool keyHeldNow(const InputState* st, int evCode);
+
+// Grace period of a lid close in ms (persist.gammaos.drastic_nano.lid_grace_ms, default 10000, 0..60000).
+// 0 unless drastic-nano owns the lid this session (drastic_pm::owning()): without ownership the framework
+// handles the lid and there is nothing to defer. Any thread.
+int lidGraceMs();
 
 // True once ANY input state in this process has seen a deliberate user input
 // (a button press, a D-pad or hat move, a touch on the panel). Analog stick

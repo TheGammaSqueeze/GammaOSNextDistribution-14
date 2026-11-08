@@ -42,7 +42,11 @@ std::string systemLibDir();
 // system assets linked or copied in, backup/ and savestates/ pointing at the
 // user dir, and shaders/ = system defaults overlaid with the user's shaders.
 // Idempotent and cheap on a warm root. Returns false when the tree is unusable.
-bool seedRoot(const std::string& root);
+// The cheat merge below is the one slow step (the first launch after an image update rebuilds the
+// merged database from a user file of tens of megabytes). mergeCheatsNow = false leaves it to the
+// caller, which then has to run mergeCheats(root) itself, on a helper thread if it likes, and
+// finish it before libdrastic opens <root>/usrcheat.dat.
+bool seedRoot(const std::string& root, bool mergeCheatsNow = true);
 
 // Refresh only the merged shaders/ directory (system defaults + user overrides).
 void mergeShaders(const std::string& root);
@@ -55,7 +59,9 @@ std::string cheatsDir();
 // Rebuild <root>/usrcheat.dat from the shipped database plus the user's files when either
 // changed (a stamp in <root>/.cheatmerge remembers the last merge); restores the pristine
 // copy when the folder holds no databases. Enabled flags libdrastic stored in the previous
-// merged file are carried over by cheat name. Called by seedRoot.
+// merged file are carried over by cheat name. Called by seedRoot unless it is told not to. Safe to
+// run on another thread than seedRoot's: until it returns, <root>/usrcheat.dat is either the
+// shipped copy seedRoot made or the previous merge, and is replaced atomically.
 void mergeCheats(const std::string& root);
 
 // Which of the running game's preloaded cheats come from the shipped database and which from

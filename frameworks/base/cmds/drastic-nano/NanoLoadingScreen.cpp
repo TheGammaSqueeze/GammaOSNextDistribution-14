@@ -58,7 +58,11 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
     if (!mGfx) mGfx = new OverlayGfx();
     if (!mGfxInited || mGfxW != logicalW || mGfxH != logicalH) {
         mGfx->shutdown();
-        if (!mGfx->init(logicalW, logicalH, rot ? rot : kIdentityMat)) return;
+        // The labels are Latin ("Loading game...") unless the import prompt is
+        // localized; the script faces load by themselves on the first glyph the
+        // Latin ones lack, so the common frame skips reading the CJK collection.
+        if (!mGfx->init(logicalW, logicalH, rot ? rot : kIdentityMat,
+                        /*lazyScriptFaces=*/true)) return;
         mGfxInited = true;
         mGfxW = logicalW;
         mGfxH = logicalH;
@@ -70,11 +74,18 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
     glDisable(GL_SCISSOR_TEST);
     glDisable(GL_DEPTH_TEST);
     glDisable(GL_CULL_FACE);
-    // Opaque near-black backdrop (a touch of blue, console-loading feel).
-    glClearColor(0.035f, 0.043f, 0.063f, 1.0f);
+    // Opaque near-black backdrop (a touch of blue, console-loading feel); white on the home's
+    // white launch hand-off.
+    if (mLight) glClearColor(mLightRgb[0][0], mLightRgb[0][1], mLightRgb[0][2], 1.0f);
+    else        glClearColor(0.035f, 0.043f, 0.063f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    // Text and track colours: white on the dark backdrop, a calm dark grey on the white one.
+    const bool light = mLight;
+    auto ink = [light](float a) { return light ? rgba(0.30f, 0.32f, 0.37f, a) : rgba(1.0f, 1.0f, 1.0f, a); };
+    const Color trackCol = light ? rgba(0.30f, 0.32f, 0.37f, 0.12f) : rgba(1.0f, 1.0f, 1.0f, 0.16f);
+    const Color accent = light ? rgba(0.42f, 0.60f, 0.86f, 0.95f) : rgba(0.32f, 0.68f, 1.0f, 0.98f);
 
     const float W = (float)logicalW;
     const float H = (float)logicalH;
@@ -104,19 +115,18 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
         if (tw > W * 0.92f) { labelScale *= (W * 0.92f) / tw; tw = mGfx->measure(label, labelScale); }
         float lineH = (float)fpx * labelScale;
         mGfx->text(label, (W - tw) * 0.5f, barY - lineH - H * 0.035f,
-                   labelScale, rgba(1.0f, 1.0f, 1.0f, 0.96f));
+                   labelScale, ink(0.96f));
     }
 
     if (mPromptOpt0) {
         // Question mode: detail line under the title, then the two options
         // side by side where the bar would be, the chosen one on an accent pill.
-        const Color accent = rgba(0.32f, 0.68f, 1.0f, 0.98f);
         float dScale = labelScale * 0.62f;
         if (mPromptDetail && mPromptDetail[0]) {
             float dw = mGfx->measure(mPromptDetail, dScale);
             if (dw > W * 0.92f) { dScale *= (W * 0.92f) / dw; dw = mGfx->measure(mPromptDetail, dScale); }
             mGfx->text(mPromptDetail, (W - dw) * 0.5f, barY - H * 0.02f, dScale,
-                       rgba(1.0f, 1.0f, 1.0f, 0.72f));
+                       ink(0.72f));
         }
         float oScale = labelScale * 0.8f;
         float lineH = (float)fpx * oScale;
@@ -128,8 +138,8 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
         float x1 = x0 + w0 + padX * 2.0f + gap;
         auto pill = [&](float x, float w, const char* t, bool sel) {
             if (sel) mGfx->roundedRect(x, y - padY, w + padX * 2.0f, lineH + padY * 2.0f, lineH * 0.5f, accent);
-            else     mGfx->roundedRect(x, y - padY, w + padX * 2.0f, lineH + padY * 2.0f, lineH * 0.5f, rgba(1.0f, 1.0f, 1.0f, 0.10f));
-            mGfx->text(t, x + padX, y, oScale, rgba(1.0f, 1.0f, 1.0f, sel ? 1.0f : 0.80f));
+            else     mGfx->roundedRect(x, y - padY, w + padX * 2.0f, lineH + padY * 2.0f, lineH * 0.5f, light ? rgba(0.30f, 0.32f, 0.37f, 0.10f) : rgba(1.0f, 1.0f, 1.0f, 0.10f));
+            mGfx->text(t, x + padX, y, oScale, sel ? rgba(1.0f, 1.0f, 1.0f, 1.0f) : ink(0.80f));
         };
         pill(x0, w0, mPromptOpt0, mPromptChoice == 0);
         if (mPromptOpt1) pill(x1, w1, mPromptOpt1, mPromptChoice == 1);
@@ -138,9 +148,8 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
     }
 
     // Track.
-    mGfx->roundedRect(barX, barY, barW, barH, radius, rgba(1.0f, 1.0f, 1.0f, 0.16f));
+    mGfx->roundedRect(barX, barY, barW, barH, radius, trackCol);
 
-    const Color accent = rgba(0.32f, 0.68f, 1.0f, 0.98f);
     if (progress >= 0.0f) {
         float p = progress;
         if (p < 0.0f) p = 0.0f;
@@ -157,7 +166,7 @@ void LoadingScreen::drawInto(int fbW, int fbH, int logicalW, int logicalH,
         if (pctScale < 0.5f) pctScale = 0.5f;
         float pw = mGfx->measure(pct, pctScale);
         mGfx->text(pct, (W - pw) * 0.5f, barY + barH + H * 0.028f, pctScale,
-                   rgba(1.0f, 1.0f, 1.0f, 0.80f));
+                   ink(0.80f));
     } else if (progress <= kBusy) {
         // Static "working": leave the empty track (no marquee, no %), so a
         // single frame drawn before a blocking call never looks frozen.
@@ -225,13 +234,43 @@ void LoadingScreen::frame(const char* label, float progress) {
             glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingSecondary[0].glFbo);
             glViewport(0, 0, (int)android::sAhbRingSecondary[0].w,
                        (int)android::sAhbRingSecondary[0].h);
-            glClearColor(0.035f, 0.043f, 0.063f, 1.0f);
+            if (mLight) glClearColor(mLightRgb[1][0], mLightRgb[1][1], mLightRgb[1][2], 1.0f);
+            else        glClearColor(0.035f, 0.043f, 0.063f, 1.0f);
             glClear(GL_COLOR_BUFFER_BIT);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         glFinish();
         android::drmFlipAll();
     }
+    mFrame++;
+    mLastDrawMs = android::elapsedRealtime();
+}
+
+void LoadingScreen::setLight(const float rgbTop[3], const float rgbBottom[3]) {
+    mLight = true;
+    for (int c = 0; c < 3; c++) { mLightRgb[0][c] = rgbTop[c]; mLightRgb[1][c] = rgbBottom[c]; }
+}
+
+void LoadingScreen::blankFrame() {
+    if (mSf || !mLight) { frame("Loading game...", kBusy); return; }
+    if (!android::sDrmActive || !android::sDrmZeroCopy || android::sAhbRingPrimary[0].glFbo == 0)
+        return;
+    glDisable(GL_SCISSOR_TEST);
+    // The primary ring: with the AFBC combined buffer that is both panels (two halves of one
+    // buffer), and the clear covers them both.
+    glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingPrimary[0].glFbo);
+    glViewport(0, 0, (int)android::sAhbRingPrimary[0].w, (int)android::sAhbRingPrimary[0].h);
+    glClearColor(mLightRgb[0][0], mLightRgb[0][1], mLightRgb[0][2], 1.0f);
+    glClear(GL_COLOR_BUFFER_BIT);
+    if (android::sAhbRingSecondary[0].glFbo != 0) {
+        glBindFramebuffer(GL_FRAMEBUFFER, android::sAhbRingSecondary[0].glFbo);
+        glViewport(0, 0, (int)android::sAhbRingSecondary[0].w, (int)android::sAhbRingSecondary[0].h);
+        glClearColor(mLightRgb[1][0], mLightRgb[1][1], mLightRgb[1][2], 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+    }
+    glBindFramebuffer(GL_FRAMEBUFFER, 0);
+    glFinish();
+    android::drmFlipAll();
     mFrame++;
     mLastDrawMs = android::elapsedRealtime();
 }

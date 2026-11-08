@@ -2117,6 +2117,9 @@ void NanoMenu::launchAndroidSettings() {
         // a LEANBACK activity fine; this is the overlay `am start` path, not the RootWindowContainer
         // resolver).
         if (nanoIsAtvBuild()) {
+            // RG DS Plus Menu tap (NanoMenuResume.cpp): the record is the intent the home hand-off uses below.
+            nanoResumeNoteApp("com.android.tv.settings",
+                "-a\tandroid.intent.action.MAIN\t-c\tandroid.intent.category.LEANBACK_LAUNCHER");
             overlayLaunchCommand("com.android.tv.settings",
                 "am start -n com.android.tv.settings/com.android.tv.settings.MainSettings 2>/dev/null");
             return;
@@ -2132,6 +2135,7 @@ void NanoMenu::launchAndroidSettings() {
         }
         std::string pkg = comp.substr(0, comp.find('/'));
         ALOGI("NanoMenu: launching Settings via %s (overlay)", comp.c_str());
+        nanoResumeNoteApp(pkg, "-a\tandroid.settings.SETTINGS");   // RG DS Plus Menu tap: the home hand-off's intent
         overlayLaunchCommand(pkg, "am start -n " + comp + " 2>/dev/null");
         return;
     }
@@ -2171,6 +2175,7 @@ void NanoMenu::launchAndroidSettings() {
         int ifd = open(f, O_WRONLY | O_CREAT | O_TRUNC, 0666);
         if (ifd >= 0) { ssize_t w = write(ifd, intent.c_str(), intent.size()); (void)w; close(ifd); chmod(f, 0644); }
         property_set("sys.gammaos.nano.launch_intent", ifd >= 0 ? "file" : "");
+        nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap in the home: Settings is an app it can return to
         // Trigger LAST, once the intent file + target props are in place, so the framework hand-off
         // never observes a half-written launch request.
         property_set("service.bootanim.nano_retroarch", "1");
@@ -5632,7 +5637,11 @@ void NanoMenu::launchUrl(const std::string& url) {
     // routinely exceeds the 92-byte property limit.
     std::string intent = "-n\t" + comp + "\t-a\tandroid.intent.action.VIEW\t-d\t" + url;
 
-    if (mOverlayMode) { overlayLaunchUrl(pkg, comp, url); return; }   // in-game: replace the app
+    if (mOverlayMode) {   // in-game: replace the app
+        if (!url.empty()) nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap (NanoMenuResume.cpp): back to this URL
+        overlayLaunchUrl(pkg, comp, url);
+        return;
+    }
     if (!isLaunchReady()) { showLaunchBusyToast(); return; }
     property_set("sys.gammaos.nano.launch_app", pkg.c_str());
     property_set("sys.gammaos.nano.launched_pkg", pkg.c_str());
@@ -5648,6 +5657,7 @@ void NanoMenu::launchUrl(const std::string& url) {
     property_set("persist.gammaos.nano.qr_core", "");
     property_set("sys.gammaos.nano.return_apps", "1");
     armAppLaunchTrigger();
+    nanoResumeNoteApp(pkg, intent);   // RG DS Plus Menu tap in the home: back to this URL (the note above kept the bare package)
     property_set("sys.gammaos.nano.drop_input", "1");
     mWaitForRelease = true;   // fade out + exit so the browser is on top
 }
@@ -12369,8 +12379,15 @@ void NanoMenu::closePs3Dialog(bool apply) {
     // Side-panel choosers (kind 1) play a fade + reverse-settle close animation on
     // dismiss (whether cancel or confirm). The option/swatch/sel state is left intact
     // so the fading panel still renders; input returns to the menu immediately.
-    // Fullscreen dialogs (kind 0) close instantly as before.
+    // DSi message boxes (kind 0) slide back down the same way; that is flagged at the very end,
+    // once the handlers above are known not to have handed off to another screen. Kind-0
+    // dialogs in the other themes, and the full-screen info pages, close instantly as before.
     if (mPs3DlgKind == 1) { mPs3DlgClosing = true; mPs3DlgCloseAnim = (mPs3DlgAnim > 0.02f ? mPs3DlgAnim : 1.0f); }
+    // Snapshot for that close before the page flags and mNdsInfoPage are cleared below. A box that
+    // never got a frame (anim ~0) has nothing to slide down, so it just closes.
+    const bool ndsBoxClose = mNdsTheme && mPs3DlgKind == 0 && mPs3DlgAnim > 0.02f
+                             && !mPs3DlgGameInfo && !mPs3DlgHelp && !mPs3DlgRomInfo;
+    const int  ndsBoxPage  = mNdsInfoPage;
     // Release the ROM Information page art (page-owned textures) on close. The
     // pending paths are cleared so any late async result is freed by saDrainArt, not
     // routed to a closed page.
@@ -12392,6 +12409,16 @@ void NanoMenu::closePs3Dialog(bool apply) {
         mPs3AppInfoNonce.clear(); mPs3AppInfoScroll = 0;
     }
     mNanoUninstallPending.clear();
+    // The closing flag is only cleared by the DSi renderer, so it is set only when the carousel is
+    // still the screen being drawn. If an accept handler opened the keyboard, a player, a picker,
+    // the Wi-Fi wizard, global search or an option menu, the flag would stay set: the render loop
+    // would never go idle and a ghost box would slide down on the way back.
+    if (ndsBoxClose && !(mOskActive || mPvActive || mMpActive || mVidActive || mPs3TzActive
+                         || mPs3LangActive || mPs3WizActive || mGSearchActive || mPs3OptActive)) {
+        mPs3DlgClosing = true;
+        mPs3DlgCloseAnim = mPs3DlgAnim;
+        mNdsDlgClosePage = ndsBoxPage;
+    }
     mPs3DlgActive = false;
     mPs3DlgBlurValid = false;
 }
@@ -12738,6 +12765,8 @@ void NanoMenu::openXmbOpt() {
         mPs3OptCtxPayload.clear(); mPs3OptCtxDesc.clear();
         mPs3OptCtxList.clear(); mPs3OptCtxSel = 0; mPs3OptCtxPlaylist = mPhotoGridFromPl;
         mPs3OptSel = xmbOptDefaultSel(); mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+        // No ndsDropStaleDlgClose() here: the photo grid draws renderPs3Dialog under its Options
+        // panel, which keeps ticking a message-box close that is still sliding.
         return;
     }
 
@@ -12954,6 +12983,7 @@ void NanoMenu::openXmbOpt() {
     // generic "first action after the separator" heuristic would pick.
     mPs3OptSel = (it.kind == PS3_APP) ? 0 : xmbOptDefaultSel();
     mPs3OptActive = true; mPs3OptClosing = false; mPs3OptAnim = 0.0f; mPs3OptBlurValid = false;
+    ndsDropStaleDlgClose();   // DSi: a message-box close still sliding is not ticked under the panel
 }
 
 void NanoMenu::closeXmbOpt() {
@@ -17906,6 +17936,7 @@ void NanoMenu::beginTzGlobeFade() {
 void NanoMenu::openTimezoneGlobe() {
     buildTimezoneList();          // (re)reads persist.sys.timezone + pre-selects it
     mPs3TzActive = true;
+    ndsDropStaleDlgClose();       // DSi: the picker replaces the carousel, so a box close in flight is never ticked
     beginTzGlobeFade();
 }
 
@@ -17959,6 +17990,7 @@ void NanoMenu::openLanguagePicker() {
     mLangSelected   = (int)nanoGetLocale();  // start on the active UI language
     mLangSelOnOpen  = mLangSelected;         // remember it so cancel can revert
     mPs3LangActive  = true;
+    ndsDropStaleDlgClose();                   // DSi: the picker replaces the carousel, so a box close in flight is never ticked
     mPs3LangAnim    = 0.0f;                   // play the open transition (fade + frost)
     mPs3DlgBlurValid = false;                 // force a fresh frosted-wave capture
 }

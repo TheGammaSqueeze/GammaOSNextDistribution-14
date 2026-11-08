@@ -57,6 +57,17 @@ public:
     void promptFrame(const char* title, const char* detail,
                      const char* opt0, const char* opt1, int choice);
 
+    // The home's white launch hand-off (DRM path): every frame is white instead of near-black, with
+    // grey text and bar, so the launch is one continuous white from the home's wash to the game.
+    // rgbTop / rgbBottom are that white as the primary / secondary ring's panel shows it (the
+    // display matrices applied to white).
+    void setLight(const float rgbTop[3], const float rgbBottom[3]);
+
+    // One bare frame in the light colours on every panel and nothing else: no overlay, no fonts
+    // (their load is what the full frame spends its time on). DRM path in light mode only; anything
+    // else draws the "Loading game..." frame.
+    void blankFrame();
+
 private:
     void drawInto(int fbW, int fbH, int logicalW, int logicalH,
                   const float* rot, const char* label, float progress);
@@ -74,6 +85,8 @@ private:
     bool    mGfxInited = false;
     int     mFrame = 0;
     int64_t mLastDrawMs = 0;
+    bool    mLight = false;
+    float   mLightRgb[2][3] = {{1, 1, 1}, {1, 1, 1}};
 };
 
 }  // namespace drastic_load

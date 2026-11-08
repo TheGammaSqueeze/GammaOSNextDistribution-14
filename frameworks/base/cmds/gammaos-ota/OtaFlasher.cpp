@@ -48,6 +48,7 @@
 #include <time.h>
 
 #include <android-base/file.h>
+#include <android-base/parseint.h>
 #include <android-base/properties.h>
 #include <android-base/strings.h>
 #include <cutils/properties.h>
@@ -442,11 +443,45 @@ std::string OtaFlasher::preflight(const OtaManifest& manifest) {
     }
     logToFile("INFO", "Device compatible: OK");
 
-    // Battery/charger preflight check removed: sysfs node names
-    // (/sys/class/power_supply/battery, .../ac, .../usb) vary per SoC, and a
-    // false-negative here silently aborts the flash. Rely on the manifest's
-    // min_battery field at package-build time instead of enforcing on-device.
-    logToFile("INFO", "Battery check: skipped (not enforced on-device)");
+    // Battery / charger. Node names differ per SoC, so find supplies by their 'type'.
+    // A missing node never blocks the update. Power loss during the logical write leaves a
+    // system that does not boot.
+    {
+        int capacity = -1;      // highest capacity of any present type==Battery supply
+        bool external = false;  // any non-Battery supply (Mains/USB/Wireless...) with online==1
+        DIR* d = opendir("/sys/class/power_supply");
+        if (d) {
+            struct dirent* e;
+            while ((e = readdir(d)) != nullptr) {
+                if (e->d_name[0] == '.') continue;
+                const std::string supply = std::string("/sys/class/power_supply/") + e->d_name;
+                std::string type, val;
+                if (!android::base::ReadFileToString(supply + "/type", &type)) continue;
+                type = android::base::Trim(type);
+                if (type == "Battery") {
+                    if (android::base::ReadFileToString(supply + "/present", &val) && android::base::Trim(val) == "0") continue;
+                    int c = -1;
+                    if (android::base::ReadFileToString(supply + "/capacity", &val) && android::base::ParseInt(android::base::Trim(val), &c, 0, 100))
+                        capacity = std::max(capacity, c);
+                } else if (android::base::ReadFileToString(supply + "/online", &val) && android::base::Trim(val) == "1") {
+                    external = true;
+                }
+            }
+            closedir(d);
+        }
+        const int required = std::max(manifest.minBattery, 20);
+        if (capacity < 0) {
+            logToFile("INFO", "Battery check: no battery supply with a capacity found, not enforced");
+        } else if (external) {
+            logToFile("INFO", "Battery check: %d%%, charger connected: OK", capacity);
+        } else if (capacity < required) {
+            std::string err = "Battery at " + std::to_string(capacity) + "%. Connect the charger (needs " + std::to_string(required) + "%)";
+            logToFile("ERROR", "PREFLIGHT FAIL: %s", err.c_str());
+            return err;
+        } else {
+            logToFile("INFO", "Battery check: %d%% >= %d%%: OK", capacity, required);
+        }
+    }
 
     // Verify compressed file checksums
     logToFile("INFO", "Verifying compressed file checksums...");
@@ -1579,6 +1614,34 @@ bool OtaFlasher::restoreFromBackup() {
     ALOGI("Restore complete");
     logToFile("INFO", "=== RESTORE COMPLETE (partitions resized to original sizes) ===");
     return true;
+}
+
+void OtaFlasher::cleanupAfterSuccess(const OtaManifest& manifest) {
+    // Plain syscalls only: /system is already overwritten, so no execCommand.
+    const std::string otaDir = OTA_DIR;
+    // Only touch payloads we own: a legacy Mode-A package dir elsewhere is the user's.
+    if (mPackageDir == otaDir || mPackageDir.rfind(otaDir + "/", 0) == 0) {
+        for (const auto& part : manifest.partitions) {
+            if (part.file.empty() || part.file.find("..") != std::string::npos) continue;
+            std::string p = mPackageDir + "/" + part.file;
+            if (unlink(p.c_str()) == 0) logToFile("INFO", "  Deleted: %s", p.c_str());
+        }
+        std::string m = mPackageDir + "/manifest.json";
+        if (unlink(m.c_str()) == 0) logToFile("INFO", "  Deleted: %s", m.c_str());
+    }
+    // Downloaded (nano) and copied (external_update.zip) packages at the top of OTA_DIR.
+    if (DIR* d = opendir(OTA_DIR)) {
+        struct dirent* e;
+        while ((e = readdir(d)) != nullptr) {
+            std::string n = e->d_name;
+            if (n.size() <= 4 || n.compare(n.size() - 4, 4, ".zip") != 0) continue;
+            std::string p = otaDir + "/" + n;
+            struct stat st;
+            if (lstat(p.c_str(), &st) != 0 || !S_ISREG(st.st_mode)) continue;
+            if (unlink(p.c_str()) == 0) logToFile("INFO", "  Deleted: %s", p.c_str());
+        }
+        closedir(d);
+    }
 }
 
 void OtaFlasher::reboot() {

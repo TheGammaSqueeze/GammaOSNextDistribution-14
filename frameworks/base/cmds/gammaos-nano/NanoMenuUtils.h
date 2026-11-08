@@ -100,6 +100,32 @@ inline void writePathFile(const char* path, const std::string& value) {
     }
 }
 
+// Durable whole-file replace: write <path>.tmp.<pid>, fsync, rename over <path>, fsync the dir.
+// An in-place O_TRUNC rewrite can leave an empty or zero-filled file after a hard power cut.
+// Empty data writes an empty file; it does not unlink. The pid keeps the home and the overlay
+// process, which write the same lists, from sharing a temp file.
+inline bool writeFileDurable(const char* path, const std::string& data, mode_t mode) {
+    std::string tmp = std::string(path) + ".tmp." + std::to_string((int)getpid());
+    int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, mode);
+    if (fd < 0) return false;
+    size_t off = 0; bool ok = true;
+    while (off < data.size()) {
+        ssize_t w = write(fd, data.data() + off, data.size() - off);
+        if (w <= 0) { ok = false; break; }
+        off += (size_t)w;
+    }
+    if (ok && fsync(fd) != 0) ok = false;
+    close(fd);
+    if (!ok || rename(tmp.c_str(), path) != 0) { unlink(tmp.c_str()); return false; }
+    (void)chmod(path, mode);
+    std::string dir(path);
+    size_t sl = dir.find_last_of('/');
+    dir = (sl == std::string::npos) ? std::string(".") : dir.substr(0, sl);
+    int dfd = open(dir.c_str(), O_RDONLY | O_DIRECTORY | O_CLOEXEC);
+    if (dfd >= 0) { fsync(dfd); close(dfd); }
+    return true;
+}
+
 inline std::string readPathFile(const char* path) {
     int fd = open(path, O_RDONLY);
     if (fd < 0) return std::string();

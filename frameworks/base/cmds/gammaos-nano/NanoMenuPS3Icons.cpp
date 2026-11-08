@@ -354,10 +354,10 @@ GLuint NanoMenu::loadPs3NmapTex(const char* file) {
     return uploadRGBA(px.data(), w, h);
 }
 
-// Load a DSi-theme colour sprite (an SVG rasterised to PNG, the real 4x asset) to a
-// full-RGBA GL texture. Dev-override under /data first, then the bundled /system path.
-// monoWhite=false so the sprite keeps its colours + alpha. 0 on failure (caller falls
-// back to the procedural draw).
+// Load a DSi-theme colour sprite (an SVG rasterised to PNG at 4x, or a 1x firmware cell such as
+// the launch ring and the dialog panel) to a full-RGBA GL texture. Dev-override under /data
+// first, then the bundled /system path. monoWhite=false so the sprite keeps its colours + alpha.
+// 0 on failure (caller falls back to the procedural draw).
 GLuint NanoMenu::ndsLoadTex(const char* name) {
     char path[256];
     std::vector<uint8_t> px; int w = 0, h = 0;
@@ -460,10 +460,14 @@ GLuint NanoMenu::ndsFrameTexAccented() {
 
 // Decode a PNG embedded in the binary (no file dependency) -> RGBA texture. Used for the
 // status-bar glyphs so they never depend on /data or /system being readable at render time.
+// The glyphs are white shapes tinted per state at draw time, and their transparent texels are
+// stored as black: with colour kept as-is, GL_LINEAR mixes that black into every edge texel and
+// the glyph gets a dark fringe, most visible on the light-grey inactive tint. Forcing RGB to white
+// (alpha untouched) leaves the filter to interpolate coverage only.
 GLuint NanoMenu::ndsLoadTexMem(const unsigned char* data, int len) {
     if (!data || len < 8) return 0;
     std::vector<uint8_t> px; int w = 0, h = 0;
-    if (!decodeRGBA(nullptr, data, len, &w, &h, &px, false)) return 0;
+    if (!decodeRGBA(nullptr, data, len, &w, &h, &px, /*monoWhite=*/true)) return 0;
     if (w < 2 || h < 2) return 0;
     return uploadRGBA(px.data(), w, h);
 }

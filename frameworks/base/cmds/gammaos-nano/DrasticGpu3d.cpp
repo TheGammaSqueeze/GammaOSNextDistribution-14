@@ -38,6 +38,7 @@
 #include <GLES3/gl3.h>
 #include <GLES2/gl2ext.h>
 #include <EGL/eglext.h>
+#include <android/hardware_buffer.h>
 #include <cutils/properties.h>
 #include <utils/Log.h>
 #include <string.h>
@@ -57,6 +58,10 @@
 #include <condition_variable>
 #include <atomic>
 #include <sys/mman.h>
+#include <sys/stat.h>
+#include <sys/resource.h>
+#include <fcntl.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <signal.h>
@@ -86,6 +91,17 @@ static int kW = 512, kH = 384;
 static std::atomic<int> gResCur{-1};    // 1 hi-res, 0 native: the size the GL state was built for (set after init)
 static std::atomic<int> gResWant{1};    // the size drastic's config asks for (written by the worker)
 static inline int bandRows() { return kH / 12; }                          // rows per band: 32 hi-res, 16 native
+// The bands (bit b = rows b * bandRows() ..) a polygon whose vertices span y0..y1 draws rows in, conservative: its
+// screen box. The DS and drastic rasterise rows ytop..ybot-1 (the bottom row is exclusive, see emitPoly's row table),
+// so a bottom vertex exactly on a band boundary does not mark the band below it, and a polygon without a row
+// (y1 <= y0, it draws nothing) marks nothing. drastic fogs only the bands where a fog polygon drew (band + 0x24014),
+// see Job::fogBands.
+static inline uint32_t fogBandMask(float y0, float y1) {
+    const int br = bandRows(), r0 = (int)floorf(y0), r1 = (int)ceilf(y1) - 1;   // first and last covered row
+    if (r1 < r0 || r1 < 0) return 0u;
+    const int b0 = std::max(0, std::min(11, r0 / br)), b1 = std::max(0, std::min(11, r1 / br));
+    return ((2u << b1) - 1) & ~((1u << b0) - 1);
+}
 static inline size_t outBytes(int hires) { return hires ? 0xc0000 : 0x30000; }
 
 struct Vtx {
@@ -120,6 +136,7 @@ constexpr int kSmallLayersMax = 512;
 constexpr int kDirLayers = 64, kDirBigLayers = 2;   // 64 small RGBA layers (16 MB): Mario Kart slot 0 needs about 45 entries
 static bool sBigPool = false, sDirPool = false, sDirBigPool = false;   // pool storage created (ensurePool)
 static void ensurePool(bool direct, bool big);
+static void resetProgU();   // clear the per-program uniform location table (see ProgU)
 
 struct Upload { bool big; bool direct; bool dbg; int layer, palRow, w, h; std::vector<uint8_t> data; uint8_t pal[256 * 4]; };
 static std::atomic<int> gDbgArm{0}; static int gDbgFrame = 0; static int gDbgHits = 0;   // polygon logging on the dumped frame
@@ -152,6 +169,39 @@ static int gTexDbg = 0;   // sys gpu3d_texdump: log converted entries, their GL 
 // pass alone 0.3 ms; 0 = every textured polygon.
 static int gDsUv = 3;
 static int gDsUvMin = 16;
+// persist gpu3d_rowinv (read at GL init, default on only for the RG DS Plus, 0 = the old pass): the
+// row pass starts from invalidated targets and writes only the rows in use. Every texel a fragment
+// reads was written by the same job's points, so the old table is dead; a tiled GPU then neither
+// reloads nor writes back the whole 3 MiB table (3 RGBA32I attachments, 128 x 512) per job.
+static bool gRowInv = false;
+// persist gpu3d_fused_scatter (read at GL init, default on only for the RG DS Plus, 0 = the old two
+// passes): the readback scatter applies the DS alpha lanes while it de-interleaves, one trip over
+// the 786 KB frame instead of an in-place alpha pass and a second pass that reads it all again
+// (the frame is larger than the SoC's L3, so the second pass came from DRAM). Same output bytes.
+static bool gFusedScatter = false;
+// persist gpu3d_ahb_rb (read at GL init, default on only for the RG DS Plus, 0 = glReadPixels on the GL
+// thread as before; sys gpu3d_ahb_rb 0 also turns the hand-off off live): the two colour targets
+// are AHardwareBuffers (linear, CPU readable) and the scatter helper reads the finished frame in
+// place, so the GL thread no longer spends about 1 ms per job in a glReadPixels out of the GPU's
+// tiled texture. Decoupled MSAA jobs alternate between the two buffers (the helper may still be
+// reading one while the next job draws into the other); anything else draws into set 0 and waits
+// for the helper first (see renderJob). It is only enabled after a self-test at GL init proved the
+// buffers render and read back byte for byte like the plain texture (see ahbRbInit).
+static bool gAhbRb = false;                          // GL thread: the colour sets are AHB backed and the hand-off is allowed
+static std::atomic<bool> gAhbRbOff{false};           // the helper could not lock a buffer: the GL thread reads back with glReadPixels from the next job on
+static AHardwareBuffer* gAhb[2] = {};                // colour target of set 0 and of set 1
+static EGLImageKHR gAhbImg[2] = { EGL_NO_IMAGE_KHR, EGL_NO_IMAGE_KHR };
+static size_t gAhbPitch[2] = {};                     // bytes per row of each buffer (the allocator may pad the 2048 byte row)
+static int gAhbSet = 0;                              // the set the last alternating job drew into
+static uint32_t gAhbHand = 0;                        // jobs handed over in place since the last census line
+static uint32_t gAhbMiss = 0;                        // jobs that could have been handed over but read back with glReadPixels because their fence did not read as signalled
+// persist gpu3d_spec2 (read at GL init, default on only for the RG DS Plus, 0 = the old gate): the
+// specialised programs also lose the dead maths of the A/B and debug knobs at their default values
+// (uInterp/uUvOff selects, the uDbgDepth overrides, the depth-mode select), and a second set keeps
+// the direct, format 1 and format 5/7 branches but strips toon and decal, so Mario Kart's race
+// jobs (formats 5/7 always, toon and decal never) leave the full programs. 0 = the programs
+// specialise only for jobs with none of the five classes, as before.
+static bool gSpec2 = false;
 static std::vector<int32_t>* gPolyTab = nullptr;   // the job's polygon table while its lists are built (worker thread)
 static std::vector<int32_t>* gRowOwner = nullptr;  // the job's row owner list while its lists are built
 static int gPolyRows = 0;                           // row table rows handed out so far in this job
@@ -161,11 +211,13 @@ constexpr int kRowTabW = 128, kRowTabH = 512;   // row table: one texel per poly
 // One translucent polygon in DS list (submission) order: which group it went to, where its
 // vertices start inside that group's array, how many, and its polygon id.
 struct OrdPoly { uint32_t start; uint16_t n; uint16_t pi; uint8_t grp, id, pa; int16_t bx0, by0, bx1, by1; };   // b* = screen bounding box in target pixels (inclusive), for order-safe batching   // pi = polygon bank index = DS submission order; pa = polygon alpha
-struct Stream { std::vector<Vtx> v[8]; std::vector<uint16_t> polyLen[8]; std::vector<uint8_t> polyId[8]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
+constexpr int kGrp = 16;   // groups per stream: [deq | dwrite<<1 | nodiscard<<2 | fog<<3]; the fog group bit is set only on fog post pass frames (Job::fogPost), so a draw never mixes polygon fog bits
+struct Stream { std::vector<Vtx> v[kGrp]; std::vector<uint16_t> polyLen[kGrp]; std::vector<uint8_t> polyId[kGrp]; std::vector<OrdPoly> ord; };   // [deq | dwrite<<1 | nodiscard<<2 | fog<<3]; polyLen = vertices per polygon, polyId = its 6-bit DS polygon id, list order; ord = translucent polys in list order
+static std::atomic<bool> gFogPostOk{false};   // GL thread built the fog post pass program (read by the worker, see Job::fogPost)
 // Shadow polygons (mode 3), in list order: id 0 = mask (stencil where the depth test fails),
 // others draw where the stencil is set. Consecutive polygons of one kind form a segment.
 static int gFrontBias = 1;      // sys gpu3d_front_bias: 0 off, 1 shadow polygons only (default), 2 every polygon
-struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box
+struct ShadowSeg { uint32_t start, count; bool mask, deq; uint8_t id; int16_t x0, y0, x1, y1; bool fog, dw; };   // id: the shadow's 6-bit polygon id (0 for a mask); x0..y1 its screen box; fog, dw: the polygon fog bit and depth update bit (attr bits 15 and 11), fog post pass frames only
 struct Job {
     Stream opaque, transl;
     std::vector<int32_t> polyTab;   // DS span sampling: kPolyTabW ivec4 per polygon (see gDsUv)
@@ -178,6 +230,18 @@ struct Job {
     uint32_t earlyMask = 0;   // bands marked complete at hand-off (no-wait policy)
     int noBlend = 0;   // DISP3DCNT bit 3 clear: translucent fragments replace instead of blending
     int fog = 0, fogShift = 0, fogOffset = 0; uint32_t fogColor = 0; int fogTable[32] = {}; int fogDelta[32] = {};
+    // Fog post pass (sys gpu3d_fog 1, see kFogFrag): drastic's per-pixel fog flag lives in stencil bit 0x01 and the
+    // density comes from the finished frame, like drastic's band pass. fogPost: the flag and the pass are on for this
+    // job (fog is on and the pass program exists; 0 = the per-fragment fog block of gpu3d_fog 2 / no pass program);
+    // clearFog: CLEAR_COLOR bit 15, the rear plane's flag; fogBands: the bands (bit b = rows b * bandRows() ..) a
+    // fog polygon touches, drastic fogs only bands where one drew (band + 0x24014).
+    int fogPost = 0, clearFog = 0; uint32_t fogBands = 0;
+    // fogBandsSet and the box fogBx0..fogBy1 (kW x kH pixels like Vtx::x / y, inclusive-exclusive): the bands and the screen
+    // box of the fog polygons that can SET the flag, a subset of fogBands (see emitPoly). With clearFog 0 every flagged
+    // sample lies inside them, so the pass shades only there. fogFlat / fogFlatD: the density table is flat (all 32 entries
+    // equal), so the density is the one value fogFlatD (127 already mapped to 128) at any depth and the pass needs no depth fetch.
+    uint32_t fogBandsSet = 0; int fogBx0 = 1 << 30, fogBy0 = 1 << 30, fogBx1 = -(1 << 30), fogBy1 = -(1 << 30);
+    int fogFlat = 0, fogFlatD = 0;
     // Toon / highlight shading (polygon mode 2): 32 entry table from gx+0x9934, lanes expanded
     // to the 6 bit range the vertex colours use. toonHighlight mirrors DISP3DCNT bit 1.
     bool toonUsed = false; int toonR[32] = {}, toonG[32] = {}, toonB[32] = {}; int toonHighlight = 0;
@@ -186,6 +250,7 @@ struct Job {
     uint32_t presentSeqAtQueue = 0;   // presents seen when the job was queued (decoupled: run after the next one)
     int64_t kickUs = 0;               // when the emulator queued the job (latency census)
     uint32_t seq = 0;                 // kick sequence number (the compositor's lag rule)
+    int pow15 = -1;                   // POWCNT1 bit 15 at the kick: which screen the engine's 3D layer belongs to (parity-matched reads)
     bool edge = false;
     uint32_t edgeTbl[8] = {};
     size_t verts = 0;
@@ -193,7 +258,9 @@ struct Job {
     // Two-in-flight pipeline (GL thread only): which target set the job draws into, whether the
     // loop allowed it to return after submission, and what it left behind for completeJob.
     int set = 0; bool pipe2 = false, submitted = false, sBlendAlpha = false;
-    uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): a clear mask takes the specialised programs
+    bool ahbRb = false;   // pipe2 only: the frame stays in the AHB colour target, completeJob hands it to the scatter helper without a glReadPixels
+    bool scatHand = false;   // handed to the scatter helper, which publishes it (or, after a failed AHB lock, does not): the loop must not publish it again
+    uint32_t classMask = 0;   // polygon classes present (bit 0 direct-colour texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal): bits 0-4 clear takes the specialised programs, bits 3-4 clear the toon/decal-free ones (gpu3d_spec2)
     GLsync fence = nullptr; int fenceFd = -1; int64_t st0 = 0, st1 = 0, st2 = 0;
 };
 
@@ -219,7 +286,16 @@ struct Gpu3d {
     // Lag rule state (g.mtx): the sequence of the newest finished job, the finished job before it,
     // the sequence of the job kicked this frame, and the lag mode the compositor reads with.
     uint32_t latestSeq = 0; uint8_t* prevTarget = nullptr; uint32_t prevSeq = 0; uint32_t kickSeq = 0;
-    struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
+    struct Fin { uint8_t* t = nullptr; uint32_t seq = 0; int pow15 = -1; } fin[4]; unsigned finN = 0;   // the last four finished jobs, newest at (finN - 1) & 3
+    // Parity mode (sys gpu3d_swap_parity, g.mtx): while a game swaps the engines between the screens
+    // every frame, each screen assignment (POWCNT1 bit 15) keeps its own newest finished frame. That
+    // buffer is what the compositor shows for the assignment and is not reused as a target for as
+    // long as it is the newest of its assignment, however old it gets.
+    struct ParHold { uint8_t* t = nullptr; uint32_t seq = 0; } parHold[2]; bool parityOn = false;
+    uint32_t parDropQ = 0, parDropNew = 0;   // parity mode: queued jobs replaced / new jobs shed instead of waiting for the GL thread
+    // Texture uploads of jobs that were shed (g.mtx): they are newer than every job already queued and
+    // older than the next one that is, so that next job runs them first (see the queue block).
+    std::vector<Upload> parCarry;
     uint8_t* bufE = nullptr;        // fifth decoupled buffer: with the lag rule two finished frames stay readable
     uint8_t* bufF = nullptr;        // sixth: the buffer the lag rule would read right now stays protected as well
     std::atomic<uint32_t> curSeq{0}; std::atomic<int> lagMode{0}; uint32_t lagMissWin = 0, lagClean = 0, lagRuleEnters = 0;
@@ -234,8 +310,11 @@ struct Gpu3d {
     EGLSurface surf = EGL_NO_SURFACE;
     GLuint progNoFetch = 0, progTrivial = 0, progOpaque = 0, progExp6 = 0, progExp7 = 0, uPassNoFetch = 0;
     GLuint progNoFetchNF = 0, progOpaqueNF = 0;   // the same two without the fog block, for frames with fog off
+    GLuint progNF = 0, progFog = 0; GLint uFogDbg = -1; bool fogDepthFetch = false;   // progNF: g.prog without the fog block (fog-free and post pass frames); progFog: the fog post pass (kFogFrag), needs framebuffer fetch of colour and depth
+    GLuint progFogFlat = 0; GLint uFogDbgFlat = -1, uFogFlatD = -1;   // the same pass for a flat density table (kFogFragFlat): no depth fetch; 0 = not built, drawFog then uses progFog
     GLuint progNoFetchVZ = 0, progOpaqueVZ = 0, progNoFetchNFVZ = 0, progOpaqueNFVZ = 0;   // vertex-depth variants (Z-buffer frames, early depth rejection)
     GLuint progSp[2][2][2] = {}; GLint uAlphaMulSp[2][2][2] = {}; bool specOk = false;   // specialised programs [vertex depth][no fog][opaque]: frames without direct/format 1/5/7/toon/decal polygons
+    GLuint progSp7[2][2][2] = {}; bool spec7Ok = false;   // gpu3d_spec2 only: the same without the toon and decal branches (direct, format 1 and 5/7 kept), for frames without toon and decal polygons
     GLuint opq = 0;                               // this job's opaque (no-discard) program: progOpaque or progOpaqueNF
     bool vzJob = false;                           // this job draws with the vertex-depth programs
     GLuint progShadowMs = 0; GLint uAlphaMulShadowMs = -1;   // MSAA shadow pass: reads the id attachment by framebuffer fetch (no detach)
@@ -901,6 +980,82 @@ void main() {
     fragColor = edge ? vec4(uEdge[id >> 3].rgb, c.a) : c;
 }
 )";
+// Fog post pass (drawFog in renderJob): drastic's band fog (+0x5eccc colour+alpha, +0x5ed78 alpha
+// only; density +0x8f4e0, blend +0x8f5d8) over the finished frame, before edge marking as drastic
+// does. Stencil bit 0x01 is the per-pixel fog flag (EQUAL test, so unflagged samples are never
+// shaded); colour by framebuffer fetch, the depth-buffer value by ARM depth fetch: no attachment is
+// sampled and no draw buffer changes, so the pass stays in the tile pass (per sample on MSAA).
+// The flag follows drastic's: an opaque pixel takes the polygon's fog bit, a translucent pixel keeps
+// old & fog bit, the rear plane starts from CLEAR_COLOR bit 15 (see stencilPlain and the shadow pass).
+// The stored depth is drastic's: opaque pixels store it, translucent and shadow (id != 0) pixels only with
+// the polygon's depth update bit (an alpha 31 pixel of those would store it anyway, approximated).
+const char* kFogFrag = R"(#version 300 es
+#extension GL_EXT_shader_framebuffer_fetch : require
+#extension GL_ARM_shader_framebuffer_fetch_depth_stencil : require
+precision highp float;
+precision highp int;
+layout(location = 0) inout vec4 fragColor;
+uniform int uFog;          // 1 colour and alpha, 2 alpha only (DISP3DCNT bit 6)
+uniform ivec2 uFogParam;   // (shift, (0x400 >> shift) + offset)
+uniform ivec2 uFogTune;    // depth bias in 24-bit units; 1 = floor the step (drastic's sqdmulh), 0 = round
+uniform vec4 uFogColor;    // r, g, b 6-bit, a 5-bit
+uniform int uFogTable[32];
+uniform int uFogDelta[32];
+uniform float uAlphaMul;   // the job's alpha lane: 1/31 blend factor (GL-blend), 1/255 the 5-bit value (fetch)
+uniform int uFogDbg;       // 1: flagged samples magenta, 2: their stored depth in the uDbgDepth encoding
+void main() {
+    vec4 c = fragColor;
+    int dz = int(floor(gl_LastFragDepthARM * 16777215.0 + 0.5)) + uFogTune.x;
+    int z16 = (dz >> 9) & 0x7fff;
+    int t = z16 - uFogParam.y; if (t < 0) t = 0;
+    int z2 = t << uFogParam.x; if (z2 > 0x7fff) z2 = 0x7fff;
+    int idx = z2 >> 10, frac = z2 & 0x3ff;
+    int d = (uFogTable[idx] + ((uFogDelta[idx] * frac + (uFogTune.y != 0 ? 0 : 512)) >> 10)) & 255;
+    if (d == 127) d = 128;
+    float fd = float(d);
+    float r = floor(c.r * 255.0 + 0.5), gg = floor(c.g * 255.0 + 0.5), b = floor(c.b * 255.0 + 0.5);
+    float a = floor(c.a / uAlphaMul + 0.5);   // exact for both lanes (a/31 is stored as round(a*255/31))
+    if (uFog == 1) {
+        r = r + floor((uFogColor.r - r) * fd * (1.0 / 128.0));
+        gg = gg + floor((uFogColor.g - gg) * fd * (1.0 / 128.0));
+        b = b + floor((uFogColor.b - b) * fd * (1.0 / 128.0));
+    }
+    a = a + floor((uFogColor.a - a) * fd * (1.0 / 128.0));   // alpha is never tested: alpha-0 flagged pixels fog too (drastic)
+    fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
+    if (uFogDbg == 1) fragColor = vec4(63.0 / 255.0, 0.0, 63.0 / 255.0, 31.0 * uAlphaMul);
+    if (uFogDbg == 2) { float q = floor(gl_LastFragDepthARM * 16777215.0 + 0.5) / 64.0; fragColor = vec4(mod(q, 64.0) * (4.0 / 255.0), mod(floor(q / 64.0), 64.0) * (4.0 / 255.0), floor(q / 4096.0) * (4.0 / 255.0), 31.0 * uAlphaMul); }
+}
+)";
+// The same pass for a flat density table (all 32 entries equal, Job::fogFlat). Then every delta is 0 and the density of
+// kFogFrag is table[idx] whatever the depth, the bias, the step rounding or idx, so it is one uniform and the depth fetch goes:
+// the shader reads only the colour, and the stencil test is no longer held back behind a depth read. The lines from the
+// decode on are kFogFrag's, unchanged (every value is a small integer or an integer over 128, exact in highp float), so
+// the output is bit identical. gpu3d_fog_dbg 2 (the depth view) keeps kFogFrag.
+const char* kFogFragFlat = R"(#version 300 es
+#extension GL_EXT_shader_framebuffer_fetch : require
+precision highp float;
+precision highp int;
+layout(location = 0) inout vec4 fragColor;
+uniform int uFog;          // 1 colour and alpha, 2 alpha only (DISP3DCNT bit 6)
+uniform vec4 uFogColor;    // r, g, b 6-bit, a 5-bit
+uniform float uAlphaMul;   // the job's alpha lane: 1/31 blend factor (GL-blend), 1/255 the 5-bit value (fetch)
+uniform int uFogDbg;       // 1: flagged samples magenta
+uniform int uFogFlatD;     // the table's one density, 127 already mapped to 128 (as kFogFrag does)
+void main() {
+    vec4 c = fragColor;
+    float fd = float(uFogFlatD);
+    float r = floor(c.r * 255.0 + 0.5), gg = floor(c.g * 255.0 + 0.5), b = floor(c.b * 255.0 + 0.5);
+    float a = floor(c.a / uAlphaMul + 0.5);   // exact for both lanes (a/31 is stored as round(a*255/31))
+    if (uFog == 1) {
+        r = r + floor((uFogColor.r - r) * fd * (1.0 / 128.0));
+        gg = gg + floor((uFogColor.g - gg) * fd * (1.0 / 128.0));
+        b = b + floor((uFogColor.b - b) * fd * (1.0 / 128.0));
+    }
+    a = a + floor((uFogColor.a - a) * fd * (1.0 / 128.0));   // alpha is never tested: alpha-0 flagged pixels fog too (drastic)
+    fragColor = vec4(r / 255.0, gg / 255.0, b / 255.0, a * uAlphaMul);
+    if (uFogDbg == 1) fragColor = vec4(63.0 / 255.0, 0.0, 63.0 / 255.0, 31.0 * uAlphaMul);
+}
+)";
 
 GLuint compile(GLenum type, const std::string& src) {
     GLuint sh = glCreateShader(type);
@@ -943,10 +1098,117 @@ bool ensureSsaaBuffers() {
     return true;
 }
 
+// A zeroed range of layers in the texture array bound on the active unit, in a few uploads
+// instead of one per layer: the old loop was 128 calls for the atlas plus 512 for its palette
+// rows, inside a 237 ms 'tex' stall mid-race on the 1 GB Plus. The source is a private read-only
+// anonymous mapping, which reads as the shared zero page: it adds nothing to the resident set (a
+// std::vector would memset and commit all of it on a device that cannot spare that), and it is
+// at most 4 MB, so a driver that stages a client-memory upload stages no more than that.
+static void zeroLayers(int w, int h, int bytesPerTexel, GLenum fmt, int firstLayer, int count) {
+    if (count <= 0) return;
+    const size_t layerBytes = (size_t)w * h * bytesPerTexel;
+    const int perCall = (int)std::max<size_t>(1, std::min<size_t>((size_t)count, ((size_t)4 << 20) / layerBytes));
+    const size_t mapBytes = layerBytes * perCall;
+    void* m = mmap(nullptr, mapBytes, PROT_READ, MAP_PRIVATE | MAP_ANONYMOUS, -1, 0);
+    if (m == MAP_FAILED) {   // the one-layer loop this replaced
+        std::vector<uint8_t> z(layerBytes, 0);
+        for (int l = 0; l < count; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, firstLayer + l, w, h, 1, fmt, GL_UNSIGNED_BYTE, z.data());
+        return;
+    }
+    for (int l = 0; l < count; l += perCall)
+        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, firstLayer + l, w, h, std::min(perCall, count - l), fmt, GL_UNSIGNED_BYTE, m);
+    munmap(m, mapBytes);
+}
+
+// Per-game pool hint. The big and direct-colour pools and the atlas growth stall the GL thread
+// for 100 to 350 ms the first time a game needs them (Mario Kart: the direct pool at the race
+// start, the atlas growth to 256 layers mid-race), because Mali commits the memory while the
+// frame being drawn waits. What a game needed once it needs again, so the GL thread records it
+// per ROM in a one-line file (written off the GL thread) and the next session's GL init creates
+// exactly those pools while the CPU rasterizer still covers the frames. A game that never needed
+// a pool never gets one, so the memory ceiling stays what it was and only the moment moves. A
+// missing or unreadable file means the lazy path as before; sys gpu3d_pool_hint 0 turns it off.
+struct PoolHint { int small = kSmallLayers; bool dir = false, dirBig = false, big = false; };
+static PoolHint gPoolHint;           // the file's contents merged with what this process has needed (GL thread, and the writer thread under the mutex)
+static std::mutex gPoolHintMtx;
+static std::string gPoolHintPath;    // set by gpu3dSetPoolHint before the GL thread exists; empty = no hint file
+static bool gPoolHintLoaded = false;
+
+// GL thread, once per process (a resolution rebuild keeps the merged state in memory).
+static void loadPoolHint() {
+    if (gPoolHintLoaded) return;
+    gPoolHintLoaded = true;
+    if (gPoolHintPath.empty()) return;
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_pool_hint", 1) == 0) { gPoolHintPath.clear(); return; }
+    FILE* f = fopen(gPoolHintPath.c_str(), "re");
+    if (!f) return;
+    char buf[128] = {};
+    const size_t n = fread(buf, 1, sizeof buf - 1, f);
+    fclose(f);
+    int small = 0, dir = 0, dirBig = 0, big = 0;
+    if (n == 0 || sscanf(buf, "small=%d dir=%d dirbig=%d big=%d", &small, &dir, &dirBig, &big) != 4 ||
+        (small != 128 && small != 256 && small != 512) || small > kSmallLayersMax ||
+        (unsigned)dir > 1u || (unsigned)dirBig > 1u || (unsigned)big > 1u) {
+        ALOGW("gpu3d: pool hint %s unreadable, pools stay lazy", gPoolHintPath.c_str());
+        return;
+    }
+    std::lock_guard<std::mutex> lk(gPoolHintMtx);
+    gPoolHint.small = small; gPoolHint.dir = dir != 0; gPoolHint.dirBig = dirBig != 0; gPoolHint.big = big != 0;
+    ALOGI("gpu3d: pool hint: small atlas %d layers, direct pool %d, direct big pool %d, big pool %d", small, dir, dirBig, big);
+}
+
+// Writer thread: one small file, a temporary and a rename so a reader never sees half of it, no
+// fsync (losing it costs a lazy pool, nothing else).
+static void* poolHintWriter(void*) {
+    // Spawned from the GL thread and so inherits its SCHED_FIFO and nice: this is a 40 byte file
+    // on a microSD and must not compete with anything.
+    struct sched_param sp = {};
+    pthread_setschedparam(pthread_self(), SCHED_OTHER, &sp);
+    setpriority(PRIO_PROCESS, 0, 10);
+    static std::mutex writeMtx;
+    std::lock_guard<std::mutex> wl(writeMtx);   // writes go one at a time, each takes the newest state
+    PoolHint h;
+    { std::lock_guard<std::mutex> lk(gPoolHintMtx); h = gPoolHint; }
+    char buf[128];
+    const int len = snprintf(buf, sizeof buf, "small=%d dir=%d dirbig=%d big=%d\n", h.small, h.dir ? 1 : 0, h.dirBig ? 1 : 0, h.big ? 1 : 0);
+    const std::string tmp = gPoolHintPath + ".tmp";
+    const int fd = open(tmp.c_str(), O_WRONLY | O_CREAT | O_TRUNC | O_CLOEXEC, 0660);
+    if (fd < 0) { ALOGW("gpu3d: pool hint %s not written: errno %d", gPoolHintPath.c_str(), errno); return nullptr; }
+    const bool wrote = write(fd, buf, len) == len;
+    close(fd);
+    if (!wrote || rename(tmp.c_str(), gPoolHintPath.c_str()) != 0) { unlink(tmp.c_str()); ALOGW("gpu3d: pool hint %s not written", gPoolHintPath.c_str()); return nullptr; }
+    ALOGI("gpu3d: pool hint saved: small atlas %d layers, direct pool %d, direct big pool %d, big pool %d", h.small, h.dir ? 1 : 0, h.dirBig ? 1 : 0, h.big ? 1 : 0);
+    return nullptr;
+}
+
+// GL thread: a pool was just created or the atlas just grew. Only a need beyond what the hint
+// already holds is worth a write, so a session that starts from its hint writes nothing.
+static void notePoolHint(bool dir, bool dirBig, bool big, int small) {
+    if (gPoolHintPath.empty()) return;
+    {
+        std::lock_guard<std::mutex> lk(gPoolHintMtx);
+        bool changed = false;
+        if (dir && !gPoolHint.dir) { gPoolHint.dir = true; changed = true; }
+        if (dirBig && !gPoolHint.dirBig) { gPoolHint.dirBig = true; changed = true; }
+        if (big && !gPoolHint.big) { gPoolHint.big = true; changed = true; }
+        if (small > gPoolHint.small && small <= kSmallLayersMax) { gPoolHint.small = small; changed = true; }
+        if (!changed) return;
+    }
+    pthread_t t;
+    if (pthread_create(&t, nullptr, poolHintWriter, nullptr) == 0) pthread_detach(t);
+}
+
+static void ahbRbInit();   // defined with the target sets, after ensureSet2
 bool initGl() {
     if (g.inited) return true;
     if (g.failed) return false;
     g.failed = true;   // cleared on success
+    resetProgU();      // the programs below are new objects, whatever names the driver hands out
+    {   // The scatter helper is idle here (destroyGl drains it before a rebuild, and it starts only after the first init), so it sees this value through gScMtx with its next job.
+        char fsDev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", fsDev, "");
+        gFusedScatter = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_fused_scatter", strcmp(fsDev, "anbernicrgdsplus") == 0);
+        ALOGI("gpu3d: readback scatter %s", gFusedScatter ? "applies the DS alpha in the same pass" : "keeps the separate alpha pass");
+    }
     g.dpy = eglGetDisplay(EGL_DEFAULT_DISPLAY);
     if (g.dpy == EGL_NO_DISPLAY || !eglInitialize(g.dpy, nullptr, nullptr)) {
         ALOGE("gpu3d: eglInitialize failed 0x%x", eglGetError()); return false;
@@ -994,10 +1256,22 @@ bool initGl() {
     if (!eglMakeCurrent(g.dpy, g.surf, g.surf, g.ctx)) { ALOGE("gpu3d: eglMakeCurrent failed 0x%x", eglGetError()); return false; }
     const char* ext = (const char*)glGetString(GL_EXTENSIONS);
     g.fbFetch = ext && strstr(ext, "GL_EXT_shader_framebuffer_fetch");
+    g.fogDepthFetch = ext && strstr(ext, "GL_ARM_shader_framebuffer_fetch_depth_stencil");
     g.timerExt = ext && strstr(ext, "GL_EXT_disjoint_timer_query");
-    ALOGI("gpu3d: %s / %s, framebuffer fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.timerExt);
+    ALOGI("gpu3d: %s / %s, framebuffer fetch %d, depth fetch %d, timer query %d", glGetString(GL_RENDERER), glGetString(GL_VERSION), g.fbFetch, g.fogDepthFetch, g.timerExt);
 
-    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false, bool spec = false) -> GLuint {
+    // stripMask (specialised programs): the class branches the program loses, bit 0 direct-colour
+    // texture, 1 format 1, 2 formats 5/7, 3 toon, 4 decal (0x1f = all of them, a job with none of the
+    // five classes). knobs: also the dead maths of the A/B and debug knobs at their default values
+    // (gpu3d_spec2); the job selector hands such a program only to jobs whose knobs are at default.
+    auto build = [&](bool fetch, bool trivial, bool noDiscard = false, int expt = 0, bool fetchAttr = false, bool noFog = false, bool vz = false, int stripMask = 0, bool knobs = false) -> GLuint {
+        // Replace the first occurrence of an anchor; a missing anchor is logged and the code kept (still correct, only slower).
+        auto stripText = [](std::string& s, const char* anchor, const char* repl) -> bool {
+            size_t q = s.find(anchor);
+            if (q == std::string::npos) { ALOGW("gpu3d: knob strip anchor missing: %s", anchor); return false; }
+            s.replace(q, strlen(anchor), repl); return true;
+        };
+        const int probeBits = property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0);
         std::string frag = kFragHead;
         if (fetch || fetchAttr) frag += "#extension GL_EXT_shader_framebuffer_fetch : require\n";
         frag += fetch ? "layout(location = 0) inout vec4 fragColor;\n" : "layout(location = 0) out vec4 fragColor;\n";
@@ -1026,10 +1300,14 @@ bool initGl() {
             // Removes the per-polygon branches Pokemon White 2's title never takes (direct-colour
             // textures, formats 1/5/7, toon, decal) to measure what a per-frame specialised program
             // could save; wrong output on any frame that uses them.
-            if (spec || (property_get_int32("sys.gammaos.drastic_nano.gpu3d_probe", 0) & 1024)) {
-                for (auto pr : { std::pair<const char*, const char*>{"if ((vTex0.y & 2) != 0) {", "if (false) {"},
+            if (probeBits & 1024) stripMask = 0x1f;
+            if (stripMask != 0) {
+                const std::pair<const char*, const char*> classStrip[5] = { {"if ((vTex0.y & 2) != 0) {", "if (false) {"},
                                  {"if (fmt == 1) {", "if (false) {"}, {"else if (fmt == 5 || fmt == 7) {", "else if (false) {"},
-                                 {"bool toonMode = (mode == 2);", "bool toonMode = false;"}, {"if (mode == 1 && texOn) {", "if (false) {"} }) {
+                                 {"bool toonMode = (mode == 2);", "bool toonMode = false;"}, {"if (mode == 1 && texOn) {", "if (false) {"} };
+                for (int cb = 0; cb < 5; cb++) {
+                    if (!(stripMask & (1 << cb))) continue;
+                    const auto& pr = classStrip[cb];
                     size_t q = body.find(pr.first); if (q == std::string::npos) ALOGW("gpu3d: spec probe anchor missing: %s", pr.first); else body.replace(q, strlen(pr.first), pr.second);
                 }
             }
@@ -1043,11 +1321,52 @@ bool initGl() {
             // Probe (sys gpu3d_ezprobe=1 at program build): strip the shader depth write from the no-discard
             // opaque program so the GPU can reject hidden fragments early. Depth order is then the fixed
             // function value (wrong for W-buffered frames); timing only.
+            bool ezCut = false;
             { const int ez = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ezprobe", 0); if ((noDiscard && ez != 0) || ez == 2) {   // 2: every program (the whole frame on fixed-function depth)
                 size_t q = frag.find("    if (uDepthMode != 0) gl_FragDepth"); if (q != std::string::npos) frag.erase(q, frag.find('\n', q) + 1 - q);
                 for (size_t r; (r = frag.find("floor(gl_FragDepth * 16777215.0 + 0.5)")) != std::string::npos;) frag.replace(r, 38, "floor(gl_FragCoord.z * 16777215.0 + 0.5)");
                 ALOGI("gpu3d: ezprobe: opaque program built without a depth write (%s)", frag.find("gl_FragDepth") == std::string::npos ? "clean" : "gl_FragDepth still referenced");
+                ezCut = true;
             } }
+            // Knobs at default (gpu3d_spec2 programs, and sys gpu3d_probe bit 4096 on every program at build:
+            // timing only, correct for W-buffered frames on the MSAA path at default knobs). Mali cannot fold
+            // uniforms, so the selects and branches that only a non-default A/B or debug knob reaches ran
+            // for every fragment: the perspective-correct uv and colour selects with their divisions, the
+            // uUvOff derivative blocks, the uDbgDepth overrides, the depth-mode select, and the shadow bias
+            // branch in the programs that never run the shadow mask. Every kept expression has its exact text,
+            // so the arithmetic is unchanged. A missing anchor is logged and the code kept.
+            if (knobs || (probeBits & 4096)) {
+                stripText(frag, "vec2 uv = ((uInterp & 2) != 0) ? vUvW.xy / vUvW.z : vUv;", "vec2 uv = vUv;");
+                stripText(frag, "vec3 vcIn = ((uInterp & 1) != 0) ? vColW / vUvW.z : vCol;", "vec3 vcIn = vCol;");
+                stripText(frag, "if (uUvOff != 0) {", "if (false) {");
+                stripText(frag, "if ((uUvOff & 16) != 0)", "if (false)");
+                stripText(frag, "if (uDbgDepth != 0) {", "if (false) {");
+                stripText(frag, "if (uDbgDepth == 2)", "if (false)");
+                // The third override reads dsPx/dsPy, which move into the span block below, so the whole line goes.
+                bool dbg3Cut = false;
+                { size_t q = frag.find("    if (uDbgDepth == 3)");
+                  if (q == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: if (uDbgDepth == 3)"); else { frag.erase(q, frag.find('\n', q) + 1 - q); dbg3Cut = true; } }
+                // dsPos and the two floors only serve the span sampler (and that override): move them to the top of its block.
+                if (dbg3Cut) {
+                    static const char kDsLines[] = "    vec2 dsPos = vDsW.xy / vDsW.z;\n    int dsPx = int(floor(dsPos.x + 0.0625)), dsPy = int(floor(dsPos.y + 0.0625));\n";
+                    static const char kDsBlock[] = "if ((uDsUv & 3) != 0 && (vTex1.z >> 12) != 0) {\n";
+                    const size_t q = frag.find(kDsLines);
+                    if (q == std::string::npos || frag.find(kDsBlock) == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: dsPos lines or the span block");
+                    else {
+                        const std::string moved = frag.substr(q, sizeof kDsLines - 1);
+                        frag.erase(q, moved.size());
+                        frag.insert(frag.find(kDsBlock) + sizeof kDsBlock - 1, moved);
+                    }
+                }
+                if (!noDiscard) {   // the shadow mask sets uShadowBias on the opaque program only
+                    size_t q = frag.find("    if (uShadowBias != 0.0) dOut +=");
+                    if (q == std::string::npos) ALOGW("gpu3d: knob strip anchor missing: if (uShadowBias != 0.0)"); else frag.erase(q, frag.find('\n', q) + 1 - q);
+                }
+                if (!vz) {   // vertex-depth programs keep both lines: their depth write is erased below and dOut is dead there
+                    stripText(frag, "((uDepthMode == 2) ? vDepthW / vUvW.z : vDepth)", "vDepth");
+                    if (!ezCut) stripText(frag, "if (uDepthMode != 0) gl_FragDepth = dOut;", "gl_FragDepth = dOut;");
+                }
+            }
             if (fetchAttr) {
                 size_t q = frag.find("void main() {"); frag.insert(q + 13, "\n    vec4 attrIn = attrOut;");
                 q = frag.find("texelFetch(uAttr, ivec2(gl_FragCoord.xy), 0).r"); if (q != std::string::npos) frag.replace(q, 46, "attrIn.r");
@@ -1093,6 +1412,7 @@ bool initGl() {
         return pr;
     };
     g.prog = build(g.fbFetch, false);
+    g.progNF = build(g.fbFetch, false, false, 0, false, true);   // g.prog minus the fog block (fog-free and fog post pass frames); a failure leaves 0 and g.prog is used
     g.progNoFetch = build(false, false);
     g.progTrivial = build(false, true);
     g.progOpaque = build(false, false, true);
@@ -1127,18 +1447,67 @@ bool initGl() {
     // branches for direct-colour textures, formats 1/5/7, toon and decal. A job whose polygons use
     // none of them (Job::classMask == 0) draws with these; the output is identical because the
     // removed paths are never taken. Pokemon White 2's title: GL job 17.9 -> 14.6 ms.
+    // gpu3d_spec2 (default on only for the RG DS Plus) builds them with the knobs-at-default strip as
+    // well, and adds progSp7 (toon and decal stripped, the other three classes kept): the race in
+    // Mario Kart has formats 5/7 in every frame and toon and decal in none, so it never matched the
+    // all-class gate (12 of 22529 jobs). The full programs stay the fallback for every job outside
+    // the variants' conditions (see renderJob).
     if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_spec", 1)) {
+        { char s2Dev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", s2Dev, "");
+          gSpec2 = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_spec2", strcmp(s2Dev, "anbernicrgdsplus") == 0); }
         bool ok = true;
         for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
             if (vzi && !g.progNoFetchVZ) continue;
-            GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, true);
+            GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, 0x1f, gSpec2);
             if (!pr) ok = false;
             g.progSp[vzi][nf][op] = pr; g.uAlphaMulSp[vzi][nf][op] = pr ? glGetUniformLocation(pr, "uAlphaMul") : -1;
         }
         g.specOk = ok;
         if (!ok) { ALOGW("gpu3d: specialised programs failed to build, every frame keeps the full programs"); for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) c = 0; }
-        else ALOGI("gpu3d: specialised programs built for frames without direct/format 1/5/7/toon/decal polygons");
+        else ALOGI("gpu3d: specialised programs built for frames without direct/format 1/5/7/toon/decal polygons%s", gSpec2 ? " (knobs at default stripped)" : "");
+        if (gSpec2) {
+            bool ok7 = true;
+            for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
+                if (vzi && !g.progNoFetchVZ) continue;
+                GLuint pr = build(false, false, op == 1, 0, false, nf == 1, vzi == 1, 0x18, true);
+                if (!pr) ok7 = false;
+                g.progSp7[vzi][nf][op] = pr;
+            }
+            g.spec7Ok = ok7;
+            if (!ok7) { ALOGW("gpu3d: toon/decal-free programs failed to build, those frames keep the other programs"); for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) c = 0; }
+            else ALOGI("gpu3d: toon/decal-free programs built for frames without toon and decal polygons");
+        }
     }
+    // Fog post pass (sys gpu3d_fog 1, see kFogFrag). Needs the colour and the depth fetch; without it (or when
+    // the build fails) every fog frame keeps the per-fragment fog block, the gpu3d_fog 2 behaviour.
+    if (g.fbFetch && g.fogDepthFetch) {
+        GLuint vs = compile(GL_VERTEX_SHADER, kEdgeVert), fs = compile(GL_FRAGMENT_SHADER, kFogFrag);
+        if (vs && fs) {
+            GLuint pr = glCreateProgram(); glAttachShader(pr, vs); glAttachShader(pr, fs); glLinkProgram(pr);
+            GLint ok = 0; glGetProgramiv(pr, GL_LINK_STATUS, &ok);
+            if (ok) {
+                g.progFog = pr; g.uFogDbg = glGetUniformLocation(pr, "uFogDbg");
+                glUseProgram(pr); const GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);   // a job sets the real lane scale; this keeps the warm-up draw finite
+            } else { char log[2048] = {}; glGetProgramInfoLog(pr, sizeof log, nullptr, log); ALOGE("gpu3d: fog pass link failed: %s", log); glDeleteProgram(pr); }
+        }
+    }
+    // The flat-table variant without the depth fetch (kFogFragFlat). Only with the pass itself, so the knob and the
+    // fallback logic stay what they were; a failed build leaves 0 and drawFog keeps progFog.
+    if (g.progFog) {
+        GLuint vs = compile(GL_VERTEX_SHADER, kEdgeVert), fs = compile(GL_FRAGMENT_SHADER, kFogFragFlat);
+        if (vs && fs) {
+            GLuint pr = glCreateProgram(); glAttachShader(pr, vs); glAttachShader(pr, fs); glLinkProgram(pr);
+            GLint ok = 0; glGetProgramiv(pr, GL_LINK_STATUS, &ok);
+            if (ok) {
+                g.progFogFlat = pr; g.uFogDbgFlat = glGetUniformLocation(pr, "uFogDbg"); g.uFogFlatD = glGetUniformLocation(pr, "uFogFlatD");
+                glUseProgram(pr); const GLint am = glGetUniformLocation(pr, "uAlphaMul"); if (am >= 0) glUniform1f(am, 1.0f / 255.0f);   // as for progFog: keeps the warm-up draw finite
+            } else { char log[2048] = {}; glGetProgramInfoLog(pr, sizeof log, nullptr, log); ALOGE("gpu3d: flat fog pass link failed: %s", log); glDeleteProgram(pr); }
+        }
+        if (vs) glDeleteShader(vs);
+        if (fs) glDeleteShader(fs);
+    }
+    gFogPostOk.store(g.progFog != 0);
+    ALOGI("gpu3d: fog post pass %s (framebuffer fetch %d, depth fetch %d, flat-table variant %s)", g.progFog ? "built" : "unavailable, per-fragment fog", g.fbFetch ? 1 : 0, g.fogDepthFetch ? 1 : 0, g.progFogFlat ? "built" : "no");
     glUseProgram(g.prog);
     g.uPass = glGetUniformLocation(g.prog, "uPass");
     glUniform1i(g.uPass, 0);
@@ -1148,9 +1517,15 @@ bool initGl() {
         glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, ifmt, w, h, layers);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     };
-    arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, kSmallLayers);
-    arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, kPalRows);
-    g.smallLayersGl = kSmallLayers; g.palRowsGl = kPalRows;
+    // The atlas starts at the size an earlier session of this game grew it to (the default 128
+    // layers without a hint). The worker-side capacity follows here, before g.inited is
+    // published: the worker hands out no layer until then, and destroyGl writes the same fields.
+    loadPoolHint();
+    PoolHint hint; { std::lock_guard<std::mutex> lk(gPoolHintMtx); hint = gPoolHint; }
+    const int smallInit = hint.small, palInit = hint.small * (kPalRows / kSmallLayers);
+    arr(g.smallTex, GL_TEXTURE0, GL_R8UI, kSmall, kSmall, smallInit);
+    arr(g.palTex, GL_TEXTURE1, GL_RGBA8, 256, 1, palInit);
+    g.smallLayers = g.smallLayersGl = smallInit; g.palRows = g.palRowsGl = palInit;
     // The big and direct-colour pools (4 + 16 + 8 MB of Mali memory, which nothing can page out)
     // get their storage the first time a game asks for a layer (ensurePool, GL thread); most games
     // never do. Until then the units hold texture objects without storage, which sample as zero.
@@ -1185,11 +1560,22 @@ bool initGl() {
             else { glUseProgram(g.rowProg); glUniform1i(glGetUniformLocation(g.rowProg, "uPolyTab"), 8); glUniform1i(glGetUniformLocation(g.rowProg, "uRowOwner"), 11); }
         }
         if (rst != GL_FRAMEBUFFER_COMPLETE || !g.rowProg) { ALOGW("gpu3d: DS span sampling unavailable (row fbo %x, program %u): GL's own texel mapping stays", rst, g.rowProg); g.rowProg = 0; }
-        else ALOGI("gpu3d: DS span sampling ready (row table %d x %d)", kRowTabW, kRowTabH);
+        else {
+            char rowDev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", rowDev, "");
+            gRowInv = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_rowinv", strcmp(rowDev, "anbernicrgdsplus") == 0);
+            ALOGI("gpu3d: DS span sampling ready (row table %d x %d, row pass invalidate+scissor %d)", kRowTabW, kRowTabH, gRowInv ? 1 : 0);
+        }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     glActiveTexture(GL_TEXTURE0);
     sBigPool = sDirPool = sDirBigPool = false;
+    // The pools this game needed before get their storage now, while the CPU rasterizer covers
+    // the frames, instead of in the middle of the first race. Only those pools: the others stay
+    // lazy (see ensurePool). ensurePool leaves its unit active.
+    if (hint.dir) ensurePool(true, false);
+    if (hint.dirBig) ensurePool(true, true);
+    if (hint.big) ensurePool(false, true);
+    glActiveTexture(GL_TEXTURE0);
     glGenTextures(1, &g.colorTex); glBindTexture(GL_TEXTURE_2D, g.colorTex);
     glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
@@ -1329,10 +1715,12 @@ bool initGl() {
         std::vector<uint8_t> z((size_t)kSmall * kSmall, 0);
         glActiveTexture(GL_TEXTURE0); glBindTexture(GL_TEXTURE_2D_ARRAY, g.smallTex);
         for (int l = 0; l < kSmallLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, kSmall, kSmall, 1, GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
+        zeroLayers(kSmall, kSmall, 1, GL_RED_INTEGER, kSmallLayers, g.smallLayersGl - kSmallLayers);   // a hinted atlas is bigger than the default
         // (the big and direct-colour pools are filled when ensurePool creates them)
         uint8_t pal[1024] = {};
         glActiveTexture(GL_TEXTURE1); glBindTexture(GL_TEXTURE_2D_ARRAY, g.palTex);
         for (int l = 0; l < kPalRows; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, 256, 1, 1, GL_RGBA, GL_UNSIGNED_BYTE, pal);
+        zeroLayers(256, 1, 4, GL_RGBA, kPalRows, g.palRowsGl - kPalRows);
         for (GLuint fb : { g.fbo }) {   // ssFbo is now allocated lazily and warmed on first SSAA use
             glBindFramebuffer(GL_FRAMEBUFFER, fb);
             glViewport(0, 0, kW, kH);
@@ -1341,7 +1729,7 @@ bool initGl() {
             glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
             glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
             glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
-            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            for (GLuint pr : { g.prog, g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF, g.progTrivial, g.progShadowMs ? g.progShadowMs : g.progTrivial, g.progNF ? g.progNF : g.progTrivial, g.progFog ? g.progFog : g.progTrivial, g.progFogFlat ? g.progFogFlat : g.progTrivial }) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }
             glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         }
         if (g.msFbo) {   // the MSAA target too, read back exactly as renderJob does, full size:
@@ -1370,6 +1758,9 @@ bool initGl() {
         glBindFramebuffer(GL_FRAMEBUFFER, g.fbo); glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
         glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
         glFinish();
+        // The AHB colour targets (gAhbRb), if wanted and proven here, replace set 0's plain texture
+        // before the state warm-up below, which then warms the MSAA path on the buffer a real job uses.
+        ahbRbInit();
         glBindFramebuffer(GL_FRAMEBUFFER, g.edgeFbo); glUseProgram(g.edgeProg); glBindVertexArray(g.edgeVao); glDrawArrays(GL_TRIANGLES, 0, 3);
         glUseProgram(g.resolveProg); glDrawArrays(GL_TRIANGLES, 0, 3);
         glReadPixels(0, 0, 8, 8, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
@@ -1386,11 +1777,11 @@ bool initGl() {
             glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
             glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX);
             glEnable(GL_STENCIL_TEST); glStencilMask(0xff);
-            for (GLuint pr : { g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF }) {
+            auto warmProg = [&](GLuint pr, int dm0, int dm1) {
                 glUseProgram(pr);
                 const GLint ld = glGetUniformLocation(pr, "uDepthMode");
                 const GLint lp = glGetUniformLocation(pr, "uPass");
-                for (int dm = 0; dm <= 2; dm++) {
+                for (int dm = dm0; dm <= dm1; dm++) {
                     if (ld >= 0) glUniform1i(ld, dm);
                     for (int pass = 0; pass <= 2; pass++) {
                         if (lp >= 0) glUniform1i(lp, pass);
@@ -1405,6 +1796,24 @@ bool initGl() {
                     if (ld >= 0) glUniform1i(ld, 0);
                     if (lp >= 0) glUniform1i(lp, 0);
                 }
+            };
+            for (GLuint pr : { g.progNoFetch, g.progOpaque, g.progNoFetchNF, g.progOpaqueNF }) warmProg(pr, 0, 2);
+            // The vertex-depth and specialised programs were never drawn here, so their first real job
+            // paid the driver's finish of the program (the program build itself only links it) in the
+            // middle of a race. Each is drawn in the one depth mode it is meant for: the vertex-depth ones
+            // take Z-buffered frames (mode 2), the knob-stripped ones W-buffered frames (mode 1, or the
+            // vertex-depth form), the old all-class ones whatever mode the frame had.
+            if (g.progNoFetchVZ) for (GLuint pr : { g.progNoFetchVZ, g.progOpaqueVZ, g.progNoFetchNFVZ, g.progOpaqueNFVZ }) warmProg(pr, 2, 2);
+            for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) {
+                const int d0 = vzi ? 2 : (gSpec2 ? 1 : 0), d1 = vzi ? 2 : (gSpec2 ? 1 : 2);
+                if (g.specOk && g.progSp[vzi][nf][op]) warmProg(g.progSp[vzi][nf][op], d0, d1);
+                if (g.spec7Ok && g.progSp7[vzi][nf][op]) warmProg(g.progSp7[vzi][nf][op], d0, d1);
+            }
+            // The fog post pass: a full-screen draw of flagged samples (EQUAL 1/1, nothing written), blend off as the warm-up above left it.
+            if (g.progFog) {
+                glDisable(GL_DEPTH_TEST); glStencilMask(0); glStencilFunc(GL_EQUAL, 1, 1); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+                for (GLuint pr : { g.progFog, g.progFogFlat }) if (pr) { glUseProgram(pr); glDrawArrays(GL_TRIANGLES, 0, 3); }   // the flat-table variant too, so its first fog frame causes no compile hitch
+                glEnable(GL_DEPTH_TEST); glStencilMask(0xff);
             }
             glDisable(GL_STENCIL_TEST);
             glBlendEquation(GL_FUNC_ADD); glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -1428,6 +1837,7 @@ void resetAtlas() {
     g.texCache.clear(); g.smallNext = g.bigNext = g.palNext = g.dirNext = g.dirBigNext = 0;
     g.freeSmall.clear(); g.freeBig.clear(); g.freePal.clear(); g.freeDir.clear(); g.freeDirBig.clear();
     g.atlasGen++;
+    { std::lock_guard<std::mutex> lk(g.mtx); g.parCarry.clear(); }   // the layers it names are gone (callers hold no g.mtx)
 }
 static bool takeLayer(std::vector<int>& freeList, int& next, int limit, int& out) {
     if (!freeList.empty()) { out = freeList.back(); freeList.pop_back(); return true; }
@@ -1438,7 +1848,9 @@ static bool takeLayer(std::vector<int>& freeList, int& next, int limit, int& out
 // pools, created on the GL thread the first time an upload needs one and zeroed like the eager
 // pools. On the 1 GB Plus the GPU path already costs the emulator about 175 MB over the CPU
 // rasterizer and the kernel pages its working set through zram all session; 28 MB of Mali
-// memory that most games never touch is not paid up front.
+// memory that most games never touch is not paid up front. (A game that needed a pool in an
+// earlier session gets it at GL init instead, see PoolHint: the same memory, committed before
+// the first frame rather than during a race.)
 static void ensurePool(bool direct, bool big) {
     bool& ready = direct ? (big ? sDirBigPool : sDirPool) : sBigPool;
     if (ready) return;
@@ -1446,13 +1858,15 @@ static void ensurePool(bool direct, bool big) {
     const GLuint tex = direct ? (big ? g.dirBigTex : g.dirTex) : g.bigTex;
     const int dim = big ? kBig : kSmall;
     const int layers = direct ? (big ? kDirBigLayers : kDirLayers) : kBigLayers;
+    const int64_t t0 = nowUs();
     glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, tex);
     glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, direct ? GL_RGBA8 : GL_R8UI, dim, dim, layers);
-    std::vector<uint8_t> z((size_t)dim * dim * (direct ? 4 : 1), 0);
-    for (int l = 0; l < layers; l++)
-        glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, dim, dim, 1, direct ? GL_RGBA : GL_RED_INTEGER, GL_UNSIGNED_BYTE, z.data());
+    const int64_t t1 = nowUs();
+    zeroLayers(dim, dim, direct ? 4 : 1, direct ? GL_RGBA : GL_RED_INTEGER, 0, layers);
     ready = true;
-    ALOGI("gpu3d: %s%s texture pool created (%d x %d x %d layers)", direct ? "direct " : "", big ? "big" : "small", dim, dim, layers);
+    notePoolHint(direct && !big, direct && big, !direct, 0);
+    ALOGI("gpu3d: %s%s texture pool created (%d x %d x %d layers) in %.1f ms (storage %.1f, zero fill %.1f)", direct ? "direct " : "", big ? "big" : "small", dim, dim, layers,
+          (nowUs() - t0) / 1000.0, (t1 - t0) / 1000.0, (nowUs() - t1) / 1000.0);
 }
 bool allocLayer(bool big, int& layer, int& pal, bool direct = false) {
     if (direct) {
@@ -1486,20 +1900,26 @@ static void growAtlasIfWanted() {
     if (!looked) { looked = true; pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubData"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataEXT"); if (!pCopy) pCopy = (CopyFn)eglGetProcAddress("glCopyImageSubDataOES"); }
     if (!pCopy) { ALOGW("gpu3d: no glCopyImageSubData, the small texture atlas stays at %d layers", g.smallLayersGl); g.growWant.store(0); return; }
     const int wantPal = want * (kPalRows / kSmallLayers);   // the same ratio the worker uses for g.palRows
+    int64_t usStorage = 0, usFill = 0, usCopy = 0;   // CPU time spent submitting each step (the driver may still be working after it returns)
     auto regrow = [&](GLuint& tex, GLenum unit, GLenum ifmt, GLenum fmt, int w, int h, int oldLayers, int newLayers) {
+        const int64_t a = nowUs();
         GLuint nt = 0; glGenTextures(1, &nt); glActiveTexture(unit); glBindTexture(GL_TEXTURE_2D_ARRAY, nt);
         glTexStorage3D(GL_TEXTURE_2D_ARRAY, 1, ifmt, w, h, newLayers);
         glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D_ARRAY, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        std::vector<uint8_t> z((size_t)w * h * (ifmt == GL_RGBA8 ? 4 : 1), 0);
-        for (int l = oldLayers; l < newLayers; l++) glTexSubImage3D(GL_TEXTURE_2D_ARRAY, 0, 0, 0, l, w, h, 1, fmt, GL_UNSIGNED_BYTE, z.data());
+        const int64_t b = nowUs();
+        zeroLayers(w, h, ifmt == GL_RGBA8 ? 4 : 1, fmt, oldLayers, newLayers - oldLayers);
+        const int64_t c = nowUs();
         pCopy(tex, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, nt, GL_TEXTURE_2D_ARRAY, 0, 0, 0, 0, w, h, oldLayers);
         glDeleteTextures(1, &tex); tex = nt;
+        usStorage += b - a; usFill += c - b; usCopy += nowUs() - c;
     };
     regrow(g.smallTex, GL_TEXTURE0, GL_R8UI, GL_RED_INTEGER, kSmall, kSmall, g.smallLayersGl, want);
     if (wantPal > g.palRowsGl) regrow(g.palTex, GL_TEXTURE1, GL_RGBA8, GL_RGBA, 256, 1, g.palRowsGl, wantPal);
     const GLenum err = glGetError();
-    ALOGI("gpu3d: small texture atlas now %d layers and %d palette rows (was %d / %d), gl error 0x%x", want, wantPal > g.palRowsGl ? wantPal : g.palRowsGl, g.smallLayersGl, g.palRowsGl, err);
+    ALOGI("gpu3d: small texture atlas now %d layers and %d palette rows (was %d / %d), gl error 0x%x, submit %.1f ms (storage %.1f, zero fill %.1f, copy %.1f)", want, wantPal > g.palRowsGl ? wantPal : g.palRowsGl, g.smallLayersGl, g.palRowsGl, err,
+          (usStorage + usFill + usCopy) / 1000.0, usStorage / 1000.0, usFill / 1000.0, usCopy / 1000.0);
     g.smallLayersGl = want; if (wantPal > g.palRowsGl) g.palRowsGl = wantPal;
+    notePoolHint(false, false, false, want);
 }
 // Release both slots of an entry back to the free lists.
 static void releaseEntry(const TexEntry& t) {
@@ -1842,7 +2262,13 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
         // never darkens itself; that needs the destination id per pixel and is not done here.)
         const uint8_t sid = (uint8_t)((pattr >> 24) & 63); const bool mask = sid == 0;
         std::vector<Vtx>& sv = g.cur->shadow; std::vector<ShadowSeg>& segs = g.cur->shadowSegs;
-        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid, 32767, 32767, -32768, -32768 });
+        // Fog post pass frames: a shadow pixel is DS translucent, so the pixel's fog flag becomes old & the
+        // polygon's fog bit (a mask polygon never touches it), and its depth is stored when the polygon has the
+        // depth update bit (drastic's translucent kernels, bit 11; the fog pass reads the stored depth). One segment
+        // never mixes either bit. Other frames keep the shadow pass depth-read-only: nothing reads the depth after it.
+        const bool sfog = g.cur->fogPost && !mask && ((pattr >> 15) & 1);
+        const bool sdw = g.cur->fogPost && !mask && ((pattr >> 11) & 1);
+        if (segs.empty() || segs.back().mask != mask || segs.back().deq != (deq != 0) || segs.back().id != sid || segs.back().fog != sfog || segs.back().dw != sdw) segs.push_back({ (uint32_t)sv.size(), 0, mask, deq != 0, sid, 32767, 32767, -32768, -32768, sfog, sdw });
         Vtx v[16];
         for (int k = 0; k < n; k++) {
             int kk = (order >> (4 * k)) & 15;
@@ -1869,6 +2295,11 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
               if (px < sg.x0) sg.x0 = px; if (px > sg.x1) sg.x1 = px;
               if (py < sg.y0) sg.y0 = py; if (py > sg.y1) sg.y1 = py;
           } }
+        if (sfog) {   // the bands a fog polygon touches (drastic fogs only those)
+            float y0 = v[0].y, y1 = v[0].y;
+            for (int k = 1; k < n; k++) { y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
+            g.cur->fogBands |= fogBandMask(y0, y1);
+        }
         segs.back().count = (uint32_t)sv.size() - segs.back().start;
         return;
     }
@@ -1883,7 +2314,9 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     // translucent list. GTA Chinatown Wars draws its cloud layers as such polygons in the opaque
     // list; blended against the transparent rear plane they came out dark and faceted.
     const bool partialA = !translucent && t && (fmt == 1 || fmt == 6);
-    const int grpIdx = deq | ((translucent ? dwrite : (partialA ? 1 : 0)) << 1) | ((mayDiscard ? 0 : 1) << 2);
+    // Group bit 3: the polygon's fog bit, only on fog post pass frames (the stencil takes no per-fragment
+    // value, so a draw must not mix fog bits: drawStream puts the bit into the stencil reference).
+    const int grpIdx = deq | ((translucent ? dwrite : (partialA ? 1 : 0)) << 1) | ((mayDiscard ? 0 : 1) << 2) | ((g.cur && g.cur->fogPost && ((pattr >> 15) & 1)) ? 8 : 0);
     std::vector<Vtx>& dst = out.v[grpIdx];
     Vtx v[16];
     for (int k = 0; k < n; k++) {
@@ -1910,6 +2343,24 @@ void emitPoly(const uint8_t* rec, const uint8_t* vb, const uint32_t* shapeTbl, b
     if (gFrontBias >= 2) {   // DS facing from the screen winding (y down); only with the bias on every polygon
         float area = 0.f; for (int k = 0; k < n; k++) { const int k2 = (k + 1) % n; area += v[k].x * v[k2].y - v[k2].x * v[k].y; }
         if (area < 0.f) for (int k = 0; k < n; k++) v[k].tex1[2] |= 1 << 9;
+    }
+    if (grpIdx & 8) {   // a fog polygon: the bands it touches (drastic fogs only those)
+        float x0 = v[0].x, x1 = v[0].x, y0 = v[0].y, y1 = v[0].y;
+        for (int k = 1; k < n; k++) { x0 = std::min(x0, v[k].x); x1 = std::max(x1, v[k].x); y0 = std::min(y0, v[k].y); y1 = std::max(y1, v[k].y); }
+        const uint32_t fbm = fogBandMask(y0, y1);
+        g.cur->fogBands |= fbm;
+        // The flag (stencil bit 0x01) becomes 1 only through a fog group's REPLACE with the fog bit (stencilPlain(false)): an opaque
+        // list polygon, or the alpha 31 pass (uPass 1) of a translucent one; its alpha < 31 pass keeps the flag (fogWm(true) is 0
+        // there), and shadows and non-fog polygons only clear it. A translucent polygon with alpha 1..30 never draws an alpha 31
+        // fragment (a = floor(ta * (alpha + 1) / 32) <= 30 for ta <= 31), so it never sets the flag. Direct and format 7 texels
+        // can carry an alpha lane above 31 (not pinned down), alpha 0 is the wireframe case: both stay in, conservatively.
+        // With CLEAR_COLOR bit 15 clear no other sample is flagged, so the pass only has to cover these polygons (drawFog).
+        const int pa = (pattr >> 16) & 31;
+        if (!translucent || pa == 31 || pa == 0 || (t && (t->direct || fmt == 7))) {
+            g.cur->fogBandsSet |= fbm;
+            g.cur->fogBx0 = std::min(g.cur->fogBx0, (int)floorf(x0)); g.cur->fogBx1 = std::max(g.cur->fogBx1, (int)ceilf(x1));
+            g.cur->fogBy0 = std::min(g.cur->fogBy0, (int)floorf(y0)); g.cur->fogBy1 = std::max(g.cur->fogBy1, (int)ceilf(y1));
+        }
     }
     const uint32_t vStart = (uint32_t)dst.size();
     for (int k = 1; k + 1 < n; k++) { dst.push_back(v[0]); dst.push_back(v[k]); dst.push_back(v[k + 1]); }
@@ -2025,7 +2476,7 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
         // draw can merge screen-disjoint runs into single draws (the runs broke on contiguity
         // 167 times a frame on Pokemon White 2's town before this).
         static std::vector<Vtx> tmpV; static std::vector<uint16_t> tmpL; static std::vector<uint8_t> tmpI; static std::vector<uint32_t> tmpIdx;
-        for (int grp = 0; grp < 8; grp++) {
+        for (int grp = 0; grp < kGrp; grp++) {
             std::vector<Vtx>& vv = out.v[grp];
             if (vv.empty()) continue;
             tmpV.clear(); tmpV.reserve(vv.size()); tmpL.clear(); tmpI.clear();
@@ -2052,8 +2503,61 @@ void buildList(const uint8_t* lists, const uint8_t* pb, const uint8_t* vb, const
     }
 }
 
+// Uniform locations a job sets on the programs it draws with, looked up by name once per program
+// instead of once per job (about 20 glGetUniformLocation string lookups on each of the 2 or 3
+// programs a job uses, plus uPass on every program switch and two more in the shadow pass). A
+// location never changes for a linked program; the table is cleared whenever the programs are
+// deleted (destroyGl, initGl), because GL reuses the names. alphaMul is -1 for the programs that
+// never take the alpha lane scale (g.prog and the probe programs), exactly as before, and
+// alphaVal remembers what was last written so an unchanged scale costs no call. The other per-job
+// uniforms are still written every job: warm-up, the shadow pass and the draw loop write some of
+// the same ones, so only their locations are cached.
+struct ProgU {
+    GLuint prog = 0;
+    GLint alphaMul = -1; bool alphaKnown = false; float alphaVal = 0.f;
+    GLint interp = -1, uvOff = -1, vtxShift = -1, dsUv = -1, depthMode = -1, deqTol = -1, frontBias = -1, shadowBias = -1, translZBias = -1, shadowSlope = -1, dbgDepth = -1, attrDepth = -1, noBlend = -1;
+    GLint fog = -1, fogParam = -1, fogTune = -1, fogColor = -1, fogTable = -1, fogDelta = -1;
+    GLint toonR = -1, toonG = -1, toonB = -1, toonHighlight = -1;
+    GLint pass = -1, shadowPass = -1;
+};
+constexpr int kProgUMax = 48;   // 32 programs exist at most (9 base, 4 vertex-depth, 8 specialised, 8 toon/decal-free, the fetch fog-free one and the two fog post pass programs)
+static ProgU gProgU[kProgUMax]; static int gProgUN = 0;
+static void resetProgU() { gProgUN = 0; for (ProgU& p : gProgU) p = ProgU(); }
+// The programs that take the alpha lane scale (1/31 as a blend factor, 1/255 as the stored 5-bit
+// value): the no-fetch, opaque, vertex-depth and specialised variants, the MSAA shadow pass and the two fog
+// post pass programs (they decode and re-encode the alpha lane).
+static bool takesAlphaScale(GLuint pr) {
+    if (!pr) return false;
+    if (pr == g.progNoFetch || pr == g.progOpaque || pr == g.progNoFetchNF || pr == g.progOpaqueNF || (g.progShadowMs && pr == g.progShadowMs) || (g.progFog && pr == g.progFog) || (g.progFogFlat && pr == g.progFogFlat)) return true;
+    if (g.progNoFetchVZ && (pr == g.progNoFetchVZ || pr == g.progOpaqueVZ || pr == g.progNoFetchNFVZ || pr == g.progOpaqueNFVZ)) return true;
+    if (g.specOk) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp[a][b][c]) return true;
+    if (g.spec7Ok) for (int a = 0; a < 2; a++) for (int b = 0; b < 2; b++) for (int c = 0; c < 2; c++) if (pr == g.progSp7[a][b][c]) return true;
+    return false;
+}
+static ProgU* progU(GLuint prog) {
+    for (int i = 0; i < gProgUN; i++) if (gProgU[i].prog == prog) return &gProgU[i];
+    static ProgU overflow;   // the table cannot fill; if it ever did, look the names up again on each call
+    ProgU* p = gProgUN < kProgUMax ? &gProgU[gProgUN++] : &(overflow = ProgU());
+    p->prog = prog;
+    if (takesAlphaScale(prog)) p->alphaMul = glGetUniformLocation(prog, "uAlphaMul");
+    p->interp = glGetUniformLocation(prog, "uInterp"); p->uvOff = glGetUniformLocation(prog, "uUvOff");
+    p->vtxShift = glGetUniformLocation(prog, "uVtxShift"); p->dsUv = glGetUniformLocation(prog, "uDsUv");
+    p->depthMode = glGetUniformLocation(prog, "uDepthMode"); p->deqTol = glGetUniformLocation(prog, "uDeqTol");
+    p->frontBias = glGetUniformLocation(prog, "uFrontBias"); p->shadowBias = glGetUniformLocation(prog, "uShadowBias");
+    p->translZBias = glGetUniformLocation(prog, "uTranslZBias"); p->shadowSlope = glGetUniformLocation(prog, "uShadowSlope");
+    p->dbgDepth = glGetUniformLocation(prog, "uDbgDepth"); p->attrDepth = glGetUniformLocation(prog, "uAttrDepth");
+    p->noBlend = glGetUniformLocation(prog, "uNoBlend");
+    p->fog = glGetUniformLocation(prog, "uFog"); p->fogParam = glGetUniformLocation(prog, "uFogParam");
+    p->fogTune = glGetUniformLocation(prog, "uFogTune"); p->fogColor = glGetUniformLocation(prog, "uFogColor");
+    p->fogTable = glGetUniformLocation(prog, "uFogTable"); p->fogDelta = glGetUniformLocation(prog, "uFogDelta");
+    p->toonR = glGetUniformLocation(prog, "uToonR"); p->toonG = glGetUniformLocation(prog, "uToonG");
+    p->toonB = glGetUniformLocation(prog, "uToonB"); p->toonHighlight = glGetUniformLocation(prog, "uToonHighlight");
+    p->pass = glGetUniformLocation(prog, "uPass"); p->shadowPass = glGetUniformLocation(prog, "uShadowPass");
+    return p;
+}
+
 void useProgram(GLuint prog, bool blend) {
-    if (prog != g.curProg) { glUseProgram(prog); g.curProg = prog; g.uPass = glGetUniformLocation(prog, "uPass"); }
+    if (prog != g.curProg) { glUseProgram(prog); g.curProg = prog; g.uPass = progU(prog)->pass; }
     if (blend != g.curBlend) { if (blend) glEnable(GL_BLEND); else glDisable(GL_BLEND); g.curBlend = blend; }
 }
 
@@ -2066,7 +2570,7 @@ void useProgram(GLuint prog, bool blend) {
 // where it is set. Per polygon, so a polygon never blends over its own first pass. The fetch path
 // does the same arithmetic in the shader and needs none of this.
 static std::atomic<uint32_t> gDcLayerAdv{0}, gDcLayerRep{0};   // decoupled composites that read a new / the same 3D frame (emulator thread)
-static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0;   // per-300-frame draw census
+static uint32_t gDcOpaqueDraws = 0, gDcTranslOrd = 0, gDcTranslDraws = 0, gDcDsPairs = 0, gDcPrepass = 0, gDcOrdPolys = 0, gDcShadowCasterDraws = 0, gDcRowJobs = 0, gDcRowLines = 0;   // per-300-frame draw census (row jobs / lines: jobs that ran the DS span sampling row pass, and the table lines it drew)
 static int gProbe = 0;   // sys gpu3d_probe timing probes (A/B only, wrong output): 1 plain blend equation, 2 no drawn plane, 4 no shadow pass, 8 no caster redraw, 16 full stencil clears, 32 no translucent stream, 64 no opaque stream, 128 quarter-size viewport
 static bool gDsBlend = false;   // true while a job renders on the GL-blend path with the rule active
 static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-polygon-id translucent rejection
@@ -2077,8 +2581,25 @@ static int gTranslSameId = 1;   // sys gpu3d_transl_sameid: apply the DS same-po
 // rejected as "same id" and the water never appeared.
 static inline int translIdCode(int id) { return id >= 62 ? 63 : id + 1; }
 static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the translucent list in DS submission order (see drawStream)
+// Fog flag (stencil bit 0x01 while gFogFlag, i.e. on fog post pass frames): drastic's per-pixel flag that
+// gates its fog post pass (kFogFrag). A DS opaque pixel (the opaque list, or a translucent polygon's alpha 31
+// fragment) takes the polygon's fog bit; a DS translucent pixel keeps old & fog: a fog polygon leaves the
+// bit alone, a non-fog one clears it. The stencil takes no per-fragment value, so a draw never mixes fog
+// bits (group bit 3) and the value comes from the reference: gFogRef is the fog bit of the group being
+// drawn. The shadow plane moves to 0x02 on those frames (drawShadows), the drawn flag and the id code are
+// dead once the translucent list has drawn.
+static int gFogFlag = 0, gFogRef = 0;
+static int gVshQ = 2;   // sys gpu3d_vshift: the vertex shift in quarter pixels (renderJob polls it); drawFog pads its box by it
+// Write mask bit 0x01 for a draw: always for an opaque pixel (REPLACE), for a translucent pixel only when the polygon has no fog bit (REPLACE with 0 = the AND).
+static inline GLuint fogWm(bool translPart) { return (gFogFlag && !(translPart && gFogRef)) ? 0x01u : 0x00u; }
+static inline GLint fogRefBit() { return gFogFlag ? gFogRef : 0; }
+// Stencil state of a plain draw (not the two-pass DS rule): the drawn flag on the GL-blend path plus the fog flag.
+static void stencilPlain(bool translPart) {
+    if (gDsBlend) { glStencilMask(0xfe | fogWm(translPart)); glStencilFunc(GL_ALWAYS, 0x80 | fogRefBit(), 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    else if (gFogFlag) { glStencilMask(fogWm(translPart)); glStencilFunc(GL_ALWAYS, fogRefBit(), 0x00); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+}
 // The stencil holds the DS "drawn" flag in bit 0x80 and, when the same-id rule is on, the last
-// writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane). The DS does
+// writer's 6-bit polygon id (shifted into bits 0x7E; bit 0x01 stays the shadow plane, or the fog flag on fog post pass frames). The DS does
 // not draw a translucent fragment whose destination polygon id equals its own (so a translucent
 // surface never blends over itself). GTA Chinatown Wars draws its distant haze as ~147 overlapping
 // translucent layers ALL sharing polygon id 62; without the rule they all blend and the scene goes
@@ -2086,24 +2607,26 @@ static int gTranslListOrder = 1;   // sys gpu3d_transl_listorder: draw the trans
 // with id P: pass 1 replaces where nothing is drawn (writing drawn + id P), pass 2 blends only where
 // something is drawn AND its stored id differs from P (writing id P), and same-id fragments are
 // skipped. Opaque leaves the id bits 0, so translucent over opaque (id != 0) always blends.
-static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<uint8_t>& ids, size_t base) {
+// translPart: the draws are DS translucent pixels (the translucent list): the fog flag becomes old & the
+// polygon's fog bit. false: DS opaque pixels (an opaque list polygon with partial alpha texels), which
+// always take the polygon's fog bit. The fog terms are all 0 on frames without the fog post pass.
+static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<uint8_t>& ids, size_t base, bool translPart) {
     size_t off = base;
     if (!gTranslSameId) {
         for (uint16_t n : lens) {
-            glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            glStencilMask(0x80 | fogWm(translPart)); glStencilFunc(GL_NOTEQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
             glDisable(GL_BLEND);
             glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
-            glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+            glStencilFunc(GL_EQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, fogWm(translPart) ? GL_REPLACE : GL_KEEP);
             glEnable(GL_BLEND);
             glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
             off += n;
         }
-        glStencilFunc(GL_ALWAYS, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-        glStencilMask(0x80);
+        stencilPlain(false);
         g.curBlend = true;
         return;
     }
-    glStencilMask(0xfe);   // write the drawn flag (0x80) and the id (0x7e); never the shadow bit (0x01)
+    glStencilMask(0xfe | fogWm(translPart));   // write the drawn flag (0x80) and the id (0x7e) and, on fog frames, the fog flag (0x01); never the shadow bit (0x01 on frames without fog)
     // Consecutive polygons with the same id code form one draw pair. Exact: pass 1 only touches
     // undrawn pixels and pass 2 only pixels drawn by another id, and a same-id polygon's own
     // pixels are skipped by both, so the pixel sets the two passes of a run act on are disjoint
@@ -2115,7 +2638,7 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         GLsizei n = lens[i]; size_t k = i + 1;
         while (k < lens.size() && translIdCode(k < ids.size() ? ids[k] : 0) == code) { n += lens[k]; k++; }
         i = k; gDcDsPairs++;
-        const GLint ref = (GLint)(0x80 | (code << 1));
+        const GLint ref = (GLint)(0x80 | (code << 1)) | fogRefBit();   // the func masks below leave bit 0 out, so the fog bit only feeds the write
         // pass 1: replace where nothing is drawn (drawn bit clear), writing drawn + this id
         glStencilFunc(GL_NOTEQUAL, ref, 0x80);
         glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
@@ -2128,30 +2651,29 @@ static void drawTranslDs(const std::vector<uint16_t>& lens, const std::vector<ui
         glDrawArrays(GL_TRIANGLES, (GLint)off, (GLsizei)n);
         off += n;
     }
-    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-    glStencilMask(0xfe);   // restore for subsequent non-translucent draws: drawn flag set, stored id cleared
+    stencilPlain(false);   // restore for subsequent non-translucent draws: drawn flag set, stored id cleared, fog flag from the polygon
     g.curBlend = true;   // left enabled; useProgram tracks it from here
 }
 // One translucent polygon under the DS blend rule (the per-polygon body of drawTranslDs), self
 // contained: sets its stencil state and restores the plain drawn-flag state after, so plain draws
-// interleaved with it see the right stencil function.
+// interleaved with it see the right stencil function. Always the translucent list's rule (translPart).
 static void drawOnePolyDs(GLint off, GLsizei n, int id) {
     gDcDsPairs++;
     if (!gTranslSameId) {
-        glStencilMask(0x80); glStencilFunc(GL_NOTEQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+        glStencilMask(0x80 | fogWm(true)); glStencilFunc(GL_NOTEQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
-        glStencilFunc(GL_EQUAL, 0x80, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glStencilFunc(GL_EQUAL, 0x80 | fogRefBit(), 0x80); glStencilOp(GL_KEEP, GL_KEEP, fogWm(true) ? GL_REPLACE : GL_KEEP);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     } else {
-        const GLint ref = (GLint)(0x80 | (translIdCode(id) << 1));
-        glStencilMask(0xfe);
+        const GLint ref = (GLint)(0x80 | (translIdCode(id) << 1)) | fogRefBit();
+        glStencilMask(0xfe | fogWm(true));
         glStencilFunc(GL_NOTEQUAL, ref, 0x80); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glDisable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
         glStencilFunc(GL_NOTEQUAL, ref, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
         glEnable(GL_BLEND); glDrawArrays(GL_TRIANGLES, off, n);
     }
-    // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id.
-    glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); glStencilMask(0xfe);
+    // Opaque and alpha 31 writes that follow set the drawn flag and clear the stored id (and set the fog flag from their polygon).
+    stencilPlain(false);
     g.curBlend = true;
 }
 // Convex screen-space overlap of two ordered polygons (their vertex rings recovered from the
@@ -2182,7 +2704,7 @@ static bool ordOverlap(const std::vector<Vtx>& vv, const OrdPoly& a, const OrdPo
     return true;
 }
 void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint mainProg, bool mainBlend) {
-    // vertices of all eight groups were uploaded contiguously; draw each group with its state.
+    // vertices of all sixteen groups were uploaded contiguously; draw each group with its state.
     // Only the opaque list writes the polygon id / depth attachment, and only when the edge
     // pass will use it (a second RGBA8 attachment doubles the tile write bandwidth).
     if (issue) {
@@ -2200,7 +2722,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     // stays grouped (order independent under the depth test). sys gpu3d_transl_listorder 0 restores
     // the grouped translucent draw for A/B.
     if (translucent && issue && gTranslListOrder && !st.ord.empty()) {
-        size_t goff[8]; { size_t b = base; for (int i = 0; i < 8; i++) { goff[i] = b; b += st.v[i].size(); } }
+        size_t goff[kGrp]; { size_t b = base; for (int i = 0; i < kGrp; i++) { goff[i] = b; b += st.v[i].size(); } }
         int curGrp = -1;
         gDcOrdPolys += (uint32_t)st.ord.size();
         // Batching that keeps the list order exact: a run of consecutive entries with the same
@@ -2213,9 +2735,13 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
         for (size_t oi = 0; oi < st.ord.size();) {
             const OrdPoly& p = st.ord[oi]; gDcTranslDraws++;
             const int grp = p.grp;
-            if (grp != curGrp) { curGrp = grp; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
+            if (grp != curGrp) { curGrp = grp; gFogRef = (grp >> 3) & 1; useProgram(mainProg, mainBlend); glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS); }
             const bool dwrite = (grp >> 1) & 1;
-            const bool pre = !dwrite && (p.pa >= 31 || !gPrepassSkip);
+            // Fog post pass frames: a fog polygon's depth-writing draw mixes alpha 31 fragments (DS opaque
+            // pixels, the flag is set) with alpha < 31 ones (DS translucent, the flag is kept), and one stencil
+            // write cannot do both, so it takes the two alpha passes like a polygon without the depth write.
+            const bool fogSplit = dwrite && gFogFlag && gFogRef;
+            const bool pre = (!dwrite || fogSplit) && (p.pa >= 31 || !gPrepassSkip);
             const GLint off = (GLint)(goff[grp] + p.start);
             GLsizei n = p.n; size_t k = oi + 1; uint32_t next = p.start + p.n;
             for (; k < st.ord.size(); k++) {
@@ -2224,7 +2750,7 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
                 if (q.grp != p.grp) break;
                 if (q.start != next) break;
                 if (gDsBlend && q.id != p.id) break;
-                if (!dwrite && ((q.pa >= 31 || !gPrepassSkip) != pre)) break;
+                if ((!dwrite || fogSplit) && ((q.pa >= 31 || !gPrepassSkip) != pre)) break;
                 // Boxes are half open in pixels: [bx0, bx1) x [by0, by1) with bx1 = ceil(max x), so
                 // two polygons meeting on a pixel boundary share no pixel and count as disjoint.
                 bool disjoint = true;
@@ -2234,39 +2760,62 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
             }
             oi = k;
             if (dwrite) {
-                glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
+                glDepthMask(GL_TRUE);
+                if (fogSplit) {   // both passes write depth (the polygon has the depth update bit)
+                    if (pre) { gDcPrepass++; if (g.uPass >= 0) glUniform1i(g.uPass, 1); stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 2);
+                    if (gDsBlend) drawOnePolyDs(off, n, p.id); else { stencilPlain(true); glDrawArrays(GL_TRIANGLES, off, n); }
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                } else {
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                    if (gDsBlend) drawOnePolyDs(off, n, p.id); else { if (gFogFlag) stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); }
+                }
             } else {
                 // The depth-writing pass keeps only alpha 31 fragments: alpha = (texel alpha *
                 // (polygon alpha + 1)) >> 5 never reaches 31 when the polygon alpha is below 31,
                 // so for such a polygon the pass discards everything and is skipped.
-                if (pre) { gDcPrepass++; glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
+                if (pre) { gDcPrepass++; glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1); if (gFogFlag) stencilPlain(false); glDrawArrays(GL_TRIANGLES, off, n); } else gPrepassSkipped++;
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawOnePolyDs(off, n, p.id); else glDrawArrays(GL_TRIANGLES, off, n);
+                if (gDsBlend) drawOnePolyDs(off, n, p.id); else { if (gFogFlag) stencilPlain(true); glDrawArrays(GL_TRIANGLES, off, n); }
                 glUniform1i(g.uPass, 0);
             }
         }
-        for (int i = 0; i < 8; i++) base += st.v[i].size();
+        for (int i = 0; i < kGrp; i++) base += st.v[i].size();
         return;
     }
-    for (int grp = 0; grp < 8; grp++) {
+    for (int grp = 0; grp < kGrp; grp++) {
         std::vector<Vtx>& vv = st.v[grp];
         if (vv.empty()) continue;
         if (issue) { if (translucent) gDcTranslDraws++; else gDcOpaqueDraws++; if (gDsBlend && (translucent || (((grp >> 1) & 1) && !((grp >> 2) & 1)))) gDcOpaqueDraws += (uint32_t)st.polyLen[grp].size();
             const bool noDiscard = (grp >> 2) & 1;
+            gFogRef = (grp >> 3) & 1;
             useProgram(noDiscard ? g.opq : mainProg, noDiscard ? false : mainBlend);
             glDepthFunc((grp & 1) ? GL_LEQUAL : GL_LESS);
             bool dwrite = (grp >> 1) & 1;   // opaque stream: the partial-alpha texel flag instead
             if (!translucent || dwrite || noDiscard) {
                 glDepthMask(GL_TRUE); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
-                if (gDsBlend && (translucent || (dwrite && !noDiscard))) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
-                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                const bool dsRule = gDsBlend && (translucent || (dwrite && !noDiscard));
+                if (gFogFlag && gFogRef && translucent) {
+                    // a fog polygon group with the depth write mixes alpha 31 (DS opaque, flag set) and alpha < 31 fragments (DS translucent, flag kept): two alpha passes, both writing depth
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 1);
+                    stencilPlain(false);
+                    glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 2);
+                    if (dsRule) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, true);
+                    else { stencilPlain(true); glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size()); }
+                    if (g.uPass >= 0) glUniform1i(g.uPass, 0);
+                } else {
+                    if (gFogFlag && !dsRule) stencilPlain(false);   // a polygon without the fog bit REPLACEs 0, which is also the AND
+                    if (dsRule) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, translucent);   // the opaque list (partial alpha texels) always REPLACEs the flag
+                    else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                }
             } else {
                 glDepthMask(GL_TRUE); glUniform1i(g.uPass, 1);
+                if (gFogFlag) stencilPlain(false);
                 glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
                 glDepthMask(GL_FALSE); glUniform1i(g.uPass, 2);
-                if (gDsBlend) drawTranslDs(st.polyLen[grp], st.polyId[grp], base);
-                else glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size());
+                if (gDsBlend) drawTranslDs(st.polyLen[grp], st.polyId[grp], base, true);
+                else { if (gFogFlag) stencilPlain(true); glDrawArrays(GL_TRIANGLES, (GLint)base, (GLsizei)vv.size()); }
                 glUniform1i(g.uPass, 0);
             }
         }
@@ -2274,8 +2823,24 @@ void drawStream(Stream& st, bool translucent, size_t& base, bool issue, GLuint m
     }
 }
 
+// The alphaToDs lane transform for the fused scatter: a5 = min(a8 + 4, 255) >> 3 in the top byte,
+// the colour bytes untouched. The same operations as alphaToDs' NEON loop below (that loop is kept
+// as it was, so gpu3d_fused_scatter 0 runs the old code), so the bytes match it exactly.
+#if defined(__aarch64__)
+static inline uint32x4_t alphaLaneDs(uint32x4_t v, uint32x4_t four, uint32x4_t ff, uint32x4_t maskC) {
+    const uint32x4_t a = vshrq_n_u32(vminq_u32(vaddq_u32(vshrq_n_u32(v, 24), four), ff), 3);
+    return vorrq_u32(vandq_u32(v, maskC), vshlq_n_u32(a, 24));
+}
+#else
+// Scalar form of the same transform, saturating like the NEON one (a8 of 252..255 gives 31).
+static inline uint32_t alphaPixDs(uint32_t v) {
+    const uint32_t a = std::min((v >> 24) + 4u, 255u) >> 3;
+    return (v & 0x00ffffffu) | (a << 24);
+}
+#endif
+
 // MSAA / GL-blend mode stores alpha as a blend factor (a/31 * 255); the DS layer wants the
-// 5-bit value in the byte: a5 = (a8 + 4) >> 3.
+// 5-bit value in the byte: a5 = min(a8 + 4, 255) >> 3.
 void alphaToDs(uint8_t* buf, int y0, int y1) {
     uint32_t* p = reinterpret_cast<uint32_t*>(buf + (size_t)y0 * kW * 4);
     const size_t n = (size_t)(y1 - y0) * kW;
@@ -2287,32 +2852,83 @@ void alphaToDs(uint8_t* buf, int y0, int y1) {
         vst1q_u32(p + i, vorrq_u32(vandq_u32(v, maskC), vshlq_n_u32(a, 24)));
     }
 #else
-    for (size_t i = 0; i < n; i++) { uint32_t v = p[i]; uint32_t a = (((v >> 24) + 4) >> 3) & 31; p[i] = (v & 0x00ffffffu) | (a << 24); }
+    for (size_t i = 0; i < n; i++) p[i] = alphaPixDs(p[i]);
 #endif
 }
 
 // Scatter rows [y0,y1) of the readback into drastic's output buffer. Hi-res (512 wide): the
 // column de-interleaved layout (even columns of line y in row 2y, odd in row 2y+1, 256 words
 // each). Native (256 wide): one linear 256-word row per line, a straight copy.
-void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) {
+// kAlpha applies the alphaToDs lane transform to every pixel on its way through (the fused
+// scatter, gFusedScatter): the same bytes as alphaToDs followed by the plain scatter, in one
+// pass, and src stays read-only. pitch is the byte distance between two source rows: kW * 4 for a
+// readback buffer, the allocator's row stride for an AHB colour target read in place (gAhbRb).
+template <bool kAlpha>
+static inline void scatterRowsT(const uint8_t* src, uint8_t* target, int y0, int y1, size_t pitch) {
+#if defined(__aarch64__)
+    const uint32x4_t four = vdupq_n_u32(4), ff = vdupq_n_u32(255), maskC = vdupq_n_u32(0x00ffffffu);
+#endif
     if (kW == 256) {
-        memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
+        if (pitch != 0x400) {   // padded source rows: one row at a time (the target rows are 0x400 bytes apart)
+            for (int y = y0; y < y1; y++) {
+                const uint32_t* s = reinterpret_cast<const uint32_t*>(src + (size_t)y * pitch);
+                uint32_t* d = reinterpret_cast<uint32_t*>(target + (size_t)y * 0x400);
+#if defined(__aarch64__)
+                for (int x = 0; x < 256; x += 4) { const uint32x4_t v = vld1q_u32(s + x); vst1q_u32(d + x, kAlpha ? alphaLaneDs(v, four, ff, maskC) : v); }
+#else
+                for (int x = 0; x < 256; x++) d[x] = kAlpha ? alphaPixDs(s[x]) : s[x];
+#endif
+            }
+            return;
+        }
+        if (!kAlpha) {
+            memcpy(target + (size_t)y0 * 0x400, src + (size_t)y0 * 0x400, (size_t)(y1 - y0) * 0x400);
+            return;
+        }
+        const uint32_t* s = reinterpret_cast<const uint32_t*>(src + (size_t)y0 * 0x400);
+        uint32_t* d = reinterpret_cast<uint32_t*>(target + (size_t)y0 * 0x400);
+        const size_t n = (size_t)(y1 - y0) * 256;   // words; both buffers have a 0x400 byte row pitch
+#if defined(__aarch64__)
+        for (size_t i = 0; i + 4 <= n; i += 4) vst1q_u32(d + i, alphaLaneDs(vld1q_u32(s + i), four, ff, maskC));
+#else
+        for (size_t i = 0; i < n; i++) d[i] = alphaPixDs(s[i]);
+#endif
         return;
     }
     for (int y = y0; y < y1; y++) {
-        const uint32_t* row = reinterpret_cast<const uint32_t*>(src + y * kW * 4);
+        const uint32_t* row = reinterpret_cast<const uint32_t*>(src + (size_t)y * pitch);
         uint32_t* even = reinterpret_cast<uint32_t*>(target + (2 * y) * 0x400);
         uint32_t* odd = reinterpret_cast<uint32_t*>(target + (2 * y + 1) * 0x400);
 #if defined(__aarch64__)
         for (int x = 0; x < kW; x += 8) {
             uint32x4x2_t p = vld2q_u32(row + x);
+            if (kAlpha) { p.val[0] = alphaLaneDs(p.val[0], four, ff, maskC); p.val[1] = alphaLaneDs(p.val[1], four, ff, maskC); }
             vst1q_u32(even + (x >> 1), p.val[0]);
             vst1q_u32(odd + (x >> 1), p.val[1]);
         }
 #else
-        for (int x = 0; x < kW; x += 2) { even[x >> 1] = row[x]; odd[x >> 1] = row[x + 1]; }
+        for (int x = 0; x < kW; x += 2) {
+            uint32_t a = row[x], b = row[x + 1];
+            if (kAlpha) { a = alphaPixDs(a); b = alphaPixDs(b); }
+            even[x >> 1] = a; odd[x >> 1] = b;
+        }
 #endif
     }
+}
+void scatterRows(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<false>(src, target, y0, y1, (size_t)kW * 4); }
+void scatterRowsAlpha(const uint8_t* src, uint8_t* target, int y0, int y1) { scatterRowsT<true>(src, target, y0, y1, (size_t)kW * 4); }
+// The same scatter from a source with padded rows (an AHB colour target locked for the CPU).
+static void scatterRowsPitch(const uint8_t* src, size_t pitch, uint8_t* target, int y0, int y1, bool alpha) {
+    if (alpha) scatterRowsT<true>(src, target, y0, y1, pitch); else scatterRowsT<false>(src, target, y0, y1, pitch);
+}
+
+// The CPU finish of a readback: with a blend-factor alpha (blendAlpha) the DS alpha fix, then the
+// scatter. Fused (gFusedScatter) that is one pass over the frame; with the switch at 0 it is the
+// old pair, alphaToDs in place and then the plain scatter.
+static void finishRows(uint8_t* src, uint8_t* target, int y0, int y1, bool blendAlpha) {
+    if (blendAlpha && gFusedScatter) { scatterRowsAlpha(src, target, y0, y1); return; }
+    if (blendAlpha) alphaToDs(src, y0, y1);
+    scatterRows(src, target, y0, y1);
 }
 
 // GL thread: apply a pending adaptive-MSAA sample-count change (implicit-resolve path only).
@@ -2324,7 +2940,10 @@ static void applyMsaaTarget() {
     // a single sample, which separates multisampling from everything else on this path).
     { static int force = 0; if ((g.glFrames & 15) == 0) force = property_get_int32("sys.gammaos.drastic_nano.gpu3d_msaa_force", 0);
       if (force == 1 || force == 2 || force == 4) tgt = force; }
-    if (!g.msImplicit || !g.msFbo || tgt < 1 || tgt == g.msSamples) return;
+    // With the AHB colour sets (gAhbRb) only the current set's target would be rebuilt and the two sets
+    // would draw at different sample counts; that mode exists only at the 2-sample base, where the
+    // adaptive rule never changes the count, so only the gpu3d_msaa_force A/B knob is ignored here.
+    if (!g.msImplicit || !g.msFbo || tgt < 1 || tgt == g.msSamples || gAhbRb) return;
     auto pRb = (PFNGLRENDERBUFFERSTORAGEMULTISAMPLEEXTPROC)g.pRbMsExt;
     auto pFb = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
     if (!pRb || !pFb) return;
@@ -2352,13 +2971,16 @@ static void applyMsaaTarget() {
 // thread moves on to the next job's draws while the previous frame is being scattered and
 // published. The 3D layer's timing is unchanged for a job that fits its frame; a job that would
 // otherwise miss the next kick by up to that CPU finish now makes it.
-struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; };
+// ahb: the frame is still in that AHB colour target (set srcIdx), to be locked and read in place; src is null then.
+struct PendingRb { uint8_t* src = nullptr; int srcIdx = -1; uint8_t* target = nullptr; Job* job = nullptr; bool blendAlpha = false; AHardwareBuffer* ahb = nullptr; size_t pitch = 0; };
 static std::atomic<Job*> gPendJob{nullptr}; static std::atomic<uint8_t*> gPendTarget{nullptr};
 // Publish a finished job (g.mtx held): the previous newest becomes the "one before" the lag rule may read.
-static void publishLatest(uint8_t* target, uint32_t seq) {
+static void publishLatest(uint8_t* target, uint32_t seq, int pow15) {
     g.prevTarget = g.latest.load(std::memory_order_acquire); g.prevSeq = g.latestSeq;
     g.latest.store(target, std::memory_order_release); g.latestSeq = seq;
-    g.fin[g.finN & 3] = { target, seq }; g.finN++;
+    g.fin[g.finN & 3] = { target, seq, pow15 }; g.finN++;
+    // Parity mode: the finished job becomes the frame its own screen assignment shows from now on.
+    if (g.parityOn && target && (pow15 == 0 || pow15 == 1) && seq >= g.parHold[pow15].seq) g.parHold[pow15] = { target, seq };
 }
 // The buffer the compositor reads for kick k (g.mtx held): the newest finished job whose kick is
 // at most k - back. Lag 0 reads back 0 (the job of this kick when it is already done, else the one
@@ -2368,9 +2990,50 @@ static uint8_t* lagRead(uint32_t k, unsigned back) {
     for (unsigned i = 0; i < 4 && i < g.finN; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + back <= k && (!best || f.seq > bestSeq)) { best = f.t; bestSeq = f.seq; } }
     return best ? best : g.latest.load(std::memory_order_acquire);
 }
+// ---- Parity mode (see gpu3dFrame, sys gpu3d_swap_parity) ----
+// The buffer the compositor shows for a screen assignment (g.mtx held): the newest finished job
+// rendered for exactly that assignment, whatever its age. Never a frame of the other assignment:
+// it would land on the wrong screen. Null outside a parity session.
+static uint8_t* parityRead(int pow15) {
+    return g.parityOn && (pow15 == 0 || pow15 == 1) ? g.parHold[pow15].t : nullptr;
+}
+static void parityEnd() {   // g.mtx held
+    g.parityOn = false; g.parHold[0] = Gpu3d::ParHold(); g.parHold[1] = Gpu3d::ParHold();
+}
+// Start a parity session (g.mtx held). The two newest finished jobs must be the frames of the last
+// two kicks, one per screen assignment, in different buffers, with nothing queued or waiting for
+// its scatter, and both published after this alternation began (finMin). They are the synchronous
+// frames of the alternation so far, nothing has written their buffers since, and they become the
+// frames the two screens show first. Returns null when the session started, else why it did not
+// (the caller logs that now and then: a session that never engages must be told apart from one
+// that engages and works).
+static const char* paritySeed(uint32_t k, unsigned finMin) {
+    if (g.qCount > 0) return "a job is still queued or rendering";
+    if (gPendJob.load(std::memory_order_acquire)) return "a finished job is still waiting for its scatter";
+    if (g.finN < 2 || g.finN < finMin + 2) return "fewer than two jobs finished since the alternation began";
+    const auto& a = g.fin[(g.finN - 1) & 3]; const auto& b = g.fin[(g.finN - 2) & 3];
+    if (!a.t || !b.t) return "a finished job has no buffer";
+    if (a.t == b.t) return "the last two finished jobs share a buffer";
+    if ((unsigned)a.pow15 > 1u || (unsigned)b.pow15 > 1u || a.pow15 == b.pow15) return "the last two finished jobs are not one per screen assignment";
+    if (a.seq + 4 < k || b.seq + 4 < k) return "the last two finished jobs are more than four kicks old";
+    g.parHold[a.pow15] = { a.t, a.seq }; g.parHold[b.pow15] = { b.t, b.seq };
+    g.parityOn = true; g.parDropQ = g.parDropNew = 0;
+    return nullptr;
+}
+static std::atomic<int> gParityWant{-1};   // the screen assignment the compositor's 3D read must match, -1 = the ordinary read
+static std::atomic<uint32_t> gParRead{0}, gParAgeSum{0}, gParAgeMax{0};   // parity mode census: composites, and the age in kicks of the 3D frame shown (written by the compositor, read and cleared by the worker)
 static int gPipeline = 1;
 static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, int64_t t4, int64_t t5);
+// gRbBusy[k]: the helper is still reading the source of a hand-off. k indexes the readback half (gRb[k])
+// in a fallback hand-off and the AHB colour set (gAhb[k]) in an in-place one, so a flag set by one kind
+// also makes the other kind wait for the same k (only conservative). The helper clears it as soon as its
+// scatter is done, ahead of its publish (gPendJob still names the job until then).
 static std::vector<uint8_t> gRb[2]; static std::atomic<int> gRbBusy[2] = { {0}, {0} }; static int gRbIdx = 0;
+// Readback half k, allocated when first used and sized for the current frame size every time. With the
+// AHB colour sets (gAhbRb) the halves are only the fallback and no longer cost 1.5 MB up front on the 1 GB
+// Plus; and a rebuild at the other resolution (hi-res 3D toggled) must not read into a smaller buffer.
+// Called after the helper is done with half k (the busy flag was drained), so the resize moves nothing it reads.
+static uint8_t* rbHalf(int k) { const size_t n = (size_t)kW * kH * 4; if (gRb[k].size() < n) gRb[k].resize(n); return gRb[k].data(); }
 static std::mutex gScMtx; static std::condition_variable gScCv; static PendingRb gScWork; static bool gScHas = false, gScQuit = false; static std::thread gScThread; static bool gScStarted = false;
 static void scatterThreadMain() {
     pthread_setname_np(pthread_self(), "dn-gpu3d-scat");
@@ -2380,15 +3043,35 @@ static void scatterThreadMain() {
         if (gScQuit) break;
         PendingRb w = gScWork; gScHas = false;
         lk.unlock();
-        if (w.blendAlpha) alphaToDs(w.src, 0, kH);
-        scatterRows(w.src, w.target, 0, kH);
+        bool scattered = true;   // false: nothing was written into the target
+        if (w.ahb) {
+            // The GL thread already waited for this frame's fence, so the lock does not wait: it maps the
+            // buffer and invalidates the CPU's cache lines of it. The alpha lanes are applied on the way
+            // through (the fused scatter), never in place: the buffer is the GPU's colour target.
+            void* p = nullptr;
+            if (AHardwareBuffer_lock(w.ahb, AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) == 0 && p) {
+                scatterRowsPitch(static_cast<const uint8_t*>(p), w.pitch, w.target, 0, kH, w.blendAlpha);
+                AHardwareBuffer_unlock(w.ahb, nullptr);
+            } else {
+                // This frame is not published (below); from the next job on the GL thread reads back with glReadPixels.
+                scattered = false;
+                ALOGE("gpu3d: in-place readback: AHardwareBuffer_lock failed, falling back to glReadPixels");
+                gAhbRbOff.store(true, std::memory_order_release);
+            }
+        } else {
+            finishRows(w.src, w.target, 0, kH, w.blendAlpha);
+        }
+        // The source is read out: the GL thread may draw into this set / write this half again while the frame publishes.
+        gRbBusy[w.srcIdx].store(0, std::memory_order_release);
         {
             std::lock_guard<std::mutex> gl(g.mtx);
-            publishLatest(w.target, w.job ? w.job->seq : 0);
+            // A failed lock left the target as it was, which may hold a frame of the other screen assignment
+            // (a parity session reuses buffers): publishing it would show that on the wrong screen, so the
+            // previous frame stays. The pending marks still clear, or the joins and the drain would wait forever.
+            if (scattered) publishLatest(w.target, w.job ? w.job->seq : 0, w.job ? w.job->pow15 : -1);
             gPendJob.store(nullptr, std::memory_order_release); gPendTarget.store(nullptr, std::memory_order_release);
             g.cvDone.notify_all();
         }
-        gRbBusy[w.srcIdx].store(0, std::memory_order_release);
         lk.lock();
         gScCv.notify_all();
     }
@@ -2482,6 +3165,16 @@ static void useSet(int s) {
     std::swap(g.msFbo, g.msFbo2); std::swap(g.edgeFbo, g.edgeFbo2);
     g.setIdx = s;
 }
+// Make a texture name the sibling of AHB colour target i (an EGLImage of the buffer). False on any GL
+// error. The target extension function is resolved by ahbRbInit before the first call.
+static PFNGLEGLIMAGETARGETTEXTURE2DOESPROC gAhbTargetTex = nullptr;
+static bool ahbBindTexture(GLuint tex, int i) {
+    while (glGetError() != GL_NO_ERROR) {}
+    glBindTexture(GL_TEXTURE_2D, tex);
+    gAhbTargetTex(GL_TEXTURE_2D, (GLeglImageOES)gAhbImg[i]);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    return glGetError() == GL_NO_ERROR;
+}
 static bool ensureSet2() {
     if (g.set2Tried) return g.set2Ok;
     g.set2Tried = true;
@@ -2491,8 +3184,12 @@ static bool ensureSet2() {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, kW, kH, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST); glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
     };
-    tex2d(g.colorTex2); tex2d(g.edgeTex2);
     bool ok = true;
+    // While ahbRbInit tries the AHB colour sets the second colour texture is the sibling of buffer 1
+    // (gAhbImg[1] is only set between its allocation and its release); otherwise a plain texture.
+    if (gAhbImg[1] != EGL_NO_IMAGE_KHR && gAhbTargetTex) { glGenTextures(1, &g.colorTex2); ok = ahbBindTexture(g.colorTex2, 1); }
+    else tex2d(g.colorTex2);
+    tex2d(g.edgeTex2);
     glGenFramebuffers(1, &g.fbo2); glBindFramebuffer(GL_FRAMEBUFFER, g.fbo2);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, g.colorTex2, 0);
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, g.attrTex, 0);
@@ -2514,12 +3211,240 @@ static bool ensureSet2() {
     return ok;
 }
 
+// ---- In-place readback: AHB colour sets (see gAhbRb) ----
+// Drop both AHB colour targets (GL thread, after the textures that were their siblings are deleted).
+static void ahbRbFree() {
+    static PFNEGLDESTROYIMAGEKHRPROC destroyImg = nullptr;
+    if (!destroyImg) destroyImg = (PFNEGLDESTROYIMAGEKHRPROC)eglGetProcAddress("eglDestroyImageKHR");
+    for (int i = 0; i < 2; i++) {
+        if (gAhbImg[i] != EGL_NO_IMAGE_KHR && destroyImg) destroyImg(g.dpy, gAhbImg[i]);
+        gAhbImg[i] = EGL_NO_IMAGE_KHR;
+        if (gAhb[i]) { AHardwareBuffer_release(gAhb[i]); gAhb[i] = nullptr; }
+        gAhbPitch[i] = 0;
+    }
+    gAhbRb = false; gAhbSet = 0;
+}
+// GL init, GL thread, the plain targets built and set 0 current: move the two colour targets onto
+// AHardwareBuffers if this driver renders into them exactly like the plain texture, else change
+// nothing. Each way this can go wrong on a Mali is tested here instead of assumed:
+//  - the multisampled render-to-texture FBO on an EGLImage texture must be complete and render the
+//    same bytes as the plain texture (set 0, a gradient triangle with partial-coverage edges),
+//  - glReadPixels from the AHB texture (the sync and progressive paths keep using it) and a CPU lock
+//    of the buffer, row by row with its stride, must both give those bytes, on both sets,
+//  - a second, different picture drawn into the same buffers must read back as the second picture,
+//    so a missing cache invalidate on the CPU side (stale lines of the first read) cannot hide,
+//  - the helper's whole finish from the AHB (lock, fused scatter, unlock) must give the bytes the
+//    glReadPixels + scatter pair gives, and must not take longer than that pair does today, timed on
+//    the plain targets before the switch (an uncached CPU mapping would; that would delay publishing
+//    the frame even though the GL thread is free; a glReadPixels from the AHB texture could be slow
+//    for the same reason and is no reference),
+//  - the GL thread's own cost must not grow: a draw into the buffers has to cost less than the plain
+//    target's draw plus half its glReadPixels, else a linear target the GPU writes back slowly
+//    would eat what the readback saves.
+// Any failure puts the plain textures back on every FBO, frees the buffers and logs one line. A
+// crash inside the driver is guarded by sys gpu3d_ahb_try: set before the attempt and cleared
+// after it, so the next init of the same boot skips an attempt that never finished.
+static void ahbRbInit() {
+    gAhbRb = false; gAhbSet = 0; gAhbHand = 0; gAhbRbOff.store(false, std::memory_order_relaxed);
+    char dev[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", dev, "");
+    bool want = android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ahb_rb", strcmp(dev, "anbernicrgdsplus") == 0);
+    { const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_rb", -1); if (ov == 0) want = false; else if (ov == 1) want = true; }
+    if (!want) { ALOGI("gpu3d: in-place readback off (gpu3d_ahb_rb)"); return; }
+    // The 2-sample hi-res target only: the 4-sample native target has the second sync target
+    // (msFbo2x), which shares set 0's colour, and the adaptive sample-count rebuild, and both would
+    // have to follow the set alternation. The fused scatter is required too: the alpha lanes are
+    // rebuilt on the way through the scatter, because the CPU must not write into the GPU's buffer.
+    if (kW != 512 || kH != 384 || !g.msImplicit || !g.msFbo || g.msFbo2x || g.msSamples != 2 || !gFusedScatter || g.set2Tried || !g.fbo) {
+        ALOGI("gpu3d: in-place readback not used: it needs the 512x384 two-sample implicit MSAA target and the fused scatter (%dx%d, implicit %d, %d samples, fused %d)",
+              kW, kH, g.msImplicit ? 1 : 0, g.msSamples, gFusedScatter ? 1 : 0);
+        return;
+    }
+    if (property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_try", 0) == 1) {
+        ALOGW("gpu3d: in-place readback skipped: an earlier attempt in this boot never finished (driver crash?), off until the next boot");
+        return;
+    }
+    struct TryMark { TryMark() { property_set("sys.gammaos.drastic_nano.gpu3d_ahb_try", "1"); } ~TryMark() { property_set("sys.gammaos.drastic_nano.gpu3d_ahb_try", "0"); } } tryMark;
+    typedef EGLClientBuffer (*GetClientBufferFn)(const AHardwareBuffer*);
+    auto getBuf = (GetClientBufferFn)eglGetProcAddress("eglGetNativeClientBufferANDROID");
+    auto createImg = (PFNEGLCREATEIMAGEKHRPROC)eglGetProcAddress("eglCreateImageKHR");
+    gAhbTargetTex = (PFNGLEGLIMAGETARGETTEXTURE2DOESPROC)eglGetProcAddress("glEGLImageTargetTexture2DOES");
+    auto pFb = (PFNGLFRAMEBUFFERTEXTURE2DMULTISAMPLEEXTPROC)g.pFbTex2DMs;
+    if (!getBuf || !createImg || !gAhbTargetTex || !pFb) { ALOGI("gpu3d: in-place readback unavailable: a needed EGL/GL entry point is missing"); return; }
+    const size_t rowB = (size_t)kW * 4, frameB = rowB * (size_t)kH;
+    for (int i = 0; i < 2; i++) {
+        AHardwareBuffer_Desc d = {};
+        d.width = (uint32_t)kW; d.height = (uint32_t)kH; d.layers = 1; d.format = AHARDWAREBUFFER_FORMAT_R8G8B8A8_UNORM;
+        d.usage = AHARDWAREBUFFER_USAGE_GPU_COLOR_OUTPUT | AHARDWAREBUFFER_USAGE_GPU_SAMPLED_IMAGE | AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN;
+        if (AHardwareBuffer_allocate(&d, &gAhb[i]) != 0 || !gAhb[i]) { gAhb[i] = nullptr; ALOGW("gpu3d: in-place readback off: AHardwareBuffer_allocate failed"); ahbRbFree(); return; }
+        AHardwareBuffer_Desc got = {}; AHardwareBuffer_describe(gAhb[i], &got);
+        gAhbPitch[i] = (size_t)got.stride * 4;
+        if (gAhbPitch[i] < rowB) { ALOGW("gpu3d: in-place readback off: buffer stride %u is shorter than a row", got.stride); ahbRbFree(); return; }
+        const EGLint attrs[] = { EGL_IMAGE_PRESERVED_KHR, EGL_TRUE, EGL_NONE };
+        gAhbImg[i] = createImg(g.dpy, EGL_NO_CONTEXT, EGL_NATIVE_BUFFER_ANDROID, getBuf(gAhb[i]), attrs);
+        if (gAhbImg[i] == EGL_NO_IMAGE_KHR) { ALOGW("gpu3d: in-place readback off: eglCreateImageKHR failed (0x%x)", eglGetError()); ahbRbFree(); return; }
+    }
+    std::vector<uint8_t> ref(frameB), rd(frameB), tgtGl(outBytes(1)), tgtAhb(outBytes(1));
+    while (glGetError() != GL_NO_ERROR) {}
+    glActiveTexture(GL_TEXTURE0);
+    const GLboolean blendWas = glIsEnabled(GL_BLEND);
+    glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST); glDisable(GL_STENCIL_TEST); glEnable(GL_DEPTH_TEST); glDepthFunc(GL_LESS);
+    glDepthMask(GL_TRUE); glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glStencilMask(0xff); glPixelStorei(GL_PACK_ALIGNMENT, 4);
+    // A gradient triangle through the production MSAA target (partial-coverage edges at 2 samples),
+    // pattern 0 and its mirror image, pattern 1. progTrivial writes the interpolated colour and a fixed alpha.
+    auto drawPattern = [&](int pat) {
+        const float fx[2][3] = { { 0.f, 1.f, 0.f }, { 1.f, 1.f, 0.f } }, fy[2][3] = { { 0.f, 0.f, 1.f }, { 1.f, 0.f, 1.f } };
+        const float cr[2][3] = { { 255.f, 0.f, 40.f }, { 10.f, 250.f, 128.f } }, cg[2][3] = { { 20.f, 255.f, 0.f }, { 200.f, 0.f, 255.f } }, cb[2][3] = { { 0.f, 30.f, 255.f }, { 255.f, 90.f, 0.f } };
+        Vtx tri[3] = {};
+        for (int i = 0; i < 3; i++) {
+            tri[i].x = fx[pat][i] * (float)kW; tri[i].y = fy[pat][i] * (float)kH; tri[i].depth = 0.5f; tri[i].w = 1.f;
+            tri[i].r = cr[pat][i]; tri[i].g = cg[pat][i]; tri[i].b = cb[pat][i];
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo); glViewport(0, 0, kW, kH);
+        { const GLenum b1[1] = { GL_COLOR_ATTACHMENT0 }; glDrawBuffers(1, b1); }
+        glClearColor(0, 0, 0, 0); glClearDepthf(1.f); glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+        glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
+        glBufferData(GL_ARRAY_BUFFER, sizeof tri, tri, GL_STREAM_DRAW);
+        glUseProgram(g.progTrivial); glDrawArrays(GL_TRIANGLES, 0, 3);
+        glFinish();
+    };
+    auto readGl = [&](std::vector<uint8_t>& dst) {
+        glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
+        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, dst.data());
+    };
+    // CPU view of buffer s against the bytes glReadPixels returned: row by row with the buffer's stride.
+    auto lockCmp = [&](int s, const std::vector<uint8_t>& want, char* why, size_t whyLen) -> bool {
+        void* p = nullptr;
+        if (AHardwareBuffer_lock(gAhb[s], AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) != 0 || !p) { snprintf(why, whyLen, "AHardwareBuffer_lock failed (set %d)", s); return false; }
+        int bad = 0;
+        for (int y = 0; y < kH; y++) if (memcmp(static_cast<const uint8_t*>(p) + (size_t)y * gAhbPitch[s], want.data() + (size_t)y * rowB, rowB) != 0) bad++;
+        AHardwareBuffer_unlock(gAhb[s], nullptr);
+        if (bad) { snprintf(why, whyLen, "the CPU view of set %d differs from glReadPixels in %d of %d rows", s, bad, kH); return false; }
+        return true;
+    };
+    // Reference: pattern 0 through the plain targets, before anything is switched. Best of three, the
+    // draw (submit, GPU, finish) and the glReadPixels apart: that pair is what the GL thread pays per job today.
+    // The glReadPixels plus the fused scatter into a target is the helper's finish today (plainFinish):
+    // the AHB's CPU read is held against it below. tgtGl is only scratch here, the comparison loop rewrites it.
+    int64_t plainDraw = INT64_MAX, plainRead = INT64_MAX, plainFinish = INT64_MAX;
+    for (int r = 0; r < 3; r++) {
+        const int64_t a = nowUs(); drawPattern(0); const int64_t b = nowUs(); readGl(ref); const int64_t c = nowUs();
+        scatterRowsAlpha(ref.data(), tgtGl.data(), 0, kH); const int64_t d = nowUs();
+        if (b - a < plainDraw) plainDraw = b - a;
+        if (c - b < plainRead) plainRead = c - b;
+        if (d - b < plainFinish) plainFinish = d - b;
+    }
+    { size_t lit = 0; for (size_t i = 0; i < frameB; i += 4) if (ref[i] | ref[i + 1] | ref[i + 2] | ref[i + 3]) lit++;
+      if (glGetError() != GL_NO_ERROR || lit < (size_t)kW * kH / 4) {
+          ALOGW("gpu3d: in-place readback not used: the self-test picture did not render (%zu lit pixels), nothing to compare against", lit);
+          if (blendWas) glEnable(GL_BLEND);
+          ahbRbFree(); return;
+      } }
+    const GLuint plainTex = g.colorTex; GLuint ahbTex0 = 0;
+    // From here on a failure must put everything back: revert() does.
+    auto revert = [&](const char* why) {
+        useSet(0);
+        glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+        glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, plainTex, 0);
+        glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
+        pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, plainTex, 0, g.msSamples);
+        g.colorTex = plainTex;
+        if (ahbTex0) glDeleteTextures(1, &ahbTex0);
+        if (g.fbo2) glDeleteFramebuffers(1, &g.fbo2);
+        if (g.edgeFbo2) glDeleteFramebuffers(1, &g.edgeFbo2);
+        if (g.msFbo2) glDeleteFramebuffers(1, &g.msFbo2);
+        if (g.colorTex2) glDeleteTextures(1, &g.colorTex2);
+        if (g.edgeTex2) glDeleteTextures(1, &g.edgeTex2);
+        g.fbo2 = g.edgeFbo2 = g.msFbo2 = 0; g.colorTex2 = g.edgeTex2 = 0; g.set2Ok = g.set2Tried = false;
+        glFinish();
+        ahbRbFree();
+        glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+        if (blendWas) glEnable(GL_BLEND);
+        ALOGW("gpu3d: in-place readback off, plain colour targets kept: %s", why);
+    };
+    glGenTextures(1, &ahbTex0);
+    if (!ahbBindTexture(ahbTex0, 0)) { revert("glEGLImageTargetTexture2DOES refused buffer 0"); return; }
+    g.colorTex = ahbTex0;
+    glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ahbTex0, 0);
+    bool fbOk = glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
+    pFb(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, ahbTex0, 0, g.msSamples);
+    fbOk = fbOk && glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+    if (!fbOk || glGetError() != GL_NO_ERROR) { revert("the framebuffers on the AHB colour target are incomplete"); return; }
+    if (!ensureSet2()) { revert("the second AHB colour set is incomplete"); return; }
+    char why[160] = {};
+    for (int s = 0; s < 2; s++) {
+        useSet(s);
+        for (int pat = 0; pat < 2; pat++) {
+            while (glGetError() != GL_NO_ERROR) {}
+            drawPattern(pat); readGl(rd);
+            if (glGetError() != GL_NO_ERROR) { snprintf(why, sizeof why, "a GL error while drawing picture %d into set %d", pat, s); revert(why); return; }
+            // Picture 0 must be the plain texture's picture on both sets, picture 1 must really be another one.
+            if ((rd == ref) != (pat == 0)) { snprintf(why, sizeof why, "picture %d in set %d %s the plain texture's picture", pat, s, pat == 0 ? "differs from" : "is the same as"); revert(why); return; }
+            if (!lockCmp(s, rd, why, sizeof why)) { revert(why); return; }
+        }
+    }
+    // Set 1 holds picture 1 now: the helper's finish from the buffer against glReadPixels + scatter (the bytes must
+    // match; bestGl is the same pair through the AHB texture, logged only), best of three each.
+    int64_t bestGl = INT64_MAX, bestAhb = INT64_MAX; bool same = true;
+    for (int r = 0; r < 3 && same; r++) {
+        int64_t a = nowUs();
+        readGl(rd); scatterRowsAlpha(rd.data(), tgtGl.data(), 0, kH);
+        int64_t dt = nowUs() - a; if (dt < bestGl) bestGl = dt;
+        void* p = nullptr;
+        a = nowUs();
+        if (AHardwareBuffer_lock(gAhb[1], AHARDWAREBUFFER_USAGE_CPU_READ_OFTEN, -1, nullptr, &p) != 0 || !p) { same = false; break; }
+        scatterRowsPitch(static_cast<const uint8_t*>(p), gAhbPitch[1], tgtAhb.data(), 0, kH, true);
+        AHardwareBuffer_unlock(gAhb[1], nullptr);
+        dt = nowUs() - a; if (dt < bestAhb) bestAhb = dt;
+        if (memcmp(tgtGl.data(), tgtAhb.data(), tgtGl.size()) != 0) same = false;
+    }
+    if (!same) { revert("the scatter from the AHB gives other bytes than glReadPixels + scatter"); return; }
+    if (bestAhb > plainFinish + plainFinish / 8 + 100) {
+        snprintf(why, sizeof why, "reading the AHB on the CPU takes %lld us, glReadPixels + scatter on the plain target %lld us", (long long)bestAhb, (long long)plainFinish);
+        revert(why); return;
+    }
+    // What the GL thread pays per job with the buffers: the draw into them, and no readback. A linear
+    // target the GPU writes back slowly would eat what the readback saves, so the draw must come in
+    // under the plain target's draw plus at least half of its glReadPixels, else the plain targets stay.
+    // (Set 1 is current. Best of three: the first draws into a fresh buffer pay a one-off cost.)
+    int64_t ahbDraw = INT64_MAX;
+    for (int r = 0; r < 3; r++) { const int64_t a = nowUs(); drawPattern(0); const int64_t d = nowUs() - a; if (d < ahbDraw) ahbDraw = d; }
+    if (ahbDraw > plainDraw + plainRead / 2) {
+        snprintf(why, sizeof why, "drawing into the AHB takes %lld us, the plain target %lld us plus a %lld us glReadPixels", (long long)ahbDraw, (long long)plainDraw, (long long)plainRead);
+        revert(why); return;
+    }
+    useSet(0);
+    glBindFramebuffer(GL_FRAMEBUFFER, g.fbo);
+    glDeleteTextures(1, &plainTex);   // set 0 lives on its buffer now; set 1 was built on buffer 1
+    if (blendWas) glEnable(GL_BLEND);
+    gAhbRb = true; gAhbSet = 0;
+    ALOGI("gpu3d: in-place readback on: two %dx%d AHB colour targets (row stride %zu bytes), self-test passed, helper finish %lld us from the buffer against %lld us for glReadPixels + scatter on the plain target (%lld us through the AHB texture), draw %lld us against %lld us + %lld us glReadPixels on the plain target",
+          kW, kH, gAhbPitch[0], (long long)bestAhb, (long long)plainFinish, (long long)bestGl, (long long)ahbDraw, (long long)plainDraw, (long long)plainRead);
+}
+
+// Whether the job's GL fence reads as signalled, for a frame that is about to be read in place. A
+// glReadPixels waits for the GPU on its own, a read of the AHB does not, and fenceWait / the native
+// fence wait give up after their cap. The wait for the native fence has covered this job's work, so
+// the object normally says so at once; the short bounded wait is for a driver whose GL fence object
+// trails the native one. False sends the job down the glReadPixels path, which waits by itself.
+static bool ahbFenceDone(GLsync f) {
+    GLenum r = glClientWaitSync(f, 0, 0);
+    if (r == GL_TIMEOUT_EXPIRED) r = glClientWaitSync(f, 0, 2000000ull);
+    return r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED;
+}
+
 void renderJob(Job& j) {
     const int64_t t0 = nowUs();
     g.glFrames++;   // GL-thread-owned counter for the knob polls (g.frame is the worker's and races)
     const bool dsJob = !j.polyTab.empty() && g.rowProg != 0;   // DS span sampling runs for this job
     if (j.pipe2 && !ensureSet2()) { j.pipe2 = false; j.set = 0; }   // first attempt happens with nothing in flight (the loop only pipelines once the set exists)
     useSet(j.set);
+    // The scatter helper may still be reading the frame this set's colour target held (gAhbRb: it reads
+    // the AHB in place, not a copy). Every job draws into a colour target, not just the decoupled ones
+    // that alternate sets: a synchronous, progressive or fallback job draws into set 0. Normally the
+    // helper finished long ago (alternating jobs reach a set again two jobs later) and this costs nothing.
+    if (gAhbRb && gRbBusy[g.setIdx].load(std::memory_order_acquire)) scatterDrain();
     // Skip the redundant glBindTexture when the same array is already bound to a unit. A scene
     // transition uploads a whole new working set (Sonic attract: 243 in one frame), and the old
     // per-upload rebind issued ~2 binds each (the array + the palette); a run of same-target
@@ -2598,10 +3523,19 @@ void renderJob(Job& j) {
         glActiveTexture(GL_TEXTURE0);
         // one point per row: the vertex shader does the edge walk, the point lands on the row's texel
         glBindFramebuffer(GL_FRAMEBUFFER, g.rowFbo); glViewport(0, 0, kRowTabW, kRowTabH);
+        // The last job's table is dead: every row a fragment reads (its own polygon's rows) is
+        // written by the points below. Invalidated, a tiled GPU does not reload the 3 MiB table,
+        // and the scissor keeps the write-back to the rows in use; the viewport stays full size so
+        // the points land where they always did.
+        const bool rowInv = gRowInv && rowLines > 0;
+        if (rowInv) { const GLenum ra[3] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2 }; glInvalidateFramebuffer(GL_FRAMEBUFFER, 3, ra); }
         glDisable(GL_DEPTH_TEST); glDisable(GL_STENCIL_TEST); glDisable(GL_BLEND); glDisable(GL_SCISSOR_TEST);
+        if (rowInv) { glEnable(GL_SCISSOR_TEST); glScissor(0, 0, kRowTabW, rowLines); }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
         glUseProgram(g.rowProg); glBindVertexArray(0);
         glDrawArrays(GL_POINTS, 0, rowLines * kRowTabW);
+        if (rowInv) glDisable(GL_SCISSOR_TEST);
+        gDcRowJobs++; gDcRowLines += (uint32_t)rowLines;
         glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST);   // the job's own target and viewport are bound right below
         g.curProg = 0; g.curBlend = false;
     }
@@ -2633,22 +3567,74 @@ void renderJob(Job& j) {
     // (a/31) that alphaToDs turns back into the 5-bit value. Clearing with a/255 on MSAA left an
     // opaque rear plane at 4 of 31 (Sonic Rush stage intro: the white card composed as clear).
     static int progSel = 0; if ((g.glFrames & 63) == 0) progSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0);
-    GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : g.prog;
+    // Fog (DISP3DCNT bit 7). fogPost: drastic's per-pixel fog flag (stencil bit 0x01) and the post pass
+    // (drawFog, kFogFrag) after the draws; the draw programs are then the fog-free ones. fogFrag: the per-fragment
+    // fog block (sys gpu3d_fog 2, or no pass program on this GPU), the only case that draws with the fog programs.
+    const bool fogPost = j.fog && j.fogPost && g.progFog && !(gProbe & 2);
+    const bool fogFrag = j.fog && !fogPost;
+    gFogFlag = fogPost ? 1 : 0; gFogRef = 0;
+    // Post pass knobs, read here once per job (drawFog and the uniform loop below both use them). gpu3d_fog_bandgate 0 fogs
+    // every band of a frame that has a fog polygon; gpu3d_fog_dbg 1 paints the flagged samples magenta, 2 shows their stored
+    // depth (the uDbgDepth encoding); gpu3d_fog_setgate 0 shades the bands of every fog polygon, not only of those that can
+    // set the flag, and the whole width (the round 8 pass); gpu3d_fog_flat 0 keeps the depth fetch shader on flat tables too.
+    static int fogBandGate = 1, fogDbg = 0, fogSetGate = 1, fogFlatKnob = 1;
+    if ((g.glFrames & 63) == 0) {
+        fogBandGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bandgate", 1); fogDbg = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_dbg", 0);
+        fogSetGate = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_setgate", 1); fogFlatKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_flat", 1);
+    }
+    // A flat density table (every entry equal) needs no depth: the variant that only reads the colour does the same arithmetic.
+    const bool fogUseFlat = fogPost && j.fogFlat && g.progFogFlat && fogFlatKnob && fogDbg != 2;
+    if (fogPost) {   // which path the pass takes, once and again when it changes (a table going flat or not)
+        static int lastPath = -1, pathLogs = 0;
+        const int path = fogUseFlat ? 1 : 0;
+        if (path != lastPath && pathLogs < 8) {
+            lastPath = path; pathLogs++;
+            if (fogUseFlat) ALOGI("gpu3d: fog post pass: flat table (density %d) -> colour fetch only, no depth fetch (flag-setting bands %03x%s)", j.fogFlatD, j.fogBandsSet, j.clearFog ? ", rear plane flagged: every fog band" : "");
+            else ALOGI("gpu3d: fog post pass: depth fetch (%s)", !j.fogFlat ? "table not flat" : !g.progFogFlat ? "flat variant not built" : "flat variant off or depth view on");
+        }
+    }
+    GLuint useProg = progSel == 3 ? g.progNoFetch : progSel == 4 ? g.progTrivial : progSel == 6 ? g.progExp6 : progSel == 7 ? g.progExp7 : ((fogFrag || !g.progNF) ? g.prog : g.progNF);
     bool mainBlend = progSel == 3 || !g.fbFetch;
-    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = j.fog ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
-    g.opq = j.fog ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    if (msaa) { if (progSel != 4 && progSel != 6 && progSel != 7) useProg = fogFrag ? g.progNoFetch : g.progNoFetchNF; mainBlend = true; }
+    g.opq = fogFrag ? g.progOpaque : g.progOpaqueNF;   // probes 4/6/7 keep their program on the MSAA path (timing only)
+    // The knobs the specialised programs were stripped of (uInterp, uUvOff, uDbgDepth and the depth mode
+    // select) are read here once per job on one cadence, and the uniform loop below pushes these same
+    // values, so a job never draws with a stripped program and a knob value the program lost.
+    static int knobInterp = 0, knobUvOff = 0, knobDbgDepth = 0, knobDepthMode = -1;
+    if ((g.glFrames & 15) == 0) {
+        knobInterp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
+        knobUvOff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
+        knobDbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
+        knobDepthMode = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
+    }
     // Z-buffered frames (depth mode 2) take the vertex-depth programs: same maths, biases folded
     // into the clip z, no gl_FragDepth, so hidden fragments are rejected before they are shaded
     // (Pokemon White 2's title: late depth 2.4 ms plus about 1 ms of hidden shading out of 18).
     // The shadow mask slope knob needs a fragment derivative and keeps the fragment-depth programs.
-    { static int dmKnobSel = -1, slopeSel = 0; if ((g.glFrames & 15) == 0) { dmKnobSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1); slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0); }
-      const int dmSel = dmKnobSel >= 0 ? dmKnobSel : (j.wbufDepth ? 1 : 2);
+    { static int slopeSel = 0; if ((g.glFrames & 15) == 0) slopeSel = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
+      const int dmSel = knobDepthMode >= 0 ? knobDepthMode : (j.wbufDepth ? 1 : 2);
       const bool vzJob = dmSel == 2 && slopeSel == 0 && g.progNoFetchVZ && msaa && progSel != 4 && progSel != 6 && progSel != 7;
-      if (vzJob) { useProg = j.fog ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = j.fog ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
-      const bool specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
-      if (specJob) { const int vzi = vzJob ? 1 : 0, nf = j.fog ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
-      { static uint32_t vzJobs = 0, fdJobs = 0, spJobs = 0; if (vzJob) vzJobs++; else fdJobs++; if (specJob) spJobs++;
-        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth, %u specialised (this job: mode %d, %s, classes 0x%x)", vzJobs, fdJobs, spJobs, dmSel, vzJob ? "vertex" : "fragment", j.classMask); }
+      if (vzJob) { useProg = fogFrag ? g.progNoFetchVZ : g.progNoFetchNFVZ; g.opq = fogFrag ? g.progOpaqueVZ : g.progOpaqueNFVZ; }
+      bool specJob = false, sp7Job = false;   // the job draws with progSp / progSp7 (census)
+      if (!gSpec2) {   // the old gate: specialised only when none of the five classes is present
+          specJob = g.specOk && (j.classMask & 0x1f) == 0 && msaa && progSel != 4 && progSel != 6 && progSel != 7;
+          if (specJob) { const int vzi = vzJob ? 1 : 0, nf = fogFrag ? 0 : 1; if (g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; } }
+      } else {
+          // The knob-stripped programs compute exactly what the full ones do while the knobs sit at their
+          // defaults, and the non-vertex-depth ones read the perspective depth outright. A Z-buffered job on
+          // the fragment-depth programs (no vertex-depth programs, or sys gpu3d_vz 0) needs the linear depth of
+          // the select, so (vzJob || dmSel == 1) is required: it must never get a W variant. The program is
+          // chosen per job and g.opq follows it, so the caster redraw (GL_EQUAL) sees the same depth maths.
+          const bool knobsOk = knobInterp == 0 && knobUvOff == 0 && knobDbgDepth == 0 && slopeSel == 0 && (vzJob || dmSel == 1) && msaa
+                               && progSel != 3 && progSel != 4 && progSel != 6 && progSel != 7;
+          if (knobsOk) {
+              const int vzi = vzJob ? 1 : 0, nf = fogFrag ? 0 : 1;
+              if (g.specOk && (j.classMask & 0x1f) == 0 && g.progSp[vzi][nf][0] && g.progSp[vzi][nf][1]) { specJob = true; useProg = g.progSp[vzi][nf][0]; g.opq = g.progSp[vzi][nf][1]; }
+              else if (g.spec7Ok && (j.classMask & 0x18) == 0 && g.progSp7[vzi][nf][0] && g.progSp7[vzi][nf][1]) { sp7Job = true; useProg = g.progSp7[vzi][nf][0]; g.opq = g.progSp7[vzi][nf][1]; }
+          }
+      }
+      { static uint32_t vzJobs = 0, fdJobs = 0, spJobs = 0, sp7Jobs = 0; if (vzJob) vzJobs++; else fdJobs++; if (specJob) spJobs++; if (sp7Job) sp7Jobs++;
+        if (((vzJobs + fdJobs) & 1023) == 1) ALOGI("gpu3d: depth programs: %u jobs vertex-depth, %u fragment-depth, %u specialised (%u progSp, %u progSp7, %u full programs) (this job: mode %d, %s, classes 0x%x)", vzJobs, fdJobs, spJobs + sp7Jobs, spJobs, sp7Jobs, vzJobs + fdJobs - spJobs - sp7Jobs, dmSel, vzJob ? "vertex" : "fragment", j.classMask); }
       g.vzJob = vzJob; }
     // GL-blend path: the stencil "drawn" flag starts set where the rear plane is visible (alpha not 0)
     { static int dsKnob = 1; if ((g.glFrames & 63) == 0) dsKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ds_blend", 1);
@@ -2660,88 +3646,84 @@ void renderJob(Job& j) {
       // honours the stencil write mask) to its own plane, so the shadow pass no longer wipes the
       // drawn flag and the drawn flag no longer satisfies the shadow's EQUAL test everywhere
       // (Mario Kart: the kart's shadow was drawn over the whole kart on the GPU path).
-      glClearStencil(gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 0x80 : 0); glStencilMask(0xff); }
+      // On fog post pass frames bit 0x01 is the fog flag instead (the shadow plane moves to 0x02, see drawShadows):
+      // the rear plane starts it from CLEAR_COLOR bit 15, and every opaque pixel then takes its polygon's fog bit.
+      glClearStencil((gDsBlend && ((j.clearC >> 24) & 0x1f) != 0 ? 0x80 : 0) | (gFogFlag && j.clearFog ? 0x01 : 0)); glStencilMask(0xff); }
     glClearColor((j.clearC & 0x3f) / 255.0f, ((j.clearC >> 8) & 0x3f) / 255.0f, ((j.clearC >> 16) & 0x3f) / 255.0f,
                  ((j.clearC >> 24) & 0x1f) / (mainBlend ? 31.0f : 255.0f));
     glClearDepthf((float)j.clearD / 16777215.0f);
     { const GLenum bufs0[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, bufs0); }
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
+    // Per-job uniforms go only to the programs this job draws with (the main, opaque and shadow
+    // programs chosen above); with 18 programs built, setting every one cost about a millisecond
+    // of CPU per job on Mario Kart. That includes the alpha lane scale: it used to be pushed to
+    // all 17 programs that take it, each with its own glUseProgram, although a job draws with two
+    // or three; now an unused program gets it the next time it is used, and none when it is
+    // already holding the value. Locations come from the per-program table (see ProgU).
     // Both no-fetch programs draw in the MSAA path (the opaque stream through progOpaque), so
     // both take the blend-factor alpha scale there; with only progNoFetch set, opaque polygons
     // landed with alpha 31/255 -> 4 of 31 after the readback (Sonic transparent at 4x).
-    glUseProgram(g.progNoFetch); glUniform1f(g.uAlphaMulNoFetch, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progOpaque); glUniform1f(g.uAlphaMulOpaque, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progNoFetchNF); glUniform1f(g.uAlphaMulNoFetchNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    glUseProgram(g.progOpaqueNF); glUniform1f(g.uAlphaMulOpaqueNF, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    if (g.progNoFetchVZ) {
-        glUseProgram(g.progNoFetchVZ); glUniform1f(g.uAlphaMulNoFetchVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progOpaqueVZ); glUniform1f(g.uAlphaMulOpaqueVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progNoFetchNFVZ); glUniform1f(g.uAlphaMulNoFetchNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-        glUseProgram(g.progOpaqueNFVZ); glUniform1f(g.uAlphaMulOpaqueNFVZ, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f);
-    }
-    if (g.specOk) for (int vzi = 0; vzi < 2; vzi++) for (int nf = 0; nf < 2; nf++) for (int op = 0; op < 2; op++) if (g.progSp[vzi][nf][op]) { glUseProgram(g.progSp[vzi][nf][op]); glUniform1f(g.uAlphaMulSp[vzi][nf][op], mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    if (g.progShadowMs) { glUseProgram(g.progShadowMs); glUniform1f(g.uAlphaMulShadowMs, mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f); }
-    // Per-job uniforms go only to the programs this job draws with (the main, opaque and shadow
-    // programs chosen above); with 18 programs built, setting every one cost about a millisecond
-    // of CPU per job on Mario Kart.
-    GLuint usedProgs[3] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0 };
-    for (int ui = 0; ui < 3; ui++) {
+    const float alphaWant = mainBlend ? 1.0f / 31.0f : 1.0f / 255.0f;
+    GLuint usedProgs[4] = { useProg, g.opq, g.progShadowMs ? g.progShadowMs : 0, fogPost ? (fogUseFlat ? g.progFogFlat : g.progFog) : 0 };
+    for (int ui = 0; ui < 4; ui++) {
         const GLuint pr = usedProgs[ui]; if (!pr) continue;
         bool dup = false; for (int uj = 0; uj < ui; uj++) if (usedProgs[uj] == pr) dup = true;
         if (dup) continue;
         glUseProgram(pr);
-        { static int interp = 0; if ((g.glFrames & 15) == 0) interp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_interp", 0);   // 0: colour and texels perspective correct, as drastic's span interpolation is (bit 0 affine colour was the old default; with the fraction bias above, perspective sits closer on the Crash ground)
-          const GLint li = glGetUniformLocation(pr, "uInterp"); if (li >= 0) glUniform1i(li, interp);
+        ProgU* pu = progU(pr);
+        if (pu->alphaMul >= 0 && (!pu->alphaKnown || pu->alphaVal != alphaWant)) { glUniform1f(pu->alphaMul, alphaWant); pu->alphaKnown = true; pu->alphaVal = alphaWant; }
+        { if (pu->interp >= 0) glUniform1i(pu->interp, knobInterp);
           // drastic samples coverage, texcoords and colours at integer pixel positions, GL at the
           // pixel centre. Shifting the vertices half a pixel (uVtxShift, default 2 quarter pixels)
           // moves GL's sample to drastic's for free: Golden Sun 14183 -> 5048 px over 4 levels,
           // Mario Kart 27122 -> 12113, Sonic 568 -> 367. The derivative-based corner sampling
           // (uUvOff bits) did the same for texcoords alone at +3 ms of GPU time a frame; A/B only.
-          static int uvoff = 0; if ((g.glFrames & 15) == 0) uvoff = property_get_int32("sys.gammaos.drastic_nano.gpu3d_uvoff", 0);
-          const GLint lo = glGetUniformLocation(pr, "uUvOff"); if (lo >= 0) glUniform1i(lo, uvoff);
-          static int vsh = 2; if ((g.glFrames & 15) == 0) vsh = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
-          const GLint lv = glGetUniformLocation(pr, "uVtxShift"); if (lv >= 0) glUniform2f(lv, vsh * 0.25f, vsh * 0.25f);
-          const GLint lds = glGetUniformLocation(pr, "uDsUv"); if (lds >= 0) glUniform1i(lds, dsJob ? gDsUv : 0); }
+          if (pu->uvOff >= 0) glUniform1i(pu->uvOff, knobUvOff);
+          if ((g.glFrames & 15) == 0) gVshQ = property_get_int32("sys.gammaos.drastic_nano.gpu3d_vshift", 2);   // in quarter pixels
+          if (pu->vtxShift >= 0) glUniform2f(pu->vtxShift, gVshQ * 0.25f, gVshQ * 0.25f);
+          if (pu->dsUv >= 0) glUniform1i(pu->dsUv, dsJob ? gDsUv : 0); }
         // Depth: W buffered frames interpolate the vertex W perspective correctly (mode 1), Z
         // buffered frames interpolate the 16-bit z (shifted by 9, lib+0x555bc) linearly on screen
         // (mode 2), both through gl_FragDepth so the bias terms apply; see uDepthMode in the shader.
         // Mode 0 (fixed function depth, no bias terms) is the A/B control; it lost Pokemon White 2's
         // town ground to a far reflection quad, which is why mode 1 was once applied to Z frames too,
         // until the bedroom cushion showed the linear rule is the DS's. sys gpu3d_depth_mode overrides.
-        { static int dmKnob = -1; if ((g.glFrames & 15) == 0) dmKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_depth_mode", -1);
-          const int dm = dmKnob >= 0 ? dmKnob : (j.wbufDepth ? 1 : 2);
-          const GLint ld = glGetUniformLocation(pr, "uDepthMode"); if (ld >= 0) glUniform1i(ld, dm);
+        { const int dm = knobDepthMode >= 0 ? knobDepthMode : (j.wbufDepth ? 1 : 2);
+          if (pu->depthMode >= 0) glUniform1i(pu->depthMode, dm);
           static int tolKnob = -1; if ((g.glFrames & 15) == 0) tolKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_deq_tol", -1);   // A/B: band in 24-bit units
           const int tol = tolKnob >= 0 ? tolKnob : (j.wbufDepth ? 0xFF : 0x200);
-          const GLint lt = glGetUniformLocation(pr, "uDeqTol"); if (lt >= 0) glUniform1f(lt, tol / 16777215.0f);
-          const GLint lfb = glGetUniformLocation(pr, "uFrontBias"); if (lfb >= 0) glUniform1f(lfb, 0.5f / 16777215.0f);
-          const GLint lsb = glGetUniformLocation(pr, "uShadowBias"); if (lsb >= 0) glUniform1f(lsb, 0.0f);
+          if (pu->deqTol >= 0) glUniform1f(pu->deqTol, tol / 16777215.0f);
+          if (pu->frontBias >= 0) glUniform1f(pu->frontBias, 0.5f / 16777215.0f);
+          if (pu->shadowBias >= 0) glUniform1f(pu->shadowBias, 0.0f);
           static int tzb = -1; if ((g.glFrames & 15) == 0) tzb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_transl_zbias", 512);
-          const GLint ltz = glGetUniformLocation(pr, "uTranslZBias"); if (ltz >= 0) glUniform1f(ltz, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
+          if (pu->translZBias >= 0) glUniform1f(pu->translZBias, j.wbufDepth ? 0.0f : tzb / 16777215.0f);
           static int slopeKnob = -1; if ((g.glFrames & 63) == 0) slopeKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_slope", 0);
-          const GLint lss = glGetUniformLocation(pr, "uShadowSlope"); if (lss >= 0) glUniform1f(lss, slopeKnob / 10.0f);
-          static int dbgDepth = 0; if ((g.glFrames & 63) == 0) dbgDepth = property_get_int32("sys.gammaos.drastic_nano.gpu3d_dbg_depth", 0);
-          const GLint ldd = glGetUniformLocation(pr, "uDbgDepth"); if (ldd >= 0) glUniform1i(ldd, dbgDepth);
-          const GLint lad = glGetUniformLocation(pr, "uAttrDepth"); if (lad >= 0) glUniform1i(lad, (j.edge || g.attrWanted) ? 1 : 0);
-          const GLint lnb = glGetUniformLocation(pr, "uNoBlend"); if (lnb >= 0) glUniform1i(lnb, j.noBlend); }
-        const GLint lf = glGetUniformLocation(pr, "uFog");
-        if (lf < 0) continue;
-        glUniform1i(lf, j.fog);
-        if (j.fog) {
-            glUniform2i(glGetUniformLocation(pr, "uFogParam"), j.fogShift, j.fogOffset);
-            { static int fb = 0, ft = 0; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", 0); }
-              glUniform2i(glGetUniformLocation(pr, "uFogTune"), fb, ft); }
-            glUniform4f(glGetUniformLocation(pr, "uFogColor"), (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
-            glUniform1iv(glGetUniformLocation(pr, "uFogTable"), 32, j.fogTable);
-            glUniform1iv(glGetUniformLocation(pr, "uFogDelta"), 32, j.fogDelta);
+          if (pu->shadowSlope >= 0) glUniform1f(pu->shadowSlope, slopeKnob / 10.0f);
+          if (pu->dbgDepth >= 0) glUniform1i(pu->dbgDepth, knobDbgDepth);
+          if (pu->attrDepth >= 0) glUniform1i(pu->attrDepth, (j.edge || g.attrWanted) ? 1 : 0);
+          if (pu->noBlend >= 0) glUniform1i(pu->noBlend, j.noBlend); }
+        if (pu->fog >= 0) {
+            // Only the post pass program and, on a per-fragment fog job, the fog programs take the fog; a program that
+            // still carries the fog block but is not the job's fog program (the MSAA id shadow program, the fetch program
+            // on a post pass job) gets 0, so it never fogs per fragment on top of the post pass.
+            const bool fogHere = (g.progFog && pr == g.progFog) || (g.progFogFlat && pr == g.progFogFlat) || fogFrag;
+            glUniform1i(pu->fog, fogHere ? j.fog : 0);
+            if (fogHere) {
+                if (pu->fogParam >= 0) glUniform2i(pu->fogParam, j.fogShift, j.fogOffset);   // the flat variant has no depth maths: only uFog, uFogColor and the lane scale
+                // gpu3d_fog_trunc: -1 (default) floors the fractional density step in the post pass (drastic's sqdmulh) and rounds it in the per-fragment block (the old maths); 0 rounds, 1 floors
+                { static int fb = 0, ft = -1; if ((g.glFrames & 15) == 0) { fb = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_bias", 0); ft = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog_trunc", -1); }
+                  if (pu->fogTune >= 0) glUniform2i(pu->fogTune, fb, ft >= 0 ? ft : ((g.progFog && pr == g.progFog) ? 1 : 0)); }
+                glUniform4f(pu->fogColor, (float)(j.fogColor & 255), (float)((j.fogColor >> 8) & 255), (float)((j.fogColor >> 16) & 255), (float)((j.fogColor >> 24) & 255));
+                if (pu->fogTable >= 0) glUniform1iv(pu->fogTable, 32, j.fogTable);
+                if (pu->fogDelta >= 0) glUniform1iv(pu->fogDelta, 32, j.fogDelta);
+            }
         }
         if (j.toonUsed) {
-            const GLint lt = glGetUniformLocation(pr, "uToonR");
-            if (lt >= 0) {
-                glUniform1iv(lt, 32, j.toonR);
-                glUniform1iv(glGetUniformLocation(pr, "uToonG"), 32, j.toonG);
-                glUniform1iv(glGetUniformLocation(pr, "uToonB"), 32, j.toonB);
-                glUniform1i(glGetUniformLocation(pr, "uToonHighlight"), j.toonHighlight);
+            if (pu->toonR >= 0) {
+                glUniform1iv(pu->toonR, 32, j.toonR);
+                glUniform1iv(pu->toonG, 32, j.toonG);
+                glUniform1iv(pu->toonB, 32, j.toonB);
+                glUniform1i(pu->toonHighlight, j.toonHighlight);
             }
         }
     }
@@ -2749,7 +3731,8 @@ void renderJob(Job& j) {
     else if (gDsBlend && !(gProbe & 1)) { glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE); glBlendEquationSeparate(GL_FUNC_ADD, GL_MAX); }
     else { glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA); glBlendEquation(GL_FUNC_ADD); }
     g.curProg = 0; g.curBlend = false; glDisable(GL_BLEND);
-    if (gDsBlend && !(gProbe & 2)) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    if (gDsBlend && !(gProbe & 2)) { glEnable(GL_STENCIL_TEST); glStencilMask(0xfe | (gFogFlag ? 1u : 0u)); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+    else if (gFogFlag) { glEnable(GL_STENCIL_TEST); glStencilMask(0x01); glStencilFunc(GL_ALWAYS, 0, 0); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }   // the fetch path has no drawn flag: the fog flag only
     else glDisable(GL_STENCIL_TEST);
     useProgram(useProg, mainBlend);
     glBindVertexArray(g.vao); glBindBuffer(GL_ARRAY_BUFFER, g.vbo);
@@ -2759,7 +3742,7 @@ void renderJob(Job& j) {
     glActiveTexture(GL_TEXTURE5); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirTex);
     glActiveTexture(GL_TEXTURE6); glBindTexture(GL_TEXTURE_2D_ARRAY, g.dirBigTex);
     size_t total = 0;
-    for (int i = 0; i < 8; i++) total += j.opaque.v[i].size() + j.transl.v[i].size();
+    for (int i = 0; i < kGrp; i++) total += j.opaque.v[i].size() + j.transl.v[i].size();
     const size_t shadowBase = total;
     total += j.shadow.size();
     g.vertCount = total;
@@ -2780,16 +3763,28 @@ void renderJob(Job& j) {
         glBufferData(GL_ARRAY_BUFFER, total * sizeof(Vtx), nullptr, GL_STREAM_DRAW);   // orphan
         size_t off = 0;
         for (Stream* st : { &j.opaque, &j.transl })
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < kGrp; i++) {
                 if (st->v[i].empty()) continue;
                 glBufferSubData(GL_ARRAY_BUFFER, off * sizeof(Vtx), st->v[i].size() * sizeof(Vtx), st->v[i].data());
                 off += st->v[i].size();
             }
         if (!j.shadow.empty()) glBufferSubData(GL_ARRAY_BUFFER, off * sizeof(Vtx), j.shadow.size() * sizeof(Vtx), j.shadow.data());
     }
+    // The progressive path draws each chunk under a band scissor (issue sets scBand and the band range). The shadow
+    // pass and the fog pass enable the scissor test for their own boxes and put the chunk's band back through
+    // restoreScissor; whole-frame jobs have no scissor. (They used to disable it for good, so every shadow draw and
+    // every later chunk covered the whole frame again, blending translucent polygons in the lower bands 2 to 3 times.)
+    bool scBand = false; int scB0 = 0, scB1 = 12;
+    auto restoreScissor = [&]() { if (scBand) { glEnable(GL_SCISSOR_TEST); glScissor(0, scB0 * bandRows(), kW, (scB1 - scB0) * bandRows()); } else glDisable(GL_SCISSOR_TEST); };
     // Shadow pass, after the translucent list: stencil masks then shadow polygons per segment.
     auto drawShadows = [&](GLuint mainProg, bool mainBlend) {
         if (j.shadowSegs.empty() || (gProbe & 4)) return;
+        // The shadow plane: stencil bit 0x01, except on fog post pass frames where 0x01 is the fog flag and the plane
+        // moves to 0x02. That bit holds the translucent id code (0x7e) until the translucent list has drawn and is dead
+        // after it, so the clears below take it back over the boxes they cover (orphan shadows: see the segment loop).
+        const GLuint sp = gFogFlag ? 0x02u : 0x01u;
+        // The band the chunk covers (progressive), in render-target rows, for the clear boxes below.
+        const int bandY0 = scBand ? scB0 * bandRows() * (rw / kW) : 0, bandY1 = scBand ? scB1 * bandRows() * (rw / kW) : rh;
         // The self-shadow polygon-id test needs the opaque pass's id attachment (attachment 1).
         // It exists on the plain and 2x-supersampled targets but NOT the multisampled one, so
         // on MSAA the shadow still draws (stencil mask + shadow) without the id refinement.
@@ -2806,7 +3801,7 @@ void renderJob(Job& j) {
         // program writes the fetched value back). Detaching it here split the tile pass.
         const bool fetchId = haveId && g.ss == 3 && g.progShadowMs != 0;
         const GLuint shadowProg = fetchId ? g.progShadowMs : mainProg;
-        const GLint uShadow = glGetUniformLocation(shadowProg, "uShadowPass");
+        const GLint uShadow = progU(shadowProg)->shadowPass;
         // A shadow volume's bottom face is coplanar with the floor it stands on. The DS decides
         // that pair on integer depths, so the whole footprint fails the mask's test and is marked,
         // and the shadow then passes over all of it. Here the two depths are floats a few hundred
@@ -2818,7 +3813,7 @@ void renderJob(Job& j) {
         // is the outcome the DS's integer depths always reach. Moving the shadow polygons toward
         // the camera as well measured worse, so only the mask is biased.
         // sys gpu3d_shadow_bias, in 24-bit depth units, 0 disables it.
-        const GLint uMaskBias = glGetUniformLocation(g.opq, "uShadowBias");
+        const GLint uMaskBias = progU(g.opq)->shadowBias;
         static int shadowBias = -1; if ((g.glFrames & 63) == 0) shadowBias = property_get_int32("sys.gammaos.drastic_nano.gpu3d_shadow_bias", 1024);
         const float maskBias = (float)shadowBias;
         if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1 }; glDrawBuffers(2, b2); } }
@@ -2840,7 +3835,7 @@ void renderJob(Job& j) {
         // caster's own polygons. The shadow draw also clears the plane bit where it lands, which is
         // the DS rejecting a second shadow fragment of the same translucent id over the pixel.
         const bool casterTest = idTest == 1 && !haveId;
-        size_t goff[16]; { size_t b = 0; for (int i = 0; i < 8; i++) { goff[i] = b; b += j.opaque.v[i].size(); } for (int i = 0; i < 8; i++) { goff[8 + i] = b; b += j.transl.v[i].size(); } }
+        size_t goff[2 * kGrp]; { size_t b = 0; for (int i = 0; i < kGrp; i++) { goff[i] = b; b += j.opaque.v[i].size(); } for (int i = 0; i < kGrp; i++) { goff[kGrp + i] = b; b += j.transl.v[i].size(); } }
         // The caster's triangles for each shadow id are gathered once per job into an index list,
         // two ranges per id (the no-discard program's groups and the discard program's), so a
         // caster costs two indexed draws however many polygon runs it is spread over (the race
@@ -2856,9 +3851,9 @@ void renderJob(Job& j) {
                 CasterIdx c{ sg.id, { 0, 0 }, { 0, 0 } };
                 for (int cls = 0; cls < 2; cls++) {   // 0 = no-discard groups (progOpaque), 1 = discard groups (mainProg)
                     c.start[cls] = (uint32_t)casterElems.size();
-                    for (int gi = 0; gi < 16; gi++) {
-                        const Stream& st = gi < 8 ? j.opaque : j.transl; const int grp = gi & 7;
-                        if (gi >= 8 && !((grp >> 1) & 1)) continue;   // translucent without depth write: nothing to match
+                    for (int gi = 0; gi < 2 * kGrp; gi++) {
+                        const Stream& st = gi < kGrp ? j.opaque : j.transl; const int grp = gi % kGrp;
+                        if (gi >= kGrp && !((grp >> 1) & 1)) continue;   // translucent without depth write: nothing to match
                         if ((((grp >> 2) & 1) != 0) != (cls == 0)) continue;
                         const std::vector<uint16_t>& lens = st.polyLen[grp]; const std::vector<uint8_t>& ids = st.polyId[grp];
                         uint32_t off = (uint32_t)goff[gi];
@@ -2883,20 +3878,22 @@ void renderJob(Job& j) {
             const int sc = rw / kW;   // render scale (1, or 2 on the supersampled target)
             bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc;
             bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+            by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);   // progressive: only this chunk's band
             if (bx1 <= bx0 || by1 <= by0) return;
             glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0);
             glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
             glDepthFunc(GL_EQUAL);
-            glStencilFunc(GL_ALWAYS, 0x00, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
+            glStencilMask(sp);   // the plane only: the shadow draws leave the fog flag in the mask too
+            glStencilFunc(GL_ALWAYS, 0x00, sp); glStencilOp(GL_KEEP, GL_KEEP, GL_ZERO);   // depth-pass fragments clear the plane bit
             for (int cls = 0; cls < 2; cls++) {
                 if (!c->count[cls]) continue;
                 useProgram(cls == 0 ? g.opq : mainProg, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 glDrawElements(GL_TRIANGLES, (GLsizei)c->count[cls], GL_UNSIGNED_INT, (const void*)(uintptr_t)(c->start[cls] * sizeof(uint32_t))); gDcShadowCasterDraws++;
             }
-            glDisable(GL_SCISSOR_TEST);
+            restoreScissor();
         };
         glEnable(GL_STENCIL_TEST);
-        glStencilMask(0x01);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80)
+        glStencilMask(sp);   // the shadow plane only: never touch the DS blend rule's drawn bit (0x80) or the fog flag
         bool prevMask = false, first = true; const ShadowSeg* lastMask = nullptr;
         // Clear the shadow plane only over the volume's own box (mask polygons and the shadow
         // polygons that follow them) instead of the whole target: a full clear per volume is a
@@ -2912,6 +3909,7 @@ void renderJob(Job& j) {
             if (sg.mask && (shDbg & 2)) glDepthFunc(GL_NEVER);       // every covered sample "fails": stencil set everywhere
             if (!sg.mask && (shDbg & 1)) glDepthFunc(GL_ALWAYS);     // shadow ignores depth
             if (sg.mask) {
+                glStencilMask(sp);   // first: the segment before may have left sp | fog flag in the mask, and glClear honours it
                 if (first || !prevMask) {
                     if (!(gProbe & 16)) {
                         int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1; bool seenShadow = false;
@@ -2919,16 +3917,41 @@ void renderJob(Job& j) {
                             bx0 = std::min<int>(bx0, t.x0); by0 = std::min<int>(by0, t.y0); bx1 = std::max<int>(bx1, t.x1); by1 = std::max<int>(by1, t.y1); }
                         const int sc = rw / kW;
                         bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc; bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
-                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); glDisable(GL_SCISSOR_TEST); }
-                    } else glClear(GL_STENCIL_BUFFER_BIT);   // probe: the old full clear (bit 0 only, write mask 0x01)
+                        by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);   // progressive: only this chunk's band
+                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); restoreScissor(); }
+                    } else glClear(GL_STENCIL_BUFFER_BIT);   // probe: the old full clear (the plane only, write mask sp)
                 }
                 glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_ALWAYS, 0x01, 0x01); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
+                glStencilFunc(GL_ALWAYS, sp, sp); glStencilOp(GL_KEEP, GL_REPLACE, GL_KEEP);   // set where the depth test fails
                 useProgram(g.opq, false); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uMaskBias >= 0) glUniform1f(uMaskBias, maskBias / 16777215.0f);   // away from the camera: the mask must fail over the floor
             } else {
-                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_FALSE);
-                glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, casterTest ? GL_ZERO : GL_KEEP);
+                if (first && sp != 0x01u && gDsBlend) {
+                    // Orphan shadow: a shadow segment before any mask has no plane to test. With the plane at 0x01 it
+                    // was clear there; bit 0x02 holds translucent id code bits, so take it back over the box of the
+                    // leading shadow run (nothing marked it, so the run draws nothing, as before).
+                    glStencilMask(sp);
+                    if (!(gProbe & 16)) {
+                        int bx0 = sg.x0, by0 = sg.y0, bx1 = sg.x1, by1 = sg.y1;
+                        for (size_t k = si + 1; k < nSeg; k++) { const ShadowSeg& t = j.shadowSegs[k]; if (!t.count) continue; if (t.mask) break;
+                            bx0 = std::min<int>(bx0, t.x0); by0 = std::min<int>(by0, t.y0); bx1 = std::max<int>(bx1, t.x1); by1 = std::max<int>(by1, t.y1); }
+                        const int sc = rw / kW;
+                        bx0 = std::max(0, bx0 - 1) * sc; by0 = std::max(0, by0 - 1) * sc; bx1 = std::min(kW, bx1 + 2) * sc; by1 = std::min(kH, by1 + 2) * sc;
+                        by0 = std::max(by0, bandY0); by1 = std::min(by1, bandY1);
+                        if (bx1 > bx0 && by1 > by0) { glEnable(GL_SCISSOR_TEST); glScissor(bx0, by0, bx1 - bx0, by1 - by0); glClear(GL_STENCIL_BUFFER_BIT); restoreScissor(); }
+                    } else glClear(GL_STENCIL_BUFFER_BIT);
+                }
+                // A shadow pixel is DS translucent. Its depth is stored only with the polygon's depth update bit (sg.dw, set on fog
+                // post pass frames only: the fog pass reads the stored depth; elsewhere nothing reads depth after this pass). The
+                // caster test's GL_EQUAL redraw of a later segment then no longer matches where an earlier segment stored its depth.
+                // The fog flag (bit 0x01 on fog post pass frames) becomes old & the polygon's fog bit. A non-fog shadow writes 0
+                // into it: through the caster test's ZERO op, or by REPLACE with a reference whose flag bit is 0 (the reference sp
+                // keeps the plane bit as it is, since the EQUAL test passed on it). Approximation: a pixel of an alpha 31 shadow
+                // is DS opaque (flag set, depth stored whatever bit 11 says); here it still ANDs the flag and stores depth by bit 11.
+                glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(sg.dw ? GL_TRUE : GL_FALSE);
+                const GLuint wf = (gFogFlag && !sg.fog) ? 0x01u : 0x00u;
+                glStencilMask(sp | wf); glStencilFunc(GL_EQUAL, sp, sp);
+                glStencilOp(GL_KEEP, GL_KEEP, casterTest ? GL_ZERO : (wf ? GL_REPLACE : GL_KEEP));
                 useProgram(shadowProg, mainBlend); if (g.uPass >= 0) glUniform1i(g.uPass, 0);
                 if (uShadow >= 0) glUniform1i(uShadow, shadowMode);
             }
@@ -2939,7 +3962,7 @@ void renderJob(Job& j) {
             prevMask = sg.mask; first = false;
         }
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE); glDepthMask(GL_TRUE); glDepthFunc(GL_LESS);
-        if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        if (gDsBlend || gFogFlag) stencilPlain(false);   // the plain draws' state: drawn flag (GL-blend path) and the fog flag (fog post pass frames)
         else glDisable(GL_STENCIL_TEST);
         if (fetchId) { if (!g.attrAllPasses) { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); } }
         else if (haveId) {
@@ -2948,6 +3971,45 @@ void renderJob(Job& j) {
             else glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT1, GL_TEXTURE_2D, attr, 0);
             { const GLenum b2[2] = { GL_COLOR_ATTACHMENT0, GL_NONE }; glDrawBuffers(2, b2); }
         }
+    };
+    // Fog post pass (fogPost jobs): drastic's band fog over the finished frame, see kFogFrag. One full-screen triangle per run
+    // of fog bands [b0, b1) (a band is bandRows() rows; the bands a fog polygon touches, see Job::fogBands), shading only the
+    // samples whose stencil bit 0x01 is set. Same FBO, no draw buffer change, nothing sampled: it stays in the tile pass.
+    // Cost: the pass is a full-screen shader per flagged sample, and the stencil test only saves the samples it rejects before the
+    // shader runs. So it covers as little as is exact: with CLEAR_COLOR bit 15 clear (no rear plane flag) only the bands and the
+    // screen box of the fog polygons that can set the flag (Job::fogBandsSet, the box; padded by the vertex shift and a rasteriser
+    // margin), and a flat density table takes the variant without the depth fetch (Job::fogFlat). Knobs: see renderJob.
+    auto drawFog = [&](int b0, int b1) {
+        // The flat variant is only built next to the pass and a flat table with density 0 fogs nothing at all.
+        if (fogUseFlat && j.fogFlatD == 0 && fogDbg == 0) return;
+        const bool setGate = fogBandGate && fogSetGate && !j.clearFog;
+        const uint32_t m = (fogBandGate ? (setGate ? j.fogBandsSet : j.fogBands) : (j.fogBands ? 0xfffu : 0u)) & (((1u << b1) - 1) & ~((1u << b0) - 1));
+        if (!m) return;
+        // Scissor box in target pixels: the whole width of every band run, or the flag-setting polygons' box.
+        int bx0 = 0, bx1 = rw, by0 = 0, by1 = rh;
+        if (setGate) {
+            const int sc = rw / kW, vs = gVshQ < 0 ? -gVshQ : gVshQ, pad = 2 + (vs + 3) / 4;   // the vertex shift moves the polygon by vs / 4 px; 2 px for the sample position and the box rounding
+            bx0 = std::max(0, j.fogBx0 - pad) * sc; bx1 = std::min(kW, j.fogBx1 + pad) * sc;
+            by0 = std::max(0, j.fogBy0 - pad) * sc; by1 = std::min(kH, j.fogBy1 + pad) * sc;
+            if (bx1 <= bx0 || by1 <= by0) return;
+        }
+        useProgram(fogUseFlat ? g.progFogFlat : g.progFog, false);
+        if (fogUseFlat) { if (g.uFogDbgFlat >= 0) glUniform1i(g.uFogDbgFlat, fogDbg); if (g.uFogFlatD >= 0) glUniform1i(g.uFogFlatD, j.fogFlatD); }
+        else if (g.uFogDbg >= 0) glUniform1i(g.uFogDbg, fogDbg);
+        glDisable(GL_DEPTH_TEST); glDepthMask(GL_FALSE);
+        glEnable(GL_STENCIL_TEST); glStencilMask(0x00); glStencilFunc(GL_EQUAL, 0x01, 0x01); glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+        glBindVertexArray(g.edgeVao); glEnable(GL_SCISSOR_TEST);
+        const int br = bandRows() * (rw / kW);
+        for (int b = b0; b < b1;) {
+            if (!((m >> b) & 1)) { b++; continue; }
+            int e = b + 1; while (e < b1 && ((m >> e) & 1)) e++;
+            const int ry0 = std::max(b * br, by0), ry1 = std::min(e * br, by1);
+            if (ry1 > ry0) { glScissor(bx0, ry0, bx1 - bx0, ry1 - ry0); glDrawArrays(GL_TRIANGLES, 0, 3); }
+            b = e;
+        }
+        glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); glDepthMask(GL_TRUE);
+        if (gDsBlend) { glStencilMask(0xfe); glStencilFunc(GL_ALWAYS, 0x80, 0xfe); glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE); }
+        restoreScissor();
     };
     static int gpuTime = 0; if ((g.glFrames & 63) == 0) gpuTime = property_get_int32("sys.gammaos.drastic_nano.gpu3d_gputime", 0);
     static PFNGLGENQUERIESEXTPROC pGenQ = nullptr; static PFNGLBEGINQUERYEXTPROC pBeginQ = nullptr; static PFNGLENDQUERYEXTPROC pEndQ = nullptr;
@@ -2986,6 +4048,7 @@ void renderJob(Job& j) {
         auto issue = [&](int c) {
             int b0, b1; bandRange(c, b0, b1);
             if (b0 == b1) return;
+            scBand = true; scB0 = b0; scB1 = b1;   // drawShadows and drawFog put this band back after their own scissors
             glScissor(0, b0 * bandRows(), kW, (b1 - b0) * bandRows());
             const int64_t d0 = nowUs();
             if (total) {
@@ -2993,6 +4056,8 @@ void renderJob(Job& j) {
                 drawStream(j.opaque, false, base, true, useProg, mainBlend);
                 drawStream(j.transl, true, base, true, useProg, mainBlend);
                 drawShadows(useProg, mainBlend);
+                restoreScissor();
+                if (gFogFlag) drawFog(b0, b1);   // this chunk's bands are final: the later chunks only draw their own
             }
             const int64_t d1 = nowUs();
             fences[c] = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
@@ -3038,8 +4103,7 @@ void renderJob(Job& j) {
             glReadPixels(0, y0, kW, y1 - y0, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data() + (size_t)y0 * kW * 4);
             if (msaa) glBindFramebuffer(GL_FRAMEBUFFER, g.msFbo);
             const int64_t tc = nowUs(); rbUs += tc - tb;
-            if (g.blendAlpha) alphaToDs(g.readback.data(), y0, y1);
-            scatterRows(g.readback.data(), j.target, y0, y1);
+            finishRows(g.readback.data(), j.target, y0, y1, g.blendAlpha);
             scUs += nowUs() - tc;
             for (int b = b0; b < b1; b++) maskDone |= 1u << b;
             gpu3dSetBandMask(maskDone);
@@ -3113,12 +4177,13 @@ void renderJob(Job& j) {
     }
     if (total) {
         size_t base = 0;
-        if (!(gProbe & 64)) drawStream(j.opaque, false, base, true, useProg, mainBlend); else { for (int i = 0; i < 8; i++) base += j.opaque.v[i].size(); }
+        if (!(gProbe & 64)) drawStream(j.opaque, false, base, true, useProg, mainBlend); else { for (int i = 0; i < kGrp; i++) base += j.opaque.v[i].size(); }
         if (!(gProbe & 32)) drawStream(j.transl, true, base, true, useProg, mainBlend);
         if (timeShadow) pBeginQ(0x88BF, g.tq);
         drawShadows(useProg, mainBlend);
         if (timeShadow) pEndQ(0x88BF);
     }
+    if (gFogFlag) drawFog(0, 12);   // after the draws and before the invalidate below: it reads the depth and the stencil
     // End of the main pass: nothing after this point reads the depth/stencil buffer (every job
     // clears it first), and nothing reads the id attachment unless the edge or shadow pass
     // wanted it. Without an invalidate a tile-based GPU writes both back to memory at the end
@@ -3176,7 +4241,7 @@ void renderJob(Job& j) {
     glPixelStorei(GL_PACK_ALIGNMENT, 4);
     static int rbTest = -1; if ((g.glFrames & 63) == 0) { rbTest = property_get_int32("sys.gammaos.drastic_nano.gpu3d_rbtest", 0); gPipeline = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipeline", 1); }
     if (j.decoupled && gPipeline && rbTest != 5) {
-        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gScThread.detach(); gRb[0].resize((size_t)kW * kH * 4); gRb[1].resize((size_t)kW * kH * 4); }
+        if (!gScStarted) { gScStarted = true; gScThread = std::thread(scatterThreadMain); gScThread.detach(); }   // the readback halves come from rbHalf on first use
         GLsync fence = glFenceSync(GL_SYNC_GPU_COMMANDS_COMPLETE, 0);
         if (gProbe & 512) {
             // Pipelining feasibility probe (timing only): queue several milliseconds of unrelated GPU
@@ -3203,29 +4268,53 @@ void renderJob(Job& j) {
             glBindVertexArray(g.vao); glEnable(GL_DEPTH_TEST); g.curProg = 0;
         }
         glFlush();
+        // In-place readback (gAhbRb): the resolved frame is in this set's AHB colour target, the helper
+        // reads it there and no glReadPixels runs. Only the in-tile MSAA jobs: their final colour is
+        // colorTex itself (j.edge is off), where a plain or edge-pass job reads another texture.
+        // sys gpu3d_ahb_rb 0 turns it off live (the buffers stay, the readback is the old one).
+        static int ahbLive = 1; if ((g.glFrames & 63) == 0) ahbLive = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ahb_rb", 1) != 0;
+        const bool ahbHand = gAhbRb && ahbLive && msaa && g.msImplicit && !gAhbRbOff.load(std::memory_order_acquire);
         if (j.pipe2 && !timing) {
             // Two-in-flight pipeline: hand the finished submission back to the loop, which submits
             // the next queued job into the other target set while the GPU runs this one and calls
             // completeJob when this fence signals. The native fence is created now, after the flush,
             // so it covers exactly this job.
-            j.fence = fence; j.fenceFd = nativeFenceCreate(); j.st0 = t0; j.st1 = t1; j.st2 = t2; j.sBlendAlpha = g.blendAlpha; j.submitted = true;
+            j.fence = fence; j.fenceFd = nativeFenceCreate(); j.st0 = t0; j.st1 = t1; j.st2 = t2; j.sBlendAlpha = g.blendAlpha; j.ahbRb = ahbHand; j.submitted = true;
             return;
         }
         fenceWait(fence);
+        // A glReadPixels waits for the GPU on its own, a read of the AHB does not: fenceWait gives up
+        // after its cap, so ask the fence itself and read back the old way if it has not signalled.
+        bool ahb = ahbHand;
+        if (ahb && !ahbFenceDone(fence)) { ahb = false; gAhbMiss++; }
         glDeleteSync(fence);
         const int64_t t3 = nowUs();
         g.sumDrawUs += t3 - t2;
         g.lastGpuNs = -1;
         if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; g.lastGpuNs = (int64_t)ns; } }
         if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);
-        const int k = gRbIdx; gRbIdx ^= 1;
-        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
-        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+        int k;
+        if (ahb) {
+            k = g.setIdx;   // the buffer index is the set: the helper reads this set's AHB until it clears the flag
+            if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // (the top of renderJob already waited; this keeps the invariant local)
+            gAhbHand++;
+        } else {
+            k = gRbIdx; gRbIdx ^= 1;
+            if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();   // the helper is still on this half (rare: it takes ~2 ms)
+            glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, rbHalf(k));
+        }
+        // The helper clears its busy flag before it publishes: the previous job may still be unpublished,
+        // and gPendJob / gPendTarget below would overwrite it. Its buffer would then be in no exclusion
+        // list of the target choice (a parity kick could pick it). g.mtx is not held here.
+        if (gPendJob.load(std::memory_order_acquire)) scatterDrain();
         const int64_t t4 = nowUs();
         g.sumReadUs += t4 - t3;
         gRbBusy[k].store(1, std::memory_order_release);
-        gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
-        { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, g.blendAlpha }; gScHas = true; }
+        gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release); j.scatHand = true;
+        { std::lock_guard<std::mutex> lk(gScMtx);
+          if (ahb) gScWork = { nullptr, k, j.target, &j, g.blendAlpha, gAhb[k], gAhbPitch[k] };
+          else gScWork = { gRb[k].data(), k, j.target, &j, g.blendAlpha };
+          gScHas = true; }
         gScCv.notify_all();
         gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
         jobEpilogue(j, t0, t1, t2, t3, t4, t4);
@@ -3243,12 +4332,14 @@ void renderJob(Job& j) {
     if (timing) { GLuint av = 0; pGetQ(g.tq, 0x8867 /* QUERY_RESULT_AVAILABLE */, &av); if (av) { GLuint64 ns = 0; pGetQ64(g.tq, 0x8866 /* QUERY_RESULT */, &ns); g.sumGpuNs += (int64_t)ns; g.gpuSamples++; } }
     if (msaa) glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // resolved colour (explicit blit above, or in-tile)
     glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, g.readback.data());
-    if (g.blendAlpha) alphaToDs(g.readback.data(), 0, kH);
+    if (g.blendAlpha && !gFusedScatter) alphaToDs(g.readback.data(), 0, kH);   // the old separate pass, counted under read
     const int64_t t4 = nowUs();
     g.sumReadUs += t4 - t3;
     const uint8_t* src = g.readback.data();
     uint8_t* target = j.target;
-    scatterRows(src, target, 0, kH);
+    // Fused, the alpha lanes are applied inside the scatter, so their cost counts under scatter time in the stats.
+    if (g.blendAlpha && gFusedScatter) scatterRowsAlpha(src, target, 0, kH);
+    else scatterRows(src, target, 0, kH);
     const int64_t t5 = nowUs();
     g.sumScatterUs += t5 - t4;
     jobEpilogue(j, t0, t1, t2, t3, t4, t5);
@@ -3276,14 +4367,16 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
     g.sumUs += dt; if (dt > g.maxUs) g.maxUs = dt; g.frames++;
     if (g.frames % 300 == 0) {
         if (g.gpuSamples) { ALOGI("gpu3d: GPU time elapsed (timer query) %.2f ms avg over %u frames (single-shot) probe %d", g.sumGpuNs / 1e6 / g.gpuSamples, g.gpuSamples, gProbe); g.sumGpuNs = 0; g.gpuSamples = 0; }
-        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0);
+        ALOGI("gpu3d: draw census per frame: opaque groups+polys %.1f, transl ord polys %.1f, transl draws %.1f, prepasses %.1f, ds pairs %.1f, shadow caster draws %.1f, row jobs %.2f, row lines avg %.1f", gDcOpaqueDraws / 300.0, gDcOrdPolys / 300.0, gDcTranslDraws / 300.0, gDcPrepass / 300.0, gDcDsPairs / 300.0, gDcShadowCasterDraws / 300.0,
+              gDcRowJobs / 300.0, gDcRowJobs ? (double)gDcRowLines / gDcRowJobs : 0.0);
         { const uint32_t a = gDcLayerAdv.exchange(0), r = gDcLayerRep.exchange(0); if (a + r) ALOGI("gpu3d: 3D layer over %u composites: advanced %u, repeated %u (%.1f new 3D frames per 60 composites)", a + r, a, r, 60.0 * a / (a + r)); }
-        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = 0;
+        gDcOpaqueDraws = gDcOrdPolys = gDcTranslDraws = gDcPrepass = gDcDsPairs = gDcShadowCasterDraws = gDcRowJobs = gDcRowLines = 0;
         ALOGI("gpu3d: %u frames, GL thread %.2f ms (tex %.2f, upload+draw %.2f, gpu wait %.2f, readback %.2f, scatter %.2f), worker build %.2f ms, worker join wait %.2f ms, %zu verts, %u tex reuploads, max %.2f ms, %zu textures cached",
               g.frames, g.sumUs / 1000.0 / g.frames, g.sumTexUs / 1000.0 / g.frames, g.sumUploadUs / 1000.0 / g.frames,
               g.sumDrawUs / 1000.0 / g.frames, g.sumReadUs / 1000.0 / g.frames, g.sumScatterUs / 1000.0 / g.frames,
               g.sumBuildUs / 1000.0 / g.frames, g.sumWaitUs / 1000.0 / g.frames, g.vertCount, g.texReuploads, g.maxUs / 1000.0, g.texCache.size());
         ALOGI("gpu3d: census translucent depth pre-passes skipped %u", gPrepassSkipped); gPrepassSkipped = 0;
+        if (gAhbRb) { ALOGI("gpu3d: in-place readback: %u jobs of the last 300 handed over without a glReadPixels, %u read back the old way because their fence did not read as signalled%s", gAhbHand, gAhbMiss, gAhbRbOff.load(std::memory_order_relaxed) ? " (the helper's lock failed: reading back the old way now)" : ""); gAhbHand = gAhbMiss = 0; }
         ALOGI("gpu3d: census polys by mode modulate %u decal %u toon %u shadow %u, fog bit %u, tex holdovers %u, tex misses %u, stale-converted %u; textures by fmt none %u a3i5 %u pal4 %u pal16 %u pal256 %u comp %u a5i3 %u direct %u",
               g.modeCount[0], g.modeCount[1], g.modeCount[2], g.modeCount[3], g.fogPolys, g.texHoldovers, g.texMisses, g.texUnconverted, g.fmtCount[0], g.fmtCount[1], g.fmtCount[2], g.fmtCount[3], g.fmtCount[4], g.fmtCount[5], g.fmtCount[6], g.fmtCount[7]);
         memset(g.modeCount, 0, sizeof g.modeCount); memset(g.fmtCount, 0, sizeof g.fmtCount); g.fogPolys = 0; g.texHoldovers = 0; g.texMisses = 0; g.texUnconverted = 0;
@@ -3295,7 +4388,20 @@ static void jobEpilogue(Job& j, int64_t t0, int64_t t1, int64_t t2, int64_t t3, 
 // program, buffer and the context go, and initGl builds them fresh at the new size. The EGL
 // display stays initialised (the presenter shares it in this process).
 static void destroyGl() {
-    if (gScStarted && gPendJob.load(std::memory_order_acquire)) scatterDrain();
+    if (gScStarted) {
+        // Always drain, not only for a pending job: ahbRbFree below releases the buffers the helper reads in
+        // place, and it must be off them first. The helper clears a busy flag before its publish, so after
+        // the drain both are normally 0 already. The wait is bounded so that a flag left set by a hand-off
+        // the helper never ran cannot hang the rebuild; the helper is idle then, so clearing it is safe.
+        scatterDrain();
+        if (gAhbRb) {
+            for (int i = 0; i < 100 && (gRbBusy[0].load(std::memory_order_acquire) || gRbBusy[1].load(std::memory_order_acquire)); i++) usleep(1000);
+            if (gRbBusy[0].load(std::memory_order_acquire) || gRbBusy[1].load(std::memory_order_acquire)) {
+                ALOGW("gpu3d: a scatter busy flag stayed set after the drain, clearing it before the buffers are freed");
+                gRbBusy[0].store(0, std::memory_order_release); gRbBusy[1].store(0, std::memory_order_release);
+            }
+        }
+    }
     if (g.dpy == EGL_NO_DISPLAY) return;
     if (g.ctx != EGL_NO_CONTEXT) {
         glFinish();
@@ -3313,15 +4419,19 @@ static void destroyGl() {
         g.smallLayers = g.smallLayersGl = kSmallLayers; g.palRows = g.palRowsGl = kPalRows; g.growWant.store(0);
         delRb(g.depthRb); delRb(g.ssDepth); delRb(g.msDepth); delRb(g.msDepth2x); delRb(g.msColor);
         delPr(g.prog); delPr(g.progNoFetch); delPr(g.progTrivial); delPr(g.progOpaque); delPr(g.progNoFetchNF); delPr(g.progOpaqueNF); g.progNoFetchNF = g.progOpaqueNF = 0; delPr(g.progExp6); delPr(g.progExp7);
+        delPr(g.progNF); delPr(g.progFog); g.uFogDbg = -1; delPr(g.progFogFlat); g.uFogDbgFlat = g.uFogFlatD = -1; gFogPostOk.store(false);
         delPr(g.progNoFetchVZ); delPr(g.progOpaqueVZ); delPr(g.progNoFetchNFVZ); delPr(g.progOpaqueNFVZ); g.progNoFetchVZ = g.progOpaqueVZ = g.progNoFetchNFVZ = g.progOpaqueNFVZ = 0;
         for (auto& a : g.progSp) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.specOk = false;
+        for (auto& a : g.progSp7) for (auto& b : a) for (auto& c : b) { delPr(c); c = 0; } g.spec7Ok = false;
         delPr(g.edgeProg); delPr(g.resolveProg);
+        resetProgU();   // the names above are free for the driver to hand out again
         if (g.vao) { glDeleteVertexArrays(1, &g.vao); g.vao = 0; }
         if (g.casterEbo) { glDeleteBuffers(1, &g.casterEbo); g.casterEbo = 0; }
         if (g.edgeVao) { glDeleteVertexArrays(1, &g.edgeVao); g.edgeVao = 0; }
         if (g.vbo) { glDeleteBuffers(1, &g.vbo); g.vbo = 0; }
         if (g.tq) { auto pDelQ = (PFNGLDELETEQUERIESEXTPROC)eglGetProcAddress("glDeleteQueriesEXT"); if (pDelQ) pDelQ(1, &g.tq); g.tq = 0; }
         glFinish();
+        ahbRbFree();   // the colour textures that were siblings of the buffers are gone: the images and the buffers can go before the context
         eglMakeCurrent(g.dpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);
         eglDestroyContext(g.dpy, g.ctx); g.ctx = EGL_NO_CONTEXT;
     }
@@ -3339,19 +4449,33 @@ static void completeJob(Job& j) {
     useSet(j.set);
     if (j.fenceFd >= 0) { nativeFenceWaitFd(j.fenceFd, 200); close(j.fenceFd); j.fenceFd = -1; }
     else for (int i = 0; i < 5; i++) { const GLenum r = glClientWaitSync(j.fence, GL_SYNC_FLUSH_COMMANDS_BIT, 40000000ull); if (r == GL_ALREADY_SIGNALED || r == GL_CONDITION_SATISFIED || r == GL_WAIT_FAILED) break; }
+    // In-place readback (see renderJob): only when the fence really signalled, since nothing else waits for the GPU.
+    bool ahb = j.ahbRb && !gAhbRbOff.load(std::memory_order_acquire);
+    if (ahb && !ahbFenceDone(j.fence)) { ahb = false; gAhbMiss++; }
     glDeleteSync(j.fence); j.fence = nullptr; j.submitted = false;
     const int64_t t3 = nowUs();
     g.sumDrawUs += t3 - j.st2;
     g.lastGpuNs = -1;
     glBindFramebuffer(GL_READ_FRAMEBUFFER, g.fbo);   // this set's resolved colour
-    const int k = gRbIdx; gRbIdx ^= 1;
-    if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
-    glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, gRb[k].data());
+    int k;
+    if (ahb) {
+        k = g.setIdx;   // useSet(j.set) above: the buffer index is the set
+        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
+        gAhbHand++;
+    } else {
+        k = gRbIdx; gRbIdx ^= 1;
+        if (gRbBusy[k].load(std::memory_order_acquire)) scatterDrain();
+        glReadPixels(0, 0, kW, kH, GL_RGBA, GL_UNSIGNED_BYTE, rbHalf(k));
+    }
+    if (gPendJob.load(std::memory_order_acquire)) scatterDrain();   // the previous job must be published before gPendJob names this one (see renderJob; g.mtx is not held)
     const int64_t t4 = nowUs();
     g.sumReadUs += t4 - t3;
     gRbBusy[k].store(1, std::memory_order_release);
-    gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release);
-    { std::lock_guard<std::mutex> lk(gScMtx); gScWork = { gRb[k].data(), k, j.target, &j, j.sBlendAlpha }; gScHas = true; }
+    gPendJob.store(&j, std::memory_order_release); gPendTarget.store(j.target, std::memory_order_release); j.scatHand = true;
+    { std::lock_guard<std::mutex> lk(gScMtx);
+      if (ahb) gScWork = { nullptr, k, j.target, &j, j.sBlendAlpha, gAhb[k], gAhbPitch[k] };
+      else gScWork = { gRb[k].data(), k, j.target, &j, j.sBlendAlpha };
+      gScHas = true; }
     gScCv.notify_all();
     gpu3dSetBandMask(0xfffu); gpu3dSetPending(0);
     static int64_t sLastDone = 0; const int64_t t0eff = j.st0 > sLastDone ? j.st0 : sLastDone; sLastDone = t4;
@@ -3475,7 +4599,7 @@ void glThreadMain() {
             latCensus(f, ts, nowUs());
             lk.lock();
             g.qHead ^= 1; g.qCount--;
-            if (gPendJob.load(std::memory_order_acquire) != f) publishLatest(f->target, f->seq);
+            if (!f->scatHand) publishLatest(f->target, f->seq, f->pow15);   // not gPendJob != f: the helper may already have published (or dropped) it and cleared the mark
             g.rendering2 = nullptr;
             g.cvDone.notify_all();
         };
@@ -3522,7 +4646,12 @@ void glThreadMain() {
         if (!skip) g.rendering = j;
         j->pipe2 = !skip && pipeAllowed(j);
         j->set = inflight ? (inflight->set ^ 1) : 0;
-        j->submitted = false;
+        // In-place readback (gAhbRb): the scatter helper reads a finished frame straight out of its set's
+        // colour target, so consecutive decoupled jobs draw into alternate sets and the next job never
+        // overwrites what the helper is reading. Behind an in-flight pipe2 job the line above already
+        // alternates. Everything else stays on set 0 and waits for the helper at the top of renderJob.
+        if (gAhbRb && !skip && j->decoupled && !j->syncLo2x) { if (!inflight) j->set = gAhbSet ^ 1; gAhbSet = j->set; }
+        j->submitted = false; j->scatHand = false;
         lk.unlock();
         int64_t ts = 0;
         if (!skip) {
@@ -3543,7 +4672,7 @@ void glThreadMain() {
         }
         if (inflight) finish(inflight);   // a synchronous job behind an in-flight one: the older frame publishes first
         g.qHead ^= 1; g.qCount--;
-        if (!skip && gPendJob.load(std::memory_order_acquire) != j) publishLatest(j->target, j->seq);   // a pipelined job is published by the scatter helper
+        if (!skip && !j->scatHand) publishLatest(j->target, j->seq, j->pow15);   // a pipelined job is published by the scatter helper (a gPendJob check raced its publish: a second fin entry, or a failed AHB lock's unwritten target)
         g.rendering = nullptr;
         g.pending = nullptr;
         g.cvDone.notify_all();
@@ -3553,6 +4682,25 @@ void glThreadMain() {
 
 static bool gDecoupleWanted = false;   // decoupled mode selected (knob or the 4x setting)
 
+// Cancel every queued job the GL thread has not started (g.mtx held; the GL thread reads `cancel` under
+// g.mtx before it marks a job rendering) and keep their texture uploads: texFor counted them as uploaded
+// already, so they would be lost with the job. They go to the front of g.parCarry, oldest job first: they
+// are older than whatever the carry holds (see the queue block), and the sync job the caller queues next
+// runs the carry ahead of its own uploads.
+static void cancelQueuedKeepUploads() {
+    size_t at = 0;
+    for (int i = 0; i < g.qCount; i++) {
+        Job* q = g.queue[(g.qHead + i) & 1];
+        if (q == g.rendering || q == g.rendering2) continue;
+        q->cancel = true;
+        if (q->uploads.empty()) continue;
+        g.bpUploadsCarried += (uint32_t)q->uploads.size();
+        g.parCarry.insert(g.parCarry.begin() + at, std::make_move_iterator(q->uploads.begin()), std::make_move_iterator(q->uploads.end()));
+        at += q->uploads.size();
+        q->uploads.clear();
+    }
+}
+
 // Worker side: block until the GL thread has finished every queued job. Also leaves the
 // decoupled mode (the CPU rasterizer or the progressive path takes over from here).
 void joinPrevious(bool cancelQueued = false) {
@@ -3560,8 +4708,8 @@ void joinPrevious(bool cancelQueued = false) {
     std::unique_lock<std::mutex> lk(g.mtx);
     // A synchronous frame after an engine swap: the queued decoupled frame (not yet rendering)
     // would show on the wrong screen anyway, and rendering it first cost 40 to 60 ms of GL time
-    // at the transition. Drop it.
-    if (cancelQueued) for (int i = 0; i < g.qCount; i++) { Job* q = g.queue[(g.qHead + i) & 1]; if (q != g.rendering && q != g.rendering2) q->cancel = true; }
+    // at the transition. Drop it; its texture uploads ride along with the synchronous frame.
+    if (cancelQueued) cancelQueuedKeepUploads();
     // A queued decoupled job may be sitting in its present wait (up to 16 ms): the frame that
     // needs this join (a synchronous frame after an engine swap) cannot afford it. Measured on
     // Pokemon: the swap frame ran past the 40 ms band wait and drained the audio queue (960
@@ -3571,6 +4719,8 @@ void joinPrevious(bool cancelQueued = false) {
     g.joinWanted = false;
     g.latest.store(nullptr, std::memory_order_release);
     g.decoupledActive.store(false, std::memory_order_release);
+    parityEnd();   // the decoupled session is over: the CPU rasterizer or a synchronous frame may now write the buffers a parity hold kept
+    gParityWant.store(-1, std::memory_order_release);
     g.sumWaitUs += nowUs() - t0;
 }
 // Decoupled mode: wait only until the GL queue has room (at most one job running or queued).
@@ -3579,6 +4729,17 @@ static void waitQueueRoom() {
     std::unique_lock<std::mutex> lk(g.mtx);
     while (g.qCount >= 2) g.cvDone.wait(lk);
     g.sumRoomUs += nowUs() - t0;
+}
+// The four decoupled output buffers beyond drastic's own bufA/bufB (allocated on first use).
+// Returns whether all of them exist.
+static bool decoupledBufs() {
+    uint8_t** bufs[4] = { &g.bufC, &g.bufD, &g.bufE, &g.bufF };
+    for (uint8_t** b : bufs) {
+        if (*b) continue;
+        void* m = nullptr;
+        if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); *b = (uint8_t*)m; }
+    }
+    return g.bufC && g.bufD && g.bufE && g.bufF;
 }
 
 }  // namespace
@@ -3631,9 +4792,37 @@ extern "C" void gpu3dNotePresent() {
 }
 
 
+// Budget guard bookkeeping (worker thread only: gpu3dFrame and gpu3dOff both run on the 3D worker). The CPU fallback is not
+// for the session. It ends by itself on a growing schedule, and at once when the setting that made the scene too heavy changes
+// (supersampling, hi-res 3D, the GPU 3D setting itself); the GL thread only sees such a change in a job, and none is queued
+// while the fallback lasts.
+static uint32_t sBackoffLevel = 0;     // trips in a row: the next fallback lasts 600 << level frames (10 s, 20 s, 40 s ...), at most 18000 (5 min)
+static uint32_t sBackoffRetryAt = 0;   // frames the running fallback lasts; 0 = no retry (sys gpu3d_retry_frames 0, for A/B)
+static uint32_t sGpuRunFrames = 0;     // frames on the GPU path since the last retry or trip: 3600 (60 s) without a trip forget the level
+static uint32_t sRetryTrial = 0;       // frames left of a retry's trial window: a trip inside it needs 45 frames over budget, not 90, so a failed retry costs under a second
+static int sBackoffSs = 1;             // the supersampling option when the fallback began (ssOptionNow)
+// The supersampling option as renderJob reads it (sys override, else the setting), without its sample count check: 1 off, 2 SSAA, 3 MSAA.
+static int ssOptionNow() {
+    const int ov = property_get_int32("sys.gammaos.drastic_nano.gpu3d_ss", -1);
+    if (!(ov >= 0 ? ov >= 2 : android::drastic_settings::getBool("persist.gammaos.drastic_nano.gpu3d_ss", false))) return 1;
+    char mode[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.drastic_nano.gpu3d_ss_mode", mode, "msaa");
+    return strcmp(mode, "ssaa") != 0 ? 3 : 2;
+}
+// Forget the budget history: the over-budget average (firstUs is the first-quarter EMA the GL thread seeds emaUs from after a
+// progressive job; left alone it brings the old average straight back), the counters and the fallback itself.
+static void budgetClear() {
+    g.emaUs = 0.f; g.firstUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+}
+// The same for a new configuration, which also forgets how often the old one tripped.
+static void budgetForget() {
+    budgetClear(); sBackoffLevel = 0; sGpuRunFrames = 0; sRetryTrial = 0;
+}
+
 // Returns true when the frame was rendered on the GPU (drastic's target buffer holds the
 // result and every band is marked complete); false = the caller must run the CPU path.
 extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
+    static uint32_t sFrameCalls = 0; const uint32_t callNo = ++sFrameCalls;   // a gap between two evaluations of the swap state = frames the CPU rasterizer took
     if (!g.threadStarted) {
         g.threadStarted = true;
         { uint8_t* cfg0 = *reinterpret_cast<uint8_t**>(R + 8);
@@ -3666,7 +4855,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     {
         // Budget guard (runtime knob gpu3d_budget_ms, default 8): a scene whose GPU frame stays
         // above the budget starves the compositor's band waits, so hand it back to the CPU
-        // rasterizer for 600 frames and retry. 0 disables the guard.
+        // rasterizer for a while (10 s, doubling up to 5 min) and retry. 0 disables the guard.
         // Budget: the first band quarter must be ready within gpu3d_budget_ms (default 6) in
         // progressive mode (whole frame time otherwise).
         // Decoupled mode (below) renders whole frames into a buffer the compositor is not reading,
@@ -3678,18 +4867,33 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // again; otherwise the row looked inert for the rest of the session.
         if (g.ssChanged.exchange(false, std::memory_order_acq_rel)) {
             if (g.backoffFrames) ALOGI("gpu3d: supersampling changed, leaving the CPU fallback");
-            g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+            budgetForget();
+        }
+        if (!g.backoffFrames) {   // on the GPU path: the retry's trial window runs down, a long clean run forgets the trips
+            if (sRetryTrial) sRetryTrial--;
+            if (sBackoffLevel && ++sGpuRunFrames >= 3600) { sBackoffLevel = 0; sGpuRunFrames = 0; }
         }
         if (g.backoffFrames) {
-            // Sticky for the session: a retry costs one over-budget frame and on Pokemon the
-            // retry's first GPU frame once stalled for 12 s (fps 50 for 14 s), so a scene that
-            // trips the budget stays on the CPU rasterizer until the GPU setting is toggled or
-            // the game is relaunched. (sys gpu3d_retry_frames > 0 re-enables timed retries.)
-            static int retryFrames = 0; if ((g.frame & 63) == 0) retryFrames = property_get_int32("sys.gammaos.drastic_nano.gpu3d_retry_frames", 0);
-            if (retryFrames > 0 && ++g.backoffElapsed >= (uint32_t)retryFrames) {
-                g.backoffFrames = 0; g.backoffElapsed = 0; g.emaUs = 0.f; ALOGI("gpu3d: retrying the GPU path");
+            // The CPU fallback is not for the session (a scene that trips the budget at the GPU's slow moment, after a clock
+            // drop or on a heavy scene, would otherwise stay on the CPU rasterizer until the game is relaunched). It ends when
+            //  - the hi-res 3D setting or the supersampling option changes (checked here: the GL thread's own check lives in
+            //    a job, and none is submitted while the fallback lasts; the GPU 3D setting is handled by gpu3dOff), or
+            //  - the schedule runs out (sBackoffRetryAt, see the trip below): the GPU path is tried again, and a failed try
+            //    leaves it again after under a second.
+            // sys gpu3d_retry_frames: -1 (default) the schedule, 0 no retry (A/B), > 0 a fixed number of frames.
+            const uint32_t el = g.backoffElapsed++;   // frames spent in the fallback
+            const uint8_t* cfgB = *reinterpret_cast<uint8_t**>(R + 8);
+            const char* leave = nullptr;
+            if ((*reinterpret_cast<const uint32_t*>(cfgB + 1184) != 0 ? 1 : 0) != gResWant.load(std::memory_order_relaxed)) leave = "hi-res 3D changed";   // the hi-res block below then rebuilds the GL state
+            else if ((el & 63) == 0 && ssOptionNow() != sBackoffSs) leave = "supersampling changed";
+            if (leave) {
+                ALOGI("gpu3d: %s, leaving the CPU fallback", leave);
+                budgetForget();
+            } else if (sBackoffRetryAt > 0 && el + 1 >= sBackoffRetryAt) {
+                budgetClear(); sRetryTrial = 300; sGpuRunFrames = 0;
+                ALOGI("gpu3d: retrying the GPU path (after %u frames, backoff %u)", el + 1, g.backoffs);
             } else { joinPrevious(); return false; }
-        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && ++g.overBudget >= 30) {
+        } else if (budgetMs > 0 && g.frame > 30 && g.emaUs > budgetMs * 1000.f && !g.parityOn && ++g.overBudget >= 30) {   // parity mode sheds jobs instead of waiting, so a slow job there is no reason to shed MSAA or leave the GPU path
             // Heavy-scene fallback ladder. On the MSAA supersampling path (ss 3), a scene that
             // cannot hold 60 at 4x sheds to 2x (still supersampled, same resolution) and STAYS at
             // 2x: 2x on the GPU is a smaller quality step than the CPU rasterizer (native, no
@@ -3707,10 +4911,15 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             if (msaaMode && g.msImplicit && g.msSamples > 2 && g.msTargetSamples.load() > 2) {
                 g.msTargetSamples.store(2); g.overBudget = 0; g.emaUs = 0.f; g.msaaUnder = 0;
                 ALOGW("gpu3d: %.1f ms sustained over the %d ms budget, dropping MSAA to 2x (was 4x)", overMs, budgetMs);
-            } else if (!msaaMode && g.overBudget >= 90) {
+            } else if (!msaaMode && g.overBudget >= (sRetryTrial ? 45u : 90u)) {   // a retry's first frames trip sooner: a try that fails is over after under a second (45 frames outlast the first job's texture uploads, which seed the EMA)
                 g.backoffFrames = 1; g.backoffElapsed = 0; g.backoffs++;
-                ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (backoff %u)",
-                      overMs, budgetMs, g.backoffs);
+                sBackoffSs = ssOptionNow();
+                const int retryProp = property_get_int32("sys.gammaos.drastic_nano.gpu3d_retry_frames", -1);
+                sBackoffRetryAt = retryProp >= 0 ? (uint32_t)retryProp : std::min<uint32_t>(600u << sBackoffLevel, 18000u);
+                if (sBackoffLevel < 5) sBackoffLevel++;
+                sGpuRunFrames = 0; sRetryTrial = 0;
+                if (sBackoffRetryAt) ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for %u frames, then a retry (backoff %u)", overMs, budgetMs, sBackoffRetryAt, g.backoffs);
+                else ALOGW("gpu3d: first quarter / frame %.1f ms over the %d ms budget, CPU rasterizer for the rest of the session (gpu3d_retry_frames 0, backoff %u)", overMs, budgetMs, g.backoffs);
                 joinPrevious(); return false;
             }
             // msaaMode already at 2x and still over budget: stay at 2x (accept the residual dip);
@@ -3720,8 +4929,10 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
             // Restore 4x once the scene has comfortably fit (well under budget) for ~3 s, so a
             // brief lull does not ping-pong the sample count. Measured at the current sample
             // count, so the hysteresis gap (drop at budget, restore at 70% of it) exceeds the
-            // 2x->4x cost step and cannot oscillate.
-            if (g.msImplicit && g.msTargetSamples.load() == 2 && g.emaUs > 0.f && g.emaUs < budgetMs * 700.f) {
+            // 2x->4x cost step and cannot oscillate. Only below the base count: a device whose base is
+            // already 2x has nothing to restore, and the literal 2 here re-fired every 180 frames there
+            // (log line plus an EMA reset that blinded the budget guard).
+            if (g.msImplicit && g.msTargetSamples.load() < g.msBaseSamples && g.emaUs > 0.f && g.emaUs < budgetMs * 700.f) {
                 if (++g.msaaUnder >= 180) { g.msTargetSamples.store(g.msBaseSamples); g.msaaUnder = 0; g.emaUs = 0.f;
                     ALOGI("gpu3d: scene comfortably fits, restoring MSAA to %dx", g.msBaseSamples); }
             } else g.msaaUnder = 0;
@@ -3760,7 +4971,7 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
       }
       if (gResWant.load(std::memory_order_relaxed) != resWant) {
           joinPrevious();
-          g.emaUs = 0.f; g.overBudget = 0; g.backoffFrames = 0; g.backoffElapsed = 0; g.msaaUnder = 0;
+          budgetForget();
           gResWant.store(resWant, std::memory_order_release);
           { std::lock_guard<std::mutex> lk(g.mtx); }
           g.cvSubmit.notify_one();
@@ -3784,7 +4995,8 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // master+0x1b374): a frame late, the layer lands on the other screen. Both cases are games
     // that alternate views every frame (Mario Kart's pre-race line-up flickered between the two
     // cameras), so any capture or swap holds the synchronous path a few frames; a game that
-    // keeps doing it stays synchronous.
+    // keeps doing it stays synchronous, except on the RG DS Plus, where a steady swap switches
+    // to parity mode (below).
     static uint32_t syncHold = 0; static int lastPow15 = -1;
     const uint8_t* master = *reinterpret_cast<uint8_t* const*>(R);
     const int pow15 = master ? (*reinterpret_cast<const uint16_t*>(master + 0x1b374) >> 15) & 1 : 0;
@@ -3797,21 +5009,82 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     const uint32_t modeA = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1b070) >> 16) & 3 : 0;
     const uint32_t modeB = master ? (*reinterpret_cast<const uint32_t*>(master + 0x1c070) >> 16) & 3 : 0;
     const bool capShown = capNow && modeB == 2;
-    if (capShown || swapNow) {
-        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : "display capture shown", modeA, modeB);
+    // Steady alternation: parity mode (RG DS Plus only; sys gpu3d_swap_parity, default 1, 0 = the
+    // synchronous path). A game that swaps the engines every frame (Mario Kart's course intro and
+    // pre-race line-up) used to hold the synchronous path for as long as it did, which serialises
+    // the emulator behind the GL job: the job needs 15 to 19 ms there, a frame is 16.7, so the
+    // compositor waited every frame, emulation fell to 39-55 fps, the audio queue ran dry and the
+    // AAudio stream underran (the stutter before every race).
+    // Parity mode never blocks the emulator on the GL thread. Each screen assignment (POWCNT1 bit
+    // 15) keeps the newest finished 3D frame that was rendered for ITS assignment (g.parHold), and
+    // the compositor shows that one: a frame rendered for one screen is never shown on the other.
+    // Under strict alternation that is the job two kicks back; when the GL thread is late the
+    // screen keeps showing its last frame (3 to 6 kicks old) instead of waiting for a newer one.
+    // Added video latency, against the synchronous path's current image, exists only inside these
+    // swap scenes: Mario Kart's intro camera and line-up are cut scenes that take no player input.
+    // When the GL queue is full the kick sheds a job (queue time, below) instead of waiting, always
+    // one whose screen assignment another job in flight still covers, so neither screen starves.
+    // A late frame never ends the mode. Ending it takes a display capture shown on the other
+    // engine, the end of the alternation (no swap for 4 kicks) or a change of the configuration
+    // (the knob, hi-res 3D, fast forward, the CPU rasterizer, the lag rule), each of which joins
+    // the GL queue and goes back to synchronous frames for a few kicks. The leaving kick keeps the
+    // holds and the screen assignment's read until joinPrevious has drained the queue (it ends the
+    // session), so the composites during that join still show the frame of their own screen.
+    // The shed logic at queue time assumes the GL thread takes one job at a time (sys gpu3d_pipe2
+    // 0, the default): with the two-in-flight pipeline a queued job the GL thread has already picked
+    // is also never replaced (it is shed instead), but parity mode has not been measured with it, so
+    // parityOk requires the pipeline off (switching it on ends a running session like any other change).
+    static int parityKnob = -1, altRun = 0, swapIdle = 0, seedFails = 0; static uint32_t parityFrames = 0, parityLastCall = 0; static unsigned runFin = 0; static bool pipe2On = false;
+    static const bool parityDev = [] { char d[PROPERTY_VALUE_MAX] = {}; property_get("ro.gammaos.device", d, ""); return strcmp(d, "anbernicrgdsplus") == 0; }();
+    if (parityDev && (parityKnob < 0 || (g.frame & 63) == 0)) { parityKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_swap_parity", 1); pipe2On = property_get_int32("sys.gammaos.drastic_nano.gpu3d_pipe2", 0) != 0; }
+    const bool parityGap = parityLastCall + 1 != callNo;   // the CPU rasterizer had frames in between: the finished 3D frames are stale
+    parityLastCall = callNo;
+    if (parityGap) altRun = 0;
+    altRun = swapNow ? altRun + 1 : 0;
+    swapIdle = swapNow ? 0 : (swapIdle < 1000 ? swapIdle + 1 : swapIdle);
+    if (altRun == 1) { std::lock_guard<std::mutex> lk(g.mtx); runFin = g.finN; }   // the session needs two jobs finished since the alternation began
+    if (altRun == 0) seedFails = 0;
+    // Not with gpu3d_pipe2: the shed logic and the hold / exclusion lists assume one job at a time in the GL thread (see above).
+    const bool parityOk = parityKnob == 1 && !pipe2On && !parityGap && !capShown && gDecoupleWanted && threaded && g.lagMode.load(std::memory_order_relaxed) == 0;
+    bool parity = false, parityStart = false, parityLeft = false; uint8_t* parityBuf = nullptr;
+    if (parityOk && altRun >= 8) decoupledBufs();   // before the lock: the session needs all four extra buffers (two holds, running, queued, scattering, and this job's target)
+    {
+        std::lock_guard<std::mutex> lk(g.mtx);
+        if (g.parityOn) {
+            // Stay while the configuration allows it and the game is still alternating (a frame or two
+            // without a swap is harmless: each kick still reads the frame of its own assignment).
+            if (parityOk && swapIdle <= 3 && g.parHold[pow15].t) { parity = true; parityBuf = g.parHold[pow15].t; }
+            else parityLeft = true;   // joinPrevious below ends the session once the queue has drained
+        } else if (parityOk && altRun >= 8) {
+            const char* why = (g.bufC && g.bufD && g.bufE && g.bufF) ? paritySeed(g.kickSeq + 1, runFin) : "the extra output buffers are not allocated";
+            if (!why) { parity = true; parityStart = true; parityBuf = g.parHold[pow15].t; }
+            else if (++seedFails % 120 == 0)
+                ALOGI("gpu3d: parity mode has not engaged after %d tries during a steady engine swap (%d consecutive): %s (queued %d, scatter pending %d, finished %u, since the swap began %u, kick %u)",
+                      seedFails, altRun, why, g.qCount, gPendJob.load(std::memory_order_acquire) ? 1 : 0, g.finN, g.finN - runFin, g.kickSeq + 1);
+        }
+    }
+    if (parityStart) g.overBudget = 0;   // the swap scene's own history starts here
+    if (parity) {
+        if (parityStart) { parityFrames = 0; (void)gParRead.exchange(0, std::memory_order_relaxed); (void)gParAgeSum.exchange(0, std::memory_order_relaxed); (void)gParAgeMax.exchange(0, std::memory_order_relaxed); ALOGI("gpu3d: steady engine swap (%d consecutive), parity mode: each screen shows the newest finished 3D frame rendered for it, the emulator no longer waits for the GL thread", altRun); }
+        parityFrames++;
+        syncHold = 0;
+        if (parityFrames % 600 == 0) {
+            const uint32_t n = gParRead.exchange(0, std::memory_order_relaxed), sum = gParAgeSum.exchange(0, std::memory_order_relaxed), mx = gParAgeMax.exchange(0, std::memory_order_relaxed);
+            ALOGI("gpu3d: parity mode: %u composites, the 3D frame shown was %.1f kicks old on average (max %u), jobs shed while the GL thread was behind: %u queued, %u new (this session)",
+                  n, n ? (double)sum / n : 0.0, mx, g.parDropQ, g.parDropNew);
+        }
+    } else if (capShown || swapNow || parityLeft) {
+        if (!syncHold) ALOGI("gpu3d: %s (display modes A %u B %u), synchronous frames", swapNow ? "engine swap" : capShown ? "display capture shown" : "parity mode ended", modeA, modeB);
+        if (parityLeft) ALOGI("gpu3d: parity mode left after %u frames (jobs shed: %u queued, %u new)", parityFrames, g.parDropQ, g.parDropNew);
         // Short hold: a game that alternates re-arms it every frame; a one-off swap (Pokemon at a
         // battle transition) costs 4 synchronous frames, not 4 seconds at 53 fps (measured).
         syncHold = 4;
     } else if (syncHold) syncHold--;
+    gParityWant.store(parity || parityLeft ? pow15 : -1, std::memory_order_release);   // the leaving kick keeps it through the join: the newest finished frame could be the other screen's
     if ((g.frame % 600) == 3 && capNow && !capShown) ALOGI("gpu3d: capture armed but not displayed (modes A %u B %u), decoupled path kept", modeA, modeB);
     const bool capSync = syncHold > 0;
     const bool decoupled = gDecoupleWanted && threaded && !capSync;
-    if (decoupled) {
-        if (!g.bufC) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufC = (uint8_t*)m; } }
-        if (!g.bufD) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufD = (uint8_t*)m; } }
-        if (!g.bufE) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufE = (uint8_t*)m; } }
-        if (!g.bufF) { void* m = nullptr; if (posix_memalign(&m, 64, 0xc0000) == 0 && m) { memset(m, 0, 0xc0000); g.bufF = (uint8_t*)m; } }
-    }
+    if (decoupled) decoupledBufs();
     // Back-pressure policy. Default: waitQueueRoom stalls the emulator until the GL queue drains,
     // which on the heaviest scenes costs ~13 ms while the 3D fence is stuck behind the panel
     // composite, and that late frame is the dropped vblank. gpu3d_drop_bp routes it differently:
@@ -3821,8 +5094,18 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // stay on time, and no extra buffer or latency is added. Quality is unchanged (a dropped 3D
     // frame, not a lower-quality one). Off by default until measured.
     static int dropBpKnob = 1; if ((g.frame & 63) == 0) dropBpKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_drop_bp", 1);
-    const bool dropBp = decoupled && g.bufC && dropBpKnob != 0;
-    if (!decoupled || !g.bufC) joinPrevious(capSync);   // the previous GPU frame must be in the buffers before regs/target move on
+    // Parity mode always sheds instead of waiting: a shed job never reaches a screen, and the frame
+    // each screen shows is kept in g.parHold, so dropping loses no screen assignment's only frame.
+    const bool dropBp = decoupled && g.bufC && (dropBpKnob != 0 || parity);
+    // The kick that leaves parity mode cancels every queued job: rendering one that carries texture
+    // uploads first held the join (and the emulator) for up to about 36 ms, and the end of a swap scene is
+    // where a new set of textures arrives. The uploads move to g.parCarry and the synchronous job of this
+    // kick runs them (cancelQueuedKeepUploads).
+    if (parityLeft) {
+        std::lock_guard<std::mutex> lk(g.mtx);
+        cancelQueuedKeepUploads();
+    }
+    if (!decoupled || !g.bufC) joinPrevious(capSync && !parityLeft);   // the previous GPU frame must be in the buffers before regs/target move on
     else if (!dropBp) waitQueueRoom();
     const int64_t t0 = nowUs();
     gStage = 1;
@@ -3844,20 +5127,41 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
         // Read pointer: the newest finished frame (the CPU rasterizer's last frame before the
         // first GPU frame lands). Write buffer: one of the three that is neither read now nor
         // the target of the job still in the GL queue.
-        uint8_t* latest = g.latest.load(std::memory_order_acquire);
         // What the compositor may read at this frame's latch and the next: the finished jobs of the
         // last two kicks, and the buffer the lag rule would read right now (after a back-pressure
         // drop that is an older one: it was left off this list and the next job rendered into the
         // buffer being composed, a tear across the 3D layer on Pokemon White 2's title). Six buffers
         // make the exclusion always fit.
+        // Everything that takes a buffer is read in ONE critical section: the finished frames, the
+        // queued and rendering jobs and the frame waiting for its scatter. The scatter helper
+        // publishes (and clears the pending target) under g.mtx, and the GL thread stores the pending
+        // target before it pops the job under g.mtx, so a snapshot of all of them always finds a
+        // buffer either in flight (queued, rendering, pending scatter) or finished. Reading them in
+        // separate sections let a job that was published in between fall in none of the lists, and
+        // the next target was the buffer a hold or the lag rule was about to read (parity mode: the
+        // other screen's 3D frame, torn while the scatter ran).
+        uint8_t* latest = nullptr;
         uint8_t* keep[3] = { nullptr, nullptr, nullptr };
-        { std::lock_guard<std::mutex> lk(g.mtx); const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
-          for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
-          keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
-        uint8_t* readBuf = latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* busy[4] = { nullptr, nullptr, nullptr, nullptr };
-        { std::lock_guard<std::mutex> lk(g.mtx); for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target; if (g.rendering) busy[2] = g.rendering->target; if (g.rendering2) busy[3] = g.rendering2->target; }
-        uint8_t* pendT = gPendTarget.load(std::memory_order_acquire);
+        uint8_t* pendT = nullptr;
+        { std::lock_guard<std::mutex> lk(g.mtx);
+          latest = g.latest.load(std::memory_order_acquire);
+          if (parity) {
+              // Parity mode: the compositor reads only the frame each screen assignment holds, so
+              // those two are what must survive, however old (in flight: running, queued, scattering,
+              // all excluded below; two holds plus three in flight plus this target fill the six).
+              keep[0] = g.parHold[0].t; keep[1] = g.parHold[1].t;
+              if (g.parHold[pow15].t) parityBuf = g.parHold[pow15].t;   // the hold may have moved on since the kick began
+          } else {
+              const uint32_t k = g.kickSeq + 1; unsigned kn = 0;
+              for (unsigned i = 0; i < 4 && i < g.finN && kn < 2; i++) { const auto& f = g.fin[(g.finN - 1 - i) & 3]; if (f.t && f.seq + 2 >= k) keep[kn++] = f.t; }
+              keep[2] = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0);
+          }
+          for (int k = 0; k < g.qCount && k < 2; k++) busy[k] = g.queue[(g.qHead + k) & 1]->target;
+          if (g.rendering) busy[2] = g.rendering->target;
+          if (g.rendering2) busy[3] = g.rendering2->target;
+          pendT = gPendTarget.load(std::memory_order_acquire); }
+        uint8_t* readBuf = parityBuf ? parityBuf : latest ? latest : (prevDrawn ? prevDrawn : bufA);
         uint8_t* cands[6] = { bufA, bufB, g.bufC, g.bufD, g.bufE, g.bufF };
         target = nullptr;
         for (uint8_t* c : cands) if (c && c != readBuf && c != busy[0] && c != busy[1] && c != busy[2] && c != busy[3] && c != pendT && c != keep[0] && c != keep[1] && c != keep[2]) { target = c; break; }
@@ -3891,10 +5195,12 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     uint8_t* pbo = gx + 0x39ae0 + bank * 0x10008;
     uint8_t* pbt = gx + 0x59af0 + bank * 0x10008;
     gStage = 3;
-    // Fog prep takes (gx, R): it folds the 32 densities into their deltas at gx+0x9994 and writes
-    // the all-equal flag (the fog colour, or -1) at R+0x249490. The worker frame passes R
-    // (x20), not the target buffer; with the target the flag went to regs+16.
-    if (regs[0] & 0x80) fnFog(gx, R);
+    // Fog prep takes (gx, R + 0x1056c0): it folds the 32 densities into their deltas at gx+0x9994 and writes
+    // a flag 0x249490 bytes past its second argument: -1, or 0 when the table is all zero or a repeated
+    // {b,0,0,0} pattern (drastic's post pass then skips fog). drastic's own worker frame passes R + 0x1056c0
+    // (x20 at +0x5ef14), so the flag lands at regs+0x10, which the post pass gates on (see job.fog below).
+    // Passing R wrote the flag into R+0x249490, inside the output buffer bufB (hi-res pixel 233,263).
+    if (regs[0] & 0x80) fnFog(gx, R + 0x1056c0);
     gStage = 4;
     fnBinOpaque(gx, R + 0x2856c0, pbo, vb, 0);
     fnBinTransl(gx, R + 0x2916f0, pbt, vb, 1);
@@ -3912,11 +5218,15 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     // non-threaded path derives and stays 0 in threaded mode: Sonic Rush's white level
     // transition (rear plane white, alpha 31) was missing on the GPU path because of it.
     uint32_t clearC = *reinterpret_cast<uint32_t*>(regs + 4);
+    // The rear plane's fog flag: CLEAR_COLOR bit 15. drastic's swap builds regs+8 as (CLEAR_COLOR << 16 & 0x80000000) | the
+    // expanded colour, so bit 31 there is the flag (non-threaded); the threaded path reads the raw word below.
+    uint32_t clearFog = (*reinterpret_cast<uint32_t*>(regs + 8) >> 31) & 1;
     if (threaded) {
         const uint32_t cc = *reinterpret_cast<uint32_t*>(S + 84);
         const uint32_t r5 = cc & 31, g5 = (cc >> 5) & 31, b5 = (cc >> 10) & 31, a5 = (cc >> 16) & 31;
         auto x6 = [](uint32_t v) { return (v << 1) | (v >> 4); };   // 5 to 6 bits, top bit replicated (31 -> 63, as the CPU layer shows)
         clearC = x6(r5) | (x6(g5) << 8) | (x6(b5) << 16) | (a5 << 24);
+        clearFog = (cc >> 15) & 1;
     }
     const uint32_t clearD = *reinterpret_cast<uint32_t*>(regs + 12) & 0xffffff;
     g.frame++;
@@ -3935,11 +5245,13 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     Job& job = *jp; g.jobIdx = (g.jobIdx + 1) % 4;
     job.cancel = false;
     g.cur = &job;
-    for (int i = 0; i < 8; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
+    for (int i = 0; i < kGrp; i++) { job.opaque.v[i].clear(); job.transl.v[i].clear(); job.opaque.polyLen[i].clear(); job.transl.polyLen[i].clear(); job.opaque.polyId[i].clear(); job.transl.polyId[i].clear(); }
     job.opaque.ord.clear(); job.transl.ord.clear();
     job.shadow.clear(); job.shadowSegs.clear(); job.cancel = false;
     job.uploads.clear();
     job.target = target; job.clearC = clearC; job.clearD = clearD; job.decoupled = useDecoupled;
+    job.clearFog = (int)clearFog; job.fogBands = 0;   // fogBands is filled by buildList below
+    job.fogBandsSet = 0; job.fogBx0 = job.fogBy0 = 1 << 30; job.fogBx1 = job.fogBy1 = -(1 << 30); job.fogFlat = 0; job.fogFlatD = 0;   // job slots are reused: buildList and the fog block below refill these
     // Edge marking: drastic-nano's mode-5 pipeline drops drastic's per-band edge pass and the
     // dumped CPU frames show no edge pixels on the controls, so the GPU pass is opt-in
     // (sys.gammaos.drastic_nano.gpu3d_edge=1) until the CPU behaviour is pinned down.
@@ -3984,19 +5296,31 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     job.clearId = *reinterpret_cast<uint32_t*>(regs + 12) >> 24;   // clear depth word carries the clear polygon id in bits 24-29
     // Fog: drastic's band post pass (+0x5829c) reads the density table at gx+0x9974, the colour word
     // at gx+0x9a9c (r, g, b 6-bit, a 5-bit bytes), the offset halfword at gx+0x9aaa and the shift
-    // from DISP3DCNT bits 8-11; the per-pixel maths is in the fragment shader (uFog*).
+    // from DISP3DCNT bits 8-11. The per-pixel maths is in kFogFrag (the post pass over the finished frame) or,
+    // for the A/B knob, in the fragment shader (uFog*).
+    // sys gpu3d_fog: 0 off, 1 post pass (default: drastic's per-pixel fog flag in the stencil, the density from the
+    // finished frame's depth), 2 the old per-fragment fog (every polygon with the fog bit, own depth; A/B only).
     static int fogKnob = 1; if ((g.frame & 63) == 7) fogKnob = property_get_int32("sys.gammaos.drastic_nano.gpu3d_fog", 1);
     job.fog = (fogKnob && (disp3d & 0x80)) ? ((disp3d & 0x40) ? 2 : 1) : 0;
+    // drastic's prep flagged a flat table (regs+0x10 == 0): its post pass skips fog altogether.
+    if (job.fog && fogKnob != 2 && *reinterpret_cast<const int32_t*>(regs + 0x10) == 0) {
+        static int flatLogs = 0; if (flatLogs++ < 3) ALOGI("gpu3d: fog on, but drastic's prep flagged a flat density table (regs+0x10 == 0): its post pass skips fog");
+        job.fog = 0;
+    }
+    job.fogPost = (job.fog && fogKnob != 2 && gFogPostOk.load(std::memory_order_relaxed)) ? 1 : 0;   // the pass program exists (GL init)
     if (job.fog) {
         job.fogShift = (disp3d >> 8) & 15;
         job.fogOffset = (0x400 >> job.fogShift) + (*reinterpret_cast<const uint16_t*>(gx + 0x9aaa) & 0x7fff);
         job.fogColor = *reinterpret_cast<const uint32_t*>(gx + 0x9a9c);
         const uint8_t* ft = gx + 0x9974;
         for (int i = 0; i < 32; i++) { job.fogTable[i] = ft[i]; job.fogDelta[i] = i < 31 ? (int)ft[i + 1] - (int)ft[i] : 0; }
+        // A flat table (all 32 entries equal) has no deltas: the density is table[0] at any depth (kFogFragFlat; kFogFrag's `& 255` is a no-op on a byte, then 127 -> 128).
+        job.fogFlat = 1; for (int i = 1; i < 32; i++) if (job.fogTable[i] != job.fogTable[0]) job.fogFlat = 0;
+        job.fogFlatD = job.fogTable[0] == 127 ? 128 : job.fogTable[0];
         static int fogLogs = 0;
         if (fogLogs < 3 || (g.frame % 300) == 7) { fogLogs++;
             char tb[160]; int n = 0; for (int i = 0; i < 32; i++) n += snprintf(tb + n, sizeof tb - n, "%d%s", job.fogTable[i], i < 31 ? "," : "");
-            ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x table %s", job.fog, job.fogShift, job.fogOffset, job.fogColor, tb); }
+            ALOGI("gpu3d: fog on: mode %d shift %d offset(+step) %d colour %08x post %d clearfog %d table %s", job.fog, job.fogShift, job.fogOffset, job.fogColor, job.fogPost, job.clearFog, tb); }
     }
     // Toon / highlight table: 32 BGR555 halfwords at gx+0x9934, immediately before the fog table
     // (getter lib+0x68bf0, 64 byte clear lib+0x69e44). Expanded to 6 bit the same way vertex
@@ -4022,6 +5346,9 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     buildList(R + 0x2856c0, pbo, vb, shapeTbl, wbuf, false, texEnabled, job.opaque);
     buildList(R + 0x2916f0, pbt, vb, shapeTbl, wbuf, true, texEnabled, job.transl);
     gPolyTab = nullptr; gRowOwner = nullptr;
+    if (job.fogPost) { static int bandLogs = 0; if (bandLogs < 3 || (g.frame % 300) == 7) { bandLogs++;
+        ALOGI("gpu3d: fog post pass: fog polygons touch bands %03x, those that can set the flag %03x box %d,%d-%d,%d (rear plane flag %d, table %s%d)", job.fogBands, job.fogBandsSet,
+              job.fogBandsSet ? job.fogBx0 : 0, job.fogBandsSet ? job.fogBy0 : 0, job.fogBandsSet ? job.fogBx1 : 0, job.fogBandsSet ? job.fogBy1 : 0, job.clearFog, job.fogFlat ? "flat " : "not flat, density[0] ", job.fogTable[0]); } }
     if (!job.rowOwner.empty()) job.rowOwner.resize((job.rowOwner.size() + kRowTabW - 1) / kRowTabW * kRowTabW, 0);   // whole texture lines for the upload
     job.toonUsed = gToonSeen;   // upload the table only for frames that actually shade with it
     job.classMask = gClassSeen;
@@ -4065,22 +5392,59 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
     if ((g.frame % 300) == 2) ALOGI("gpu3d: policy: nowait %d, ss %d, decoupled %d, prevDrawn %p target %p, early mask %03x, queue room wait %.2f ms avg, present wait %.2f ms avg (%u timeouts, %u skipped as not fitting)", nowaitBands, g.ss, useDecoupled ? 1 : 0, prevDrawn, target, earlyMask, g.sumRoomUs / 300000.0, g.sumPresentWaitUs / 300000.0, g.presentWaitTimeouts, g.presentWaitSkips);
     if ((g.frame % 300) == 2 && g.bpDrops) { ALOGI("gpu3d: back-pressure drops %u (cumulative), texture uploads carried over %u", g.bpDrops, g.bpUploadsCarried); }
     if ((g.frame % 300) == 2) { g.sumRoomUs = 0; g.sumPresentWaitUs = 0; g.presentWaitTimeouts = 0; g.presentWaitSkips = 0; }
+    bool shedNew = false;   // parity mode: this job was not queued (see below)
     {
         std::lock_guard<std::mutex> lk(g.mtx);
-        job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; g.curSeq.store(job.seq, std::memory_order_relaxed);
+        job.presentSeqAtQueue = g.presentSeq; job.kickUs = nowUs(); job.seq = ++g.kickSeq; job.pow15 = pow15; g.curSeq.store(job.seq, std::memory_order_relaxed);
+        // Uploads of jobs that were shed before (g.parCarry) run ahead of the next job that really
+        // queues: they are newer than every job already queued, so that job is the first one that
+        // may sample what they wrote, and its own uploads come after them.
+        auto takeCarry = [&] {
+            if (g.parCarry.empty()) return;
+            job.uploads.insert(job.uploads.begin(), std::make_move_iterator(g.parCarry.begin()), std::make_move_iterator(g.parCarry.end()));
+            g.parCarry.clear();
+        };
         if (dropBp && g.qCount >= 2) {
             // Queue full and not stalling: drop the stale queued (non-rendering) 3D frame and take
             // its slot. The GL thread is stuck on the rendering job's fence; the dropped frame is
             // never rendered, its buffer is free for reuse, and the emulator does not wait.
             const int ws = (g.qHead + 1) & 1;
-            if (g.queue[ws] != g.rendering) {
-                Job* old = g.queue[ws]; old->cancel = true;
+            Job* const qj = g.queue[ws];
+            // A queued job the GL thread already has in hand cannot be replaced: with sys gpu3d_pipe2 it
+            // takes the second slot's job (g.pending) and waits for the present before it marks it
+            // rendering, and the worker would then pop the replacement unrendered together with its
+            // uploads. Without the pipeline the second slot is never in hand while the queue is full.
+            const bool qjTaken = qj == g.rendering || qj == g.rendering2 || qj == g.pending;
+            // Parity mode, running job R and queued job Q against this new job N. Replacing Q is right
+            // when Q is not the only job of its screen assignment (same assignment as N, or as R). If it
+            // is, while R already covers N's, replacing Q would leave the other screen without a job in
+            // flight, and with a GL thread that needs two kicks a job that screen would never be updated
+            // again.
+            const bool qOnlyOfItsScreen = parity && qj->pow15 != pow15 && g.queue[g.qHead]->pow15 == pow15;
+            if (qjTaken || qOnlyOfItsScreen) {
+                // Shed N instead: it is never rendered and R's frame stays its screen's newest. Its
+                // texture uploads must still land, and they are newer than Q, which is already queued
+                // and was built without them, so they wait in g.parCarry for the next job that queues
+                // (Q must not sample what N re-uploaded: if N reused an atlas layer Q draws from, Q
+                // would show N's texels).
+                if (!job.uploads.empty()) {
+                    g.bpUploadsCarried += (uint32_t)job.uploads.size();
+                    g.parCarry.insert(g.parCarry.end(), std::make_move_iterator(job.uploads.begin()), std::make_move_iterator(job.uploads.end()));
+                    job.uploads.clear();
+                }
+                g.bpDrops++; if (parity) g.parDropNew++;
+                shedNew = true;
+            } else {
+                Job* old = qj; old->cancel = true;
+                if (parity) g.parDropQ++;
                 // The dropped job's texture uploads must still land: texFor already marked those
                 // entries as uploaded, so nothing would ever upload them again and their layer and
                 // palette row would stay zero (a pal16 texel then decodes to opaque black; Pokemon
                 // White 2's title model drew black feet for half a minute after a state load, when
                 // the new scene's uploads coincide with the drops of a heavy scene). Carry them over
-                // ahead of this job's own uploads so a re-upload of the same layer still wins.
+                // ahead of this job's own uploads so a re-upload of the same layer still wins. Shed
+                // uploads that came after the dropped job was queued sit between the two.
+                takeCarry();
                 if (!old->uploads.empty()) {
                     g.bpUploadsCarried += (uint32_t)old->uploads.size();
                     job.uploads.insert(job.uploads.begin(), std::make_move_iterator(old->uploads.begin()), std::make_move_iterator(old->uploads.end()));
@@ -4088,11 +5452,14 @@ extern "C" bool gpu3dFrame(uint8_t* R, uint32_t arg1, uint8_t* lib) {
                 }
                 g.queue[ws] = &job; g.bpDrops++;
             }
-            else { g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++; }   // both slots rendering: cannot happen, fall back
         } else {
+            takeCarry();
             g.queue[(g.qHead + g.qCount) & 1] = &job; g.qCount++;
         }
     }
+    // A shed job never renders, so its target is not "the last drawn" frame: put the previous one back
+    // (the library's frame reuse and the next synchronous frame copy from it).
+    if (shedNew) *reinterpret_cast<uint8_t**>(regs + 40) = prevDrawn;
     g.cvSubmit.notify_one();
     if (earlyMask) gpu3dSetBandMask(earlyMask);
     (void)t0;
@@ -4110,6 +5477,12 @@ extern "C" void gpu3dJoinForDump() {
     std::unique_lock<std::mutex> lk(g.mtx);
     while (g.qCount > 0) g.cvDone.wait(lk);
 }
+// Names the per-ROM pool hint file (see PoolHint). Called once from DrasticRunner::init, before
+// the first gpu3dFrame starts the GL thread, which reads it at GL init.
+extern "C" void gpu3dSetPoolHint(const char* path) {
+    if (!g.threadStarted) gPoolHintPath = path ? path : "";
+}
+
 // A save-state restore replaces drastic's whole texture/palette memory. Our cache keys on the
 // cache-entry pointer plus a content hash, so an entry that lands at the same address with the
 // same hash would keep a pre-restore upload. Drop everything and re-upload on the next frame.
@@ -4125,14 +5498,28 @@ extern "C" void gpu3dResetTextures() {
 }
 extern "C" void gpu3dOff() {
     if (!g.threadStarted) return;
+    // A CPU fallback the budget guard began belongs to the GPU 3D session that was running: switching the setting off and on
+    // starts the guard afresh (nothing else clears it while no GPU frame is submitted).
+    if (g.backoffFrames) { ALOGI("gpu3d: GPU 3D is off, leaving the CPU fallback"); budgetForget(); }
     if (g.decoupledActive.load(std::memory_order_acquire) || g.latest.load(std::memory_order_acquire)) joinPrevious();
 }
 extern "C" void gpu3dLatchRead(uint8_t* R) {
     if (!g.decoupledActive.load(std::memory_order_acquire)) return;
     const uint32_t k = g.curSeq.load(std::memory_order_relaxed);
     uint8_t* rdBuf;
-    { std::lock_guard<std::mutex> lk(g.mtx); rdBuf = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
+    // Parity mode (gpu3dFrame): the newest finished frame rendered for this kick's screen assignment,
+    // however old, else leave the pointer the kick chose (also a held frame of that assignment).
+    // Never a join from here, and never a frame of the other assignment.
+    const int want = gParityWant.load(std::memory_order_acquire);
+    uint32_t parAge = 0;
+    { std::lock_guard<std::mutex> lk(g.mtx);
+      if (want >= 0) { rdBuf = parityRead(want); if (rdBuf && k > g.parHold[want].seq) parAge = k - g.parHold[want].seq; }
+      else rdBuf = lagRead(k, g.lagMode.load(std::memory_order_relaxed) == 1 ? 2 : 0); }
     if (!rdBuf) return;
+    if (want >= 0) {   // census: how many kicks old the shown 3D frame is (the worker logs and clears it)
+        gParRead.fetch_add(1, std::memory_order_relaxed); gParAgeSum.fetch_add(parAge, std::memory_order_relaxed);
+        if (parAge > gParAgeMax.load(std::memory_order_relaxed)) gParAgeMax.store(parAge, std::memory_order_relaxed);
+    }
     {   // 3D layer rate census: did the frame the compositor reads advance since the last composite?
         static uint8_t* sLastRead = nullptr;
         if (rdBuf == sLastRead) gDcLayerRep.fetch_add(1, std::memory_order_relaxed); else gDcLayerAdv.fetch_add(1, std::memory_order_relaxed);

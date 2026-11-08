@@ -216,6 +216,7 @@ import com.android.internal.R;
 import com.android.internal.accessibility.AccessibilityShortcutController;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
+import com.android.internal.display.BrightnessSynchronizer;
 import com.android.internal.display.BrightnessUtils;
 import com.android.internal.inputmethod.SoftInputShowHideReason;
 import com.android.internal.logging.MetricsLogger;
@@ -830,6 +831,84 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     };
     private boolean mNanoBackEmergencyPending = false;
+    // GammaOS Nano, RG DS Plus: the Menu key. gammapad remaps the pad's BTN_MODE to
+    // KEY_ALL_APPLICATIONS (remap_btn=316:204) and Generic.kl maps that to NOTIFICATION. A press
+    // shorter than NANO_MENU_HOLD_MS takes the device back to the launcher from any context; a
+    // longer hold belongs to nano's bottom Control Center. NanoControlCenter.cpp and
+    // azahar-nano's NanoInput.cpp use the same 600 ms. Each side times only its own press and
+    // release, never one side's stamp against the other's: they read the evdev stamp of their own
+    // fd (CLOCK_REALTIME, nothing there sets EVIOCSCLOCK), this side the KeyEvent time
+    // (CLOCK_MONOTONIC).
+    private static final long NANO_MENU_HOLD_MS = 600;
+    // After an exit acted (a Menu tap or a BACK hold), a Menu tap this soon is ignored, and so is
+    // a BACK hold after a Menu exit, so RetroArch is not sent two ESCs. RetroArch saves and
+    // closes in "a couple of seconds" (see the ESC branch of nanoExitForegroundApp), so the window
+    // outlasts that.
+    private static final long NANO_EXIT_REPEAT_MS = 3000;
+    // How long to wait for the raised overlay to hide (and release drop_input) and for key focus
+    // to reach the top app before the exit, how often to look, and how long to let focus settle
+    // on the app once it has.
+    private static final long NANO_MENU_OVERLAY_WAIT_MS = 1500;
+    private static final long NANO_MENU_OVERLAY_POLL_MS = 100;
+    private static final long NANO_MENU_OVERLAY_SETTLE_MS = 300;
+    // sys.gammaos.nano.menu_exit_inflight: while the Menu exit releases drop_input and injects its
+    // ESC, nano's park loop must not raise drop_input again (with the Control Center forced
+    // visible over a bottom app or a dual-stack app it does, about every 100 ms, and
+    // InputDispatcher drops the ESC when it dispatches it with drop_input set). The value is a
+    // deadline in SystemClock.uptimeMillis() (CLOCK_MONOTONIC, the clock nano reads too); absent,
+    // "0" or past means no exit is in flight. It is set before drop_input is released, shortened
+    // to a tail once the ESC is injected (the dispatch is asynchronous) and cleared when the exit
+    // is given up. The safety timeout makes a flag nobody cleared stale on its own.
+    private static final String NANO_MENU_INFLIGHT_PROP = "sys.gammaos.nano.menu_exit_inflight";
+    private static final long NANO_MENU_INFLIGHT_SAFETY_MS = 4000;
+    private static final long NANO_MENU_INFLIGHT_TAIL_MS = 500;
+    // sys.gammaos.nano.menu_resume_ms: when a Menu tap with the launcher in front makes nano's home
+    // start the last game or app (NanoMenuResume.cpp), it stamps the time here (uptimeMillis, the
+    // clock nano reads too) before it launches anything. The framework sees the same tap, and by
+    // the time this handler runs the launch may already have set app_launched or started a
+    // drastic-nano session: that app is coming up, not one to leave, so taps are left alone for
+    // this long after the stamp. The stamp is set by nano only and cleared again when its launch
+    // is refused; a reboot clears it too.
+    private static final String NANO_MENU_RESUME_PROP = "sys.gammaos.nano.menu_resume_ms";
+    private static final long NANO_MENU_RESUME_GUARD_MS = 3000;
+    private static final boolean GAMMA_MENU_HOME_DEVICE =
+            "anbernicrgdsplus".equals(SystemProperties.get("ro.gammaos.device", ""));
+    // GammaOS Nano: drastic-nano owns the lid during its DRM game session. It sets
+    // sys.gammaos.drastic_nano.lid_owner=1 (only on devices where it chains its own sleep into PowerManager),
+    // and init clears it when the service stops. drastic pauses the game and keeps the panels on for a grace
+    // period, then puts PowerManager to sleep itself. A framework lid sleep came 1.4-2.3 s late and landed
+    // after a quick reopen (dark panels, the vendor suspend loop under a running game).
+    private static boolean gammaNanoLidOwned() {
+        return SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && "1".equals(SystemProperties.get("sys.gammaos.drastic_nano.lid_owner", "0"));
+    }
+    private static final long GAMMA_NANO_LID_RECHECK_MS = 2000;
+    // Runs while a closed lid was left to drastic-nano: once drastic no longer owns it (exit, crash) and the
+    // lid is still closed, the normal lid behaviour applies.
+    private final Runnable mGammaNanoLidRecheck = new Runnable() {
+        @Override
+        public void run() {
+            if (mDefaultDisplayPolicy.getLidState() != LID_CLOSED) return;
+            if (gammaNanoLidOwned()) {
+                mHandler.postDelayed(this, GAMMA_NANO_LID_RECHECK_MS);
+                return;
+            }
+            Slog.i(TAG, "GammaOS Nano: drastic-nano gave the lid back while it is closed, applying it");
+            applyLidSwitchState();
+            updateRotation(true);
+        }
+    };
+    // Event time (ns) of the Menu key down that may still turn into a tap, 0 when there is none.
+    // Only touched from the input thread.
+    private long mNanoMenuDownNs;
+    // Handler thread only: when the last exit (BACK hold or Menu tap) acted, and whether it was a
+    // Menu tap.
+    private long mNanoExitLastMs;
+    private boolean mNanoExitLastByMenu;
+    // Handler thread only: a Menu exit is waiting for the overlay to hide or for key focus to
+    // reach the top app and has not exited yet. The BACK hold and further Menu taps leave the
+    // exit to it.
+    private boolean mNanoMenuExitPending;
     // GammaOS Nano: tracks the gamepad Select button so Power+Select can act as a
     // hardware escape hatch that turns the system-wide display shader off.
     private boolean mNanoSelectHeld = false;
@@ -844,11 +923,29 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private static final long GAMMA_STUCK_MODIFIER_MS = 6000;
 
     // Track injected BTN_SELECT state so we can guarantee key-up on app switches.
-    private boolean mRetroarchSelectDown = false;
-    private String mRetroarchSelectDevicePath = null;
+    // Set on the input threads, cleared by the gamma-select thread once a write succeeded.
+    private volatile boolean mRetroarchSelectDown = false;
+    private volatile String mRetroarchSelectDevicePath = null;
 
-    // Track last known foreground app to detect transitions into/out of RetroArch.
-    private String mLastFgApp = null;
+    // GammaOS: every BTN_SELECT the RetroArch BACK override writes goes through this one thread, in order, so an up
+    // can never overtake its down whatever path wrote it, and the input dispatch thread never waits for a shell.
+    private java.util.concurrent.ExecutorService mGammaSelectExecutor;
+    // Bumped by each queued down; an up clears mRetroarchSelectDown only for the down it belongs to.
+    private final java.util.concurrent.atomic.AtomicInteger mGammaSelectGen =
+            new java.util.concurrent.atomic.AtomicInteger();
+
+    // GammaOS Nano: Select+Volume hold-repeat for apps in nano mode, as NanoBrightness.h kChordRepeatFirstMs /
+    // kChordRepeatMs. The repeats are a temporary brightness (the panel follows; Settings and
+    // persist.gammaos.nano.brightness are not written) committed with one setBrightness when the hold ends, so a hold
+    // costs one persist write (an init fsync on the microSD), not one per step. All of it runs on mHandler.
+    private static final long NANO_BRIGHT_REPEAT_FIRST_MS = 400;
+    private static final long NANO_BRIGHT_REPEAT_MS = 110;
+    private int mNanoBrightRepeatKey;            // the volume key held for the chord, 0 = none
+    private int mNanoBrightRepeatDir;
+    private float mNanoBrightRepeatLevel;        // the level in effect (temporary while mNanoBrightRepeatTemp)
+    private boolean mNanoBrightRepeatTemp;
+    private boolean mNanoBrightRepeatLogged;
+    private boolean mNanoBrightRepeatIndicator;  // the indicator may show (no DRM renderer owned the panel at the press)
 
     // The device id from which the BACK key event came.
     private int mBackDeviceId = -1;
@@ -1485,11 +1582,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // GammaOS Nano: a quick power press always puts the device to sleep. The
             // power-hold is reserved for raising the overlay XMB (powerLongPress), so
             // the short press must sleep regardless of the device's configured
-            // short-press behavior. This only runs in the overlay/app-foreground case
-            // (in the DRM home the power key is swallowed in interceptKeyBeforeQueueing
-            // and nano handles sleep over evdev), giving consistent quick-press-to-sleep
-            // in both modes.
+            // short-press behavior. nano's DRM home only keeps the key from getting
+            // here when it grabs input (persist.gammaos.nano.grab_input); otherwise
+            // this is the only sleep. drastic-nano reads the key off evdev and owns
+            // the sleep during its game session (below). This gives consistent
+            // quick-press-to-sleep in all modes.
             if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+                if (gammaNanoLidOwned()) {
+                    // drastic-nano reads the power key off evdev and puts PowerManager to sleep itself once
+                    // its panels are off
+                    Slog.i(TAG, "GammaOS Nano: power short press left to drastic-nano");
+                    return;
+                }
                 // A system update is being checked, downloaded or prepared on the nano home
                 // (nano sets this while its progress screen is up): the screen stays on, so the
                 // update goes on where the user can see it. A hold still opens the power menu.
@@ -1762,6 +1866,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Slog.d(TAG, "powerLongPress: eventTime=" + eventTime
                 + " mResolvedLongPressOnPowerBehavior=" + mResolvedLongPressOnPowerBehavior);
 
+        // GammaOS Nano: a native DS/3DS session on DRM (drastic-nano, azahar-nano) owns the
+        // panel while the home is parked or stopped, and it leaves sys.gammaos.nano.app_launched
+        // at 0 (only the SurfaceFlinger-hosted drastic session sets it, and there PWM keeps
+        // owning the overlay toggle below). drastic-nano reads POWER from evdev itself
+        // (1.5 s = its own menu, 5 s = power off). Without this the hold took the "home visible"
+        // branch and queued nav=powermenu, which the home ran after the session: Quick Menu >
+        // Power with Restart focused. init.svc rather than the session prop, so a session prop
+        // left at 1 by a killed session cannot disable the home's power hold.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))
+                && ("running".equals(android.os.SystemProperties.get(
+                                "init.svc.drastic-nano", ""))
+                        || "running".equals(android.os.SystemProperties.get(
+                                "init.svc.azahar-nano", "")))) {
+            mPowerKeyHandled = true;
+            Slog.d(TAG, "GammaOS Nano: power long press during a native DS/3DS session, left to the session");
+            return;
+        }
+
         // GammaOS Nano: in-game XMB overlay. When the opt-in feature is enabled, a
         // power-hold raises / dismisses the resident overlay XMB (gammaos-nano-overlay)
         // instead of the global actions dialog. Over a running app it toggles (raise to
@@ -1902,134 +2026,26 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         // GammaOS Nano: in nano mode, long-press back handles app exit.
         // RetroArch / DraStic: send ESC (save state, close gracefully).
         // Standalone emulators: force-stop and restart nano menu.
+        // The same exit serves the RG DS Plus Menu key tap (nanoMenuGoHome); only this
+        // BACK path may summon the Control Center over the bottom app.
         if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
                 && "1".equals(android.os.SystemProperties.get(
                         "sys.gammaos.nano.app_launched", "0"))) {
-            // GammaOS Nano: drastic-nano runs as an own-layer SurfaceFlinger/DRM
-            // binary, not a focusable Activity, so getForegroundAppPackageName()
-            // does not report it and a virtual ESC cannot reach it. Detect it by its
-            // session flag and ask it to exit gracefully through the prop channel it
-            // polls (which saves the Quick Resume state, then returns to the home) -
-            // the equivalent of the ESC-then-close path used for RetroArch below.
-            if ("1".equals(android.os.SystemProperties.get(
-                    "sys.gammaos.drastic_nano.session", "0"))) {
-                android.os.SystemProperties.set(
-                        "sys.gammaos.drastic_nano.exit_home", "1");
+            // A Menu tap exit is still waiting for the overlay to hide or for focus to reach
+            // the top app: it ends the app, a second exit now would send RetroArch two ESCs.
+            if (mNanoMenuExitPending) {
+                Slog.i(TAG, "GammaOS Nano: long-press back ignored, a Menu exit is pending");
                 return;
             }
-            String fgApp = getForegroundAppPackageName();
-            // GammaOS Nano Control Center: a BACK hold with the grid-launched BOTTOM app focused
-            // does not exit anything. It summons the Control Center over that app (the way the
-            // normal launcher's secondary home comes back over its app), where the Close App
-            // tile ends it on the user's say-so. nano owns the reveal: it polls the summon prop
-            // in its park loop, flips the force-visible override and animates the layer in.
-            // Only the bottom app's own focus counts: once the CC is up the controller belongs
-            // to the top app again, so a further hold exits that app as before.
-            final String ccBottomApp = android.os.SystemProperties.get(
-                    "sys.gammaos.nano.cc.bottomapp", "");
-            if (!ccBottomApp.isEmpty() && fgApp != null && fgApp.equals(ccBottomApp)) {
-                Slog.i(TAG, "GammaOS Nano: long-press back on bottom app " + fgApp
-                        + ", summoning the Control Center over it");
-                android.os.SystemProperties.set("sys.gammaos.nano.cc.summon", "1");
+            // The same once the Menu exit has committed: its ESC is out and RetroArch is saving
+            // and closing, which takes a couple of seconds; a second ESC now would hit it again.
+            // Only after a Menu exit: BACK hold after BACK hold acts as it always did.
+            if (mNanoExitLastByMenu
+                    && SystemClock.uptimeMillis() - mNanoExitLastMs < NANO_EXIT_REPEAT_MS) {
+                Slog.i(TAG, "GammaOS Nano: long-press back ignored, a Menu exit has just acted");
                 return;
             }
-            if (fgApp != null && (fgApp.toLowerCase().contains("retroarch")
-                    || fgApp.toLowerCase().contains("drastic"))) {
-                // Send ESC and let RetroArch/DraStic SAVE STATE then close itself
-                // (a clean exit takes a couple of seconds). Do NOT force-stop or set
-                // pending_exit here - that would interrupt the save and is not a
-                // clean exit. When the app's process actually dies, AMS's
-                // handleAppDiedLocked hook raises the overlay launcher (overlay-home)
-                // or the existing RootWindowContainer cleanup restarts the DRM home.
-                //
-                // GammaOS Nano (regression fix for commit fc25fdd8588, the Deltarune
-                // self-relaunch change): DISARM the startHomeOnTaskDisplayArea
-                // auto-launch gate BEFORE the ESC. When RetroArch finishes its
-                // activity during the save, resumeTopActivities -> startHome fires;
-                // that gate re-launches launch_app if ANY of {nano_retroarch,
-                // qr_prepared, launch_intent, launch_rom} is still set - which they
-                // are during a live session - so it restarted RetroArch instead of
-                // returning to nano. Clear all four launch SIGNALS here but KEEP
-                // app_launched + launch_app set, so handleAppDiedLocked still raises
-                // the overlay ~800ms after the process dies (and clears the rest).
-                // This never touches Deltarune: its self-relaunch is an internal
-                // SIGKILL, not a BACK-hold, so this branch never runs for it.
-                android.os.SystemProperties.set("service.bootanim.nano_retroarch", "0");
-                android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
-                try {
-                    new java.io.File("/data/system/nano_launch_rom.txt").delete();
-                } catch (Exception ignore) { }
-                triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
-                return;
-            }
-            // For standalone emulators (PPSSPP, Flycast, Mupen64Plus, etc.):
-            // force-stop the app and signal nano menu restart
-            if (fgApp != null) {
-                // Per-app "Keep Running in Background" allowlist (persist.gammaos.nano.background_pkgs,
-                // set from nano's per-app option menu): leave the app alive on exit so re-launching it
-                // resumes warm. We still raise the nano menu and clear the launch state below; we only
-                // skip the task-removal + force-stop. Explicit Kill All / Kill Background still stop it.
-                final boolean keepAlive = com.android.server.dualstack.DualStackPropertyUtils
-                        .isKeepAliveInBackground(fgApp);
-                Slog.i(TAG, "GammaOS Nano: long-press back on standalone app " + fgApp
-                        + (keepAlive ? ", keeping it alive in background and raising nano menu"
-                                     : ", force-stopping and restarting nano menu"));
-                // Signal nano menu restart FIRST, before killing the app.
-                // This ensures menu_active=1 is set before the framework tries
-                // to restart the killed app's task.
-                // Clear pending_exit — the long-press handler handles the exit
-                // directly; a stale pending_exit would wipe launch_intent on
-                // the next game launch via do_launch.
-                android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
-                android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
-                // Overlay-home: raise the resident overlay launcher instead of
-                // restarting the DRM home nano.
-                if (!nanoRaiseOverlayHome()) {
-                    android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
-                }
-                // GammaOS Nano: Clear ALL launch state BEFORE force-stopping the
-                // app. forceStopPackage below synchronously triggers
-                // resumeTopActivities → startHomeOnTaskDisplayArea, which in the
-                // minimal-boot branch reads launch_app / launch_intent and
-                // immediately relaunches whatever it points at. Without this
-                // clear, the just-killed app gets relaunched in the background
-                // while the nano menu is coming up — user sees XMB but hears
-                // the app's audio loop back in. Symptom is racy because
-                // init.rc's `on property:sys.gammaos.nano.restart=1` action
-                // clears bootanim.exit = 0 which changes the skip-home-launch
-                // short-circuit condition; when the init action processes
-                // BEFORE forceStopPackage returns the short-circuit fires and
-                // the app stays dead, when it processes AFTER the app gets
-                // relaunched.
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
-                android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
-                if (!keepAlive) {
-                    try {
-                        // Remove all tasks for this package from the recent tasks list,
-                        // then force-stop the package. Order matters: removing tasks first
-                        // prevents the framework from restarting the process.
-                        android.app.IActivityTaskManager atm =
-                                android.app.ActivityTaskManager.getService();
-                        java.util.List<android.app.ActivityManager.RecentTaskInfo> tasks =
-                                atm.getRecentTasks(100, 0, mCurrentUserId).getList();
-                        for (android.app.ActivityManager.RecentTaskInfo ti : tasks) {
-                            if (ti.baseActivity != null
-                                    && fgApp.equals(ti.baseActivity.getPackageName())) {
-                                atm.removeTask(ti.taskId);
-                                Slog.i(TAG, "GammaOS Nano: removed task " + ti.taskId
-                                        + " for " + fgApp);
-                            }
-                        }
-                        mContext.getSystemService(android.app.ActivityManager.class)
-                                .forceStopPackage(fgApp);
-                    } catch (Exception e) {
-                        Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
-                    }
-                }
+            if (nanoExitForegroundApp(null)) {
                 return;
             }
         }
@@ -2071,6 +2087,182 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                     "Back - Long Press");
             performKeyAction(mBackLongPressAction, event, mBackLongPressCustomApp);
         }
+    }
+
+    /**
+     * GammaOS Nano: take the app that is in front back to the launcher, with a save where the
+     * app supports one. Called with app_launched=1. Returns true when it acted (an exit or the
+     * Control Center summon), false when there is no foreground app to act on, so
+     * backLongPress can fall through to its regular handling.
+     *
+     * @param menuTarget null for the BACK hold, which acts on the app that has key focus and
+     *        raises the Control Center when that is the Control Center's bottom app. For the
+     *        RG DS Plus Menu tap (nanoMenuGoHome) the package of the top-screen app to exit,
+     *        which nanoMenuGoHome has resolved by display: key focus may be on the bottom
+     *        app. The Menu tap also releases drop_input here, once the exit is committed and
+     *        right before the ESC is injected, so nothing is changed when it exits nothing.
+     */
+    private boolean nanoExitForegroundApp(String menuTarget) {
+        final boolean menuTap = menuTarget != null;
+        // GammaOS Nano: drastic-nano runs as an own-layer SurfaceFlinger/DRM
+        // binary, not a focusable Activity, so getForegroundAppPackageName()
+        // does not report it and a virtual ESC cannot reach it. Detect it by its
+        // session flag and ask it to exit gracefully through the prop channel it
+        // polls (which saves the Quick Resume state, then returns to the home) -
+        // the equivalent of the ESC-then-close path used for RetroArch below.
+        if ("1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.drastic_nano.session", "0"))) {
+            android.os.SystemProperties.set(
+                    "sys.gammaos.drastic_nano.exit_home", "1");
+            nanoStampExit(menuTap);
+            return true;
+        }
+        String fgApp = menuTap ? menuTarget : getForegroundAppPackageName();
+        // GammaOS Nano Control Center: a BACK hold with the grid-launched BOTTOM app focused
+        // does not exit anything. It summons the Control Center over that app (the way the
+        // normal launcher's secondary home comes back over its app), where the Close App
+        // tile ends it on the user's say-so. nano owns the reveal: it polls the summon prop
+        // in its park loop, flips the force-visible override and animates the layer in.
+        // Only the bottom app's own focus counts: once the CC is up the controller belongs
+        // to the top app again, so a further hold exits that app as before.
+        final String ccBottomApp = android.os.SystemProperties.get(
+                "sys.gammaos.nano.cc.bottomapp", "");
+        // The Menu tap never summons it (a Menu hold is the Control Center key there) and never
+        // gets here with the bottom app: nanoMenuGoHome passes the top-screen app.
+        if (!menuTap && !ccBottomApp.isEmpty() && fgApp != null && fgApp.equals(ccBottomApp)) {
+            Slog.i(TAG, "GammaOS Nano: long-press back on bottom app " + fgApp
+                    + ", summoning the Control Center over it");
+            android.os.SystemProperties.set("sys.gammaos.nano.cc.summon", "1");
+            return true;
+        }
+        if (fgApp != null && nanoExitUsesEsc(fgApp)) {
+            // Send ESC and let RetroArch/DraStic SAVE STATE then close itself
+            // (a clean exit takes a couple of seconds). Do NOT force-stop here - that
+            // would interrupt the save and is not a clean exit. This branch does not
+            // set pending_exit for the BACK hold itself: the BACK key down has already
+            // armed it (interceptKeyBeforeQueueing), and the Menu tap arms it the same
+            // way just below (nanoArmPendingExit). pending_exit only makes
+            // RootWindowContainer clean up at once when the app has finished. When the
+            // app's process actually dies, AMS's handleAppDiedLocked hook raises the
+            // overlay launcher (overlay-home) or the existing RootWindowContainer
+            // cleanup restarts the DRM home.
+            //
+            // GammaOS Nano (regression fix for commit fc25fdd8588, the Deltarune
+            // self-relaunch change): DISARM the startHomeOnTaskDisplayArea
+            // auto-launch gate BEFORE the ESC. When RetroArch finishes its
+            // activity during the save, resumeTopActivities -> startHome fires;
+            // that gate re-launches launch_app if ANY of {nano_retroarch,
+            // qr_prepared, launch_intent, launch_rom} is still set - which they
+            // are during a live session - so it restarted RetroArch instead of
+            // returning to nano. Clear all four launch SIGNALS here but KEEP
+            // app_launched + launch_app set, so handleAppDiedLocked still raises
+            // the overlay ~800ms after the process dies (and clears the rest).
+            // This never touches Deltarune: its self-relaunch is an internal
+            // SIGKILL, not a BACK-hold, so this branch never runs for it.
+            if (menuTap) {
+                // Flag the exit in flight first, before the slow property sets and the
+                // file delete below, so nano's park loop leaves drop_input alone from
+                // here until the ESC is dispatched (see NANO_MENU_INFLIGHT_PROP).
+                nanoMenuInflight(NANO_MENU_INFLIGHT_SAFETY_MS);
+                nanoArmPendingExit();
+            }
+            nanoStampExit(menuTap);
+            android.os.SystemProperties.set("service.bootanim.nano_retroarch", "0");
+            android.os.SystemProperties.set("persist.gammaos.nano.qr_prepared", "0");
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+            try {
+                new java.io.File("/data/system/nano_launch_rom.txt").delete();
+            } catch (Exception ignore) { }
+            if (menuTap) {
+                // Only now, with everything slow done: InputDispatcher drops the ESC while
+                // drop_input is set, so it is released right before the injection.
+                nanoMenuReleaseInput();
+            }
+            triggerVirtualKeypress(KeyEvent.KEYCODE_ESCAPE);
+            if (menuTap) {
+                // The injection is asynchronous: keep nano off drop_input a moment longer.
+                nanoMenuInflight(NANO_MENU_INFLIGHT_TAIL_MS);
+            }
+            return true;
+        }
+        // For standalone emulators (PPSSPP, Flycast, Mupen64Plus, etc.):
+        // force-stop the app and signal nano menu restart
+        if (fgApp != null) {
+            // Per-app "Keep Running in Background" allowlist (persist.gammaos.nano.background_pkgs,
+            // set from nano's per-app option menu): leave the app alive on exit so re-launching it
+            // resumes warm. We still raise the nano menu and clear the launch state below; we only
+            // skip the task-removal + force-stop. Explicit Kill All / Kill Background still stop it.
+            final boolean keepAlive = com.android.server.dualstack.DualStackPropertyUtils
+                    .isKeepAliveInBackground(fgApp);
+            Slog.i(TAG, "GammaOS Nano: " + (menuTap ? "Menu tap" : "long-press back")
+                    + " on standalone app " + fgApp
+                    + (keepAlive ? ", keeping it alive in background and raising nano menu"
+                                 : ", force-stopping and restarting nano menu"));
+            if (menuTap) {
+                nanoMenuReleaseInput();
+            }
+            nanoStampExit(menuTap);
+            // Signal nano menu restart FIRST, before killing the app.
+            // This ensures menu_active=1 is set before the framework tries
+            // to restart the killed app's task.
+            // Clear pending_exit — the long-press handler handles the exit
+            // directly; a stale pending_exit would wipe launch_intent on
+            // the next game launch via do_launch.
+            android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "0");
+            android.os.SystemProperties.set("sys.gammaos.nano.app_launched", "0");
+            // Overlay-home: raise the resident overlay launcher instead of
+            // restarting the DRM home nano.
+            if (!nanoRaiseOverlayHome()) {
+                android.os.SystemProperties.set("sys.gammaos.nano.restart", "1");
+            }
+            // GammaOS Nano: Clear ALL launch state BEFORE force-stopping the
+            // app. forceStopPackage below synchronously triggers
+            // resumeTopActivities → startHomeOnTaskDisplayArea, which in the
+            // minimal-boot branch reads launch_app / launch_intent and
+            // immediately relaunches whatever it points at. Without this
+            // clear, the just-killed app gets relaunched in the background
+            // while the nano menu is coming up — user sees XMB but hears
+            // the app's audio loop back in. Symptom is racy because
+            // init.rc's `on property:sys.gammaos.nano.restart=1` action
+            // clears bootanim.exit = 0 which changes the skip-home-launch
+            // short-circuit condition; when the init action processes
+            // BEFORE forceStopPackage returns the short-circuit fires and
+            // the app stays dead, when it processes AFTER the app gets
+            // relaunched.
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_app", "");
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_intent", "");
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
+            android.os.SystemProperties.set("sys.gammaos.nano.launch_rom", "");
+            if (!keepAlive) {
+                try {
+                    // Remove all tasks for this package from the recent tasks list,
+                    // then force-stop the package. Order matters: removing tasks first
+                    // prevents the framework from restarting the process.
+                    android.app.IActivityTaskManager atm =
+                            android.app.ActivityTaskManager.getService();
+                    java.util.List<android.app.ActivityManager.RecentTaskInfo> tasks =
+                            atm.getRecentTasks(100, 0, mCurrentUserId).getList();
+                    for (android.app.ActivityManager.RecentTaskInfo ti : tasks) {
+                        if (ti.baseActivity != null
+                                && fgApp.equals(ti.baseActivity.getPackageName())) {
+                            atm.removeTask(ti.taskId);
+                            Slog.i(TAG, "GammaOS Nano: removed task " + ti.taskId
+                                    + " for " + fgApp);
+                        }
+                    }
+                    mContext.getSystemService(android.app.ActivityManager.class)
+                            .forceStopPackage(fgApp);
+                } catch (Exception e) {
+                    Slog.e(TAG, "GammaOS Nano: force-stop failed", e);
+                }
+            }
+            if (menuTap) {
+                nanoMenuInflight(0);
+            }
+            return true;
+        }
+        return false;
     }
 
     private void accessibilityShortcutActivated() {
@@ -2661,6 +2853,281 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
     }
 
+    // GammaOS Nano, RG DS Plus: Menu key edges. The press is timed from the event times, which
+    // come from the evdev stamp, so a busy system server cannot turn a hold into a tap. A plain
+    // field is used instead of SingleKeyGestureDetector: any other key pressed during the
+    // hold would cancel that. A hold (NANO_MENU_HOLD_MS or longer) is nano's Control Center
+    // toggle and does nothing here; a shorter press posts the go-home to the handler thread.
+    private void nanoMenuHomeKey(KeyEvent event, boolean down) {
+        if (down) {
+            // A press that arrives while the display is off may itself be the wake press, so
+            // its release must never count as a tap. getDownTime() is not used: it is in ms
+            // and the most recent down when keys chord.
+            mNanoMenuDownNs = (mDefaultDisplayPolicy != null && mDefaultDisplayPolicy.isAwake())
+                    ? event.getEventTimeNanos() : 0;
+            return;
+        }
+        final long downNs = mNanoMenuDownNs;
+        mNanoMenuDownNs = 0;
+        if (downNs == 0 || event.isCanceled()) {
+            return;
+        }
+        if (event.getEventTimeNanos() - downNs >= NANO_MENU_HOLD_MS * 1_000_000L) {
+            return;
+        }
+        mHandler.post(this::nanoMenuGoHome);
+    }
+
+    // GammaOS Nano, RG DS Plus: a Menu tap takes the app on the top panel back to the launcher,
+    // with a save where the emulator has one. Exactly one channel acts per context, so nothing
+    // exits twice. Runs on mHandler, like backLongPress.
+    private void nanoMenuGoHome() {
+        if (!mDefaultDisplayPolicy.isAwake()) {
+            return;
+        }
+        final long nowMs = SystemClock.uptimeMillis();
+        if (mNanoMenuExitPending
+                || (mNanoExitLastMs != 0
+                        && nowMs - mNanoExitLastMs < NANO_EXIT_REPEAT_MS)) {
+            return;
+        }
+        // This tap just made nano's home start the last game or app: nothing to leave yet.
+        final long resumeMs = android.os.SystemProperties.getLong(NANO_MENU_RESUME_PROP, 0);
+        if (resumeMs > 0 && nowMs - resumeMs >= 0 && nowMs - resumeMs < NANO_MENU_RESUME_GUARD_MS) {
+            Slog.i(TAG, "GammaOS Nano: Menu tap started the launcher's last item, not leaving it");
+            return;
+        }
+        // azahar-nano reads the key itself and exits through its own path.
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.azahar_nano.session", "0"))) {
+            return;
+        }
+        // drastic-nano is a native session, not an Activity: ask it to save slot 9 and return
+        // home through the prop it polls (DRM and SurfaceFlinger sessions both do), as the
+        // BACK hold does.
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))) {
+            nanoStampExit(true);
+            Slog.i(TAG, "GammaOS Nano: Menu tap, asking drastic-nano to save and go home");
+            android.os.SystemProperties.set("sys.gammaos.drastic_nano.exit_home", "1");
+            return;
+        }
+        // Nothing launched: already at the home (DRM home, overlay launcher or the overlay
+        // XMB over the launcher). There is nothing to leave and no safe way to reset the XMB.
+        if (!"1".equals(android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) {
+            return;
+        }
+        // An overlay game switch or exit is already in progress.
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.nano.killing", "0"))) {
+            return;
+        }
+        // The DRM home still owns the panels (the Quick Resume preview before the hand-off):
+        // the app is only preloaded and an ESC or force-stop would hit it. The home service
+        // check keeps a drm_active left set by a crashed home from blocking every later tap.
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.nano.drm_active", false)
+                && "running".equals(android.os.SystemProperties.get(
+                        "init.svc.gammaos-nano", ""))) {
+            return;
+        }
+        // The app to exit is the one on the top panel. Key focus tells that, except while the
+        // Control Center's grid-launched bottom app holds it (nano hands it focus when it
+        // launches and on every bottom touch): then the top display is asked, so the tap still
+        // ends the game. This code does not touch the bottom app; once the game has exited,
+        // nano's own teardown ends it too (the park loop's ccEndBottomApp(true) when the
+        // Control Center is no longer active), as after any exit of the top game.
+        final String fgApp = getForegroundAppPackageName();
+        final String ccBottomApp = android.os.SystemProperties.get(
+                "sys.gammaos.nano.cc.bottomapp", "");
+        final boolean bottomHasFocus = !ccBottomApp.isEmpty()
+                && (fgApp == null || fgApp.equals(ccBottomApp));
+        final String target = bottomHasFocus ? nanoTopDisplayApp(ccBottomApp) : fgApp;
+        if (target == null) {
+            // No safe target: behave as before the tap could reach it, and touch nothing
+            // (overlay, drop_input, focus pin) that an exit would have needed.
+            Slog.i(TAG, "GammaOS Nano: Menu tap, no top-screen app to exit (focus " + fgApp
+                    + ", bottom app " + ccBottomApp + ")");
+            return;
+        }
+        // An ESC goes to the app with key focus, so with the bottom app focused the focus pin
+        // moves to the top panel first (the pin nano uses; RootWindowContainer applies it
+        // within ~200 ms and nano drops it again once the game is gone).
+        final boolean overlayUp = "1".equals(android.os.SystemProperties.get(
+                "sys.gammaos.nano.show_overlay", "0"));
+        final boolean refocus = nanoExitUsesEsc(target) && !target.equals(fgApp);
+        if (!overlayUp && !refocus) {
+            Slog.i(TAG, "GammaOS Nano: Menu tap, leaving " + target);
+            nanoExitForegroundApp(target);
+            return;
+        }
+        // The overlay XMB is raised over the game and InputDispatcher drops every key to the
+        // app while drop_input is set, so an ESC sent now would be lost. Have nano hide the
+        // overlay first (that clears drop_input and sets the drop fence), then exit.
+        Slog.i(TAG, "GammaOS Nano: Menu tap, leaving " + target + " after "
+                + (overlayUp ? "the overlay hides" : "") + (overlayUp && refocus ? " and " : "")
+                + (refocus ? "key focus is on the top panel" : ""));
+        mNanoMenuExitPending = true;
+        final String oldPin = refocus
+                ? android.os.SystemProperties.get("sys.gammaos.nano.focus.display", "-1") : null;
+        if (refocus) {
+            android.os.SystemProperties.set("sys.gammaos.nano.focus.display",
+                    String.valueOf(nanoTopDisplayId()));
+        }
+        if (overlayUp) {
+            android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "0");
+        }
+        mHandler.postDelayed(() -> nanoMenuExitAfterWait(target, overlayUp, oldPin, 0),
+                NANO_MENU_OVERLAY_POLL_MS);
+    }
+
+    // GammaOS Nano, RG DS Plus: second half of a Menu go-home that has to wait. Waits until nano's
+    // overlayHide has run (drop_input cleared, drop fence set) when the overlay was up, and until
+    // an ESC target has key focus (oldPin is the focus pin's previous value if the tap moved it,
+    // null if not). Then gives focus a moment to settle on the app, as
+    // NanoMenuSystem.prepareShutdown does, so an ESC sent now is newer than the fence and not
+    // dropped. If the overlay never hides, drop_input is cleared by force.
+    private void nanoMenuExitAfterWait(String target, boolean overlayWasUp, String oldPin,
+            long waitedMs) {
+        if (!"1".equals(android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"))
+                || !mDefaultDisplayPolicy.isAwake()) {
+            nanoMenuExitAbort(oldPin, overlayWasUp);
+            return;
+        }
+        final boolean overlayGone = !overlayWasUp || !"1".equals(
+                android.os.SystemProperties.get("sys.gammaos.nano.drop_input", "0"));
+        // An ESC goes to whatever has key focus, so an ESC target has to hold it, whether or not
+        // the focus pin was moved.
+        final boolean focused = !nanoExitUsesEsc(target)
+                || target.equals(getForegroundAppPackageName());
+        if (!overlayGone || !focused) {
+            if (waitedMs + NANO_MENU_OVERLAY_POLL_MS < NANO_MENU_OVERLAY_WAIT_MS) {
+                mHandler.postDelayed(() -> nanoMenuExitAfterWait(target, overlayWasUp, oldPin,
+                        waitedMs + NANO_MENU_OVERLAY_POLL_MS), NANO_MENU_OVERLAY_POLL_MS);
+                return;
+            }
+            if (!overlayGone) {
+                Slog.w(TAG, "GammaOS Nano: overlay did not hide for the Menu exit, clearing"
+                        + " drop_input");
+                nanoMenuReleaseInput();
+            }
+        }
+        // Without focus there is nothing to settle: the commit step gives up on it.
+        mHandler.postDelayed(() -> nanoMenuExitCommit(target, overlayWasUp, oldPin),
+                focused ? NANO_MENU_OVERLAY_SETTLE_MS : 0);
+    }
+
+    private void nanoMenuExitCommit(String target, boolean overlayWasUp, String oldPin) {
+        if (!"1".equals(android.os.SystemProperties.get("sys.gammaos.nano.app_launched", "0"))
+                || !mDefaultDisplayPolicy.isAwake()) {
+            nanoMenuExitAbort(oldPin, overlayWasUp);
+            return;
+        }
+        // The ESC goes to the window with key focus when it is injected, so the target has to hold
+        // it on every path, not only after the focus pin was moved: with the overlay hidden again
+        // a touch on the bottom panel can hand focus to the Control Center's app in the meantime.
+        if (nanoExitUsesEsc(target) && !target.equals(getForegroundAppPackageName())) {
+            Slog.w(TAG, "GammaOS Nano: key focus did not reach " + target
+                    + " for the Menu exit, leaving it running");
+            nanoMenuExitAbort(oldPin, overlayWasUp);
+            return;
+        }
+        mNanoMenuExitPending = false;
+        nanoExitForegroundApp(target);
+    }
+
+    // A Menu exit that did not happen: put back what it moved. The focus pin only if nano has
+    // not changed it since, the overlay only when asked (it was hidden for an exit that never
+    // came).
+    private void nanoMenuExitAbort(String oldPin, boolean raiseOverlay) {
+        mNanoMenuExitPending = false;
+        nanoMenuInflight(0);
+        if (oldPin != null && String.valueOf(nanoTopDisplayId()).equals(
+                android.os.SystemProperties.get("sys.gammaos.nano.focus.display", "-1"))) {
+            android.os.SystemProperties.set("sys.gammaos.nano.focus.display", oldPin);
+        }
+        if (raiseOverlay) {
+            android.os.SystemProperties.set("sys.gammaos.nano.show_overlay", "1");
+        }
+    }
+
+    // GammaOS Nano: whether leaving this app is an ESC (RetroArch / DraStic save and close
+    // themselves) rather than a force-stop.
+    private static boolean nanoExitUsesEsc(String pkg) {
+        final String lower = pkg.toLowerCase();
+        return lower.contains("retroarch") || lower.contains("drastic");
+    }
+
+    // GammaOS Nano: the display of the top panel, the id nano uses (display 2 on the RG DS Plus,
+    // where DEFAULT_DISPLAY is the bottom panel).
+    private static int nanoTopDisplayId() {
+        return SystemProperties.getInt("persist.gammaos.nano.cc.topdisplay", 2);
+    }
+
+    // GammaOS Nano, RG DS Plus: the app in front on the top panel, found by display because key
+    // focus may be on the Control Center's bottom app. It has to be the one nano launched
+    // (launch_app) and not the bottom app; anything else is ambiguous and gives null.
+    private String nanoTopDisplayApp(String bottomApp) {
+        final int topDisplay = nanoTopDisplayId();
+        final int bottomDisplay = SystemProperties.getInt(
+                "persist.gammaos.nano.cc.bottomdisplay", 0);
+        final String launchApp = android.os.SystemProperties.get("sys.gammaos.nano.launch_app", "");
+        if (launchApp.isEmpty() || launchApp.equals(bottomApp) || topDisplay == bottomDisplay) {
+            return null;
+        }
+        try {
+            final java.util.List<ActivityTaskManager.RootTaskInfo> tasks =
+                    ActivityTaskManager.getService().getAllRootTaskInfosOnDisplay(topDisplay);
+            if (tasks != null) {
+                for (ActivityTaskManager.RootTaskInfo t : tasks) {   // top first
+                    if (t.topActivity == null || t.getActivityType() == ACTIVITY_TYPE_HOME) {
+                        continue;
+                    }
+                    return launchApp.equals(t.topActivity.getPackageName()) ? launchApp : null;
+                }
+            }
+        } catch (RemoteException e) {
+            Slog.w(TAG, "GammaOS Nano: top display tasks unavailable for the Menu tap", e);
+        }
+        return null;
+    }
+
+    // GammaOS Nano, RG DS Plus: the Control Center forced visible over the app holds drop_input
+    // to isolate its own touches, and InputDispatcher drops every key to the app meanwhile. The
+    // Menu exit needs its ESC through, so it releases drop_input once the exit is committed. The
+    // in-flight flag goes up first, so nano's park loop does not raise drop_input again before
+    // the ESC is dispatched (NANO_MENU_INFLIGHT_PROP).
+    private void nanoMenuReleaseInput() {
+        nanoMenuInflight(NANO_MENU_INFLIGHT_SAFETY_MS);
+        if ("1".equals(android.os.SystemProperties.get("sys.gammaos.nano.drop_input", "0"))) {
+            android.os.SystemProperties.set("sys.gammaos.nano.drop_input", "0");
+        }
+    }
+
+    // GammaOS Nano, RG DS Plus: (re)write the in-flight flag so it stays set for another
+    // durationMs, or clear it with 0. See NANO_MENU_INFLIGHT_PROP.
+    private void nanoMenuInflight(long durationMs) {
+        android.os.SystemProperties.set(NANO_MENU_INFLIGHT_PROP,
+                durationMs > 0 ? String.valueOf(SystemClock.uptimeMillis() + durationMs) : "0");
+    }
+
+    // GammaOS Nano: an exit acted now; byMenu says whether it was the Menu tap (a BACK hold
+    // is let through after a BACK hold, but not after a Menu exit).
+    private void nanoStampExit(boolean byMenu) {
+        mNanoExitLastMs = SystemClock.uptimeMillis();
+        mNanoExitLastByMenu = byMenu;
+    }
+
+    // GammaOS Nano: arm pending_exit the way a BACK key down does in interceptKeyBeforeQueueing
+    // (same conditions), so the Menu tap's ESC exit also takes RootWindowContainer's immediate
+    // cleanup instead of the grace period.
+    private void nanoArmPendingExit() {
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                && "1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.nano.app_launched", "0"))
+                && "1".equals(android.os.SystemProperties.get("service.bootanim.exit", "0"))
+                && !"1".equals(android.os.SystemProperties.get(
+                        "sys.gammaos.drastic_nano.session", "0"))) {
+            android.os.SystemProperties.set("sys.gammaos.nano.pending_exit", "1");
+        }
+    }
+
     /**
      * Creates an accessor to HDMI control service that performs the operation of
      * turning on TV (optional) and switching input to us. If HDMI control service
@@ -2810,6 +3277,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return overlayUp || !appUp;
     }
 
+    // GammaOS Nano: a drastic-nano DS session is live (its SurfaceFlinger backend holds app_launched=1, so
+    // gammaNanoForeground() is false there). The Select+Volume branch only; stale-combo resets keep their own test.
+    private boolean gammaDrasticSessionLive() {
+        if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return false;
+        return "1".equals(SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))
+                && "running".equals(SystemProperties.get("init.svc.drastic-nano", ""));
+    }
+
     private void gammaClearStaleCombosIfNanoForeground() {
         if (!SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
         final boolean overlayUp = "1".equals(SystemProperties.get("sys.gammaos.nano.show_overlay", "0"));
@@ -2827,15 +3302,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             mRetroarchSelectDown = false;
             mRetroarchSelectDevicePath = null;
-            mLastFgApp = getForegroundAppPackageName();
-           return;
         }
-        // (nano-foreground stale-combo reset handled at the top of this method.) The block below
-        // keeps the synthesized-SELECT bookkeeping accurate for the in-app override path. We cannot
-        // rely on a foreground-app *change* to clear a stuck modifier: getRunningTasks() returns the
-        // most-recent task, so after the app exits it still reports that package (it lingers in
-        // recents) - which is why the reset above keys off nano being foreground instead.
-        mLastFgApp = getForegroundAppPackageName();
+        // No foreground-app lookup here: it ran on every key edge (WM and ATM global locks, getRunningTasks) to fill a
+        // field nothing read. We cannot rely on a foreground-app *change* to clear a stuck modifier anyway:
+        // getRunningTasks() returns the most-recent task, so after the app exits it still reports that package (it
+        // lingers in recents) - which is why the stale-combo reset keys off nano being foreground instead.
+        // Follow-up, not changed here: the focused-window lookup in getForegroundAppPackageName() never matches, so
+        // all its callers fall back to getRunningTasks().
     }
 
     /**
@@ -2895,7 +3368,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 String sysfsPath = "/sys/class/input/" + eventFile.getName() + "/device/name";
                 try {
                     String sysfsName = readFile(sysfsPath).trim();
-                    Log.d(TAG, "Found sysfs name for " + eventFilePath + ": " + sysfsName);
+                    if (DEBUG_INPUT) {
+                        Log.d(TAG, "Found sysfs name for " + eventFilePath + ": " + sysfsName);
+                    }
                     if (sysfsName.equals(deviceName)) {
                         return eventFilePath;
                     }
@@ -2907,46 +3382,76 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return null;
     }
 
+    private synchronized java.util.concurrent.ExecutorService gammaSelectExecutor() {
+        if (mGammaSelectExecutor == null) {
+            mGammaSelectExecutor = java.util.concurrent.Executors.newSingleThreadExecutor(
+                    r -> new Thread(r, "gamma-select"));
+        }
+        return mGammaSelectExecutor;
+    }
+
+    // BTN_SELECT down or up (value) plus SYN on an evdev node, written by system_server itself in one write (input
+    // group, input_device rw like EventHub). Fallback: one shell running both sendevents in order. True when written.
+    // gamma-select thread only.
+    private boolean gammaWriteSelect(String devicePath, int value) {
+        final int size = android.os.Process.is64Bit() ? 24 : 16;   // struct input_event
+        final java.nio.ByteBuffer b = java.nio.ByteBuffer.allocate(size * 2).order(java.nio.ByteOrder.LITTLE_ENDIAN);
+        b.position(size - 8); b.putShort((short) 1); b.putShort((short) 314); b.putInt(value);   // EV_KEY BTN_SELECT
+        b.position(size * 2 - 8); b.putShort((short) 0); b.putShort((short) 0); b.putInt(0);     // EV_SYN
+        try (java.io.FileOutputStream out = new java.io.FileOutputStream(devicePath)) {
+            out.write(b.array());
+            return true;
+        } catch (IOException | SecurityException e) {
+            try {
+                return Runtime.getRuntime().exec(new String[] {"sh", "-c",
+                        "sendevent " + devicePath + " 1 314 " + value + "; sendevent " + devicePath + " 0 0 0"})
+                        .waitFor() == 0;
+            } catch (Exception e2) {
+                Log.e(TAG, "Failed to send BTN_SELECT " + value, e2);
+                return false;
+            }
+        }
+    }
+
     private void sendBtnSelectDown(String devicePath) {
         if (devicePath == null) return;
         if (mRetroarchSelectDown && devicePath.equals(mRetroarchSelectDevicePath)) return;
-        try {
-            // Send BTN_SELECT down: type 1 (EV_KEY), code 314, value 1
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 1");
-            // Follow with a synchronization event
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
-            mRetroarchSelectDown = true;
-            mRetroarchSelectDevicePath = devicePath;
-        } catch (java.io.IOException e) {
-            Log.e(TAG, "Failed to send BTN_SELECT down event", e);
-        }
+        mRetroarchSelectDevicePath = devicePath;
+        mRetroarchSelectDown = true;   // a down is on its way: the BACK release sends its up
+        final int gen = mGammaSelectGen.incrementAndGet();
+        gammaSelectExecutor().execute(() -> {
+            if (!gammaWriteSelect(devicePath, 1) && mGammaSelectGen.get() == gen) {
+                mRetroarchSelectDown = false;   // nothing went down: nothing to release
+                mRetroarchSelectDevicePath = null;
+            }
+        });
     }
 
     private void sendBtnSelectUp(String devicePath) {
         if (devicePath == null) return;
-        try {
-            // Send BTN_SELECT up: type 1 (EV_KEY), code 314, value 0
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 1 314 0");
-            // Follow with a synchronization event
-            Runtime.getRuntime().exec("sendevent " + devicePath + " 0 0 0");
-            if (mRetroarchSelectDevicePath != null
+        final int gen = mGammaSelectGen.get();
+        gammaSelectExecutor().execute(() -> {
+            // the flag clears only after the write succeeded, and only for the down this up belongs to
+            if (gammaWriteSelect(devicePath, 0) && mGammaSelectGen.get() == gen
                     && devicePath.equals(mRetroarchSelectDevicePath)) {
                 mRetroarchSelectDown = false;
                 mRetroarchSelectDevicePath = null;
             }
-        } catch (java.io.IOException e) {
-            Log.e(TAG, "Failed to send BTN_SELECT up event", e);
-        }
+        });
     }
 
     private String getDevicePathForDeviceId(int deviceId) {
         InputDevice device = InputManager.getInstance().getInputDevice(deviceId);
         if (device != null) {
             String deviceName = device.getName();
-            Log.d(TAG, "Target InputDevice name: " + deviceName + " (deviceId: " + deviceId + ")");
+            if (DEBUG_INPUT) {
+                Log.d(TAG, "Target InputDevice name: " + deviceName + " (deviceId: " + deviceId + ")");
+            }
             String devicePath = findDevicePathByName(deviceName);
             if (devicePath != null) {
-                Log.d(TAG, "Found matching device path for target: " + devicePath);
+                if (DEBUG_INPUT) {
+                    Log.d(TAG, "Found matching device path for target: " + devicePath);
+                }
                 return devicePath;
             } else {
                 Log.e(TAG, "No matching event file found for device: " + deviceName);
@@ -2958,33 +3463,145 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return "/dev/input/event5";
     }
 
-    /**
-     * Adjusts the screen brightness by a fixed step.
-     * A positive direction increases brightness while a negative value decreases it.
-     */
-    private void adjustScreenBrightness(int direction) {
-        // Retrieve the brightness constraints from the PowerManager.
-        float minBrightness = mPowerManager.getBrightnessConstraint(
-                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
-        float maxBrightness = mPowerManager.getBrightnessConstraint(
-                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+    // GammaOS Nano: the nano brightness steps (RG DS Plus); keep in step with
+    // frameworks/base/cmds/gammaos-nano/NanoBrightness.h (kSteps).
+    private static final int[] NANO_BRIGHTNESS_STEPS =
+            {1, 2, 3, 4, 5, 6, 7, 8, 14, 22, 33, 46, 59, 76, 97, 123, 156, 196, 255};
 
-        // Use the default display for the brightness adjustment.
-        int defaultDisplayId = DEFAULT_DISPLAY;
-
-        // Retrieve the current brightness for the default display.
-        float currentBrightness = mDisplayManager.getBrightness(defaultDisplayId);
-
-        // Calculate the step size based on the total range and number of steps.
-        float step = (maxBrightness - minBrightness) / BRIGHTNESS_STEPS;
-
-        // Compute the new brightness value, clamped between the min and max.
-        float newBrightness = currentBrightness + (step * direction);
-        newBrightness = Math.max(minBrightness, Math.min(maxBrightness, newBrightness));
-
-        // Apply the new brightness value.
-        mDisplayManager.setBrightness(defaultDisplayId, newBrightness);
+    // One press: the next table entry in the press direction (never against it), cur itself at the ends.
+    // Keep in step with frameworks/base/cmds/gammaos-nano/NanoBrightness.h (brightnessStep).
+    private static int nanoBrightnessStep(int cur, int direction) {
+        cur = Math.max(1, Math.min(255, cur));
+        if (direction < 0) {
+            for (int i = NANO_BRIGHTNESS_STEPS.length - 1; i >= 0; i--) {
+                if (NANO_BRIGHTNESS_STEPS[i] < cur) return NANO_BRIGHTNESS_STEPS[i];
+            }
+        } else if (direction > 0) {
+            for (int i = 0; i < NANO_BRIGHTNESS_STEPS.length; i++) {
+                if (NANO_BRIGHTNESS_STEPS[i] > cur) return NANO_BRIGHTNESS_STEPS[i];
+            }
+        }
+        return cur;
     }
+
+    // The HUD percent: the position in the table (interpolated between entries), 1..100, 0 only for level <= 0.
+    // Keep in step with frameworks/base/cmds/gammaos-nano/NanoBrightness.h (brightnessPercent).
+    private static int nanoBrightnessPercent(int level) {
+        if (level <= 0) return 0;
+        level = Math.min(255, level);
+        final int last = NANO_BRIGHTNESS_STEPS.length - 1;
+        for (int i = 0; i < last; i++) {
+            if (level <= NANO_BRIGHTNESS_STEPS[i + 1]) {
+                final float pos = (float) i + (float) (level - NANO_BRIGHTNESS_STEPS[i])
+                        / (float) (NANO_BRIGHTNESS_STEPS[i + 1] - NANO_BRIGHTNESS_STEPS[i]);
+                final int pct = Math.round(100.0f * pos / (float) last);
+                return pct < 1 ? 1 : pct;
+            }
+        }
+        return 100;
+    }
+
+    // The brightness one press gives, as a float. nanoSteps (the nano-mode Select+Volume caller) on the RG DS Plus:
+    // the nano table with floor 1, the levels the nano programs use. Otherwise: 10 steps between the framework minimum
+    // and maximum. Never against the press direction: a level below the floor (set in nano mode) is not raised by a
+    // down press. Returns current itself when nothing changes.
+    private float nextScreenBrightness(float current, int direction, boolean nanoSteps) {
+        if (nanoSteps && GAMMA_MENU_HOME_DEVICE) {
+            final int cur = BrightnessSynchronizer.brightnessFloatToInt(current);
+            final int next = nanoBrightnessStep(cur, direction);
+            return next == cur ? current : BrightnessSynchronizer.brightnessIntToFloat(next);
+        }
+        final float minBrightness = mPowerManager.getBrightnessConstraint(
+                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
+        final float maxBrightness = mPowerManager.getBrightnessConstraint(
+                PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+        final float step = (maxBrightness - minBrightness) / BRIGHTNESS_STEPS;
+        final float target = current + step * direction;
+        return direction < 0
+                ? Math.min(current, Math.max(minBrightness, target))
+                : Math.max(current, Math.min(maxBrightness, target));
+    }
+
+    private void adjustScreenBrightness(int direction) {
+        adjustScreenBrightness(direction, false);
+    }
+
+    /**
+     * Adjusts the screen brightness one step (see nextScreenBrightness) and returns the brightness in effect
+     * afterwards. No write when nothing changes.
+     */
+    private float adjustScreenBrightness(int direction, boolean nanoSteps) {
+        final float current = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
+        final float next = nextScreenBrightness(current, direction, nanoSteps);
+        if (next == current) return current;   // at an end: no write
+        mDisplayManager.setBrightness(DEFAULT_DISPLAY, next);
+        if (nanoSteps) {
+            final int to = BrightnessSynchronizer.brightnessFloatToInt(next);
+            Slog.i(TAG, "GammaOS Nano: Select+Volume brightness "
+                    + BrightnessSynchronizer.brightnessFloatToInt(current) + " -> " + to
+                    + " (" + nanoBrightnessPercent(to) + "%)");
+        }
+        return next;
+    }
+
+    // A Select+Volume press in an app (mHandler). A kernel autorepeat of the key already repeating is ignored.
+    private void nanoBrightPress(int keyCode, int direction, boolean showIndicator) {
+        if (keyCode == mNanoBrightRepeatKey && mNanoBrightRepeatDir != 0) return;
+        nanoBrightRepeatStop();   // a pending temporary level is committed first
+        final float level = adjustScreenBrightness(direction, true);
+        if (showIndicator) showNanoBrightnessIndicator(level);
+        mNanoBrightRepeatKey = keyCode;
+        mNanoBrightRepeatDir = direction;
+        mNanoBrightRepeatLevel = level;
+        mNanoBrightRepeatTemp = false;
+        mNanoBrightRepeatLogged = false;
+        mNanoBrightRepeatIndicator = showIndicator;
+        mHandler.removeCallbacks(mNanoBrightRepeat);
+        mHandler.postDelayed(mNanoBrightRepeat, NANO_BRIGHT_REPEAT_FIRST_MS);
+    }
+
+    private void nanoBrightRelease(int keyCode) {
+        if (keyCode == mNanoBrightRepeatKey) nanoBrightRepeatStop();
+    }
+
+    // Ends a hold: one setBrightness for the level reached (it also clears the temporary brightness, even when the
+    // value equals the stored one: BrightnessSetting.setBrightness always notifies).
+    private void nanoBrightRepeatStop() {
+        mHandler.removeCallbacks(mNanoBrightRepeat);
+        if (mNanoBrightRepeatTemp) {
+            mDisplayManager.setBrightness(DEFAULT_DISPLAY, mNanoBrightRepeatLevel);
+            final int to = BrightnessSynchronizer.brightnessFloatToInt(mNanoBrightRepeatLevel);
+            Slog.i(TAG, "GammaOS Nano: Select+Volume hold ended at " + to + " (" + nanoBrightnessPercent(to) + "%)");
+        }
+        mNanoBrightRepeatKey = 0;
+        mNanoBrightRepeatDir = 0;
+        mNanoBrightRepeatTemp = false;
+    }
+
+    private final Runnable mNanoBrightRepeat = new Runnable() {
+        @Override public void run() {
+            if (mNanoBrightRepeatDir == 0) return;
+            final boolean volDown = mInputManagerInternal != null
+                    && mInputManagerInternal.getKeyCodeState(-1, android.view.InputDevice.SOURCE_ANY,
+                            mNanoBrightRepeatKey) == 1;
+            if (!volDown || !gammaSelectPhysicallyHeld() || gammaNanoForeground() || gammaDrasticSessionLive()) {
+                nanoBrightRepeatStop();
+                return;
+            }
+            final float next = nextScreenBrightness(mNanoBrightRepeatLevel, mNanoBrightRepeatDir, true);
+            if (next != mNanoBrightRepeatLevel) {
+                mDisplayManager.setTemporaryBrightness(DEFAULT_DISPLAY, next);
+                mNanoBrightRepeatLevel = next;
+                mNanoBrightRepeatTemp = true;
+                if (!mNanoBrightRepeatLogged) {
+                    mNanoBrightRepeatLogged = true;
+                    Slog.i(TAG, "GammaOS Nano: Select+Volume held, repeating");
+                }
+                if (mNanoBrightRepeatIndicator) showNanoBrightnessIndicator(next);
+            }
+            mHandler.postDelayed(this, NANO_BRIGHT_REPEAT_MS);
+        }
+    };
 
     private void performKeyAction(Action action, KeyEvent event) {
         performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN, null);
@@ -3377,8 +3994,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         Thread nanoEscThread = new Thread(() -> {
             while (true) {
                 try {
-                    if ("1".equals(android.os.SystemProperties.get(
-                            "sys.gammaos.nano.overlay_esc", "0"))) {
+                    if (android.os.SystemProperties.getInt(
+                            "sys.gammaos.nano.overlay_esc", 0) == 1) {
                         android.os.SystemProperties.set(
                                 "sys.gammaos.nano.overlay_esc", "0");
                         Slog.i(TAG, "GammaOS Nano: overlay requested clean exit, "
@@ -3396,6 +4013,14 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }, "NanoOverlayEsc");
         nanoEscThread.setDaemon(true);
         nanoEscThread.start();
+
+        // GammaOS Nano: systemBooted() raises sys.gammaos.nano.pwm_volume once volume keys reach
+        // nanoSyncAllStreamsVolume, and the nano home steps the volume itself until then
+        // (NanoMenu::adjustVolume). Clear it here: after a system_server soft restart the previous
+        // run's 1 would still be set while this run drops every key again until its systemBooted().
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            android.os.SystemProperties.set("sys.gammaos.nano.pwm_volume", "0");
+        }
 
         // Lineage additions
         mAlarmManager = mContext.getSystemService(AlarmManager.class);
@@ -4691,12 +5316,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             } else {
                 // On BACK key release, reset flags.
                 // Also release any synthesized BTN_SELECT for RetroArch combo.
-                int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
-                String devicePath = getDevicePathForDeviceId(targetDeviceId);
-                sendBtnSelectUp(devicePath);
+                // Only a Select this override put down is lifted, on the path it went to; mRetroarchSelectDown clears
+                // itself once that write succeeded (gamma-select thread).
+                if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+                    sendBtnSelectUp(mRetroarchSelectDevicePath);
+                }
                 // Fully reset combo state so subsequent combos work immediately
-                mRetroarchSelectDown = false;
-                mRetroarchSelectDevicePath = null;
                 mRetroarchComboDeviceId = -1;
                 mBackPressed = false;
                 mBackLongPressActivated = false;
@@ -6175,15 +6800,33 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
         mDefaultDisplayPolicy.setLidState(newLidState);
 
-        // GammaOS Nano: the framework MUST keep driving the lid sleep/wake even
-        // while a DRM-direct renderer owns the panels - its goToSleep is what
-        // sets sys.screen.state=off, and the device's real suspend
+        mHandler.removeCallbacks(mGammaNanoLidRecheck);
+        if (gammaNanoLidOwned()) {
+            if (lidOpen) {
+                // No updateRotation (it held the WMS lock on the InputReader thread for seconds) and no
+                // broadcast. The wake stays: it runs while this input event still holds its wakeup source,
+                // so the device cannot autosuspend again before drastic-nano's own wake request lands.
+                // drastic wakes on every lid open, so this never contradicts it.
+                Slog.i(TAG, "GammaOS Nano: lid open left to drastic-nano (wake only)");
+                mWindowWakeUpPolicy.wakeUpFromLid();
+            } else {
+                Slog.i(TAG, "GammaOS Nano: lid close left to drastic-nano");
+                mHandler.postDelayed(mGammaNanoLidRecheck, GAMMA_NANO_LID_RECHECK_MS);
+            }
+            return;
+        }
+
+        // GammaOS Nano: the framework drives the lid sleep/wake, even while a
+        // DRM-direct renderer owns the panels - its goToSleep is what sets
+        // sys.screen.state=off, and the device's real suspend
         // (init: sys.screen.state=off -> force_sleep -> sleep.sh -> echo mem)
         // hangs off that. nano reads the lid switch off evdev in parallel to
         // pause its emulator + drop its render thread off SCHED_FIFO (so the
         // kernel task-freeze succeeds) and to blank + recommit its own DRM
-        // panel around the suspend. The two cooperate; we deliberately do NOT
-        // suppress the framework here.
+        // panel around the suspend. The one exception is a drastic-nano game
+        // session (above): drastic owns the lid then, and asks PowerManager
+        // for the sleep itself once its grace period is over, so the same
+        // chain still runs.
 
         applyLidSwitchState();
         updateRotation(true);
@@ -6496,11 +7139,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         mSelectPressed = false;
         // Release any BTN_SELECT that the RetroArch back-override synthesized, at the evdev level,
         // so the app does not see SELECT stuck down either (mirrors the BACK-up release path).
-        if (mRetroarchSelectDown) {
-            int targetDeviceId = (mRetroarchComboDeviceId != -1) ? mRetroarchComboDeviceId : mBackDeviceId;
-            sendBtnSelectUp(getDevicePathForDeviceId(targetDeviceId));
-            mRetroarchSelectDown = false;
-            mRetroarchSelectDevicePath = null;
+        if (mRetroarchSelectDown && mRetroarchSelectDevicePath != null) {
+            sendBtnSelectUp(mRetroarchSelectDevicePath);
             mRetroarchComboDeviceId = -1;
         }
         if (mBackPressed || mBackBrightnessMode) {
@@ -6944,6 +7584,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 || keyCode == KeyEvent.KEYCODE_BUTTON_MODE) {
             nanoEmergencyHoldKey(down);
         }
+        // GammaOS Nano, RG DS Plus: the Menu key goes back to the launcher on a short press.
+        // InputDispatcher lets NOTIFICATION through while drop_input is set (the overlay XMB over
+        // a game, the Control Center over an app) just for this; consume it there as it was
+        // before, so only the hook above acts on it. Everywhere else the key falls through
+        // unchanged and is still consumed in interceptKeyBeforeDispatching.
+        if (keyCode == KeyEvent.KEYCODE_NOTIFICATION && GAMMA_MENU_HOME_DEVICE
+                && android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            if (event.isFromSource(InputDevice.SOURCE_GAMEPAD)) {
+                nanoMenuHomeKey(event, down);
+            }
+            if ("1".equals(android.os.SystemProperties.get("sys.gammaos.nano.drop_input", "0"))) {
+                return 0;
+            }
+        }
         boolean isWakeKey = (policyFlags & WindowManagerPolicy.FLAG_WAKE) != 0
                 || event.isWakeKey();
 
@@ -7162,28 +7816,32 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         // in front (stale-combo reset), which turned a real Select+Volume into a
                         // plain volume change on top of nano's brightness change.
                         final boolean selectHeld = gammaSelectPhysicallyHeld();
-                        if (selectHeld && gammaNanoForeground()) {
+                        if (selectHeld && (gammaNanoForeground() || gammaDrasticSessionLive())) {
                             // nano (home, overlay or drastic-nano) reads the same keys, adjusts
                             // the brightness and draws its own slider. Leave it to nano, or the
                             // brightness would move twice per press.
                             Slog.d(TAG, "GammaOS Nano: Select+Volume left to nano (brightness)");
                         } else if (selectHeld) {
-                            // SELECT + volume = brightness adjustment
-                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
-                            adjustScreenBrightness(direction);
-                            if (!drmOwnsPanel) {
-                                mHandler.post(() -> showNanoBrightnessIndicator());
-                            }
+                            // SELECT + volume = brightness adjustment. The step, the hold-repeat and the
+                            // indicator run on mHandler, off the input thread.
+                            final int dir = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
+                            final boolean show = !drmOwnsPanel;
+                            mHandler.post(() -> nanoBrightPress(keyCode, dir, show));
                         } else {
                             // Plain volume adjustment - set ALL audible streams to the
                             // same level (nano mode has one universal volume) and
                             // publish the value so the nano launcher's slider matches.
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
-                            nanoSyncAllStreamsVolume(direction);
+                            nanoSyncAllStreamsVolume(direction, event.getDownTime());
                             if (!drmOwnsPanel) {
                                 mHandler.post(() -> showNanoVolumeIndicator());
                             }
                         }
+                    }
+                    if (!down) {
+                        // The key went up: a Select+Volume hold-repeat on it ends (mHandler).
+                        final int kc = keyCode;
+                        mHandler.post(() -> nanoBrightRelease(kc));
                     }
                     result &= ~ACTION_PASS_TO_USER;
                     break;
@@ -7927,12 +8585,30 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return mNanoVolumeHandler;
     }
 
-    private void nanoSyncAllStreamsVolume(int direction) {
+    private void nanoSyncAllStreamsVolume(int direction, long keyDownMs) {
         Log.i(TAG, "Nano: volume key " + (direction > 0 ? "up" : "down") + " queued");
-        nanoVolumeHandler().post(() -> nanoSyncAllStreamsVolumeNow(direction));
+        nanoVolumeHandler().post(() -> nanoSyncAllStreamsVolumeNow(direction, keyDownMs));
     }
 
-    private void nanoSyncAllStreamsVolumeNow(int direction) {
+    // GammaOS Nano: drastic-nano's published volume target ("index:uptimeMillis") for this press, -1 unless it was
+    // published at or after the key went down (the previous burst's index must not be taken), is younger than 1.5 s
+    // and the drastic-nano session is live. Any value without ':' (the "0" clear) is none.
+    private int gammaDrasticVolTarget(long keyDownMs) {
+        final String v = SystemProperties.get("sys.gammaos.nano.vol_target", "");
+        final int colon = v.indexOf(':');
+        if (colon <= 0) return -1;
+        try {
+            final int index = Integer.parseInt(v.substring(0, colon));
+            final long at = Long.parseLong(v.substring(colon + 1));
+            final long age = SystemClock.uptimeMillis() - at;
+            if (at < keyDownMs || age < 0 || age >= 1500 || !gammaDrasticSessionLive()) return -1;
+            return index;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private void nanoSyncAllStreamsVolumeNow(int direction, long keyDownMs) {
         try {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if (am == null) return;
@@ -7940,6 +8616,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
             int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
             int next = cur + direction;
+            // drastic-nano set the music stream itself for this press (OverlayMenu volThreadMain) and published the
+            // index; this step lands later and AudioService's index is stale, so take the target instead of adding
+            // the direction again (a burst would dip back otherwise).
+            final int target = gammaDrasticVolTarget(keyDownMs);
+            final boolean fromDrastic = target >= 0;
+            if (fromDrastic) next = target;
             if (next < 0) next = 0; else if (next > musMax) next = musMax;
             float frac = musMax > 0 ? (float) next / (float) musMax : 0f;
             final int[] streams = {
@@ -7955,9 +8637,44 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             android.os.SystemProperties.set("persist.gammaos.nano.volume", Integer.toString(next));
             android.os.SystemProperties.set("persist.gammaos.nano.volmax", Integer.toString(musMax));
-            Log.i(TAG, "Nano: volume " + cur + " -> " + next + " of " + musMax + " applied to all streams");
+            Log.i(TAG, "Nano: volume " + cur + " -> " + next + " of " + musMax + " applied to all streams"
+                    + (fromDrastic ? " (drastic target)" : ""));
         } catch (Exception e) {
             Log.e(TAG, "Nano: all-stream volume sync failed", e);
+        }
+    }
+
+    // GammaOS Nano: apply the level the nano home stepped before systemBooted() (its adjustVolume
+    // publishes it in sys.gammaos.nano.volume_preboot, then in persist.gammaos.nano.volume, while no
+    // volume key reaches nanoSyncAllStreamsVolume) to every audible stream, then republish the props.
+    // The level is read by systemBooted() and passed in: the persist prop is not a safe source, the
+    // volume-change receiver registered right after it overwrites that prop with the AudioService
+    // index. Runs on the nano-volume thread, like the key steps.
+    private void nanoApplyPrebootVolumeNow(int want) {
+        try {
+            AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
+            if (am == null) return;
+            int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
+            if (want >= 0 && musMax > 0) {
+                if (want > musMax) want = musMax;
+                final float frac = (float) want / (float) musMax;
+                final int[] streams = {
+                    AudioManager.STREAM_MUSIC, AudioManager.STREAM_SYSTEM,
+                    AudioManager.STREAM_RING, AudioManager.STREAM_NOTIFICATION,
+                    AudioManager.STREAM_ALARM,
+                };
+                for (int s : streams) {
+                    int sMax = am.getStreamMaxVolume(s);
+                    int v = Math.max(0, Math.min(Math.round(frac * sMax), sMax));
+                    try { am.setStreamVolume(s, v, 0); } catch (Exception ignore) {}
+                }
+                Log.i(TAG, "Nano: pre-boot volume " + want + " of " + musMax + " applied to all streams");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Nano: pre-boot volume apply failed", e);
+        } finally {
+            android.os.SystemProperties.set("sys.gammaos.nano.volume_preboot", "-1");
+            nanoPublishBootVolumeProps();
         }
     }
 
@@ -8076,15 +8793,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     // GammaOS Nano: minimal brightness indicator overlay (sun icon + bar)
-    private void showNanoBrightnessIndicator() {
+    // level: the brightness in effect after the step. The percent is the position in the nano table (every device).
+    private void showNanoBrightnessIndicator(float level) {
         try {
-            float currentBrightness = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
-            float minBrightness = mPowerManager.getBrightnessConstraint(
-                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
-            float maxBrightness = mPowerManager.getBrightnessConstraint(
-                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
-            int pct = (int) (((currentBrightness - minBrightness)
-                    / (maxBrightness - minBrightness)) * 100);
+            int pct = nanoBrightnessPercent(BrightnessSynchronizer.brightnessFloatToInt(level));
             pct = Math.max(0, Math.min(100, pct));
 
             if (mNanoVolumeWM == null) {
@@ -8902,8 +9614,17 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     public void systemBooted() {
         bindKeyguard();
         // Seed the nano cold-boot chime volume props from the current system volume (AudioService is
-        // up by now), so the chime respects the system level on the next boot.
-        nanoPublishBootVolumeProps();
+        // up by now), so the chime respects the system level on the next boot. A level the nano home
+        // stepped before this point (no key reached us yet, >= 0 in sys.gammaos.nano.volume_preboot)
+        // is applied to the streams first, on the nano-volume thread so it runs before any key
+        // queued from here on. It is read here, not on that thread: the receiver registered below
+        // overwrites persist.gammaos.nano.volume with the AudioService index.
+        final int prebootVol = android.os.SystemProperties.getInt("sys.gammaos.nano.volume_preboot", -1);
+        if (prebootVol >= 0) {
+            nanoVolumeHandler().post(() -> nanoApplyPrebootVolumeNow(prebootVol));
+        } else {
+            nanoPublishBootVolumeProps();
+        }
         // GammaOS Nano: keep the published volume props tracking the REAL music volume for the
         // output device in use. They were only rewritten by a volume key press here, so every
         // other change left them stale: AudioService keeps a separate STREAM_MUSIC index per
@@ -8930,6 +9651,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             if (mSystemReady) {
                 mKeyguardDelegate.onBootCompleted();
             }
+        }
+        if (android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) {
+            // Volume keys reach nanoSyncAllStreamsVolume from here on: the nano home stops
+            // stepping the volume props itself (NanoMenu::adjustVolume). A press between
+            // mSystemBooted above and this line is handled by both sides and normally ends on the
+            // same level, but the nano helper thread can still raise volume_preboot (nothing
+            // consumes it before the next systemBooted()) and land its slow persist write after
+            // our publish. That self-corrects: the next volume event republishes the AudioService
+            // index.
+            android.os.SystemProperties.set("sys.gammaos.nano.pwm_volume", "1");
         }
         mLineageButtons = new LineageButtons(mContext);
         mSideFpsEventHandler.onFingerprintSensorReady();

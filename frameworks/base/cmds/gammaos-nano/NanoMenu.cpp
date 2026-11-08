@@ -68,6 +68,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 
 // DRM direct rendering subsystem (structs, variables, functions)
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoMenuDrm.h"
 // Shared utility functions (path helpers, containsInsensitive)
 #include "NanoMenuUtils.h"
@@ -92,6 +93,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include "NanoMenuStrings.h"
 #include "NanoI18n.h"      // trDyn() runtime translation of hardcoded UI strings
 #include "NanoBtStable.h"
+#include "NanoClockProfile.h"   // nanoclock::startService / beginSleep / endSleep (RG DS Plus)
 #include "NanoMenuPS3Bg.h"   // ps3bg::themeFading() for the adaptive idle frame-rate
 
 extern int gEarlyDrmFd;
@@ -453,6 +455,7 @@ status_t NanoMenu::readyToRun() {
     {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        property_set("sys.gammaos.nano.keep_audio", "0");   // PowerManagerService's ULP park reads it
         // Likewise the OTA guard's lock and screen-on flag (otaSleepGuardTick): no update flow
         // is running yet.
         wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
@@ -940,6 +943,16 @@ status_t NanoMenu::readyToRun() {
             mBrightness = 128; // safe default (~50%)
         }
     }
+    // In nano mode every nano program writes persist synchronously when it hands the panel over and Settings 0.5
+    // to 3 s later, or never when it exited first (init kills its children with it). persist is never older than
+    // Settings there, so a differing persist is the user's newest level.
+    const int persistBrt = property_get_int32("persist.gammaos.nano.brightness", -1);
+    if (property_get_bool("sys.gammaos.minimal_boot", false) && persistBrt >= 1 && persistBrt <= 255 &&
+            persistBrt != mBrightness) {
+        ALOGI("NanoMenu: persist brightness %d differs from Settings %d, using persist", persistBrt, mBrightness);
+        mBrightness = persistBrt;
+        trustedBrt = true;   // written by a nano program: the user's level, not a leftover
+    }
     // Dead-panel floor: only for UNTRUSTED sources (a stale persist prop or the
     // sysfs last-resort at cold boot, before the settings provider is up). Those
     // can be a leftover of dimming/turn-off and this hardware does not light at the
@@ -947,20 +960,26 @@ status_t NanoMenu::readyToRun() {
     // level the user EXPLICITLY set via the brightness control is written to Android
     // Settings and is authoritative -- honor it even if very dim, so a genuine low
     // setting is NOT reverted to ~50% on nano relaunch or drastic entry (which reads
-    // persist.gammaos.nano.brightness that applyBrightness keeps in sync).
-    if (!trustedBrt && mBrightness < 24) mBrightness = 128;
+    // persist.gammaos.nano.brightness that the brightness module keeps in sync).
+    // On the RG DS Plus every level from 1 lights the panel, so the reset is skipped there; elsewhere it stays
+    // (it lasts until the first tick adopts persist anyway).
+    if (!trustedBrt && mBrightness < 24 && !nanobr::isRgDsPlus()) mBrightness = 128;
     if (mBrightness > 255) mBrightness = 255;
     if (mBrightness < 1) mBrightness = 1;   // never a literal-zero dead panel
     // Write to sysfs for instant backlight during early boot. The shared
     // enumerator scales per node max (the old fixed-path loop wrote one
-    // device-wide sysfs value to every node).
-    nanobl::nanoBacklightSet(mBrightness);
+    // device-wide sysfs value to every node). No HAL, persist or Settings work here.
+    nanobr::brightnessInit(mBrightness, androidBrt > 0 && mBrightness == androidBrt);
     ALOGI("NanoMenu: early sysfs brightness (android %d) applied to %zu backlight nodes",
           mBrightness, nanobl::nanoBacklightNodes().size());
+    // The home drives the panel whenever it runs (not the overlay instance: that one only while it is shown, see
+    // overlayShow): the module may undo a late framework write of an older level (RG DS Plus).
+    if (!mOverlayMode) nanobr::brightnessWatchPanel(true);
 
-    // Apply brightness async via HAL (expects sysfs-range value)
-    {
-        int brightness = mBrightness * mMaxBrightness / 255;
+    // Apply brightness async via HAL (0..255 in the colour channels, as LightsService). Skipped on the RG DS Plus:
+    // RockchipLights writes the same sysfs nodes and the call cost 0.4 to 0.9 s there.
+    if (!nanobr::backlightHalSkipped()) {
+        int brightness = mBrightness;
         std::thread([brightness]() {
             // Try AIDL first
             {
@@ -1041,6 +1060,8 @@ status_t NanoMenu::readyToRun() {
             }
             ALOGW("NanoMenu: lights HAL not available after 5s, brightness not set");
         }).detach();
+    } else {
+        ALOGI("NanoMenu: boot brightness %d on sysfs only (lights HAL skipped)", mBrightness);
     }
 
     // Restore volume from the persist properties PhoneWindowManager publishes (the
@@ -1258,7 +1279,9 @@ void NanoMenu::perfHintReport() {
 
 // Run /vendor/bin/setclock_<mode>.sh in the background to switch the CPU
 // governor/clocks. `mode` is validated against the known set (the scripts that
-// actually ship) so the value can never inject into the shell command.
+// actually ship) so the value can never inject into the shell command. On the
+// RG DS Plus it starts the vendor service instead, so init sees the run and can
+// re-apply the persisted mode after a late powersave run (NanoClockProfile.h).
 void NanoMenu::nanoApplyPerfClock(const char* mode) {
     const char* m = "stock";
     if (mode) {
@@ -1266,6 +1289,7 @@ void NanoMenu::nanoApplyPerfClock(const char* mode) {
         else if (!strcmp(mode, "powersave")) m = "powersave";
         else m = "stock";
     }
+    if (nanoclock::startService(m)) return;
     char cmd[96];
     snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", m);
     system(cmd);
@@ -2126,6 +2150,7 @@ bool NanoMenu::threadLoop() {
                 // own-layer SF (pure-SF panel). Mirrors the normal launch's else
                 // branch (~3415). Exiting releases DRM master for the binary / SF.
                 property_set("sys.gammaos.nano.drop_input", "1");
+                nanobr::brightnessRelease(0);   // persist now; the session pushes Settings (init kills our children at _exit)
                 property_set("sys.gammaos.drastic_nano.start", "1");
                 _exit(0);
             }
@@ -3069,6 +3094,7 @@ if (sRingPrimedCount >= 2) {
                             // drastic-nano clears it on exit. Set before .start.
                             property_set(
                                 "sys.gammaos.drastic_nano.qr_resume", "1");
+                            nanobr::brightnessRelease(0);   // persist now; the session pushes Settings
                             property_set(
                                 "sys.gammaos.drastic_nano.start", "1");
                             property_set(
@@ -4400,7 +4426,11 @@ if (sRingPrimedCount >= 2) {
                         if (la[0] && (dualstackHas(la) || primaryScreenHas(la))) ccOccludesBottomApp = true;
                     }
                     int wantDrop = ccOccludesBottomApp ? 1 : 0;
-                    if (property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
+                    // Not while PhoneWindowManager's Menu exit has drop_input released for its ESC (it flags
+                    // that in sys.gammaos.nano.menu_exit_inflight for a moment): raising it here would make
+                    // InputDispatcher drop the ESC at dispatch. Reconciled as usual once the flag is gone.
+                    if (!ccMenuExitInflight()
+                            && property_get_int32("sys.gammaos.nano.drop_input", 0) != wantDrop)
                         property_set("sys.gammaos.nano.drop_input", wantDrop ? "1" : "0");
                     // Pin the CC's bottom panel (display cc.bottomdisplay) to its natural rotation while the CC
                     // renders on it: DisplayRotation honours sys.gammaos.nano.cc.active. Without this, launching an
@@ -4668,6 +4698,8 @@ if (sRingPrimedCount >= 2) {
                 property_set("sys.gammaos.nano.show_overlay", "0");
             }
             property_set("sys.gammaos.nano.drop_input", "1");
+            drasticTailWaitBeforeLaunch();   // a drastic-nano still saving after the return hand-off
+            nanobr::brightnessRelease(0);   // persist now; the session pushes Settings (init kills our children at _exit)
             property_set("sys.gammaos.azahar_nano.start", "1");
             _exit(0);
         }
@@ -4801,6 +4833,10 @@ if (sRingPrimedCount >= 2) {
                 property_set("sys.gammaos.nano.app_launched", "0");
                 property_set("sys.gammaos.nano.show_overlay", "0");
             }
+            // With the park off after a hand-off, the old drastic-nano may still be saving: start=1 would
+            // be a no-op for init and the new game would not come up.
+            drasticTailWaitBeforeLaunch();
+            nanobr::brightnessRelease(0);   // persist now; the session pushes Settings (init kills our children at _exit)
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }
@@ -4851,7 +4887,8 @@ if (sRingPrimedCount >= 2) {
                 // Push NanoMenu's brightness TO Android settings now
                 // that the settings provider is available. NanoMenu's
                 // persist property is the source of truth during boot.
-                syncBrightnessToAndroid();
+                // The overlay instance takes its level from Settings and never forces a push.
+                if (!mOverlayMode) nanobr::forceSettingsPush();
                 ALOGD("NanoMenu: brightness pushed to Android: %d", mBrightness);
             }
         }
@@ -5007,6 +5044,8 @@ if (sRingPrimedCount >= 2) {
         // even on a first boot where the setup wizard render branch never runs the audio ticks.
         // Without this, card0 can stay owned by our engine and all system audio dies after setup.
         nanoDirectHandoffTick();
+        // DSi cold-boot progress bar: advance it once per frame (render() runs once per panel).
+        bootProgTick();
 
         // GammaOS Nano: re-fire a deferred game/app launch as soon as
         // the system is far enough through boot to accept it. The
@@ -5021,7 +5060,17 @@ if (sRingPrimedCount >= 2) {
             mLaunchPending = false;
             mShowLaunchBusy = false;
             mLaunchBusyTimer = 0;
+            const bool wasWaiting = mWaitForRelease;
             handleSelect();
+            // A re-fired RetroArch/app launch waits for a select-key release (mWaitForRelease),
+            // but the press that queued it ended long ago, so no release event ever comes: the
+            // home would sit on drop_input=1 with navigation dead until the next A or touch. Stamp
+            // the launch effect here, as the touch and scripted 'enter' paths do. DS and 3DS launches
+            // hand off through their own pending blocks and never set the wait. If A is physically
+            // held right now its release still arrives, so leave the stamp to that handler.
+            if (!wasWaiting && mWaitForRelease && !mOverlayMode && mLaunchFadeStart == 0
+                    && !keyHeldAny({KEY_ENTER, BTN_SOUTH}))
+                mLaunchFadeStart = uptimeMillis();
         }
 
         // Adaptive framerate:
@@ -5214,9 +5263,9 @@ if (sRingPrimedCount >= 2) {
                 if (!mSfxOpening.load()) mSfxPlayer.release();
                 // the 3DS theme's own player (its looping BGM never idles the stream): same reason
                 if (mCtrAudio) { mCtrAudio->stopAll(0); mCtrAudio->release(); }
-                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
+                nanoclock::beginSleep(); nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sOvlPwrSave = true;
             }
-            else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sOvlPwrSave = false; }
+            else if (!screenOff && sOvlPwrSave) { property_set("sys.gammaos.nano.screenoff", "0"); nanoclock::endSleep(); nanoRestorePerfClock(); sOvlPwrSave = false; }
             // The framework drives suspend for the overlay; release the BT bluesleep
             // wakelock (BT off) so it is not blocked. Restored when the panel returns.
             static bool sOvlBtLpm = false;
@@ -5237,6 +5286,7 @@ if (sRingPrimedCount >= 2) {
                 if (!sOvlAudioWake) {
                     int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
                     if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    property_set("sys.gammaos.nano.keep_audio", "1");
                     sOvlAudioWake = true;
                 }
                 // audio-only auto-advance (no GL; mirrors musicTick's gate)
@@ -5252,6 +5302,7 @@ if (sRingPrimedCount >= 2) {
             if (sOvlAudioWake) {   // screen back on, or audio stopped / queue ended -> release
                 int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 sOvlAudioWake = false;
             }
             if (screenOff) {
@@ -5315,19 +5366,19 @@ if (sRingPrimedCount >= 2) {
                         glClear(GL_COLOR_BUFFER_BIT);
                     }
                     drmFrameEnd(mDisplay, mSurface);
-                    nanobl::nanoBacklightSet(0);
-                    setBrightnessViaHal(0);
+                    nanobr::panelOff();
                     // and the pipes themselves off: a blank frame still scans (the last image
                     // shows under a bright light, a USB plug relights the bottom onto it)
                     drmPanelsPowerOff();
+                    nanobr::brightnessPushNow();   // panels are off: Settings now holds the level DPC applies at the wake
                     mDrmPanelsParked.store(true, std::memory_order_relaxed);
                     ALOGI("NanoMenu: framework screen off at the DRM home -> panels blanked and switched off");
                 }
-                nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
+                nanoclock::beginSleep(); nanoApplyPerfClock("powersave"); property_set("sys.gammaos.nano.screenoff", "1"); sSfPwrSave = true;
                 mCtrSleepStartMs = (int64_t)uptimeMillis();
             }
             else if (!screenOff && sSfPwrSave) {
-                property_set("sys.gammaos.nano.screenoff", "0"); nanoRestorePerfClock(); sSfPwrSave = false;
+                property_set("sys.gammaos.nano.screenoff", "0"); nanoclock::endSleep(); nanoRestorePerfClock(); sSfPwrSave = false;
                 ctrShuffleEvent(false, (int64_t)uptimeMillis() - mCtrSleepStartMs);   // 3DS theme Shuffle
                 if (sDrmActive) {
                     // the CRTCs first (the DP bridge needs a moment after its power-down:
@@ -5342,10 +5393,7 @@ if (sRingPrimedCount >= 2) {
                         if (left > 0) ALOGW("NanoMenu: %d panel(s) did not come back after the screen off", left);
                     }
                     mDrmPanelsParked.store(false, std::memory_order_relaxed);
-                    int sysfs_val = mBrightness * mMaxBrightness / 255;
-                    if (sysfs_val < 1) sysfs_val = 1;
-                    nanobl::nanoBacklightSet(mBrightness);
-                    setBrightnessViaHal(sysfs_val);
+                    nanobr::panelOn(mBrightness);
                     mDisplayDirty = true;
                     ALOGI("NanoMenu: framework screen on at the DRM home -> panels restored");
                 }
@@ -5361,6 +5409,7 @@ if (sRingPrimedCount >= 2) {
                 if (!sSfAudioWake) {
                     int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
                     if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                    property_set("sys.gammaos.nano.keep_audio", "1");
                     sSfAudioWake = true;
                 }
                 if (mMpAdvancing && !mMusicPlayer.ended()) mMpAdvancing = false;
@@ -5375,6 +5424,7 @@ if (sRingPrimedCount >= 2) {
             if (sSfAudioWake) {    // screen back on, or audio stopped / queue ended -> release
                 int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 sSfAudioWake = false;
             }
             if (screenOff) {
@@ -5549,10 +5599,15 @@ if (sRingPrimedCount >= 2) {
         }
 
         // Check every ~0.5s if an external trigger requested exit
-        int exitCheckInterval = animating ? 30 : 5; // 30*16ms or 5*100ms
-        if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;   // idle ticks are 100 ms apart: check every tick
+        int exitCheckInterval = animating ? 30 : 5; // 30 frames at 16 ms (~0.5 s), or 5 frames at 16.7 ms (~83 ms)
+        // Idle ticks are 50 ms apart (the idle wait is capped for the ambiance restart): the cheap
+        // triggers below run on every tick. The SurfaceFlinger binder calls have their own 0.5 s gate.
+        if (ndsIdleSkip) exitCheckCounter = exitCheckInterval;
         if (++exitCheckCounter >= exitCheckInterval) {
             exitCheckCounter = 0;
+            // Uptime stamp of the last SurfaceFlinger binder pass of this block (gate further down);
+            // the brightness block zeroes it when an app has just exited.
+            static int64_t sSfSvcMs = 0;
             // Test hook: sys.gammaos.nano.direct_test=<wav> plays that file through the direct
             // ALSA engine right now (the path the boot chime and the pre-boot menu audio use), so
             // the card choice can be checked on a booted device without a reboot. Self-clears.
@@ -5596,7 +5651,7 @@ if (sRingPrimedCount >= 2) {
             // GammaOS Nano: the Display Settings brightness row writes nano's own backlight level
             // (persist.gammaos.nano.brightness), because nano drives the panel itself and only
             // mirrors the level into Settings. Pick the change up here and apply it, so moving the
-            // slider actually dims the screen. applyBrightness writes the same value back, so once
+            // slider actually dims the screen. The module is told the new level once, so once
             // they agree this is a single integer compare and cannot loop.
             //
             // It also keeps the panel consistent with nano's level across every transition - boot,
@@ -5612,7 +5667,7 @@ if (sRingPrimedCount >= 2) {
             //   3. first run after boot / a DRM-app-exit restart: assert nano's level into Settings
             //      so the framework converges to it, not a stale default. Retry each tick until the
             //      settings provider confirms the write took (early-boot attempts land before it is
-            //      up). applyBrightness re-asserts the same value, so this cannot loop or fight the
+            //      up). The module's re-assert is idempotent, so this cannot loop or fight the
             //      framework's legitimate power-management dimming (not one of these edges).
             {
                 static int sPrevAppLaunched = -1;
@@ -5621,19 +5676,42 @@ if (sRingPrimedCount >= 2) {
                         property_get_bool("sys.gammaos.nano.app_launched", false) ? 1 : 0;
                 bool appJustExited = (sPrevAppLaunched == 1 && appNow == 0);
                 sPrevAppLaunched = appNow;
+                // Display state is most likely to have drifted right after an app: let the
+                // SurfaceFlinger checks below run on this very tick, not up to 0.5 s later.
+                if (appJustExited) sSfSvcMs = 0;
 
                 int want = property_get_int32("persist.gammaos.nano.brightness", -1);
-                if (want > 0 && want <= 255 && want != mBrightness) {
+                // BrightnessSynchronizer writes a Settings push of this process back into persist a moment after the
+                // push ends. After a tap during a push that echo can land after our newer level was persisted, and
+                // adopting it would send the panel back to the older level. So nothing is adopted while a push runs,
+                // nor, for a short while after one was last seen running, the level of the newest push. (Time-limited:
+                // an older spawned level must not block a level another program sets later, e.g. PhoneWindowManager
+                // stepping back to it over an app.)
+                static int64_t sPushSeenMs = -100000;
+                const int64_t tickMs = (int64_t)android::uptimeMillis();
+                const bool pushRunning = nanobr::state().pushInFlight.load();
+                if (pushRunning) sPushSeenMs = tickMs;
+                const bool ownEcho = pushRunning ||
+                        (want == nanobr::state().lastSpawned.load() && tickMs - sPushSeenMs < 1500);
+                // A level this process set and has not persisted yet is newer than the property: never adopt over it.
+                // The hidden overlay over an app takes the level as already in Settings (PhoneWindowManager and
+                // BrightnessSynchronizer for RetroArch, or an earlier push) and never pushes it back. While it is shown
+                // PhoneWindowManager yields to nano, so a level change is the overlay's own (the Display Settings slider
+                // writes persist): the module pushes it to Settings (hide pushes what is pending).
+                const bool fromSettings = mOverlayMode && !mOverlayShown;
+                if (want > 0 && want <= 255 && want != mBrightness && !nanobr::brightnessPending() && !ownEcho) {
                     mBrightness = want;
-                    applyBrightness();
+                    if (fromSettings) nanobr::brightnessAdoptFromSettings(mBrightness);
+                    else nanobr::brightnessAdopt(mBrightness, false);
                     sBootBrightnessAsserted = true;
                 } else if (appJustExited) {
-                    applyBrightness();
+                    if (fromSettings) nanobr::brightnessAdoptFromSettings(mBrightness);
+                    else nanobr::brightnessReassert();
                     sBootBrightnessAsserted = true;
                 } else if (!sBootBrightnessAsserted) {
                     // Assert once per VALUE, not once per tick. This branch stays live until the
                     // settings provider confirms the level, and that confirmation is deliberately
-                    // skipped while the setup wizard runs (below), so applyBrightness ran here every
+                    // skipped while the setup wizard runs (below), so the assert ran here every
                     // tick for the whole wizard: each call forked a shell on the render thread that
                     // ran a Java `settings put` (measured 4 forks a second, 70 to 100 ms frames, the
                     // wizard and the DSi boot intro at 35 fps on the RG DS Plus). The panel level is
@@ -5641,13 +5719,14 @@ if (sRingPrimedCount >= 2) {
                     static int sBootAssertedValue = -1;
                     if (sBootAssertedValue != mBrightness) {
                         sBootAssertedValue = mBrightness;
-                        applyBrightness();
+                        if (fromSettings) nanobr::brightnessAdoptFromSettings(mBrightness);
+                        else nanobr::brightnessReassert();
                     }
                     // Do NOT read back via popen("settings get") on the render thread while the setup
                     // wizard runs. popen forks this mlockall'd process (already slow) + execs a JVM that
                     // binders into a system_server saturated by first-boot pm-install/dexopt, blocking the
                     // render thread for >8s -> the render watchdog SIGABRTs nano (regression introduced by
-                    // 258ef6005bf). applyBrightness() above already asserts the panel level; defer the
+                    // 258ef6005bf). The assert above already sets the panel level; defer the
                     // settings-provider confirmation until setup finishes (device idle -> popen returns in ms).
                     // The read-back is a popen("settings get") that blocks on system_server; it never
                     // runs on the render thread. A helper thread at normal priority does it (its child
@@ -5818,13 +5897,29 @@ if (sRingPrimedCount >= 2) {
                 ALOGW("NanoMenu DRM: resumed from suspend, re-committing the modeset");
                 drmResumeRecommit();
             }
+            // The three SurfaceFlinger sections below (primary layer stack, secondary power mode,
+            // secondary layer stack and rotation) run at most every 0.5 s, on the active and the
+            // idle path alike. The block around them runs every 50 to 83 ms, and on the
+            // SurfaceFlinger-hosted home that was 20 detached threads a second, each a binder call
+            // that woke SurfaceFlinger's main thread and logged "Setting power mode". The cheap
+            // triggers above keep their tick latency. An app exit zeroes the stamp (brightness
+            // block) so the first check after it is not delayed. persist.gammaos.nano.sf_svc_gate=0
+            // brings back the per-tick cadence; it defaults to on for the RG DS Plus only.
+            static const bool sfGate = [] {
+                char dev[PROPERTY_VALUE_MAX] = {};
+                property_get("ro.gammaos.device", dev, "");
+                return property_get_bool("persist.gammaos.nano.sf_svc_gate", strcmp(dev, "anbernicrgdsplus") == 0);
+            }();
+            const int64_t sfNow = (int64_t)android::uptimeMillis();
+            const bool sfDue = !sfGate || sfNow - sSfSvcMs >= 500;
+            if (sfDue) sSfSvcMs = sfNow;
             // GammaOS Nano: Keep the surface's layer stack in sync with the
             // chosen display. SurfaceFlinger's initial layerStack for the display
             // can change once DisplayManagerService finishes assigning logical
             // display IDs (e.g. port 1 starts at layerStack=1 but becomes 2). We
             // re-query and re-apply here so the NanoMenu surface follows the
             // chosen physical display even after DMS reassigns.
-            if (mDisplayToken != nullptr && mFlingerSurfaceControl != nullptr) {
+            if (sfDue && mDisplayToken != nullptr && mFlingerSurfaceControl != nullptr) {
                 ui::DisplayState cur;
                 if (SurfaceComposerClient::getDisplayState(mDisplayToken, &cur)
                         == NO_ERROR
@@ -5860,7 +5955,7 @@ if (sRingPrimedCount >= 2) {
             // time.
             {
                 static std::atomic<bool> sPowerBusy{false};
-                if (!mSecondaryDisplayTokens.empty() && !sPowerBusy.exchange(true)) {
+                if (sfDue && !mSecondaryDisplayTokens.empty() && !sPowerBusy.exchange(true)) {
                     std::vector<sp<IBinder>> tokens(mSecondaryDisplayTokens.begin(), mSecondaryDisplayTokens.end());
                     std::thread([tokens]() {
                         nanoThreadNormalPriority();
@@ -5870,7 +5965,7 @@ if (sRingPrimedCount >= 2) {
                     }).detach();
                 }
             }
-            for (size_t i = 0; i < mSecondaryDisplayTokens.size(); i++) {
+            for (size_t i = 0; sfDue && i < mSecondaryDisplayTokens.size(); i++) {
                 const sp<IBinder>& token = mSecondaryDisplayTokens[i];
                 if (token == nullptr) continue;
                 ui::DisplayState state;
@@ -5940,10 +6035,14 @@ if (sRingPrimedCount >= 2) {
                 if (mBgScanResultReady) {
                     std::lock_guard<std::mutex> lock(mBgScanMutex);
                     if (mBgScanResultReady) {
-                        for (int i = 0; i < (int)mXmbSystems.size()
-                                 && i < (int)mBgScanResults.size(); i++) {
+                        for (int i = 0; i < (int)mXmbSystems.size(); i++) {
                             auto& sys = mXmbSystems[i];
-                            auto& res = mBgScanResults[i];
+                            // Results are keyed by system id: the editor may have added, erased or
+                            // reordered systems since the scan took its snapshot.
+                            BgScanResult* rp = nullptr;
+                            for (auto& r : mBgScanResults) if (r.id == sys.id) { rp = &r; break; }
+                            if (!rp || !rp->attempted) continue;   // added/enabled after the snapshot: the next 30 s scan covers it
+                            auto& res = *rp;
                             if (!sys.enabled) continue;   // disabled systems are never scanned
                             // Guard: don't replace with fewer ROMs when storage
                             // is partially mounted. Two checks:
@@ -6221,6 +6320,11 @@ if (sRingPrimedCount >= 2) {
     // GammaOS: Clear menu_active flag so DualStack can re-enable when app launches.
     property_set("sys.gammaos.nano.menu_active", "0");
 
+    // Leaving the loop for a launch (an app, RetroArch, the bootanim.exit the framework raises once
+    // the app's window draws) right after a game exit: drastic-nano may still be saving. Hold the
+    // panel and this process until it is gone (the return hand-off, NanoMenuDrasticPark.cpp).
+    if (!exitPending()) drasticTailWaitBeforeLaunch();
+
     // GammaOS: Hand displays to SurfaceFlinger now that XMB is done.
     //
     // We kept DRM-direct rendering active for the entire XMB loop to
@@ -6248,14 +6352,14 @@ if (sRingPrimedCount >= 2) {
     }
 
     // Only re-apply performance clocks when launching an app (not on bootanim.exit)
-    // Run in background — setclock_max.sh has a 20s retry loop that must not block exit.
+    // Run in background so the exit is not blocked; nanoRestorePerfClock validates the mode
+    // before it reaches a shell.
     if (mExitRequested) {
+        nanobr::brightnessPushNow();   // the app's DisplayPowerController reads Settings: push a pending level now, beside the app's start
         char mode[PROPERTY_VALUE_MAX] = {};
         property_get("persist.gammaos.performance_mode", mode, "stock");
-        char cmd[128];
-        snprintf(cmd, sizeof(cmd), "/vendor/bin/setclock_%s.sh &", mode);
         ALOGI("NanoMenu: re-applying performance mode '%s' (background)", mode);
-        system(cmd);
+        nanoRestorePerfClock();
     }
 
     // Transition: grab input devices. drop_input was already set in handleSelect()
@@ -6346,6 +6450,7 @@ if (sRingPrimedCount >= 2) {
             }
         }
     }
+    nanobr::brightnessFlush(500);   // usually done already; init kills this process's children when it exits
 
     // GammaOS: tear down secondary wallpaper EGL surfaces / SurfaceControls
     // BEFORE eglTerminate. The destructor (~NanoMenu) was previously doing

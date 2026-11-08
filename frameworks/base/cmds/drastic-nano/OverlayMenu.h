@@ -21,6 +21,7 @@
 #include <sys/types.h>
 #include <vector>
 
+#include "DrasticAssets.h"   // LegacyCount for the General page's import row
 #include "DrasticPrefs.h"
 #include "DrasticOsk.h"
 #include "InputMap.h"
@@ -66,6 +67,15 @@ public:
               std::string shadersDir);
 
     bool isOpen() const { return mOpen; }
+    // True while the menu is on screen: open, or still fading out after a close.
+    // Only the overlay's own drawing and the bottom-panel passes that follow it key
+    // on this. Input, pause state, pacing and direct render stay on isOpen(): the
+    // game is live again from the moment of the close, the fade only plays over it.
+    bool isVisible() const { return mOpen || mVisA > 0.0f; }
+    // Keep the menu on screen at its current alpha instead of fading it out (the
+    // exit fade runs over it; fading the menu away first would flash the game).
+    // Also implied by any exit, relaunch, restart or power request the menu raised.
+    void holdVisibility(bool on) { mVisHold = on; }
     // True when the menu wants the input layer to route the next key
     // press to capturedAndroidKc (Controls > rebind).
     bool isCapturingKey() const;
@@ -115,9 +125,10 @@ public:
     void freeRaTextures(drastic_gfx::OverlayGfx& gfx);
 
     // Called from the main loop on volume-key presses: VOL = volume,
-    // SELECT+VOL = brightness. Adjusts the level and shows the slider HUD.
+    // SELECT+VOL = brightness (a signed step count). Adjusts the level and shows the slider HUD.
     void onVolumeAdjust(int dir)     { adjustVolume(dir); }
-    void onBrightnessAdjust(int dir) { adjustBrightness(dir); }
+    // The General page row shows the new percent when the chord is used with the menu open.
+    void onBrightnessAdjust(int steps) { adjustBrightness(steps); if (mOpen && mSection == kSec_General) rebuildRows(); }
 
     // RetroAchievements: surface a UI event (unlock, game placard, login, etc.)
     // as an on-screen message, and learn whether hardcore restrictions are
@@ -240,6 +251,16 @@ private:
     std::string mShadersDir;
 
     bool mOpen = false;
+    // The menu's fade (120 ms in and out, by the clock). mVisA is the alpha the
+    // menu is drawn at, 0..1: it climbs along an ease-out while mOpen and falls
+    // along an ease-in after the close, each step taken from the alpha the menu
+    // has now, so a reversal mid-fade carries on from where it is instead of
+    // jumping. advanceVis() steps it once per frame from draw(); the bottom-panel
+    // passes drawn after draw() reuse the value so both panels fade in step.
+    float   mVisA = 0.0f;
+    int64_t mVisLastMs = 0;           // when advanceVis last ran (0: restart the clock at the next frame)
+    bool    mVisHold = false;         // see holdVisibility()
+    void advanceVis(int64_t nowMs);
     bool mRelaunch = false;
     bool mExitApp = false;            // "Exit Game" row selected
     bool mRestartFresh = false;       // "Restart Game" row selected
@@ -286,6 +307,7 @@ private:
     bool mCaptureKey = false;
     int  mCaptureActionIdx = -1;      // when mCaptureKey: which action
     bool mDirty = false;              // staged edits pending write
+    int64_t mToastStartMs = 0;        // when the visible toast first appeared (fade-in)
     int64_t mToastUntilMs = 0;
     std::string mToast;
 
@@ -326,6 +348,8 @@ private:
     NavDir  mNavHeldDir = NavDir::None;
     int64_t mNavLastRepeatMs = 0;
     int     mNavRepeatCount = 0;
+    bool mNavSuppressUntilRelease = false;   // a direction held when the menu (or a prompt) opened stays inert until released
+    bool mNavSuppressLogged = false;         // the "ignored until released" line was logged for this open
 
     // On-screen keyboard for cheat search / custom-cheat entry. When
     // active, update() routes nav to it and drawOsk() paints it on the
@@ -414,10 +438,8 @@ private:
     // shown on the volume keys since the SF system HUDs never appear on the
     // DRM-direct path. Render every frame (even with the menu closed) and
     // auto-hide after ~1.5s.
-    int mBrightLevel = 128;     // 0-255 (Android range)
     int mVolHudTimer = 0;       // frames remaining (60fps)
     int mBrightHudTimer = 0;
-    bool mBrightInit = false;
     // System volume mirror for the DRM-path HUD: the real level PhoneWindowManager
     // publishes (persist.gammaos.nano.volume/volmax). adjustVolume tracks it so the
     // slider shows the actual output level, not the DS core's own mixer.
@@ -480,7 +502,7 @@ private:
 
     // Volume/brightness HUD (in-app slider notifications).
     void adjustVolume(int dir);
-    void adjustBrightness(int dir);
+    void adjustBrightness(int steps);
     void drawHud(drastic_gfx::OverlayGfx& gfx);  // volume + brightness bars
     // Push the current prefs to the running emulator with no relaunch
     // (rebuilds the config word and calls DrasticRunner::applyVideoConfigLive).
@@ -508,6 +530,21 @@ private:
     std::atomic<bool> mUnpauseDone{true};      // set by the worker after pauseToggle(false)
     mutable bool mSlotCacheValid = false;      // per-open cache of slotFileExists (FUSE stats)
     mutable uint32_t mSlotCacheKnown = 0, mSlotCacheExists = 0;
+    void setSlotCacheBit(int slot, bool exists) const;
+    // Per-session cache for what the General page shows about the quick slot:
+    // slot 0 (bit 0 of the slot cache above), the two undo files and the count of
+    // saves left in the DraStic app. Filled in init() and re-stat'ed right after
+    // each quick save/load/undo, so opening the menu never stats the FUSE
+    // savestates folder (a cold MediaProvider daemon stalled the first open for
+    // 0.7 s). Render/input thread only: the load-done hook of undoQuickLoad runs
+    // elsewhere and must not touch these. mQuickCacheOn is
+    // persist.gammaos.drastic_nano.menu_quick_cache, read once in init() (default
+    // on for the RG DS Plus); off keeps the stat-on-every-rebuild behaviour.
+    bool mQuickCacheOn = false;
+    mutable bool mUndoSaveExists = false, mUndoLoadExists = false, mQuickCacheValid = false;
+    drastic_assets::LegacyCount mLegacy{};
+    bool mLegacyValid = false;
+    void refreshQuickCache();
     void toast(const std::string& msg, int64_t ms = 1500);
     void writePrefsSafe();
     void commitAndMaybeRelaunch();

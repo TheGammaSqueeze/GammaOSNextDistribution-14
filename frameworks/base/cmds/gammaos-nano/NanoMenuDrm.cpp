@@ -596,7 +596,11 @@ void drmPaceWithoutVsync() {
 // Create and map a double-buffered dumb buffer pair for a DRM CRTC. Shared
 // by drmEarlySplash (first-pass enumeration) and drmRescanDisplays (late
 // re-probe for displays that weren't ready at splash time).
-bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
+uint32_t gDrmSplashArgb = 0xFF1A0D0D;
+uint32_t gDrmSplashArgbSec = 0xFF1A0D0D;
+
+bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out, uint32_t argb) {
+    if (argb == 0) argb = gDrmSplashArgb;
     struct drm_mode_create_dumb create = {};
     create.width = w; create.height = h; create.bpp = 32;
     if (ioctl(fd, DRM_IOCTL_MODE_CREATE_DUMB, &create) != 0) return false;
@@ -609,9 +613,9 @@ bool drmCreateDumbBuffer(int fd, uint32_t w, uint32_t h, DrmBuffer* out) {
                        MAP_SHARED, fd, mapReq.offset);
     if (mapped == MAP_FAILED) return false;
 
-    // Fill with dark background so the display isn't garbage on first scanout
+    // Fill with dark background (or the hand-off colour) so the display isn't garbage on first scanout
     uint32_t* px = (uint32_t*)mapped;
-    for (uint32_t i = 0; i < w * h; i++) px[i] = 0xFF1A0D0D;
+    for (uint32_t i = 0; i < w * h; i++) px[i] = argb;
 
     struct drm_mode_fb_cmd fbCmd = {};
     fbCmd.width = w; fbCmd.height = h;
@@ -692,12 +696,26 @@ static int64_t drmFenceDoneUs(int probeFd) {
     return latest ? (int64_t)(latest / 1000ULL) : 0;
 }
 
+// Open /dev/dri/card0 for a client that is not meant to own the display (the Screen Calibration
+// worker, the refresh-rate probe). The kernel makes any opener the master while nobody holds it
+// (drm_master_open), and that fd then keeps it for as long as it stays open: the calibration
+// worker's long-lived fd did so on the SurfaceFlinger-hosted home and sat on the master through
+// every drastic-nano launch, which waited its whole SET_MASTER budget for a holder that never
+// presents. So the implicit right goes straight back. DROP_MASTER on an fd that is not master
+// (the usual case) fails with EINVAL and is ignored. The openers that do need master (the
+// splash, the park's re-acquire, the cold-boot grab in main()) do not use this.
+int drmOpenCard0NoMaster() {
+    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    if (fd >= 0) ioctl(fd, DRM_IOCTL_DROP_MASTER, 0);
+    return fd;
+}
+
 // Refresh rate of the first connected connector's preferred mode, from the
 // mode timings (clock / (htotal * vtotal)), before the DRM path is set up.
 // Used to lock drastic's frame pacing and audio rate to the panel. 0 if
 // nothing is connected or the device cannot be opened.
 double drmProbePrimaryRefreshHz() {
-    int fd = open("/dev/dri/card0", O_RDWR | O_CLOEXEC);
+    int fd = drmOpenCard0NoMaster();
     if (fd < 0) return 0.0;
     double hz = 0.0;
     struct drm_mode_card_res res = {};
@@ -868,6 +886,13 @@ static int drmAtomicModesetFallback(int fd, uint32_t crtcId, uint32_t connId,
 
     const int rc = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
     const int err = errno;
+    // The committed CRTC state holds its own reference to the mode blob: give ours back, or every call
+    // leaks one blob on the fd.
+    if (blob.blob_id) {
+        struct drm_mode_destroy_blob destroy = {};
+        destroy.blob_id = blob.blob_id;
+        ioctl(fd, DRM_IOCTL_MODE_DESTROYPROPBLOB, &destroy);
+    }
     ALOGW("NanoMenu DRM: atomic modeset crtc %u (idx %d) plane %u, %d leftover plane(s) detached -> %s",
           crtcId, crtcIdx, planeId, detached, rc == 0 ? "OK" : strerror(err));
     errno = err;
@@ -1014,9 +1039,17 @@ bool drmTryAddDisplay(int fd, uint32_t crtcId, uint32_t connId, const char* stag
     if (!crtc.mode_valid) return false;
 
     uint32_t w = crtc.mode.hdisplay, h = crtc.mode.vdisplay;
+    // The panel that becomes the primary one (drmEarlySplash picks it after the enumeration, by
+    // persist.gammaos.nano.primary_display) takes gDrmSplashArgb, the other gDrmSplashArgbSec; both
+    // are the same dark colour unless drastic-nano set a hand-off colour per panel.
+    uint32_t splashArgb = gDrmSplashArgb;
+    if (gDrmSplashArgbSec != gDrmSplashArgb) {
+        const int wantPrim = property_get_int32("persist.gammaos.nano.primary_display", 0);
+        if ((int)sDrmDisplays.size() != (wantPrim > 0 ? wantPrim : 0)) splashArgb = gDrmSplashArgbSec;
+    }
     DrmBuffer buf0, buf1;
-    if (!drmCreateDumbBuffer(fd, w, h, &buf0)) return false;
-    if (!drmCreateDumbBuffer(fd, w, h, &buf1)) {
+    if (!drmCreateDumbBuffer(fd, w, h, &buf0, splashArgb)) return false;
+    if (!drmCreateDumbBuffer(fd, w, h, &buf1, splashArgb)) {
         munmap(buf0.mapped, buf0.size);
         return false;
     }
@@ -1193,7 +1226,7 @@ void drmReleaseEarly() {
           "falling back to SurfaceFlinger window-surface path");
 }
 
-void drmEarlySplash(int existingFd) {
+void drmEarlySplash(int existingFd, int masterWaitMs) {
     int64_t t0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
     int fd;
     if (existingFd >= 0) {
@@ -1231,23 +1264,52 @@ void drmEarlySplash(int existingFd) {
         // through to the existing fallback, but now we log why.
         {
             const int64_t m0 = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
-            const int kMasterWaitMs = 4000;
+            // The wait serialises against a previous DRM presenter (a relaunch's outgoing
+            // drastic-nano, the home's hand-off baton). The RG DS Plus kernel has
+            // CONFIG_DRM_IGNORE_IOTCL_PERMIT=y, so SETCRTC and the atomic commits work without
+            // master and a holder that is not presenting is passive: waiting for it is pure
+            // latency (a launch from the SurfaceFlinger-hosted home sat 4 s black on one). Those
+            // presenters all keep sys.gammaos.nano.drm_active at 1 (drastic-nano clears it on exit
+            // only on a plain return to a parked SurfaceFlinger home, never on a relaunch or with
+            // a DRM home waiting, and the park holds it up for the baton), and
+            // sys.gammaos.nano.parked is 1 for as long as a DRM home waits to take the panels
+            // back; only with both at 0 is the holder passive, and the wait is capped. The gate
+            // is read once per process: a failed attempt below writes it back as 0, which
+            // setupDisplay's retries must not read as "nobody presenting".
+            static int sGateAtStart = -1;
+            if (sGateAtStart < 0) sGateAtStart = property_get_bool("sys.gammaos.nano.drm_active", false) ? 1 : 0;
+            const int kPassiveMasterWaitMs = 300;
+            int waitMs = masterWaitMs;
+            bool passiveCap = false;
+            if (waitMs > kPassiveMasterWaitMs && sGateAtStart == 0 &&
+                !property_get_bool("sys.gammaos.nano.parked", false)) {
+                char dev[PROPERTY_VALUE_MAX] = {};
+                property_get("ro.gammaos.device", dev, "");
+                if (strcmp(dev, "anbernicrgdsplus") == 0) {
+                    waitMs = kPassiveMasterWaitMs;
+                    passiveCap = true;
+                }
+            }
             int rc = -1, lastErrno = 0;
             for (;;) {
                 rc = ioctl(fd, DRM_IOCTL_SET_MASTER, 0);
                 if (rc == 0) break;
                 lastErrno = errno;
-                if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0 > kMasterWaitMs) break;
+                if (systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0 > waitMs) break;
                 usleep(20000);
             }
             if (rc == 0) {
                 ALOGW("NanoMenu DRM splash: became DRM master after %lldms",
                       (long long)(systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL - m0));
+            } else if (passiveCap) {
+                ALOGW("NanoMenu DRM splash: DRM master still held after %dms (errno %d %s) with no DRM "
+                      "presenter active; treating the holder as passive and carrying on without master",
+                      waitMs, lastErrno, strerror(lastErrno));
             } else {
                 ALOGE("NanoMenu DRM splash: could NOT become DRM master within %dms "
                       "(errno %d %s); another client (SurfaceFlinger?) holds it, "
                       "modesets will fail and the home falls back to the SF path",
-                      kMasterWaitMs, lastErrno, strerror(lastErrno));
+                      waitMs, lastErrno, strerror(lastErrno));
             }
         }
     }
@@ -2305,6 +2367,7 @@ static bool drmEnsureClusterPlane(int fd, DrmDisplay& d) {
     d.clInFenceProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "IN_FENCE_FD");
     d.clBlendProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "pixel blend mode");
     d.clAlphaProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "alpha");
+    d.clRotationProp = drmFindPropId(fd, chosen, DRM_MODE_OBJECT_PLANE, "rotation");
     d.clBlendNone = 0;
     if (d.clBlendProp && !drmFindEnumValue(fd, d.clBlendProp, "None", &d.clBlendNone))
         d.clBlendProp = 0;
@@ -2416,6 +2479,27 @@ static std::condition_variable sFlipCv;
 static bool sFlipBusy = false, sFlipThreadStarted = false;
 static FlipJob sFlipJob;
 static int sFlipResult = 0, sFlipErrno = 0;
+// The flip thread's last result, handed to the render thread by drmFlipThreadWaitIdle (under sFlipMu):
+// whether one is waiting, and the CRTC slots whose pending count the failed job had raised (no event
+// comes for a failed commit).
+static bool sFlipResultPending = false;
+static int sFlipFailSlots[4]; static int sFlipFailN = 0;
+static uint32_t sFlipFails = 0;
+// Self re-bind (drmTakeRebindRequest). The run of AFBC frames whose commit failed, on either path
+// (EBUSY is a dropped frame, not a failure), the re-binds since the last flip that worked, the run
+// that triggered the last one and when it ran. Render thread only.
+static int sClFailRun = 0, sRebindsNoFlip = 0, sLastFailRun = 0;
+static int64_t sLastRebindUs = 0;
+// The ring slot the last accepted AFBC/atomic commit was for, or handed to the flip thread (-1: none, or the
+// legacy recommit has put the dumb buffer there). Not a confirmation that it reached the glass: the renderer
+// is always at least one slot ahead of it. The wake relight binds the planes to it again.
+static int sDrmShownIdx = -1;
+// A commit result: ok resets the failed run (and the no-flip re-bind count), a failure other than EBUSY
+// adds to it.
+static void drmClNoteResult(bool ok, int err) {
+    if (ok) { sClFailRun = 0; sRebindsNoFlip = 0; return; }
+    if (err != EBUSY) sClFailRun++;
+}
 static int sAhbFlipCountPublic = 0;
 static int sFlipGuardHolds = 0;
 static int sPresLogCount = 0, sPairLogCount = 0;   // flip_pair_log caps, re-armed when the prop toggles
@@ -2483,6 +2567,7 @@ static void drmFlipThreadMain() {
         // the RP Duo Lite. Left as a knob; Low Latency itself is off by default there.)
         if ((knobPolls++ & 63) == 0 || splitKnob < 0) splitKnob = property_get_int32("sys.gammaos.drastic_nano.flip_split", 0);
         bool secSkipped = false; int ret = 0; int err = 0;
+        bool combinedRan = false;   // the one commit for both CRTCs ran (not the split pair): a failure covers both slots
         int secIdx = -1, primIdx = -1;
         if (job.no == 2) { for (int i = 0; i < 2; i++) { if (job.objPrimary[i]) primIdx = i; else secIdx = i; } }
         if (splitKnob > 0 && !sFlipSplitOff && secIdx >= 0 && primIdx >= 0) {
@@ -2517,6 +2602,7 @@ static void drmFlipThreadMain() {
             }
         }
         if (!(splitKnob > 0 && !sFlipSplitOff && secIdx >= 0 && primIdx >= 0)) {
+            combinedRan = true;
             struct drm_mode_atomic atomic = {};
             atomic.flags = DRM_MODE_PAGE_FLIP_EVENT;   // blocking: returns once the flip has landed
             atomic.count_objs = (uint32_t)job.no;
@@ -2531,6 +2617,18 @@ static void drmFlipThreadMain() {
         {
             std::lock_guard<std::mutex> lk(sFlipMu);
             sFlipResult = ret; sFlipErrno = err; sFlipBusy = false;
+            sFlipResultPending = true;
+            // A failed commit sends no event: the render thread takes the pending counts it raised back
+            // (drmFlipThreadWaitIdle). Split pair: only the primary's commit is `ret` (the secondary got
+            // its event, or was skipped and is handled below).
+            sFlipFailN = 0;
+            if (ret != 0) {
+                if (combinedRan) {
+                    for (size_t k = 0; k < job.no && k < 4; k++) sFlipFailSlots[sFlipFailN++] = job.objSlot[k];
+                } else if (primIdx >= 0) {
+                    sFlipFailSlots[sFlipFailN++] = job.objSlot[primIdx];
+                }
+            }
             if (secSkipped) { sFlipSecSkipped = true; sFlipSecSlot = job.objSlot[secIdx]; }
         }
         sFlipCv.notify_all();
@@ -2539,6 +2637,27 @@ static void drmFlipThreadMain() {
 static void drmFlipThreadWaitIdle() {
     std::unique_lock<std::mutex> lk(sFlipMu);
     sFlipCv.wait(lk, [] { return !sFlipBusy; });
+    // The job that just finished: a failed commit never sends its flip event, so the pending counts the
+    // submit raised are taken back here (on the thread that owns them), and the result goes into the
+    // failed-frame run that drives the self re-bind.
+    if (sFlipResultPending) {
+        sFlipResultPending = false;
+        const int result = sFlipResult, resultErrno = sFlipErrno;
+        if (result != 0) {
+            for (int k = 0; k < sFlipFailN; k++) {
+                const int s = sFlipFailSlots[k];
+                if (s >= 0 && s < kMaxCrtcTrack && sCrtcPending[s] > 0) sCrtcPending[s]--;
+                if (sPendingFlipEvents > 0) sPendingFlipEvents--;
+            }
+            if (resultErrno != EBUSY) {
+                sFlipFails++;
+                if (sFlipFails == 1 || (sFlipFails % 100) == 0)
+                    ALOGW("NanoMenu DRM AFBC: flip-thread commit failed: %s (%u so far)", strerror(resultErrno), sFlipFails);
+            }
+        }
+        sFlipFailN = 0;
+        drmClNoteResult(result == 0, resultErrno);
+    }
     // A skipped secondary (split commit, previous flip still pending) never sends an event:
     // take it back out of the pending counts here, on the thread that owns them.
     if (sFlipSecSkipped) {
@@ -2557,6 +2676,58 @@ static bool drmFlipThreadOn() {
 }
 bool drmFlipThreadBusy() { std::lock_guard<std::mutex> lk(sFlipMu); return sFlipBusy; }
 
+// Which half of the combined AFBC buffer display i scans: the primary display (the VP that shows the DS
+// TOP screen) crops rows [0,H), the other one [H,2H). A prop can swap it if the panels come out with the
+// wrong half.
+static uint32_t drmClusterSrcY(size_t i) {
+    bool topRegion = ((int)i == sDrmPrimaryIdx);
+    if (property_get_bool("sys.gammaos.drastic_nano.afbc_region_swap", false)) topRegion = !topRegion;
+    uint32_t srcY = topRegion ? 0u : sDrmAfbcHalfH;
+    // DEBUG afbc_both_top: force BOTH planes to crop the SAME (top) half, so
+    // both panels show identical content through this exact code path. If it
+    // then looks synced the offset is content-per-region (render race /
+    // per-half frame mismatch); if it STILL desyncs it is a hardware per-VP
+    // output offset (only fixable by delaying the lead panel or in-kernel).
+    if (property_get_bool("sys.gammaos.drastic_nano.afbc_both_top", false))
+        srcY = 0u;
+    return srcY;
+}
+
+// The Cluster plane's properties for one display: FB_ID and, with `config`, the one-time geometry that
+// binds the plane to its VP (CRTC binding and rectangle, opaque blend, full alpha, no rotation, source
+// crop srcY). Writes into props/vals (room for 13) and returns how many. Shared by the flip commit's
+// needConfig path and the wake relight, so the two cannot drift.
+static size_t drmClusterPlaneProps(const DrmDisplay& d, uint32_t fbId, bool config, uint32_t srcY,
+                                   uint32_t* props, uint64_t* vals) {
+    size_t np = 0;
+    props[np] = d.clFbIdProp;  vals[np++] = fbId;
+    if (!config) return np;
+    const uint32_t w = d.w, h = d.h;
+    props[np] = d.clCrtcIdProp; vals[np++] = d.crtcId;
+    props[np] = d.clCrtcXProp;  vals[np++] = 0;
+    props[np] = d.clCrtcYProp;  vals[np++] = 0;
+    props[np] = d.clCrtcWProp;  vals[np++] = w;
+    props[np] = d.clCrtcHProp;  vals[np++] = h;
+    // Opaque scanout: no per-pixel alpha blending against the VP
+    // background, full global alpha. Without this the planes come up
+    // in whatever blend mode the previous owner left (Cluster0 was
+    // seen in mode 2), and any region the shader leaves with alpha
+    // below 1 shows through as a flickering translucent patch.
+    if (d.clBlendProp) { props[np] = d.clBlendProp; vals[np++] = d.clBlendNone; }
+    if (d.clAlphaProp) { props[np] = d.clAlphaProp; vals[np++] = 0xffff; }
+    // Upright scanout: SurfaceFlinger turns the panel on video port 1 with
+    // the plane's rotation property (persist.gsf.rot.1), and the Cluster
+    // plane keeps it when it moves to the other port. The DS screens are
+    // already turned in GL (sDrmSeamRotCrtc), so a left-over 180 here
+    // showed the bottom screen upside down after some handoffs.
+    if (d.clRotationProp) { props[np] = d.clRotationProp; vals[np++] = DRM_MODE_ROTATE_0; }
+    props[np] = d.clSrcXProp;   vals[np++] = 0;
+    props[np] = d.clSrcYProp;   vals[np++] = (uint64_t)srcY << 16;
+    props[np] = d.clSrcWProp;   vals[np++] = (uint64_t)w << 16;
+    props[np] = d.clSrcHProp;   vals[np++] = (uint64_t)h << 16;
+    return np;
+}
+
 static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) {
     const size_t n = sDrmDisplays.size();
     if (n != 2) return -1;
@@ -2566,6 +2737,9 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
         if (!d.planeId && !drmEnsurePlane(fd, d)) return -1;  // smart id
         if (!drmEnsureClusterPlane(fd, d)) return -1;
     }
+    // Never overlap with a commit the flip thread still has in flight. The wait also hands over the
+    // previous job's result, so the geometry decision below sees the state after it.
+    drmFlipThreadWaitIdle();
     bool needConfig = false;
     for (size_t i = 0; i < n; i++)
         if (!sDrmDisplays[i].clConfigured) needConfig = true;
@@ -2574,51 +2748,17 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
     uint32_t props[64]; uint64_t vals[64];
     bool objPrimary[4] = {}; int objSlot[4] = { -1, -1, -1, -1 };
     size_t no = 0, np = 0;
-    // Region assignment for the combined buffer: the primary display (VP that
-    // shows the DS TOP screen) crops rows [0,H); the secondary crops [H,2H).
-    // A prop can swap it if the panels come out with the wrong half.
-    bool regionSwap = property_get_bool(
-            "sys.gammaos.drastic_nano.afbc_region_swap", false);
     for (size_t i = 0; i < n; i++) {
         DrmDisplay& d = sDrmDisplays[i];
-        uint32_t w = d.w, h = d.h;
-        // srcY selects which half of the combined buffer this panel scans.
-        bool topRegion = ((int)i == sDrmPrimaryIdx);
-        if (regionSwap) topRegion = !topRegion;
-        uint32_t srcY = topRegion ? 0u : sDrmAfbcHalfH;
-        // DEBUG afbc_both_top: force BOTH planes to crop the SAME (top) half, so
-        // both panels show identical content through this exact code path. If it
-        // then looks synced the offset is content-per-region (render race /
-        // per-half frame mismatch); if it STILL desyncs it is a hardware per-VP
-        // output offset (only fixable by delaying the lead panel or in-kernel).
-        if (property_get_bool("sys.gammaos.drastic_nano.afbc_both_top", false))
-            srcY = 0u;
         objs[no] = d.clPlaneId; size_t start = np;
         objPrimary[no] = ((int)i == sDrmPrimaryIdx); objSlot[no] = drmCrtcSlot(d.crtcId);
-        props[np] = d.clFbIdProp;  vals[np++] = fbs[i];
+        np += drmClusterPlaneProps(d, fbs[i], needConfig, needConfig ? drmClusterSrcY(i) : 0u,
+                                   props + np, vals + np);
         // GPU completion handed to the kernel: the commit is queued now and
         // latches on the first vblank after the fence signals, so the CPU
         // does not sit in a fence wait before every flip.
         if (inFenceFd >= 0 && d.clInFenceProp && !needConfig) {
             props[np] = d.clInFenceProp; vals[np++] = (uint64_t)(uint32_t)inFenceFd;
-        }
-        if (needConfig) {
-            props[np] = d.clCrtcIdProp; vals[np++] = d.crtcId;
-            props[np] = d.clCrtcXProp;  vals[np++] = 0;
-            props[np] = d.clCrtcYProp;  vals[np++] = 0;
-            props[np] = d.clCrtcWProp;  vals[np++] = w;
-            props[np] = d.clCrtcHProp;  vals[np++] = h;
-            // Opaque scanout: no per-pixel alpha blending against the VP
-            // background, full global alpha. Without this the planes come up
-            // in whatever blend mode the previous owner left (Cluster0 was
-            // seen in mode 2), and any region the shader leaves with alpha
-            // below 1 shows through as a flickering translucent patch.
-            if (d.clBlendProp) { props[np] = d.clBlendProp; vals[np++] = d.clBlendNone; }
-            if (d.clAlphaProp) { props[np] = d.clAlphaProp; vals[np++] = 0xffff; }
-            props[np] = d.clSrcXProp;   vals[np++] = 0;
-            props[np] = d.clSrcYProp;   vals[np++] = (uint64_t)srcY << 16;
-            props[np] = d.clSrcWProp;   vals[np++] = (uint64_t)w << 16;
-            props[np] = d.clSrcHProp;   vals[np++] = (uint64_t)h << 16;
         }
         counts[no] = (uint32_t)(np - start); no++;
         if (needConfig && d.smartCrtcIdProp) {
@@ -2629,8 +2769,6 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
         }
     }
 
-    // Never overlap with a commit the flip thread still has in flight.
-    drmFlipThreadWaitIdle();
     if (!needConfig && drmDeferDrainOn() && drmFlipThreadOn()) {
         if (!sFlipThreadStarted) {
             sFlipThreadStarted = true;
@@ -2664,16 +2802,21 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
     // Per-commit tag so the drain can pair BOTH CRTCs' flip-complete events to
     // the same commit (diagnostic pairing, see FLIPP log in the drain).
     atomic.user_data = sDrmCommitSeq;
+    errno = 0;
     int ret = ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &atomic);
+    const int err = errno;   // saved before the logging below can change it
     if (ret != 0) {
         static int64_t sLastErrMs = 0;
         const int64_t nowMs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
         if (nowMs - sLastErrMs >= 1000) {
             sLastErrMs = nowMs;
             ALOGW("NanoMenu DRM AFBC: atomic commit failed: %s (fence fd %d, config %d)",
-                  strerror(errno), inFenceFd, needConfig ? 1 : 0);
+                  strerror(err), inFenceFd, needConfig ? 1 : 0);
         }
     }
+    // The failed-frame run behind the self re-bind. A modeset that worked says nothing about the flips
+    // after it: it neither ends a run nor counts as a good flip.
+    if (!(ret == 0 && needConfig)) drmClNoteResult(ret == 0, err);
     if (ret == 0) {
         if (needConfig) {
             for (size_t i = 0; i < n; i++) sDrmDisplays[i].clConfigured = true;
@@ -2687,6 +2830,7 @@ static int drmAtomicDualFlipCluster(int fd, const uint32_t* fbs, int inFenceFd) 
             if (!drmDeferDrainOn()) drmDrainPageFlipEvents();
         }
     }
+    errno = err;
     return ret;
 }
 
@@ -3190,6 +3334,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
     // lag without Frame Sync's added frame of latency. Only the dual-DSI PRIME
     // path; falls back to the legacy per-CRTC loop below on any failure.
     bool atomicFlipDone = false;
+    bool atomicFailed = false;   // this frame's atomic commit failed (an EBUSY drop is not a failure)
     // Independent-flip panels (the RP Duo Lite's DSI + DP on unlocked clocks) skip
     // the dual atomic commit: it ties the DP, whose commit completes a whole
     // period after issue, to the DSI's cadence (26-30 ms frame-done-to-visible on
@@ -3253,6 +3398,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
         const int64_t commitUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
         int ar = sDrmAfbcMode ? drmAtomicDualFlipCluster(sDrmFd, fbs, afbcInFenceFd)
                               : drmAtomicDualFlip(sDrmFd, fbs);
+        const int ae = errno;   // before close(), the fence probe and the logging below can change it
         if (afbcInFenceFd >= 0) {
             if (sDrmPrevFenceFd >= 0) close(sDrmPrevFenceFd);
             sDrmPrevFenceFd = sDrmLastFenceFd; // the commit just drained
@@ -3272,14 +3418,15 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             if (sAtomicLog < 40)
                 ALOGW("NanoMenu atomic dual-flip #%d: afbc=%d ar=%d errno=%d idx=%d primIdx=%d "
                       "primFb=%u secFb=%u fbs[0]=%u fbs[1]=%u",
-                      sAtomicLog, sDrmAfbcMode ? 1 : 0, ar, errno, idx, sDrmPrimaryIdx,
+                      sAtomicLog, sDrmAfbcMode ? 1 : 0, ar, ae, idx, sDrmPrimaryIdx,
                       prim.drmFbId, sec.drmFbId, fbs[0], fbs[1]);
             sAtomicLog++;
         }
         if (ar == 0) {
             atomicFlipDone = true;
+            sDrmShownIdx = idx;   // committed, or handed to the flip thread: the wake relight shows it again
             for (size_t i = 0; i < sDrmDisplays.size(); i++) sEbusyStreak[i] = 0;
-        } else if (errno == EBUSY) {
+        } else if (ae == EBUSY) {
             // Prior atomic flip still pending: drop this frame. Both panels
             // keep their current buffer, so they stay in sync. Skip legacy.
             atomicFlipDone = true;
@@ -3288,6 +3435,7 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             // the combined layout can only be scanned by the cropped Cluster
             // planes. Drop the frame (keep last good) rather than blit garbage.
             atomicFlipDone = true;
+            atomicFailed = true;
         }
         // else: fall through to the legacy per-CRTC flips.
     }
@@ -3611,12 +3759,12 @@ void drmFlipRingSlot(int idx, bool skipNonPrimary) {
             if (logSlow) sLastSlowLogMs = nowMs;
             ALOGW("NanoMenu AHB flip #%d slot=%d sync=%s: wait=%lldus "
                   "lock=%lldus blit+flip=%lldus unlock=%lldus "
-                  "total=%lldus displays=%zu primary=%d sec=%d",
+                  "total=%lldus displays=%zu primary=%d sec=%d%s",
                   sFlipCount, idx, fenceUsed ? "fence" : "glFinish",
                   tFinish - t0, tLock - tFinish,
                   tCopy - tLock, tEnd - tCopy, tot,
                   sDrmDisplays.size(), sDrmPrimaryIdx,
-                  haveSecondary ? 1 : 0);
+                  haveSecondary ? 1 : 0, atomicFailed ? " FAILED" : "");
         }
     }
     // Independent mode: the renderer's next slot (sRingRenderIdx) must not be one
@@ -4058,15 +4206,105 @@ void drmPushFrame(uint32_t glWidth, uint32_t glHeight) {
 // Teardown
 // ---------------------------------------------------------------------------
 
-// Stop DRM direct rendering (HWC has taken over)
-void drmStop() {
-    if (!sDrmActive) return;
+// Keep-the-colour hand-off. Removing a framebuffer that is on a plane (RMFB, or closing the fd that
+// owns it) switches that plane off, and VOP2 then scans its black background: the home's white launch
+// wash would turn black the moment the ring is freed, and stay black until drastic-nano's splash.
+// So, before the ring goes, each panel is moved onto one of its own plain dumb buffers (the splash
+// buffer nano already has), and that buffer and the DRM fd are kept after master is dropped. A
+// same-mode SETCRTC by the next master (drastic-nano's splash) then replaces the frame on the panel
+// without a modeset, and the baton is let go once it did (drmBatonReplaced / drmBatonRelease).
+struct DrmBatonFb { uint32_t crtcId = 0, fbId = 0, handle = 0; };
+static int sBatonFd = -1;
+static std::vector<DrmBatonFb> sBaton;
+static int64_t sBatonFirstReplacedMs = 0;
+
+// The panels onto their plain frames, with the ring still scanned until each SETCRTC lands (it is a
+// blocking commit). Runs before any ring slot is released. argbSec, when set, is the other (non
+// primary) panel's colour; both go through this process's display colour matrix when it has one.
+static bool drmBatonCommit(uint32_t argb, uint32_t argbSec) {
+    if (sDrmFd < 0 || sDrmDisplays.empty()) return false;
+    for (const auto& d : sDrmDisplays) {
+        if (!d.buffers[0].mapped || !d.buffers[0].fbId || !d.buffers[0].pitch || !d.w || !d.h) return false;
+    }
+    // A flip still in flight would make the SETCRTC EBUSY.
+    drmFlipThreadWaitIdle();
+    drmDrainPageFlipEvents();
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        DrmBuffer& b = d.buffers[0];
+        // The primary ring scans the primary panel, the secondary ring the other one; the GL passes
+        // put their colour through that ring's display matrix, so the frame does too.
+        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+        const uint32_t want = (!isPrimary && argbSec) ? argbSec : argb;
+        const uint32_t px = sDrmColorIdentity ? want : drmTintArgb(sDrmColorM[isPrimary ? 0 : 1], want);
+        for (uint32_t y = 0; y < d.h; y++) {
+            uint32_t* row = (uint32_t*)((uint8_t*)b.mapped + (size_t)y * b.pitch);
+            for (uint32_t x = 0; x < d.w; x++) row[x] = px;
+        }
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = d.crtcId;
+        crtc.fb_id = b.fbId;
+        crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+        crtc.count_connectors = 1;
+        crtc.mode = d.mode;
+        crtc.mode_valid = 1;
+        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+        if (rc != 0 && errno == EINVAL) rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode, b.fbId, d.w, d.h);
+        if (rc != 0) {
+            ALOGW("NanoMenu DRM baton: crtc %u SETCRTC failed: %s", d.crtcId, strerror(errno));
+            return false;
+        }
+    }
+    return true;
+}
+
+bool drmBatonActive() { return sBatonFd >= 0; }
+
+bool drmBatonReplaced() {
+    if (sBatonFd < 0) return true;
+    size_t replaced = 0;
+    for (const auto& b : sBaton) {
+        struct drm_mode_crtc crtc = {};
+        crtc.crtc_id = b.crtcId;
+        // A failed query cannot tell, and waiting on it would only hold the frame: count it as replaced.
+        if (ioctl(sBatonFd, DRM_IOCTL_MODE_GETCRTC, &crtc) != 0 || crtc.fb_id != b.fbId) replaced++;
+    }
+    if (replaced == sBaton.size()) return true;
+    // The next master brings its panels up one after the other (about 20 ms apart): give the last one
+    // a moment rather than blanking it by releasing its frame early.
+    const int64_t now = systemTime(SYSTEM_TIME_MONOTONIC) / 1000000LL;
+    if (replaced == 0) { sBatonFirstReplacedMs = 0; return false; }
+    if (sBatonFirstReplacedMs == 0) sBatonFirstReplacedMs = now;
+    return now - sBatonFirstReplacedMs >= 300;
+}
+
+void drmBatonRelease() {
+    if (sBatonFd < 0) return;
+    for (const auto& b : sBaton) {
+        if (b.fbId) { uint32_t fbId = b.fbId; ioctl(sBatonFd, DRM_IOCTL_MODE_RMFB, &fbId); }
+        if (b.handle) { struct drm_gem_close gc = {}; gc.handle = b.handle; ioctl(sBatonFd, DRM_IOCTL_GEM_CLOSE, &gc); }
+    }
+    sBaton.clear();
+    close(sBatonFd);
+    sBatonFd = -1;
+    sBatonFirstReplacedMs = 0;
+    ALOGW("NanoMenu DRM baton: released");
+}
+
+// Stop DRM direct rendering (HWC has taken over). With keepBaton the panels are first moved onto a
+// plain frame of colour batonArgb and the fd is kept (see above); returns false when that failed
+// (the stop is then the plain one).
+static bool drmStopImpl(bool keepBaton, uint32_t batonArgb, uint32_t batonArgbSec) {
+    if (!sDrmActive) return false;
     sDrmActive = false;
     // The SurfaceFlinger composition gate (sys.gammaos.nano.drm_active) is
     // released at the END, once master is dropped: SF cycles the composer's
     // power as the gate opens, and a composer commit made while we still hold
-    // master is refused, which left the composer's displays OFF and every app
-    // black on both panels.
+    // master is refused on a kernel that enforces master, which left the
+    // composer's displays OFF and every app black on both panels. (The RG DS
+    // Plus kernel does not enforce master, CONFIG_DRM_IGNORE_IOTCL_PERMIT=y:
+    // there, SurfaceFlinger holds the composer's power changes back for as long
+    // as the gate is closed and replays them when it opens.)
     sDrmZeroCopy = false;
     // Reset GL rotation to identity for the SF EGL path. SurfaceFlinger applies the
     // port 1 panel's physical orientation itself, so drop the DRM-only fold too.
@@ -4087,6 +4325,12 @@ void drmStop() {
 
     // Rebind default framebuffer before destroying FBOs
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
+
+    // Park hand-off: the panels onto their plain frames while the ring is still intact (the ring
+    // goes off the planes with the commit, so freeing it below disables nothing). On a failure the
+    // stop carries on as a plain drmStop(); a panel that did get its frame then goes dark with the rest.
+    const bool batonKept = keepBaton && drmBatonCommit(batonArgb, batonArgbSec);
+    if (keepBaton && !batonKept) ALOGW("NanoMenu DRM baton: not available, stopping plainly");
 
     // Release all ring slots. sAhbTarget / sAhbTargetSecondary are refs to
     // slot 0 so they tear down with the ring. The EGLDisplay is retrieved
@@ -4146,9 +4390,28 @@ void drmStop() {
         for (int i = 0; i < 2; i++) {
             DrmBuffer& buf = d.buffers[i];
             if (buf.mapped) { munmap(buf.mapped, buf.size); buf.mapped = nullptr; }
+            // A plain stop leaves the buffers to the fd's close; with the fd kept, the second buffer
+            // (never scanned) goes now and the first stays on the panel as the baton.
+            if (batonKept && i == 1) {
+                if (buf.fbId) { uint32_t fbId = buf.fbId; ioctl(sDrmFd, DRM_IOCTL_MODE_RMFB, &fbId); }
+                if (buf.handle) { struct drm_gem_close gc = {}; gc.handle = buf.handle; ioctl(sDrmFd, DRM_IOCTL_GEM_CLOSE, &gc); }
+            }
         }
+        if (batonKept) sBaton.push_back({d.crtcId, d.buffers[0].fbId, d.buffers[0].handle});
     }
     sDrmDisplays.clear();
+    if (batonKept) {
+        // Master goes, the fd stays: the frames keep scanning, and the next master (drastic-nano) can
+        // still open its own fd and take master. drm_active stays 1: opening the SurfaceFlinger gate
+        // here would have it cycle HWC power and take the panels from the baton; drastic-nano's
+        // drmEarlySplash writes the gate itself, and the park's wake path clears it.
+        ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
+        sBatonFd = sDrmFd;
+        sDrmFd = -1;
+        sBatonFirstReplacedMs = 0;
+        ALOGW("NanoMenu DRM baton: %zu panel(s) held on the hand-off colour 0x%08x", sBaton.size(), batonArgb);
+        return true;
+    }
     if (sDrmFd >= 0) {
         ioctl(sDrmFd, DRM_IOCTL_DROP_MASTER, 0);
         close(sDrmFd);
@@ -4157,7 +4420,11 @@ void drmStop() {
     // Now HWC can own the display: release the SurfaceFlinger composition gate.
     // Mirrors the set at drmEarlySplash().
     property_set("sys.gammaos.nano.drm_active", "0");
+    return false;
 }
+
+void drmStop() { drmStopImpl(false, 0, 0); }
+bool drmStopKeepBaton(uint32_t argb, uint32_t argbSec) { return drmStopImpl(true, argb, argbSec); }
 
 // Take the panel back for a home that PARKED in-process while drastic-nano ran
 // the session (NanoMenu::drasticParkSession). drmStop() dropped master, freed
@@ -4179,7 +4446,7 @@ void drmRememberInstallMatrix() {
     sParkSaved = true;
 }
 
-bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
+bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs, uint32_t splashArgb) {
     // The matrix initShaders() computed (rotation + user flips + the PRIME
     // Y-flip drmSetupZeroCopy() folded in) is what this context draws with.
     // drmStop() resets it to identity, so the caller records it with
@@ -4210,11 +4477,22 @@ bool drmReacquireForHome(EGLDisplay eglDpy, int timeoutMs) {
     sDrmRotMat[0] = rot[0]; sDrmRotMat[1] = rot[1]; sDrmRotMat[2] = rot[2]; sDrmRotMat[3] = rot[3];
     sDrmGlRotation = glRot;
     sDrmYFlipForPrime = yFlip;
+    // The splash frame in the colour the home's first frames start from (the DSi theme's return fades
+    // in from white), seen through this process's display matrices like every frame it draws. Only
+    // for this call: any later splash (a rescan) is dark again.
+    if (splashArgb) {
+        gDrmSplashArgb = sDrmColorIdentity ? splashArgb : drmTintArgb(sDrmColorM[0], splashArgb);
+        gDrmSplashArgbSec = sDrmColorIdentity ? splashArgb : drmTintArgb(sDrmColorM[1], splashArgb);
+    }
     drmEarlySplash(fd);
+    if (splashArgb) gDrmSplashArgb = gDrmSplashArgbSec = 0xFF1A0D0D;
     if (!sDrmActive) {
         ALOGE("NanoMenu DRM: re-splash found no displays after the drastic session");
         return false;
     }
+    // The splash is on the panels: a drastic-nano still holding the baton (its fd and the frame it
+    // left) lets go, and its own planes with it.
+    property_set("sys.gammaos.drastic_nano.panel_taken", "1");
     drmSetupZeroCopy(eglDpy);
     // drmSetupZeroCopy only touches the matrix when it applies the PRIME flip
     // for the first time; restore explicitly in case anything reset it.
@@ -4289,6 +4567,13 @@ void drmSuspendMarkSeen() {
     const long c = drmReadSuspendCount();
     if (c >= 0) sSuspendSeen = c;
     sSuspendCheckUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+}
+
+// Not throttled and does not consume the change (unlike drmSuspendCycleDetected): the lid grace window
+// asks it on a lid open, to tell a quick wake from one that came after a kernel suspend.
+bool drmSuspendCountChanged() {
+    const long c = drmReadSuspendCount();
+    return c >= 0 && sSuspendSeen >= 0 && c != sSuspendSeen;
 }
 
 // GammaOS (RP Duo Lite): bring the bottom (DP) panel back after its WL818S bridge was
@@ -4437,6 +4722,9 @@ void drmRecoverPanelsTick() {
 static bool sDrmPanelsOff = false;
 int drmPanelsPowerOff() {
     if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return 0;
+    // A flip-thread commit still in flight (the home never starts that thread) would race the CRTC-off
+    // below: its blocking commit lands on a CRTC that is being disabled, and its pending count leaks.
+    if (sFlipThreadStarted) drmFlipThreadWaitIdle();
     ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
     int failed = 0;
     for (size_t i = 0; i < sDrmDisplays.size(); i++) {
@@ -4455,6 +4743,58 @@ int drmPanelsPowerOff() {
     return failed;
 }
 bool drmPanelsAreOff() { return sDrmPanelsOff; }
+
+// The legacy recommit of display i, the body of drmResumeRecommit's loop: SETCRTC onto the framebuffer the
+// flip path would use, with the atomic ALLOW_MODESET fallback. 0 on success, else -1 with errno set.
+// *fbOut is the framebuffer it used.
+static int drmRecommitDisplay(size_t i, uint32_t* fbOut) {
+    auto& d = sDrmDisplays[i];
+    const bool isPrimary = ((int)i == sDrmPrimaryIdx);
+    // Same source routing as drmFlipRingSlot: primary CRTC scans the
+    // primary AHB, every other CRTC the secondary AHB (primary as the
+    // mirror fallback), dumb buffer when PRIME import is unavailable.
+    uint32_t fbId = 0;
+    // AFBC mode: the ring buffers are AFBC and only the Cluster planes can
+    // scan them, so the legacy SETCRTC through the Smart primary would be
+    // rejected and leave the panels blank after wake. Bring the CRTC up on
+    // its linear dumb buffer instead and force the next flip to redo the
+    // Cluster binding modeset (the kernel dropped the plane state).
+    if (sDrmZeroCopy && !sDrmAfbcMode) {
+        if (!isPrimary && sAhbRingSecondary[0].drmFbId != 0)
+            fbId = sAhbRingSecondary[0].drmFbId;
+        else
+            fbId = sAhbRingPrimary[0].drmFbId;
+    }
+    if (fbId == 0) fbId = d.buffers[d.activeBuffer].fbId;
+    if (sDrmAfbcMode) d.clConfigured = false;
+
+    struct drm_mode_crtc crtc = {};
+    crtc.crtc_id = d.crtcId;
+    crtc.fb_id = fbId;
+    crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
+    crtc.count_connectors = 1;
+    crtc.mode = d.mode;
+    crtc.mode_valid = 1;
+    int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
+    if (rc != 0 && errno == EINVAL) {
+        rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode,
+                                      fbId, d.w, d.h);
+    }
+    const int err = errno;
+    *fbOut = fbId;
+    errno = err;
+    return rc;
+}
+
+// The flip bookkeeping the failed-frame run and the flip thread's hand-over keep (self re-bind): a relight
+// starts from a clean slate. The flip thread must be idle (drmFlipThreadWaitIdle) or its next result lands
+// in the new run.
+static void drmClResetRun() {
+    sClFailRun = 0;
+    std::lock_guard<std::mutex> lk(sFlipMu);
+    sFlipResultPending = false;
+    sFlipFailN = 0;
+}
 
 int drmResumeRecommit() {
     if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return 0;
@@ -4476,45 +4816,324 @@ int drmResumeRecommit() {
     sRingRenderIdx = 0;
     sRingPresentIdx = 0;
     sRingPrimedCount = 0;
+    // The legacy path puts the dumb buffer on the panels (no ring slot is on the glass), and a relight
+    // starts a new failed-frame run.
+    sDrmShownIdx = -1;
+    if (sDrmAfbcMode) drmClResetRun();
 
     for (size_t i = 0; i < sDrmDisplays.size(); i++) {
-        auto& d = sDrmDisplays[i];
-        const bool isPrimary = ((int)i == sDrmPrimaryIdx);
-        // Same source routing as drmFlipRingSlot: primary CRTC scans the
-        // primary AHB, every other CRTC the secondary AHB (primary as the
-        // mirror fallback), dumb buffer when PRIME import is unavailable.
+        const auto& d = sDrmDisplays[i];
         uint32_t fbId = 0;
-        // AFBC mode: the ring buffers are AFBC and only the Cluster planes can
-        // scan them, so the legacy SETCRTC through the Smart primary would be
-        // rejected and leave the panels blank after wake. Bring the CRTC up on
-        // its linear dumb buffer instead and force the next flip to redo the
-        // Cluster binding modeset (the kernel dropped the plane state).
-        if (sDrmZeroCopy && !sDrmAfbcMode) {
-            if (!isPrimary && sAhbRingSecondary[0].drmFbId != 0)
-                fbId = sAhbRingSecondary[0].drmFbId;
-            else
-                fbId = sAhbRingPrimary[0].drmFbId;
-        }
-        if (fbId == 0) fbId = d.buffers[d.activeBuffer].fbId;
-        if (sDrmAfbcMode) d.clConfigured = false;
-
-        struct drm_mode_crtc crtc = {};
-        crtc.crtc_id = d.crtcId;
-        crtc.fb_id = fbId;
-        crtc.set_connectors_ptr = (uint64_t)(uintptr_t)&d.connId;
-        crtc.count_connectors = 1;
-        crtc.mode = d.mode;
-        crtc.mode_valid = 1;
-        int rc = ioctl(sDrmFd, DRM_IOCTL_MODE_SETCRTC, &crtc);
-        if (rc != 0 && errno == EINVAL) {
-            rc = drmAtomicModesetFallback(sDrmFd, d.crtcId, d.connId, d.mode,
-                                          fbId, d.w, d.h);
-        }
+        const int rc = drmRecommitDisplay(i, &fbId);
+        const int err = errno;
         if (rc != 0) failed++;
         ALOGW("NanoMenu DRM resume recommit: crtc %u conn %u fb %u -> %s",
-              d.crtcId, d.connId, fbId, rc == 0 ? "OK" : strerror(errno));
+              d.crtcId, d.connId, fbId, rc == 0 ? "OK" : strerror(err));
     }
     return failed;
+}
+
+// ---------------------------------------------------------------------------
+// Wake relight and self re-bind (drastic AFBC/Cluster path)
+// ---------------------------------------------------------------------------
+//
+// drmResumeRecommit brings an AFBC panel back on its dumb buffer and leaves the Cluster binding to the next
+// flip, a second modeset that waits for the layer config. The relight below does it in ONE modeset per CRTC:
+// CRTC + connector + the Cluster plane bound to the ring slot that was last on the glass, so the last game
+// frame is back the moment the panel is lit. With wake_atomic=2 the two commits are nonblocking and the
+// panels come up in parallel (a DSI panel's enable sequence takes about 0.25 s each); any refusal or missing
+// completion falls back to the legacy recommit for the rest of the session.
+static int sWakeAtomicBroken = 0;     // sticky for the session: an atomic relight was refused or never finished
+static int64_t sWakeBeginUs = 0;      // when drmWakeRelightBegin started, for the done line
+
+bool drmWakeRelightAtomicOk() {
+    if (!sDrmAfbcMode || sWakeAtomicBroken || sDrmFd < 0 || !sDrmActive || sDrmDisplays.size() != 2) return false;
+    return property_get_int32("persist.gammaos.drastic_nano.wake_atomic", 2) > 0;
+}
+
+// One atomic request: the objects and their properties, in the order they were added. A property id of 0
+// (the driver does not have it) is skipped.
+struct DrmAtomicReq {
+    std::vector<uint32_t> objs, counts, props;
+    std::vector<uint64_t> vals;
+    void add(uint32_t obj, const uint32_t* p, const uint64_t* v, size_t n) {
+        uint32_t cnt = 0;
+        for (size_t k = 0; k < n; k++) {
+            if (!p[k]) continue;
+            props.push_back(p[k]); vals.push_back(v[k]); cnt++;
+        }
+        if (cnt) { objs.push_back(obj); counts.push_back(cnt); }
+    }
+    // 0 on success, else the errno of the failed ioctl.
+    int commit(int fd, uint32_t flags, uint64_t userData) {
+        struct drm_mode_atomic a = {};
+        a.flags = flags;
+        a.count_objs = (uint32_t)objs.size();
+        a.objs_ptr = (uint64_t)(uintptr_t)objs.data();
+        a.count_props_ptr = (uint64_t)(uintptr_t)counts.data();
+        a.props_ptr = (uint64_t)(uintptr_t)props.data();
+        a.prop_values_ptr = (uint64_t)(uintptr_t)vals.data();
+        a.user_data = userData;
+        errno = 0;
+        if (ioctl(fd, DRM_IOCTL_MODE_ATOMIC, &a) == 0) return 0;
+        return errno ? errno : EIO;
+    }
+};
+
+// The CRTC's mode as a property blob, made once per session and kept on the display (the fd frees it).
+static uint32_t drmEnsureModeBlob(DrmDisplay& d) {
+    if (d.modeBlobId) return d.modeBlobId;
+    struct drm_mode_create_blob blob = {};
+    blob.data = (uint64_t)(uintptr_t)&d.mode;
+    blob.length = sizeof(d.mode);
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_CREATEPROPBLOB, &blob) != 0) return 0;
+    d.modeBlobId = blob.blob_id;
+    return d.modeBlobId;
+}
+
+// Adds {FB_ID=0, CRTC_ID=0} for every plane still bound to d's CRTC besides its own Cluster and Smart
+// planes (what the composer left there), so they cannot block or double the scanout. Returns how many.
+static int drmAddLeftoverPlanes(DrmAtomicReq& req, const DrmDisplay& d) {
+    struct drm_mode_get_plane_res pr = {};
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr) != 0) return 0;
+    uint32_t ids[32] = {};
+    struct drm_mode_get_plane_res pr2 = {};
+    pr2.count_planes = pr.count_planes < 32 ? pr.count_planes : 32;
+    pr2.plane_id_ptr = (uint64_t)(uintptr_t)ids;
+    if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETPLANERESOURCES, &pr2) != 0) return 0;
+    int detached = 0;
+    for (uint32_t k = 0; k < pr2.count_planes && k < 32; k++) {
+        const uint32_t id = ids[k];
+        if (id == d.clPlaneId || id == d.planeId) continue;
+        bool otherDisplays = false;   // the other display's own planes are its commit's business
+        for (const auto& o : sDrmDisplays)
+            if (&o != &d && (o.clPlaneId == id || o.planeId == id)) otherDisplays = true;
+        if (otherDisplays) continue;
+        struct drm_mode_get_plane gp = {};
+        gp.plane_id = id;
+        if (ioctl(sDrmFd, DRM_IOCTL_MODE_GETPLANE, &gp) != 0 || gp.crtc_id != d.crtcId) continue;
+        const uint32_t pp[2] = { drmFindPropId(sDrmFd, id, DRM_MODE_OBJECT_PLANE, "FB_ID"),
+                                 drmFindPropId(sDrmFd, id, DRM_MODE_OBJECT_PLANE, "CRTC_ID") };
+        const uint64_t pv[2] = { 0, 0 };
+        req.add(id, pp, pv, 2);
+        detached++;
+    }
+    return detached;
+}
+
+// One display's atomic relight: the whole configuration of the display as one request, committed with the
+// given flags. Returns 0 on success, else an errno. *sticky is set when the failure is the driver's (props
+// missing, the commit refused), not a plane that could not be discovered or a blob that could not be made
+// right now.
+static int drmRelightAtomicOne(DrmDisplay& d, size_t i, uint32_t fbId, uint32_t flags, bool* sticky) {
+    *sticky = false;
+    // The cached Smart id and the Cluster plane (the flip commit found them already; a session that never
+    // flipped finds them now).
+    if ((!d.planeId && !drmEnsurePlane(sDrmFd, d)) || !drmEnsureClusterPlane(sDrmFd, d)) {
+        ALOGW("NanoMenu DRM wake: crtc %u has no plane to bind, legacy for this wake", d.crtcId);
+        return ENODEV;
+    }
+    if (!d.crtcActiveProp) d.crtcActiveProp = drmFindPropId(sDrmFd, d.crtcId, DRM_MODE_OBJECT_CRTC, "ACTIVE");
+    if (!d.crtcModeIdProp) d.crtcModeIdProp = drmFindPropId(sDrmFd, d.crtcId, DRM_MODE_OBJECT_CRTC, "MODE_ID");
+    if (!d.connCrtcIdProp) d.connCrtcIdProp = drmFindPropId(sDrmFd, d.connId, DRM_MODE_OBJECT_CONNECTOR, "CRTC_ID");
+    if (!d.crtcActiveProp || !d.crtcModeIdProp || !d.connCrtcIdProp) {
+        *sticky = true;   // the driver does not have the properties: that will not change
+        return ENOENT;
+    }
+    const uint32_t blobId = drmEnsureModeBlob(d);
+    if (!blobId) {
+        // Out of memory is transient: legacy for this wake only, the next one tries the atomic path again.
+        ALOGW("NanoMenu DRM wake: crtc %u mode blob not created, legacy for this wake", d.crtcId);
+        return ENOMEM;
+    }
+    *sticky = true;   // from here on a refusal is the driver's
+
+    DrmAtomicReq req;
+    {
+        const uint32_t pp[2] = { d.crtcActiveProp, d.crtcModeIdProp };
+        const uint64_t pv[2] = { 1, blobId };
+        req.add(d.crtcId, pp, pv, 2);
+    }
+    {
+        const uint32_t pp[1] = { d.connCrtcIdProp };
+        const uint64_t pv[1] = { d.crtcId };
+        req.add(d.connId, pp, pv, 1);
+    }
+    {
+        uint32_t pp[16]; uint64_t pv[16];
+        const size_t n = drmClusterPlaneProps(d, fbId, true, drmClusterSrcY(i), pp, pv);
+        req.add(d.clPlaneId, pp, pv, n);
+    }
+    if (d.smartCrtcIdProp) {
+        // A VP scans one primary: the Smart plane goes off, as in the first flip's modeset.
+        const uint32_t pp[2] = { d.smartCrtcIdProp, d.fbIdProp };
+        const uint64_t pv[2] = { 0, 0 };
+        req.add(d.planeId, pp, pv, 2);
+    }
+    drmAddLeftoverPlanes(req, d);
+    return req.commit(sDrmFd, flags, 0x57414B4500000000ull | (uint64_t)i);
+}
+
+int drmWakeRelightBegin() {
+    if (sDrmFd < 0 || !sDrmActive || sDrmDisplays.empty()) return 0;
+    sWakeBeginUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    // Nothing of the old session may still be in flight.
+    drmFlipThreadWaitIdle();
+    for (auto& d : sDrmDisplays) d.wakePending = false;
+    // Not atomic: the proven path (it does the master, event, count and cursor reset itself).
+    if (!drmWakeRelightAtomicOk()) return drmResumeRecommit();
+
+    ioctl(sDrmFd, DRM_IOCTL_SET_MASTER, 0);
+    // Discard what the sleep left in the event queue (non-blocking, as drmResumeRecommit).
+    for (;;) {
+        struct pollfd pfd = { sDrmFd, POLLIN, 0 };
+        if (poll(&pfd, 1, 0) <= 0 || !(pfd.revents & POLLIN)) break;
+        char buf[4096];
+        if (read(sDrmFd, buf, sizeof(buf)) <= 0) break;
+    }
+    sPendingFlipEvents = 0;
+    for (int i = 0; i < sCrtcTrackCount; i++) sCrtcPending[i] = 0;
+    drmClResetRun();
+    sDrmPanelsOff = false;
+
+    // The ring slot that was on the glass: its combined buffer is what both Cluster planes scan. The
+    // renderer starts one slot after it, and the priming frames fill the slots after that, so the frame
+    // on the panels is not drawn over before the flips of the new frames take over.
+    int slot = sDrmShownIdx;
+    if (slot < 0 || slot >= AHB_RING_DEPTH || sAhbRingPrimary[slot].drmFbId == 0) slot = 0;
+    const uint32_t fbId = sAhbRingPrimary[slot].drmFbId;
+    if (fbId == 0) {
+        ALOGW("NanoMenu DRM wake: no scanout framebuffer in the ring, legacy for this wake");
+        return drmResumeRecommit();
+    }
+    sRingPresentIdx = slot;
+    sRingRenderIdx = (slot + 1) % AHB_RING_DEPTH;
+    sRingPrimedCount = 0;
+
+    const bool parallel = property_get_int32("persist.gammaos.drastic_nano.wake_atomic", 2) >= 2;
+    const uint32_t flags = DRM_MODE_ATOMIC_ALLOW_MODESET |
+                           (parallel ? (DRM_MODE_ATOMIC_NONBLOCK | DRM_MODE_PAGE_FLIP_EVENT) : 0u);
+    ALOGW("NanoMenu DRM wake: relight %s started, slot %d, %zu display(s)",
+          parallel ? "parallel" : "serial", slot, sDrmDisplays.size());
+
+    int dark = 0;
+    bool atomicOn = true;
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        d.wakePending = false;
+        if (atomicOn) {
+            bool sticky = false;
+            const int rc = drmRelightAtomicOne(d, i, fbId, flags, &sticky);
+            if (rc == 0) {
+                d.clConfigured = true;
+                d.wakePending = parallel;
+                continue;
+            }
+            // The rest of the displays go the legacy way too: one path, not a mix, from the first refusal.
+            atomicOn = false;
+            if (sticky) {
+                ALOGW("NanoMenu DRM wake: atomic relight of crtc %u refused: %s, legacy from now on",
+                      d.crtcId, strerror(rc));
+                sWakeAtomicBroken = 1;
+            }
+        }
+        uint32_t legacyFb = 0;
+        const int rc = drmRecommitDisplay(i, &legacyFb);
+        const int err = errno;
+        if (rc != 0) dark++;
+        ALOGW("NanoMenu DRM resume recommit: crtc %u conn %u fb %u -> %s",
+              d.crtcId, d.connId, legacyFb, rc == 0 ? "OK" : strerror(err));
+    }
+    // Blocking commits (or a refusal) are done here; nonblocking ones finish in drmWakeRelightWait.
+    bool anyPending = false;
+    for (const auto& d : sDrmDisplays) if (d.wakePending) anyPending = true;
+    if (!anyPending) {
+        ALOGW("NanoMenu DRM wake: relight done in %lld ms",
+              (long long)((systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - sWakeBeginUs) / 1000));
+    }
+    return dark;
+}
+
+int drmWakeRelightWait(int timeoutMs) {
+    auto pending = [] {
+        int n = 0;
+        for (const auto& d : sDrmDisplays) if (d.wakePending) n++;
+        return n;
+    };
+    if (sDrmFd < 0 || pending() == 0) return 0;
+    const int64_t deadlineUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL +
+                               (int64_t)std::max(0, timeoutMs) * 1000LL;
+    int stale = 0;
+    char buf[4096];
+    while (pending() > 0) {
+        const int64_t remainUs = deadlineUs - systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+        if (remainUs <= 0) break;
+        struct pollfd pfd = { sDrmFd, POLLIN, 0 };
+        const int pr = poll(&pfd, 1, (int)((remainUs + 999) / 1000));
+        if (pr < 0) {
+            if (errno == EINTR) continue;
+            break;
+        }
+        if (pr == 0) break;
+        const ssize_t n = read(sDrmFd, buf, sizeof(buf));
+        if (n <= 0) {
+            if (n < 0 && errno == EINTR) continue;
+            break;
+        }
+        const char* p = buf;
+        const char* end = buf + n;
+        while (p + sizeof(struct drm_event) <= end) {
+            const struct drm_event* ev = (const struct drm_event*)p;
+            if (ev->length == 0 || p + ev->length > end) break;
+            bool matched = false;
+            if (ev->type == DRM_EVENT_FLIP_COMPLETE && ev->length >= sizeof(struct drm_event_vblank)) {
+                const struct drm_event_vblank* vb = (const struct drm_event_vblank*)p;
+                for (auto& d : sDrmDisplays) {
+                    if (d.wakePending && d.crtcId == vb->crtc_id) { d.wakePending = false; matched = true; break; }
+                }
+            }
+            // Nothing else is pending (the counts were zeroed): anything else is left over from before.
+            if (!matched) stale++;
+            p += ev->length;
+        }
+    }
+    int dark = 0;
+    for (size_t i = 0; i < sDrmDisplays.size(); i++) {
+        DrmDisplay& d = sDrmDisplays[i];
+        if (!d.wakePending) continue;
+        d.wakePending = false;
+        ALOGW("NanoMenu DRM wake: crtc %u no completion after %d ms, legacy", d.crtcId, timeoutMs);
+        sWakeAtomicBroken = 1;
+        uint32_t legacyFb = 0;
+        const int rc = drmRecommitDisplay(i, &legacyFb);
+        const int err = errno;
+        if (rc != 0) dark++;
+        ALOGW("NanoMenu DRM resume recommit: crtc %u conn %u fb %u -> %s",
+              d.crtcId, d.connId, legacyFb, rc == 0 ? "OK" : strerror(err));
+    }
+    if (stale > 0) ALOGW("NanoMenu DRM wake: %d stale event(s) dropped", stale);
+    ALOGW("NanoMenu DRM wake: relight done in %lld ms",
+          (long long)((systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL - sWakeBeginUs) / 1000));
+    return dark;
+}
+
+int drmRebindFailRun() { return sLastFailRun; }
+
+bool drmTakeRebindRequest() {
+    // Cheap exit first: the main loop asks every frame, and the usual run is 0.
+    if (sClFailRun < 2 || !sDrmAfbcMode || sDrmPanelsOff) return false;
+    const int want = std::max(2, property_get_int32("sys.gammaos.drastic_nano.rebind_fail_frames", 4));
+    if (sClFailRun < want) return false;
+    const int64_t nowUs = systemTime(SYSTEM_TIME_MONOTONIC) / 1000LL;
+    // A panel that stays dead after a re-bind would otherwise turn this into a modeset storm: 2 s apart,
+    // 10 s once five re-binds in a row brought no working flip.
+    const int64_t minGapUs = sRebindsNoFlip >= 5 ? 10000000LL : 2000000LL;
+    if (sLastRebindUs != 0 && nowUs - sLastRebindUs < minGapUs) return false;
+    sLastFailRun = sClFailRun;
+    sLastRebindUs = nowUs;
+    sRebindsNoFlip++;
+    sClFailRun = 0;
+    return true;
 }
 
 } // namespace android

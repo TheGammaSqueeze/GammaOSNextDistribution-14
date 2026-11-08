@@ -233,6 +233,7 @@ private:
     std::set<int> mPhysicalHeld;
     // Buttons currently pressed on the virtual gamepad (forwarded to apps)
     std::set<int> mVirtualHeld;
+    std::set<int> mRecalled;   // combo sources released on the virtual pad by a combo trigger
 
     // Mouse mode flag: skip conversions, axis-to-button, global sensitivity
     bool mMouseModeActive;

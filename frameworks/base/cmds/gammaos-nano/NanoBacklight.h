@@ -17,9 +17,10 @@
 #ifndef GAMMAOS_NANO_BACKLIGHT_H
 #define GAMMAOS_NANO_BACKLIGHT_H
 
-// Generic sysfs backlight control shared by gammaos-nano and drastic-nano
-// (header-only so the drastic-nano binary picks it up through its existing
-// include_dirs without an Android.bp change).
+// Generic sysfs backlight control shared by gammaos-nano, drastic-nano and
+// azahar-nano (header-only so the other binaries pick it up through their
+// existing include_dirs without an Android.bp change). NanoBrightness.h
+// builds the shared brightness policy and apply path on top of it.
 //
 // Devices name their backlight nodes inconsistently: panel0-backlight
 // (most single-panel boxes), backlight + backlight1 (RG DS dual panel),
@@ -59,8 +60,10 @@ inline int nanoBacklightReadInt(const char* path, int def) {
 }
 
 // Enumerated once and cached; backlight class devices do not come and go.
+// Never destroyed: the nano-bright thread (NanoBrightness.h) can still read it
+// while static destructors run after a return from main().
 inline const std::vector<BacklightNode>& nanoBacklightNodes() {
-    static std::vector<BacklightNode> sNodes = [] {
+    static const std::vector<BacklightNode>* sNodes = new std::vector<BacklightNode>([] {
         std::vector<BacklightNode> nodes;
         DIR* dir = opendir("/sys/class/backlight");
         if (dir) {
@@ -89,8 +92,8 @@ inline const std::vector<BacklightNode>& nanoBacklightNodes() {
             nodes.push_back(std::move(n));
         }
         return nodes;
-    }();
-    return sNodes;
+    }());
+    return *sNodes;
 }
 
 // Drive every backlight node from an Android-range level (0-255), scaling
@@ -110,6 +113,43 @@ inline void nanoBacklightSet(int level255) {
         write(fd, buf, len);
         close(fd);
     }
+}
+
+// True when every backlight node holds what nanoBacklightSet(level255) writes
+// (no readable node: true).
+inline bool nanoBacklightMatches(int level255) {
+    for (const auto& n : nanoBacklightNodes()) {
+        int want = 0;
+        if (level255 > 0) {
+            want = level255 * n.maxBrightness / 255;
+            if (want < 1) want = 1;
+        }
+        int fd = open(n.brightnessPath.c_str(), O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        char buf[32] = {};
+        ssize_t got = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (got <= 0) continue;
+        if (atoi(buf) != want) return false;
+    }
+    return true;
+}
+
+// The lowest raw value over the backlight nodes, -1 when none can be read
+// (0: a node is dark).
+inline int nanoBacklightReadMin() {
+    int lowest = -1;
+    for (const auto& n : nanoBacklightNodes()) {
+        int fd = open(n.brightnessPath.c_str(), O_RDONLY | O_CLOEXEC);
+        if (fd < 0) continue;
+        char buf[32] = {};
+        ssize_t got = read(fd, buf, sizeof(buf) - 1);
+        close(fd);
+        if (got <= 0) continue;
+        const int v = atoi(buf);
+        if (lowest < 0 || v < lowest) lowest = v;
+    }
+    return lowest;
 }
 
 } // namespace nanobl

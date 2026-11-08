@@ -503,6 +503,7 @@ void NanoMenu::boxartApplyPick(const std::string& srcFile) {
         if (it->second.tex) glDeleteTextures(1, &it->second.tex);
         mRomBoxartCache.erase(it);
     }
+    ndsHiBoxDrop(rom);   // and the DSi top screen's big copy of it
     mDisplayDirty = true;
     mBoxartPickRom.clear();
     mBoxartPickName.clear();
@@ -531,6 +532,7 @@ void NanoMenu::resetBoxart(const std::string& romPath) {
         if (it->second.tex) glDeleteTextures(1, &it->second.tex);
         mRomBoxartCache.erase(it);
     }
+    ndsHiBoxDrop(romPath);   // and the DSi top screen's big copy of it
     mDisplayDirty = true;
 }
 
@@ -538,36 +540,88 @@ bool NanoMenu::scraperBoxartEnabled() {
     return property_get_bool("persist.gammaos.scraper.boxart", true);
 }
 
-// GL-free half of the decode: stb_image load + nearest-downscale to a tightly
+// Area (box) average of a straight-alpha RGBA image, w x h -> tw x th (both no larger than the
+// source). Each output pixel is the mean of the source rectangle it spans, every source pixel
+// counted by the fraction of it inside, so thin lines and text on box art keep their weight
+// where point sampling dropped rows and columns. Colour is weighted by alpha: the transparent
+// corners of a box scan would otherwise pull a dark fringe into the cover's edge. A block with
+// no alpha at all keeps the colour of its middle pixel (nothing shows there anyway).
+static void saAreaDownscaleRGBA(const uint8_t* src, int w, int h, int tw, int th, uint8_t* dst) {
+    for (int y = 0; y < th; y++) {
+        const double y0 = (double)y * h / th, y1 = (double)(y + 1) * h / th;
+        const int iy0 = (int)y0;
+        int iy1 = (int)ceil(y1); if (iy1 > h) iy1 = h; if (iy1 <= iy0) iy1 = iy0 + 1;
+        for (int x = 0; x < tw; x++) {
+            const double x0 = (double)x * w / tw, x1 = (double)(x + 1) * w / tw;
+            const int ix0 = (int)x0;
+            int ix1 = (int)ceil(x1); if (ix1 > w) ix1 = w; if (ix1 <= ix0) ix1 = ix0 + 1;
+            const float fx0 = (float)(x0 - ix0), fx1 = (float)(ix1 - x1);   // uncovered share of the edge columns
+            float sr = 0.0f, sg = 0.0f, sb = 0.0f, sa = 0.0f, sw = 0.0f;
+            for (int sy = iy0; sy < iy1; sy++) {
+                float wy = 1.0f;
+                if (sy == iy0)     wy -= (float)(y0 - iy0);
+                if (sy == iy1 - 1) wy -= (float)(iy1 - y1);
+                const uint8_t* row = src + (size_t)sy * w * 4;
+                for (int sx = ix0; sx < ix1; sx++) {
+                    float wx = 1.0f;
+                    if (sx == ix0)     wx -= fx0;
+                    if (sx == ix1 - 1) wx -= fx1;
+                    const float wgt = wx * wy;
+                    const uint8_t* p = row + (size_t)sx * 4;
+                    const float wa = wgt * (float)p[3];
+                    sr += wa * p[0]; sg += wa * p[1]; sb += wa * p[2];
+                    sa += wa; sw += wgt;
+                }
+            }
+            uint8_t* o = dst + ((size_t)y * tw + x) * 4;
+            if (sa > 0.0f && sw > 0.0f) {
+                const float inv = 1.0f / sa;
+                o[0] = (uint8_t)fminf(255.0f, sr * inv + 0.5f);
+                o[1] = (uint8_t)fminf(255.0f, sg * inv + 0.5f);
+                o[2] = (uint8_t)fminf(255.0f, sb * inv + 0.5f);
+                o[3] = (uint8_t)fminf(255.0f, sa / sw + 0.5f);
+            } else {
+                const uint8_t* mid = src + ((size_t)((iy0 + iy1 - 1) / 2) * w + (ix0 + ix1 - 1) / 2) * 4;
+                o[0] = mid[0]; o[1] = mid[1]; o[2] = mid[2]; o[3] = 0;
+            }
+        }
+    }
+}
+
+// GL-free half of the decode: stb_image load + area-averaged downscale to a tightly
 // packed RGBA buffer. Safe on the async worker thread (no GL). maxDim>0 bounds the
-// long side. *outAR = the TRUE source aspect (width/height).
+// long side; fitW/fitH>0 instead shrinks to fit that box (aspect kept, never enlarged),
+// which is the size a caller draws it at and so also bounds the short side of a wide
+// or tall image. *outAR = the TRUE source aspect (width/height).
 bool NanoMenu::scraperDecodeRGBACpu(const std::string& path, int maxDim, int* outW,
-                                    int* outH, float* outAR, std::vector<uint8_t>& out) {
+                                    int* outH, float* outAR, std::vector<uint8_t>& out,
+                                    int fitW, int fitH) {
     int w = 0, h = 0, n = 0;
     stbi_uc* d = stbi_load(path.c_str(), &w, &h, &n, 4);
     if (!d || w <= 0 || h <= 0) { if (d) stbi_image_free(d); return false; }
     if (outAR) *outAR = (float)w / (float)h;
-    int sw = w, sh = h;
-    int longSide = w > h ? w : h;
-    if (maxDim > 0 && longSide > maxDim) {
-        float s = (float)maxDim / (float)longSide;
-        int tw = (int)(w * s + 0.5f), th = (int)(h * s + 0.5f);
+    int tw = w, th = h;
+    float s = 1.0f;
+    if (fitW > 0 && fitH > 0) {
+        s = fminf(1.0f, fminf((float)fitW / (float)w, (float)fitH / (float)h));
+    } else if (maxDim > 0) {
+        int longSide = w > h ? w : h;
+        if (longSide > maxDim) s = (float)maxDim / (float)longSide;
+    }
+    if (s < 1.0f) {
+        tw = (int)(w * s + 0.5f); th = (int)(h * s + 0.5f);
         if (tw < 1) tw = 1; if (th < 1) th = 1;
+        if (tw > w) tw = w; if (th > h) th = h;
+    }
+    if (tw < w || th < h) {
         out.resize((size_t)tw * th * 4);
-        for (int y = 0; y < th; y++) {
-            int sy = (int)(((float)y + 0.5f) / th * h); if (sy >= h) sy = h - 1;
-            for (int x = 0; x < tw; x++) {
-                int sx = (int)(((float)x + 0.5f) / tw * w); if (sx >= w) sx = w - 1;
-                memcpy(&out[((size_t)y * tw + x) * 4], &d[((size_t)sy * w + sx) * 4], 4);
-            }
-        }
-        sw = tw; sh = th;
+        saAreaDownscaleRGBA(d, w, h, tw, th, out.data());
     } else {
         out.resize((size_t)w * h * 4);
         memcpy(out.data(), d, out.size());
     }
     stbi_image_free(d);
-    if (outW) *outW = sw; if (outH) *outH = sh;
+    if (outW) *outW = tw; if (outH) *outH = th;
     return true;
 }
 
@@ -614,6 +668,7 @@ void NanoMenu::saStopArtWorker() {
     mSaDecGen.fetch_add(1);                   // drop any in-flight/finished results
     std::lock_guard<std::mutex> lk(mSaDecMutex);
     mSaDecQueue.clear(); mSaDecDone.clear(); mSaDecInFlight.clear();
+    mSaWantNdsBox.clear(); mSaWantNdsFan.clear();
 }
 
 // Worker: pop a request, decode RGBA off-thread (NO GL), publish for the drain.
@@ -625,6 +680,14 @@ void NanoMenu::saArtThreadFunc() {
             mSaDecCv.wait(lk, [&] { return mSaDecStop.load() || !mSaDecQueue.empty(); });
             if (mSaDecStop.load()) return;
             req = mSaDecQueue.front(); mSaDecQueue.pop_front();
+            // The DSi top screen's cover / fanart are full-size decodes of the focused game only:
+            // one that is no longer focused is dropped before the decode, so scrolling a long list
+            // does not pile one up behind every focus step.
+            if ((req.target == SA_NDS_BOX && req.path != mSaWantNdsBox)
+                || (req.target == SA_NDS_FAN && req.path != mSaWantNdsFan)) {
+                mSaDecInFlight.erase(saTagKey(req.target, req.path));
+                continue;
+            }
         }
         if (req.gen != mSaDecGen.load()) {    // stale (left Game / reopened)
             std::lock_guard<std::mutex> lk(mSaDecMutex);
@@ -632,7 +695,9 @@ void NanoMenu::saArtThreadFunc() {
             continue;
         }
         SaDecRes res; res.path = req.path; res.target = req.target; res.key = req.key; res.gen = req.gen;
-        bool ok = scraperDecodeRGBACpu(req.path, req.maxDim, &res.w, &res.h, &res.ar, res.px);
+        bool ok = scraperDecodeRGBACpu(req.path, req.maxDim, &res.w, &res.h, &res.ar, res.px,
+                                       req.fitW, req.fitH);
+        res.fill = ok && req.fitW > 0 && req.fitH > 0 && (res.w >= req.fitW - 1 || res.h >= req.fitH - 1);
         // A PICO-8 cart picture is 160x205: the cartridge frame, the title, and the game's
         // 128x128 label at (16,24). The label is the game's own art, so that is the cover.
         if (ok && req.target == SA_CART_BOX && res.w == 160 && res.h == 205) {
@@ -648,7 +713,8 @@ void NanoMenu::saArtThreadFunc() {
     }
 }
 
-void NanoMenu::saRequestArt(const std::string& path, int maxDim, int target, const std::string& key) {
+void NanoMenu::saRequestArt(const std::string& path, int maxDim, int target, const std::string& key,
+                            int fitW, int fitH) {
     if (path.empty()) return;
     saStartArtWorker();
     {
@@ -656,10 +722,19 @@ void NanoMenu::saRequestArt(const std::string& path, int maxDim, int target, con
         std::string tk = saTagKey(target, path);
         if (mSaDecInFlight.count(tk)) return;     // already queued / decoding
         mSaDecInFlight.insert(tk);
-        SaDecReq r; r.path = path; r.maxDim = maxDim; r.target = target; r.key = key; r.gen = mSaDecGen.load();
+        SaDecReq r; r.path = path; r.maxDim = maxDim; r.fitW = fitW; r.fitH = fitH;
+        r.target = target; r.key = key; r.gen = mSaDecGen.load();
         mSaDecQueue.push_back(std::move(r));
     }
     mSaDecCv.notify_one();
+}
+
+// Render thread: name the cover and fanart the DSi top screen shows right now ("" = none), so the
+// worker can drop requests for games that have since lost focus (see saArtThreadFunc).
+void NanoMenu::saWantNdsArt(const std::string& box, const std::string& fan) {
+    std::lock_guard<std::mutex> lk(mSaDecMutex);
+    if (mSaWantNdsBox != box) mSaWantNdsBox = box;
+    if (mSaWantNdsFan != fan) mSaWantNdsFan = fan;
 }
 
 // Render thread: upload any finished CPU decodes to GL and route each to its target.
@@ -674,6 +749,10 @@ void NanoMenu::saDrainArt() {
         // small boxart column covers keep LINEAR (NEAREST would alias thumbnails).
         bool fan = (r.target == SA_CINFO_FAN || r.target == SA_DLG_FAN || r.target == SA_NDS_FAN
                     || r.target == SA_CART_BOX);   // cart labels are pixel art: NEAREST too
+        // The DSi top-screen fanart was cut to the size it is drawn at: LINEAR keeps that 1:1
+        // result smooth (NEAREST would drop rows again). Fanart too small to reach the box
+        // (a 256x192 screenshot used as the fallback) is still enlarged, so it keeps NEAREST.
+        if (r.target == SA_NDS_FAN && r.fill) fan = false;
         GLuint tex = fan ? saUploadRGBA(r.px.data(), r.w, r.h, GL_NEAREST, GL_NEAREST)
                          : saUploadRGBA(r.px.data(), r.w, r.h);
         if (!tex) continue;
@@ -700,6 +779,14 @@ void NanoMenu::saDrainArt() {
                 if (mNdsFanPath == r.path) {
                     if (mNdsFanTex) glDeleteTextures(1, &mNdsFanTex);
                     mNdsFanTex = tex; mNdsFanW = r.w; mNdsFanH = r.h;
+                } else glDeleteTextures(1, &tex);
+                break;
+            case SA_NDS_BOX:
+                // DSi top-screen cover at draw size: only the focused ROM's slot takes it.
+                if (!r.key.empty() && mNdsHiBox[0].rom == r.key) {
+                    NdsHiBox& hb = mNdsHiBox[0];
+                    if (hb.tex) glDeleteTextures(1, &hb.tex);
+                    hb.tex = tex; hb.w = r.w; hb.h = r.h; hb.ar = r.ar;
                 } else glDeleteTextures(1, &tex);
                 break;
             case SA_DLG_FAN:
@@ -799,7 +886,8 @@ void NanoMenu::scraperArtTick() {
     bool inGame = mEsdeTheme || mCtrTheme ||
                   (mPs3CatIdx >= 0 && mPs3CatIdx < (int)mPs3Cats.size()
                    && mPs3Cats[mPs3CatIdx].name == "Game");
-    if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex || mSaDecStarted.load()))
+    if (!inGame && (!mRomBoxartCache.empty() || mFanartTex || mNdsFanTex
+                    || mNdsHiBox[0].tex || mNdsHiBox[1].tex || mSaDecStarted.load()))
         scraperFreeBoxart();
     saDrainArt();
     ndsBannerTick();
@@ -843,10 +931,46 @@ void NanoMenu::scraperFreeBoxart() {
     // DSi top-screen preview fanart (#66) shares the Game-category lifecycle.
     if (mNdsFanTex) { glDeleteTextures(1, &mNdsFanTex); mNdsFanTex = 0; }
     mNdsFanPath.clear(); mNdsFanW = mNdsFanH = 0;
+    ndsHiBoxFree();
+    // The top screen's re-decoded system glyph is not scraper art but follows the same GL lifetime
+    // (a stale name must not outlive a park); it reloads on the next non-game focus.
+    if (mNdsTopHiTex) { glDeleteTextures(1, &mNdsTopHiTex); mNdsTopHiTex = 0; }
+    mNdsTopHiIdx = -1;
     // The cinfo "shown" alias may point at the fanart we just freed; clear it so the
     // hover-bg fade-out never reads a dangling texture after leaving Game.
     mCinfoShownTex = 0; mCinfoShownW = mCinfoShownH = 0;
 }
+
+void NanoMenu::ndsHiBoxFree() {
+    for (auto& hb : mNdsHiBox) {
+        if (hb.tex) glDeleteTextures(1, &hb.tex);
+        hb = NdsHiBox();
+    }
+}
+
+// A ROM's cover changed or was removed: forget its big copy too (the next frame asks again).
+void NanoMenu::ndsHiBoxDrop(const std::string& rom) {
+    for (auto& hb : mNdsHiBox) {
+        if (hb.rom != rom) continue;
+        if (hb.tex) glDeleteTextures(1, &hb.tex);
+        hb = NdsHiBox();
+    }
+}
+
+// Render thread, every frame the DSi top screen is up. rom = the focused ROM ("" = none);
+// boxFile = its scraped cover when the big cover should be decoded at draw size ("" = it should
+// not: a PICO-8 label, or no cover). A new focus pushes the old cover to slot 1 (the dissolve
+// fades it out) and asks for the new one. The tile's 256 px texture covers the wait.
+void NanoMenu::ndsHiBoxFocus(const std::string& rom, const std::string& boxFile, int fitW, int fitH) {
+    if (mNdsHiBox[0].rom == rom) return;
+    if (rom.empty()) { ndsHiBoxFree(); return; }     // no game focused: nothing to dissolve from
+    if (mNdsHiBox[1].tex) glDeleteTextures(1, &mNdsHiBox[1].tex);
+    mNdsHiBox[1] = mNdsHiBox[0];
+    mNdsHiBox[0] = NdsHiBox();
+    mNdsHiBox[0].rom = rom;
+    if (!boxFile.empty()) saRequestArt(boxFile, 0, SA_NDS_BOX, rom, fitW, fitH);
+}
+
 bool NanoMenu::scraperFanartEnabled() {
     return property_get_bool("persist.gammaos.scraper.fanart", true);
 }

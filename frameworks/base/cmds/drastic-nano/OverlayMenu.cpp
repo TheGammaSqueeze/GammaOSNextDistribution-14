@@ -52,6 +52,7 @@
 #include <system/audio.h>
 
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoSliderHud.h"   // shared volume/brightness slider spec (gammaos-nano)
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
@@ -243,6 +244,22 @@ void OverlayMenu::init(DrasticRunner* runner,
           mXmlPath.c_str());
 
     scanShaders();
+
+    // Fill the quick-slot cache now, while the loading screen is up and nothing
+    // waits on it, so the first menu open stats nothing on the FUSE savestates
+    // folder. init() runs on the DRM and the SurfaceFlinger path alike (only the
+    // DRM path pre-warms the pages). RG DS Plus only by default.
+    {
+        char dev[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.device", dev, "");
+        mQuickCacheOn = property_get_bool("persist.gammaos.drastic_nano.menu_quick_cache",
+                                          strcmp(dev, "anbernicrgdsplus") == 0);
+    }
+    if (mQuickCacheOn) {
+        refreshQuickCache();
+        mLegacy = drastic_assets::scanLegacy();
+        mLegacyValid = true;
+    }
 }
 
 bool OverlayMenu::isCapturingKey() const { return mCaptureKey; }
@@ -274,30 +291,107 @@ bool OverlayMenu::slotFileExists(int slot) const {
     if (slot < 0 || slot > 9) return false;
     // The savestates dir lives on the FUSE shared storage; a stat there can take
     // tens of ms under load and the row builders ask for every slot on every
-    // rebuild (each adjust). Cache per menu open; a save invalidates.
+    // rebuild (each adjust). Cache per menu open; a save invalidates (the quick
+    // slot is refreshed in place by refreshQuickCache instead).
     if (mSlotCacheValid && (mSlotCacheKnown & (1u << slot))) return (mSlotCacheExists >> slot) & 1u;
     char path[512];
     snprintf(path, sizeof(path), "%s/%s_%d.dss",
              mSavestatesDir.c_str(), mRomBase.c_str(), slot);
     struct stat st;
     const bool exists = stat(path, &st) == 0 && st.st_size > 0;
+    setSlotCacheBit(slot, exists);
+    return exists;
+}
+
+void OverlayMenu::setSlotCacheBit(int slot, bool exists) const {
     if (!mSlotCacheValid) { mSlotCacheValid = true; mSlotCacheKnown = 0; mSlotCacheExists = 0; }
     mSlotCacheKnown |= (1u << slot);
     if (exists) mSlotCacheExists |= (1u << slot); else mSlotCacheExists &= ~(1u << slot);
-    return exists;
+}
+
+// Re-stat slot 0 and the two undo files into the session cache: at init(), and
+// right after every quick save/load/undo, when the FUSE daemon has just served
+// those very files and answers at once. The General page then builds from the
+// cache and never stats the savestates folder on open. A no-op with the switch
+// off: the places that used to drop the slot cache still do (see quickSave).
+void OverlayMenu::refreshQuickCache() {
+    if (!mQuickCacheOn) return;
+    if (!mRomBase.empty() && !mSavestatesDir.empty()) {
+        struct stat st;   // slot 0 follows slotFileExists: it counts when it is non-empty
+        setSlotCacheBit(0, stat(slot0Path().c_str(), &st) == 0 && st.st_size > 0);
+        mUndoSaveExists = fileExists(undoSavePath());
+        mUndoLoadExists = fileExists(undoLoadPath());
+    } else {
+        mUndoSaveExists = mUndoLoadExists = false;
+    }
+    mQuickCacheValid = true;
+}
+
+// The menu's fade, 120 ms either way. Cubic curves like the achievement banner's:
+// in, the alpha rises fast and settles gently (ease-out); out, it drops fast and
+// lets the last of the dark go gently (the cube of the same progress run
+// backwards). Either way the first frame after a press already moves, so the menu
+// answers at once. The first frame of an open from nothing shows kVisFirstP of
+// the way along the curve. A single slow frame may eat at most kVisMaxStepMs of
+// the fade, so a hitch at the press cannot turn the fade back into a cut.
+static constexpr float   kVisFadeMs    = 120.0f;
+static constexpr float   kVisFirstP    = 0.2f;
+static constexpr int64_t kVisMaxStepMs = 40;
+static float visEaseOut(float p) { const float q = 1.0f - p; return 1.0f - q * q * q; }
+static float visEaseIn(float p)  { return p * p * p; }
+
+// One step of the fade by the clock. The state is the alpha itself, not the time
+// into the fade: each step finds where that alpha sits on the curve it is about
+// to follow (the inverse of the cubic), moves along it, and writes the new alpha
+// back. Opening again half way through a close (or closing half way through an
+// open) therefore continues from the alpha on screen; two separate curves
+// evaluated on one shared progress value would jump between them.
+void OverlayMenu::advanceVis(int64_t nowMs) {
+    int64_t dt = mVisLastMs ? nowMs - mVisLastMs : 0;
+    mVisLastMs = nowMs;
+    if (dt <= 0) return;
+    if (dt > kVisMaxStepMs) dt = kVisMaxStepMs;
+    const float step = (float)dt / kVisFadeMs;
+    if (mOpen) {
+        if (mVisA >= 1.0f) return;
+        const float p = 1.0f - cbrtf(1.0f - mVisA);
+        mVisA = (p + step >= 1.0f) ? 1.0f : visEaseOut(p + step);
+    } else if (!mVisHold && !mExitApp && !mRelaunch && !mRestartFresh && !mPowerOff && !mReboot) {
+        // Held while an exit, relaunch, restart or power action is under way: the
+        // exit fill (or the teardown) takes over from a menu that is still up, so
+        // the game is never shown between the two.
+        if (mVisA <= 0.0f) return;
+        const float p = cbrtf(mVisA);
+        mVisA = (p - step <= 0.0f) ? 0.0f : visEaseIn(p - step);
+    }
 }
 
 void OverlayMenu::openMenu() {
     if (mOpen) return;
     mOpen = true;
+    // closeMenu leaves the pages as they were so the menu fades out showing what
+    // the user last saw; whatever that was (a confirm prompt, a leaderboard
+    // drill-in) is dropped here instead, so a reopen starts on the plain page.
+    mConfirm = ConfirmPrompt{};
+    mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
+    mRaView = 0;   // single-screen drill-in returns to the achievement list
+    // Fade in. From nothing the first frame already shows part of the way; from a
+    // close still fading out it carries on from the alpha on screen. The clock
+    // restarts at the first drawn frame, so the rows rebuild below is not charged
+    // to the fade.
+    if (mVisA <= 0.0f) mVisA = visEaseOut(kVisFirstP);
+    mVisLastMs = 0;
     // The slot cache stays valid across opens: only this process writes states
-    // (menu rows and hotkeys, which invalidate it), and a fresh FUSE stat pass
-    // per open cost up to 120 ms on the RG DS Plus.
+    // (menu rows and hotkeys, which invalidate it; the quick slot and its undo
+    // files are re-stat'ed in place), and a fresh FUSE stat pass per open cost
+    // up to 120 ms on the RG DS Plus.
     mSavedPrefs = mPrefs;
     // Re-enumerate cheats fresh each open (cheap; the model caches names so
     // per-input rebuilds don't re-allocate).
     mCheatModelValid = false;
     navRelease();   // clear any stale held-direction from a prior session
+    mNavSuppressUntilRelease = true;   // a direction still held from the game must not scroll the menu
+    mNavSuppressLogged = false;
     // libdrastic's pauseSystem stops and restarts its audio player through
     // audioserver (a binder round trip that took 200 to 5600 ms on the RG DS Plus
     // when audioserver was cold) and synchronises with the emulator thread. The
@@ -311,15 +405,13 @@ void OverlayMenu::openMenu() {
 }
 
 void OverlayMenu::closeMenu() {
-    mConfirm = ConfirmPrompt{};
     if (!mOpen) return;
     if (mDirty) writePrefsSafe();
     mOpen = false;
     mCaptureKey = false;
     mCaptureActionIdx = -1;
-    // Drop any leaderboard drill-in so reopening starts on the detail/list view.
-    mRaOpenLbId = 0; mRaBottomScroll = 0.0f; mRaScrollVel = 0.0f;
-    mRaView = 0;   // single-screen drill-in returns to the achievement list
+    // The confirm prompt and the Achievements drill-in are left as they are: the
+    // menu fades out over 120 ms still showing them, and openMenu drops them.
     if (mRunner) {
         // Unpause on the worker (see openMenu), then, in the same ordered job:
         // re-assert the live config on the now-running emulator (live changes
@@ -349,11 +441,16 @@ void OverlayMenu::close() {
 }
 
 void OverlayMenu::toast(const std::string& msg, int64_t ms) {
+    const int64_t now = android::elapsedRealtime();
+    // The fade-in only starts for a toast that appears out of nothing; a new
+    // message replacing one that is still on screen keeps full opacity, so
+    // pressing a hotkey repeatedly does not make the box flicker.
+    if (mToast.empty() || now > mToastUntilMs) mToastStartMs = now;
     // Localize static toast text. Dynamic snprintf'd toasts (e.g. "Saved slot 3")
     // trDyn their format string at the call site instead, since the filled-in
     // value would not match a key; a non-key message here passes through as-is.
     mToast = trDyn(msg.c_str());
-    mToastUntilMs = android::elapsedRealtime() + ms;
+    mToastUntilMs = now + ms;
 }
 
 void OverlayMenu::onRaUiEvent(const RaUiEvent& ev) {
@@ -898,6 +995,8 @@ void OverlayMenu::deletePerGameOverride() {
 void OverlayMenu::prewarmGlyphs(drastic_gfx::OverlayGfx& gfx) {
     if (mOpen) return;
     const Section savedSection = mSection;
+    const float savedVisA = mVisA;
+    const int64_t savedVisLastMs = mVisLastMs;
     mOpen = true;
     gfx.setRasterOnly(true);
     for (int sec = 0; sec < (int)kSec_COUNT; sec++) {
@@ -907,6 +1006,8 @@ void OverlayMenu::prewarmGlyphs(drastic_gfx::OverlayGfx& gfx) {
     }
     gfx.setRasterOnly(false);
     mOpen = false;
+    mVisA = savedVisA;   // the blind draws stepped the fade; nothing of it may show
+    mVisLastMs = savedVisLastMs;
     mSection = savedSection;
     rebuildRows();
     mToast.clear();
@@ -985,6 +1086,8 @@ void OverlayMenu::openConfirm(const std::string& question, std::function<void()>
     mConfirm.onConfirm = std::move(onConfirm);
     mConfirm.choice = 0;   // Confirm is the default
     mNavHeldDir = NavDir::None;
+    mNavSuppressUntilRelease = true;   // the direction that opened the prompt must not flip its choice
+    mNavSuppressLogged = false;
 }
 
 void OverlayMenu::adjustCurrent(int dir) {
@@ -1084,6 +1187,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             }
             if (b.navAccept || b.navCancel || b.navNextTab || b.navUpHeld || b.navDownHeld || b.navLeftHeld || b.navRightHeld) {
                 mNavHeldDir = NavDir::None;   // the synthetic press is a fresh edge
+                mNavSuppressUntilRelease = false;
                 update(b, input);
                 mNavHeldDir = NavDir::None;
             }
@@ -1120,20 +1224,42 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         // when the menu isn't visible.
         if (mRunner) {
             if (a.actQuickSave) quickSave(false);
-            // Quick-load is a save-state load, disabled in hardcore.
-            if (a.actQuickLoad && !mRaHardcore) quickLoad(false);
+            // Quick-load is a save-state load, disabled in hardcore; say so
+            // instead of dropping the press silently.
+            if (a.actQuickLoad) {
+                if (mRaHardcore) toast("Quick Load disabled (RetroAchievements hardcore)");
+                else quickLoad(false);
+            }
         }
         return;
     }
 
+    // True while a direction that was held at open is still held; ends at the first frame with no direction.
+    auto navSuppressed = [this](NavDir held) {
+        if (!mNavSuppressUntilRelease) return false;
+        if (held == NavDir::None) {
+            mNavSuppressUntilRelease = false;
+        } else if (!mNavSuppressLogged) {
+            mNavSuppressLogged = true;
+            ALOGI("OverlayMenu: a direction held at open is ignored until released");
+        }
+        mNavHeldDir = NavDir::None;
+        return true;
+    };
+
     // Modal confirm prompt (Power Off / Reboot): it owns all input while open.
     if (mConfirm.active) {
+        NavDir held = NavDir::None;
         if (a.navLeftHeld || a.navRightHeld || a.navUpHeld || a.navDownHeld) {
-            NavDir held = a.navLeftHeld ? NavDir::Left : a.navRightHeld ? NavDir::Right
-                        : a.navUpHeld ? NavDir::Up : NavDir::Down;
-            if (held != mNavHeldDir) { mConfirm.choice ^= 1; mNavHeldDir = held; }
-        } else {
-            mNavHeldDir = NavDir::None;
+            held = a.navLeftHeld ? NavDir::Left : a.navRightHeld ? NavDir::Right
+                 : a.navUpHeld ? NavDir::Up : NavDir::Down;
+        }
+        if (!navSuppressed(held)) {
+            if (held != NavDir::None) {
+                if (held != mNavHeldDir) { mConfirm.choice ^= 1; mNavHeldDir = held; }
+            } else {
+                mNavHeldDir = NavDir::None;
+            }
         }
         if (a.navCancel) { mConfirm.active = false; }
         else if (a.navAccept) {
@@ -1149,6 +1275,14 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     // the input layer pushed up and write it into the current action
     // slot.
     if (mCaptureKey) {
+        // B cancels, as the footer says, except on the DS "B" row (action 2) where B is the key being bound.
+        if (a.capturedAndroidKc == 97 /* BUTTON_B */ && mCaptureActionIdx != 2) {
+            mCaptureKey = false;
+            mCaptureActionIdx = -1;
+            toast("Cancelled");
+            ALOGI("OverlayMenu: key capture cancelled with B");
+            return;
+        }
         if (a.capturedAndroidKc != 0 && mCaptureActionIdx >= 0) {
             // A physical button drives exactly one function: clear this
             // keycode from any OTHER action slot before assigning it here.
@@ -1188,11 +1322,13 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         else if (a.navDownHeld)  held = NavDir::Down;
         else if (a.navLeftHeld)  held = NavDir::Left;
         else if (a.navRightHeld) held = NavDir::Right;
-        if (held != mNavHeldDir) {
-            if (held == NavDir::None) navRelease();
-            else                      navPress(held);
-        } else {
-            tickNavRepeat();
+        if (!navSuppressed(held)) {
+            if (held != mNavHeldDir) {
+                if (held == NavDir::None) navRelease();
+                else                      navPress(held);
+            } else {
+                tickNavRepeat();
+            }
         }
         if (a.navAccept) mOsk.activate();       // A = press the focused key
         if (a.navX)      mOsk.onBackspace();    // X = backspace (matches gammaos-nano)
@@ -1277,12 +1413,12 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     } else if (!mSingleScreen) {
         // Dual-screen only: left the bottom panel (closed overlay or another
         // section), so drop the drill-in and reset scroll state, matching
-        // closeMenu(). On a single-screen device this branch must NOT run every
+        // openMenu(). On a single-screen device this branch must NOT run every
         // frame -- wantsRaBottomPanel() is always false there, and clobbering
         // mRaOpenLbId each frame would reset the rankings drill-in the moment
         // raSingleAccept opens it (the "Loading rankings..." that never resolves).
         // The single-screen drill-in owns mRaOpenLbId/mRaView via raSingle* and
-        // the tab-switch / closeMenu resets.
+        // the tab-switch / openMenu resets.
         mPrevRaTouch = false;
         mRaOpenLbId = 0;
         mRaBottomScroll = 0.0f;
@@ -1316,7 +1452,9 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     else if (a.navRightHeld) held = NavDir::Right;
     const bool raSub =
             (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
-    if (raSub) {
+    if (navSuppressed(held)) {
+        // inert: a direction held when the menu opened stays dead until it is released
+    } else if (raSub) {
         // Single-screen RA drill-in: edge-triggered step (short lists / page
         // scroll), routed to the active view instead of the list cursor.
         if (held != mNavHeldDir) {
@@ -1406,20 +1544,26 @@ void handSlotToApp(const std::string& path, uid_t uid, gid_t gid) {
 
 void OverlayMenu::quickSave(bool fromMenu) {
     if (!mRunner) return;
-    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    // The toasts show on the hotkey path too (the overlay draws them with the
+    // menu closed); only closing the menu is specific to the menu path.
+    if (mQuickBusy.load()) { toast(trDyn("Please wait...")); return; }
     // Keep the slot-0 file this save replaces so the save can be undone.
     const std::string slot0 = slot0Path();
     if (fileExists(slot0) && rename(slot0.c_str(), undoSavePath().c_str()) != 0) {
         ALOGW("OverlayMenu: cannot keep %s for undo: %s", slot0.c_str(), strerror(errno));
     }
     if (mRunner->saveStateSlot(0)) {
-        mSlotCacheValid = false;
+        // Slot 0 is new and the undo file may have appeared; the daemon is warm now.
+        if (mQuickCacheOn) refreshQuickCache();
+        else mSlotCacheValid = false;
         handSlotToApp(slot0, mAppUid, mAppGid);
-        if (fromMenu) { toast(trDyn("Quick saved")); closeMenu(); }
+        toast(trDyn("Quick saved"));
+        if (fromMenu) closeMenu();
     } else {
         // Put the previous quick save back; nothing was written.
         rename(undoSavePath().c_str(), slot0.c_str());
-        if (fromMenu) toast(trDyn("Save failed"));
+        refreshQuickCache();
+        toast(trDyn("Save failed"));
     }
 }
 
@@ -1431,22 +1575,26 @@ void OverlayMenu::undoQuickSave() {
     const bool hadCur = fileExists(slot0);
     if (hadCur && rename(slot0.c_str(), tmp.c_str()) != 0) { toast(trDyn("Undo failed")); return; }
     if (rename(undo.c_str(), slot0.c_str()) != 0) {
-        if (hadCur) rename(tmp.c_str(), slot0.c_str());
+        if (hadCur) {
+            rename(tmp.c_str(), slot0.c_str());
+            refreshQuickCache();   // slot 0 went to the side and back; re-stat what is really there
+        }
         toast(trDyn("Undo failed"));
         return;
     }
     if (hadCur) rename(tmp.c_str(), undo.c_str());
     handSlotToApp(slot0, mAppUid, mAppGid);
-    mSlotCacheValid = false;
+    if (mQuickCacheOn) refreshQuickCache();
+    else mSlotCacheValid = false;
     toast(trDyn("Previous quick save restored"));
     rebuildRows();
 }
 
 void OverlayMenu::quickLoad(bool fromMenu) {
     if (!mRunner) return;
-    if (mQuickBusy.load()) { if (fromMenu) toast(trDyn("Please wait")); return; }
+    if (mQuickBusy.load()) { toast(trDyn("Please wait...")); return; }
     const std::string slot0 = slot0Path(), undo = undoLoadPath(), aside = slot0 + ".loadsrc";
-    if (!fileExists(slot0)) { if (fromMenu) toast(trDyn("No quick save yet")); return; }
+    if (!fileExists(slot0)) { toast(trDyn("No quick save yet")); return; }
     // Save the running state first so the load can be undone: drastic only
     // writes by slot number, so move the quick save aside, save the current
     // state into slot 0, and move both files to where they belong.
@@ -1460,14 +1608,17 @@ void OverlayMenu::quickLoad(bool fromMenu) {
         }
         if (rename(aside.c_str(), slot0.c_str()) != 0) {
             ALOGE("OverlayMenu: quick save file lost while making the undo point: %s", strerror(errno));
-            if (fromMenu) toast(trDyn("Load failed"));
+            refreshQuickCache();   // after the log line: the stats below would overwrite errno
+            toast(trDyn("Load failed"));
             return;
         }
+        refreshQuickCache();   // the undo point (.undoload) is new, or the failed save left none
     }
     if (!undoPoint) ALOGW("OverlayMenu: quick load without an undo point");
     if (mRunner->requestLoadStateSlot(0)) {
-        if (fromMenu) { toast(trDyn("Quick loaded")); closeMenu(); }
-    } else if (fromMenu) {
+        toast(trDyn("Quick loaded"));
+        if (fromMenu) closeMenu();
+    } else {
         toast(trDyn("Load failed"));
     }
 }
@@ -1489,7 +1640,16 @@ void OverlayMenu::undoQuickLoad() {
         return;
     }
     mQuickBusy.store(true);
-    mSlotCacheValid = false;
+    // Set here, on this thread, not re-stat'ed: the undo point is consumed whether
+    // the load goes through or not, and slot 0 ends up as it was (hadCur) either way,
+    // put back by the hook below or by the failure branch. The hook runs on another
+    // thread and must not touch the cache.
+    if (mQuickCacheOn) {
+        mUndoLoadExists = false;
+        setSlotCacheBit(0, hadCur);
+    } else {
+        mSlotCacheValid = false;
+    }
     mRunner->setNextLoadDoneHook([this, slot0, aside, hadCur](int) {
         unlink(slot0.c_str());   // the undo point, now consumed
         if (hadCur && rename(aside.c_str(), slot0.c_str()) != 0) {
@@ -1516,19 +1676,14 @@ void OverlayMenu::rebuildGeneral() {
 
     // Brightness (live). Reuses the exact path the SELECT+VOL shortcut uses
     // (adjustBrightness): the drastic-nano binary runs as root in both the
-    // DRM-direct and SF backends, so nanoBacklightSet() drives the panel
-    // backlight directly and the level is mirrored to
-    // persist.gammaos.nano.brightness. Step and 8..255 clamp match the shortcut.
+    // DRM-direct and SF backends, so the shared module drives the panel
+    // backlight directly and mirrors the level to persist.gammaos.nano.brightness
+    // and Settings. Table steps with floor 1, as the shortcut.
     {
         RowAction r;
         r.label = "Brightness";
-        if (!mBrightInit) {
-            mBrightLevel = shadowPropGetInt(
-                    "persist.gammaos.nano.brightness", 128);
-            mBrightInit = true;
-        }
         char pct[16];
-        snprintf(pct, sizeof(pct), "%d%%", mBrightLevel * 100 / 255);
+        snprintf(pct, sizeof(pct), "%d%%", android::nanobr::brightnessPercent(android::nanobr::currentLevel()));
         r.value = pct;
         // rebuildRows() is called by the input dispatcher right after onAdjust,
         // so the value string above refreshes automatically each step.
@@ -1541,6 +1696,10 @@ void OverlayMenu::rebuildGeneral() {
     // tab (a common request). Slot 0 is the conventional quick slot; the full 0..8
     // slots still live on the Save States tab. Both close the overlay on success so
     // the action is truly "quick" (one press, back to the game).
+    // Slot 0 and the two undo bits come from the quick cache (filled in init() and
+    // kept current by the quick actions), so this page stats nothing on open; with
+    // the switch off each rebuild stats the undo files, a FUSE lookup apiece.
+    if (mQuickCacheOn && !mQuickCacheValid) refreshQuickCache();
     {
         RowAction r;
         r.label = "Quick Save";
@@ -1561,15 +1720,14 @@ void OverlayMenu::rebuildGeneral() {
         r.onAccept = [this]() { quickLoad(true); };
         mRows.push_back(std::move(r));
     }
-    // Undo rows appear only while there is something to undo (one FUSE stat each,
-    // per menu open like the slot cache).
-    if (fileExists(undoSavePath())) {
+    // Undo rows appear only while there is something to undo.
+    if (mQuickCacheOn ? mUndoSaveExists : fileExists(undoSavePath())) {
         RowAction r;
         r.label = "Undo Quick Save";
         r.onAccept = [this]() { undoQuickSave(); };
         mRows.push_back(std::move(r));
     }
-    if (!mRaHardcore && fileExists(undoLoadPath())) {
+    if (!mRaHardcore && (mQuickCacheOn ? mUndoLoadExists : fileExists(undoLoadPath()))) {
         RowAction r;
         r.label = "Undo Quick Load";
         r.onAccept = [this]() { undoQuickLoad(); };
@@ -1704,7 +1862,10 @@ void OverlayMenu::rebuildGeneral() {
         mRows.push_back(std::move(r));
     }
     {
-        const drastic_assets::LegacyCount lc = drastic_assets::scanLegacy();
+        // The DraStic app is not running, so the count only changes through the
+        // import below, which clears it; with the switch off every rebuild scans.
+        if (!mQuickCacheOn || !mLegacyValid) { mLegacy = drastic_assets::scanLegacy(); mLegacyValid = true; }
+        const drastic_assets::LegacyCount lc = mLegacy;
         if (lc.saves + lc.states > 0) {
             RowAction r;
             r.label = "Import DraStic saves";
@@ -1717,6 +1878,7 @@ void OverlayMenu::rebuildGeneral() {
                     snprintf(msg, sizeof(msg), "%s: %d %s (%s)", trDyn("Moved"), res.moved, trDyn(res.moved == 1 ? "file" : "files"),
                              trDyn("this game's files after exit"));
                     toast(msg);
+                    mLegacyValid = false;   // rebuildGeneral scans again below
                     rebuildRows();
                 });
             };
@@ -2023,9 +2185,10 @@ void OverlayMenu::addCustomCheatFlow() {
 // the key reached the policy 100 to 400 ms late and the first press after a pause
 // took 1.2 s to move the music stream, because system_server is starved by the
 // FIFO emulator threads and partly swapped out on 1 GB. So the press also sets the
-// music stream index straight through audioserver from here, within a few ms; the
-// framework's own step then lands on the same index (it reads its cached level and
-// adds the direction, exactly what this computes), so nothing is applied twice.
+// music stream index straight through audioserver from here, within a few ms, and
+// publishes it (sys.gammaos.nano.vol_target); the framework's own step for the same
+// press applies that target instead of adding the direction to its cached level, so
+// a burst cannot dip back.
 // One tiny thread of its own (not the settings worker: a queued persist write was
 // measured at up to 400 ms in game and the press must not wait behind it). Presses
 // are coalesced into one pending delta; the base index is re-read from audioserver
@@ -2074,7 +2237,15 @@ void volThreadMain() {
         if (next > maxIdx) next = maxIdx;
         const android::status_t st = android::AudioSystem::setStreamVolumeIndex(AUDIO_STREAM_MUSIC, next, dev);
         lastApplyMs = android::elapsedRealtime();
-        if (st == android::NO_ERROR) { base = next; gVolApplied.store(next, std::memory_order_relaxed); }
+        if (st == android::NO_ERROR) {
+            base = next;
+            gVolApplied.store(next, std::memory_order_relaxed);
+            // PhoneWindowManager's own step for the same press lands 0.1 to 1.2 s later and would add the
+            // direction to AudioService's stale index; it takes this target instead (sys.gammaos.nano.vol_target).
+            char vt[48];
+            snprintf(vt, sizeof(vt), "%d:%lld", next, (long long)android::uptimeMillis());
+            property_set("sys.gammaos.nano.vol_target", vt);
+        }
         ALOGI("drastic-nano volume: music index %d (delta %+d, device 0x%x) %s in %lld ms",
               next, delta, (unsigned)dev, st == android::NO_ERROR ? "applied" : "FAILED", (long long)(lastApplyMs - t0));
         if (st != android::NO_ERROR) base = -1;    // re-read next time
@@ -2120,110 +2291,16 @@ void OverlayMenu::adjustVolume(int dir) {
     volPressAsync(dir);
 }
 
-// Mirror the in-game brightness level into the framework's authoritative store,
-// Settings.System.screen_brightness (Android 0-255 range, the same value nano
-// home writes in syncBrightnessToAndroid). Without this the change lives only in
-// persist.gammaos.nano.brightness + the volatile sysfs/HAL nodes, so when the
-// game exits the display framework re-asserts the OLD system brightness and the
-// panel jumps back (the "reverts to ~50% on exit" report), and a reboot restores
-// the old value because nano seeds brightness from Settings.System first. Runs as
-// a reparented grandchild via a double-fork so the game process never blocks on
-// the settings CLI and never accumulates zombie children on repeated presses.
-static void pushBrightnessToSettings(int level) {
-    if (level < 0) level = 0;
-    if (level > 255) level = 255;
-    char val[16];
-    snprintf(val, sizeof(val), "%d", level);
-    pid_t pid = fork();
-    if (pid == 0) {
-        // First child: fork again so the grandchild (the settings CLI) is
-        // reparented to init and reaped by it, then exit immediately.
-        pid_t gc = fork();
-        if (gc == 0) {
-            execl("/system/bin/settings", "settings", "put", "system",
-                  "screen_brightness", val, (char*)nullptr);
-            _exit(127);   // exec failed
-        }
-        _exit(0);
-    } else if (pid > 0) {
-        // Parent: reap the short-lived first child (returns almost immediately,
-        // it only forks and exits) so it does not linger as a zombie.
-        waitpid(pid, nullptr, 0);
-    }
-}
-
-void OverlayMenu::adjustBrightness(int dir) {
-    if (!mBrightInit) {
-        mBrightLevel = shadowPropGetInt(
-                "persist.gammaos.nano.brightness", 128);
-        mBrightInit = true;
-    }
-    int b = mBrightLevel + 16 * dir;
-    if (b < 8)   b = 8;       // never fully dark via the keys
-    if (b > 255) b = 255;
-    mBrightLevel = b;
-    // Drive both mechanisms so every device relights: the sysfs backlight nodes
-    // AND the ILights HAL. The Brick routes the panel backlight through the HAL
-    // only, so the sysfs write alone no-ops (matches the nano home's applyBrightness,
-    // and the sleep/wake path here already uses the HAL).
-    android::nanobl::nanoBacklightSet(mBrightLevel);   // sysfs: immediate, cheap
-    // The HALs, the persist write and the settings exec take 400 to 700 ms on the
-    // RG DS Plus; the panel is already relit through sysfs, so they go to the worker.
-    const int level = mBrightLevel;
-    postAsync([level]() {
-    bool halApplied = false;
-    {
-        using aidl::android::hardware::light::ILights;
-        using aidl::android::hardware::light::HwLight;
-        using aidl::android::hardware::light::HwLightState;
-        using aidl::android::hardware::light::LightType;
-        ndk::SpAIBinder binder(AServiceManager_checkService(
-                "android.hardware.light.ILights/default"));
-        if (binder.get()) {
-            std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
-            if (hal) {
-                std::vector<HwLight> lights;
-                hal->getLights(&lights);
-                for (const auto& light : lights) {
-                    if (light.type == LightType::BACKLIGHT) {
-                        HwLightState state{};
-                        state.color = 0xFF000000 | (level << 16) |
-                                      (level << 8) | level;
-                        hal->setLightState(light.id, state);
-                        halApplied = true;
-                    }
-                }
-            }
-        }
-    }
-    // Brick (and similar) have no AIDL ILights service AND no
-    // /sys/class/backlight nodes, so the AIDL block above and nanoBacklightSet
-    // both no-op there. Fall back to the HIDL light@2.0 HAL - the same path the
-    // nano home uses, which is what actually drives this panel's backlight.
-    if (!halApplied) {
-        using ::android::hardware::light::V2_0::ILight;
-        using ::android::hardware::light::V2_0::Type;
-        using ::android::hardware::light::V2_0::LightState;
-        using ::android::hardware::light::V2_0::Brightness;
-        using ::android::hardware::light::V2_0::Flash;
-        android::sp<ILight> hal = ILight::getService();
-        if (hal != nullptr) {
-            LightState st{};
-            st.color = 0xFF000000 | (level << 16) |
-                       (level << 8) | level;
-            st.flashMode = Flash::NONE;
-            st.brightnessMode = Brightness::USER;
-            hal->setLight(Type::BACKLIGHT, st);
-        }
-    }
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d", level);
-    property_set("persist.gammaos.nano.brightness", buf);
-    // Persist system-wide so the level survives leaving the game, a reboot, and is
-    // visible to other apps (not just nano's own private property + volatile nodes).
-    pushBrightnessToSettings(level);
-    });
-    mBrightHudTimer = 90;
+// SELECT+VOL and the General > Brightness row: |steps| table steps through the shared module (sysfs at once; the
+// lights HAL, persist and Settings from its thread, newest level wins). Nothing goes to the menu worker any more.
+void OverlayMenu::adjustBrightness(int steps) {
+    mBrightHudTimer = 90;   // ~1.5 s; the HUD shows at the ends too
+    if (steps == 0) return;
+    const int cur = android::nanobr::currentLevel();
+    const int next = android::nanobr::brightnessStepN(cur, steps);
+    if (next == cur) return;
+    android::nanobr::brightnessSet(next);
+    ALOGI("OverlayMenu: brightness %d -> %d (%d%%)", cur, next, android::nanobr::brightnessPercent(next));
 }
 
 void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
@@ -2253,7 +2330,7 @@ void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
     if (mBrightHudTimer > 0) {
         mBrightHudTimer--;
         nano_slider::draw(be, vw, vh, nano_slider::kBrightness,
-                          mBrightLevel * 100 / 255, slot++);
+                          android::nanobr::brightnessPercent(android::nanobr::currentLevel()), slot++);
     }
     if (mVolHudTimer > 0) {
         mVolHudTimer--;
@@ -3907,26 +3984,41 @@ static float clampf(float v, float lo, float hi) {
     return v < lo ? lo : (v > hi ? hi : v);
 }
 
-// Compose a soft scrim + a small dark-band across the top and bottom of
-// the screen. The scrim keeps text readable while the band anchors the
-// category row and footer without reintroducing a hard panel frame.
+// A short message box near the bottom of the screen. It uses the footer hint
+// strip's text size (the same pixel size, so its glyphs are already in the
+// atlas) and shrinks to fit the panel width when a translated message is long.
+// alpha (0..1) is the fade-in/out factor from toastAlpha().
 static void drawToast(drastic_gfx::OverlayGfx& gfx,
-                      const std::string& msg, float sf) {
-    if (msg.empty()) return;
+                      const std::string& msg, float sf, float alpha) {
+    if (msg.empty() || alpha <= 0.0f) return;
     const char* m = trDyn(msg.c_str());
-    float scale = 1.0f * sf;
-    float w = gfx.measure(m, scale) + 28.0f * sf;
-    float h = gfx.fontLineH() * scale + 14.0f * sf;
     float vw = (float)gfx.viewportW();
     float vh = (float)gfx.viewportH();
+    float scale = kFooterScale * sf;
+    float tw = gfx.measure(m, scale);
+    const float maxTw = vw * 0.92f - 28.0f * sf;
+    if (tw > maxTw && tw > 0.0f) {
+        scale *= maxTw / tw;
+        tw = maxTw;
+    }
+    float w = tw + 28.0f * sf;
+    float h = gfx.fontLineH() * scale + 14.0f * sf;
     float x = (vw - w) / 2.0f;
     float y = vh * 0.82f;
-    gfx.fillRect(x, y, w, h, rgba(0.02f, 0.03f, 0.05f, 0.82f));
+    gfx.fillRect(x, y, w, h, rgba(0.02f, 0.03f, 0.05f, 0.82f * alpha));
     gfx.fillRect(x, y + h - 2.0f * sf, w, 2.0f * sf,
-                 rgba(0.40f, 0.75f, 1.0f, 0.9f));
+                 rgba(0.40f, 0.75f, 1.0f, 0.9f * alpha));
     gfx.text(m, x + 14.0f * sf,
              y + (h - gfx.fontLineH() * scale) / 2.0f, scale,
-             rgba(1, 1, 1, 1));
+             rgba(1, 1, 1, alpha));
+}
+
+// 100 ms fade-in from the moment the toast appeared, 150 ms fade-out before
+// it expires; the smaller of the two wins when a toast is shorter than both.
+static float toastAlpha(int64_t now, int64_t startMs, int64_t untilMs) {
+    const float in  = clampf((float)(now - startMs) / 100.0f, 0.0f, 1.0f);
+    const float out = clampf((float)(untilMs - now) / 150.0f, 0.0f, 1.0f);
+    return fminf(in, out);
 }
 
 void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
@@ -3945,7 +4037,12 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     // so the existing small-panel look does not regress.
     sf = scaleForViewport(sf) * kUiShrink;
 
-    if (!mOpen) {
+    // Step the fade once per frame, here; the bottom-panel passes drawn after this
+    // reuse mVisA so both panels fade in step. Nothing to step (and no clock read)
+    // while the menu is closed and gone.
+    if (mOpen || mVisA > 0.0f) advanceVis(android::elapsedRealtime());
+
+    if (!isVisible()) {
         // The volume/brightness HUD and brief toasts still render (and the
         // HUD timers still tick) while the menu is closed -- the user
         // adjusts volume/brightness during gameplay.
@@ -3954,54 +4051,63 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
         drawAchievementBanner(gfx, sf);
         // Challenge (primed) and progress (measured) indicators over the game.
         drawRaIndicators(gfx, sf);
-        if (mToast.empty() ||
-            android::elapsedRealtime() > mToastUntilMs) return;
-        drawToast(gfx, mToast, sf);
+        const int64_t now = android::elapsedRealtime();
+        if (mToast.empty() || now > mToastUntilMs) return;
+        drawToast(gfx, mToast, sf, toastAlpha(now, mToastStartMs, mToastUntilMs));
         return;
     }
 
-    // Full-screen scrim: darker so the overlay dominates and the game
-    // recedes (still faintly visible behind the dark).
-    gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.88f));
+    // The menu itself, at the fade's alpha (open: easing in; closed: still easing
+    // out over the game, which is already running again). The scope ends before
+    // the HUD, banner and toast so those stay at full strength, and the scope
+    // restores the alpha on every path out of it. A closing menu only repaints
+    // what it last showed: no input, no row rebuilds, no battery poll.
+    {
+        drastic_gfx::OverlayGfx::ScopedAlpha fade(gfx, mVisA);
 
-    float catBarY = vh * kCatBarTopFrac;
-    drawCategoryBar(gfx, vw, catBarY, sf);
+        // Full-screen scrim: darker so the overlay dominates and the game
+        // recedes (still faintly visible behind the dark).
+        gfx.fillRect(0, 0, vw, vh, rgba(0, 0, 0, 0.88f));
 
-    refreshBattery();
-    drawBatteryIndicator(gfx, vw, sf);
-    drawTimeIndicator(gfx, vw, sf);
+        float catBarY = vh * kCatBarTopFrac;
+        drawCategoryBar(gfx, vw, catBarY, sf);
 
-    // The list sits below the category title (accent + dots row) and
-    // above the footer. The category block is roughly the title
-    // height, an accent gap, and the dots row.
-    float categoryBlockH = gfx.fontLineH() * kCatActiveSc * sf
-                         + 34.0f * sf;   // accent + dots strip
-    float listTop = catBarY + categoryBlockH;
-    float footerBandH = gfx.fontLineH() * kFooterScale * sf + 18.0f * sf;
-    float listBottom = vh - footerBandH - 12.0f * sf;
+        if (mOpen) refreshBattery();
+        drawBatteryIndicator(gfx, vw, sf);
+        drawTimeIndicator(gfx, vw, sf);
 
-    // In the Achievements section, reserve a band above the footer to show the
-    // selected achievement's description (RetroAchievements sends one per
-    // achievement). Larger text and up to three wrapped lines so it is readable
-    // on small panels (e.g. 640x480).
-    const bool raSubView =
-            (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
+        // The list sits below the category title (accent + dots row) and
+        // above the footer. The category block is roughly the title
+        // height, an accent gap, and the dots row.
+        float categoryBlockH = gfx.fontLineH() * kCatActiveSc * sf
+                             + 34.0f * sf;   // accent + dots strip
+        float listTop = catBarY + categoryBlockH;
+        float footerBandH = gfx.fontLineH() * kFooterScale * sf + 18.0f * sf;
+        float listBottom = vh - footerBandH - 12.0f * sf;
 
-    if (raSubView) {
-        const float cxL = vw * kContentLeftFrac;
-        const float cxR = vw * kContentRightFrac;
-        drawRaSingle(gfx, cxL, listTop, cxR - cxL, listBottom - listTop, sf);
-    } else if (mSection == kSec_Achievements) {
-        // Rich RetroAchievements list (badge + title + description + unlock date
-        // / rarity + points). Each row carries its own description, so there is
-        // no separate detail band and the list gets the full content region.
-        drawAchievementsList(gfx, vw, listTop, listBottom - listTop, sf);
-    } else {
-        drawList(gfx, vw, listTop, listBottom - listTop, sf);
+        // In the Achievements section, reserve a band above the footer to show the
+        // selected achievement's description (RetroAchievements sends one per
+        // achievement). Larger text and up to three wrapped lines so it is readable
+        // on small panels (e.g. 640x480).
+        const bool raSubView =
+                (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
+
+        if (raSubView) {
+            const float cxL = vw * kContentLeftFrac;
+            const float cxR = vw * kContentRightFrac;
+            drawRaSingle(gfx, cxL, listTop, cxR - cxL, listBottom - listTop, sf);
+        } else if (mSection == kSec_Achievements) {
+            // Rich RetroAchievements list (badge + title + description + unlock date
+            // / rarity + points). Each row carries its own description, so there is
+            // no separate detail band and the list gets the full content region.
+            drawAchievementsList(gfx, vw, listTop, listBottom - listTop, sf);
+        } else {
+            drawList(gfx, vw, listTop, listBottom - listTop, sf);
+        }
+
+        drawFooter(gfx, vw, vh, sf);
+        if (mConfirm.active) drawConfirm(gfx, vw, vh, sf);
     }
-
-    drawFooter(gfx, vw, vh, sf);
-    if (mConfirm.active) drawConfirm(gfx, vw, vh, sf);
 
     // The on-screen keyboard is NOT drawn here: it renders on the bottom DS
     // screen (drawOsk, called by main.cpp against the secondary FBO) so it
@@ -4011,8 +4117,9 @@ void OverlayMenu::draw(drastic_gfx::OverlayGfx& gfx) {
     drawHud(gfx);
     drawAchievementBanner(gfx, sf);
 
-    if (!mToast.empty() && android::elapsedRealtime() <= mToastUntilMs) {
-        drawToast(gfx, mToast, sf);
+    const int64_t toastNow = android::elapsedRealtime();
+    if (!mToast.empty() && toastNow <= mToastUntilMs) {
+        drawToast(gfx, mToast, sf, toastAlpha(toastNow, mToastStartMs, mToastUntilMs));
     }
 }
 
@@ -4312,7 +4419,8 @@ void OverlayMenu::drawFooter(drastic_gfx::OverlayGfx& gfx, float vw,
     float footScale = kFooterScale * sf;
     const char* hint;
     if (mCaptureKey) {
-        hint = "Press any key to bind     B: cancel";
+        hint = (mCaptureActionIdx == 2) ? "Press the key for B     Back: close menu"
+                                        : "Press any key to bind     B: cancel";
     } else {
         hint = "L/R: tabs     Up/Down: move     A: select     "
                "Left/Right: adjust     B: close";

@@ -2,6 +2,8 @@
 
 #include "Hud.h"
 
+#include "NanoSliderHud.h"
+
 #include <EGL/eglext.h>
 #include <GLES2/gl2.h>
 #include <android/native_window.h>
@@ -102,6 +104,16 @@ void Hud::render(const Frame& f) {
     // one notice at a time in the corner: a save in progress outranks the shader one
     if (f.saveAlpha > 0.0f) drawToast(std::min(f.saveAlpha, 1.0f), f.spin, "Saving");
     else if (f.toastAlpha > 0.0f) drawToast(std::min(f.toastAlpha, 1.0f), f.spin, "Compiling shaders");
+    if (f.brightPct >= 0) {
+        // The shared nano slider (NanoSliderHud.h), as drastic-nano's in-game HUD.
+        struct Be {
+            android::drastic_gfx::OverlayGfx& g; float basePx;
+            void rect(float x, float y, float w, float h, float r, float gr, float b, float a) { g.fillRect(x, y, w, h, rgba(r, gr, b, a)); }
+            void text(const char* s, float x, float y, float pxH, float r, float gr, float b, float a) { g.text(s, x, y, pxH / basePx, rgba(r, gr, b, a)); }
+            float measure(const char* s, float pxH) { return g.measure(s, pxH / basePx); }
+        } be{mGfx, (float)mGfx.fontBasePx()};
+        nano_slider::draw(be, W, H, nano_slider::kBrightness, f.brightPct, 0);
+    }
     mGfx.endFrame();
     eglSwapBuffers(mDpy, mSurf);
     eglMakeCurrent(mDpy, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT);

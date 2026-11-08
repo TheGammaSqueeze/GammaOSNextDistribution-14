@@ -53,6 +53,8 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/SystemClock.h>
 
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
+#include "NanoClockProfile.h"   // nanoclock::beginSleep / endSleep (RG DS Plus)
 #include "NanoMenu.h"
 #include "NanoCtrAudio.h"      // lid sleep closes the 3DS theme audio streams
 #include "NanoCtrHome.h"
@@ -164,6 +166,7 @@ void NanoMenu::checkInputHotplug() {
                         }
                         mOpenedDevices.erase(ev->name);
                         ALOGI("Device removed, dropped stale fd: %s", path);
+                        resetHeldInputState("device removed");
                     }
                 } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
                     // Small delay for the device node to be fully ready
@@ -757,6 +760,33 @@ void NanoMenu::navRelease(NavDir dir) {
     }
 }
 
+// Hold dir for the repeat without a step now (the other HAT axis was released while this one stays deflected).
+void NanoMenu::navRearm(NavDir dir) {
+    if (dir == NavDir::None) return;
+    mNavHeldDir = dir;
+    mNavHeldStartMs = android::uptimeMillis();
+    mNavLastRepeatMs = mNavHeldStartMs;
+    mNavRepeatCount = 0;
+}
+
+// Forget every held direction and modifier: nothing was read while the fds were drained (park, launch, overlay
+// show, sleep) or a device went away, so their releases are lost. Without this the list scrolled by itself after a
+// game (K16).
+void NanoMenu::resetHeldInputState(const char* why) {
+    navRelease(NavDir::None);
+    mStickXTriggered = mStickYTriggered = false;
+    mHatX = mHatY = 0;
+    mSelectHeld = false;
+    mStartHeld = false;
+    mSelectArmed = kSelNone;
+    mSelectVolChord = false;
+    mVolDeferredN = 0;
+    mSelectPressInBatch = false;
+    mBrightChordKey = 0;
+    mKbdShiftHeld = false;
+    ALOGI("NanoMenu: held input reset (%s)", why);
+}
+
 void NanoMenu::tickNavRepeat() {
     if (mNavHeldDir == NavDir::None) return;
     // Suppress auto-repeat while waiting for the launch key to be released
@@ -1096,14 +1126,15 @@ bool NanoMenu::enterDrmSleep() {
         glClear(GL_COLOR_BUFFER_BIT);
     }
     drmFrameEnd(mDisplay, mSurface);
-    nanobl::nanoBacklightSet(0);
-    setBrightnessViaHal(0);
+    nanobr::panelOff();
     drmPanelsPowerOff();   // the pipes too, not only a blank frame (see the framework path)
+    nanobr::brightnessPushNow();   // panels are off: Settings now holds the level DPC applies at the wake
     // Drop to the powersave governor (lowest clocks) while the screen is off - audio
     // decode + the 1Hz poll run comfortably there. Restored on wake. Publish the
     // screen-off state so the BT stability monitor reverts to powersave (not the
     // user's perf mode) if A2DP audio stops while the screen is off.
     property_set("sys.gammaos.nano.screenoff", "1");
+    nanoclock::beginSleep();   // RG DS Plus: init keeps its hands off this powersave run (NanoClockProfile.h)
     nanoApplyPerfClock("powersave");
 
     // Drive the WHOLE device into a real PowerManager suspend (not just a
@@ -1120,6 +1151,8 @@ bool NanoMenu::enterDrmSleep() {
     // the lights HAL re-asserts the backlight and the panel never actually turns off.
     bool pmSleep = property_get_bool("sys.boot_completed", false);
     if (keepAudio) {
+        // PowerManagerService's ULP sleep leaves audio running while this is set.
+        property_set("sys.gammaos.nano.keep_audio", "1");
         int wl = open("/sys/power/wake_lock", O_WRONLY | O_CLOEXEC);
         ssize_t n = (wl >= 0) ? write(wl, "nano_music", 10) : -1;
         if (wl >= 0) close(wl);
@@ -1191,16 +1224,26 @@ bool NanoMenu::enterDrmSleep() {
     } else {
         ALOGE("NanoMenu: epoll_create1 failed (errno %d) - wake may need extra presses", errno);
     }
+    // A wake that does not come through an input fd (a USB plug with config_unplugTurnsOnScreen, the
+    // framework's own wake policy, `input keyevent WAKEUP`) turns the backlight on while this loop
+    // keeps waiting for KEY_POWER: the panels stay off under a lit backlight, and PowerManager keeps
+    // the display pinned (menu_active) until the power key is pressed. So watch sys.screen.state too,
+    // but only once it has read "off": our own sleep request takes a moment to reach PowerManager
+    // and the property still says "on" until it does.
+    bool sawFrameworkOff = false;
     while (asleep) {
         // Block on the input fds so the CPU can idle / suspend (a busy poll
         // would keep it awake and defeat the suspend). With PowerManager
-        // engaged, block indefinitely: the system suspends and this thread
-        // freezes here until a wake source fires. Otherwise cap the wait at
-        // the remaining 60s budget.
+        // engaged the system suspends and this thread freezes here until a
+        // wake source fires; the 1s cap below only re-checks sys.screen.state
+        // while the SoC is awake. Otherwise cap the wait at the remaining 60s
+        // budget.
         int timeoutMs = -1;
         if (keepAudio) {
             timeoutMs = 1000;   // wake periodically to auto-advance the track
-        } else if (!pmSleep) {
+        } else if (pmSleep) {
+            timeoutMs = 1000;   // and to look at sys.screen.state (a timer does not keep the SoC from suspending)
+        } else {
             int64_t left = 60000 - (android::uptimeMillis() - sleepStart);
             if (left <= 0) {
                 ALOGI("NanoMenu: sleep timeout, shutting down");
@@ -1248,6 +1291,17 @@ bool NanoMenu::enterDrmSleep() {
                 }
             }
         }
+        if (asleep && pmSleep) {
+            char ss[PROPERTY_VALUE_MAX] = {};
+            property_get("sys.screen.state", ss, "");
+            if (!strcmp(ss, "off")) {
+                sawFrameworkOff = true;
+            } else if (sawFrameworkOff && !strcmp(ss, "on")) {
+                ALOGI("NanoMenu: framework woke the screen (no wake key) -> waking the home");
+                asleep = false;
+                mLastInputMs = android::uptimeMillis();
+            }
+        }
         // Woke: pin the SoC up immediately so it cannot re-suspend before the
         // wake handling below relights the panel and the framework takes over.
         if (!asleep) holdWakeWakelock();
@@ -1271,6 +1325,7 @@ bool NanoMenu::enterDrmSleep() {
                 if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
                 ALOGI("NanoMenu: music finished -> releasing wakelock, system sleep");
                 keepAudio = false;
+                property_set("sys.gammaos.nano.keep_audio", "0");
                 pmSleep = property_get_bool("sys.boot_completed", false);
                 if (pmSleep) { property_set("sys.gammaos.nano.dosleep", "1"); releaseBtLpm(); }
                 sleepStart = android::uptimeMillis();   // restart the legacy 60s budget if PM is unavailable
@@ -1294,6 +1349,9 @@ bool NanoMenu::enterDrmSleep() {
     if (keepAudio) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_music", 10); (void)n; close(wl); }
+        // keep_audio is cleared below, once PowerManager is awake: keep_audio=0 while
+        // sys.screen.state still reads "off" restarts the vendor force_sleep (gammaos.rc),
+        // whose heartbeat LED and raw 'echo mem' would hit the device that is waking up.
     }
     // Restore BT LPM to the boot state we found it in, so BT-enable behaviour is
     // byte-identical to shipping outside of nano's suspend window.
@@ -1321,13 +1379,9 @@ bool NanoMenu::enterDrmSleep() {
         }
         if (left > 0) ALOGW("NanoMenu: %d panel(s) did not come back after the sleep", left);
     }
-    {
-        int sysfs_val = mBrightness * mMaxBrightness / 255;
-        if (sysfs_val < 1) sysfs_val = 1;
-        nanobl::nanoBacklightSet(mBrightness);
-        setBrightnessViaHal(sysfs_val);
-    }
+    nanobr::panelOn(mBrightness);
     property_set("sys.gammaos.nano.screenoff", "0");
+    nanoclock::endSleep();
     nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)
     // Hold nano_wake until the framework actually owns wakefulness. The wake key
     // is injected via `input keyevent 224` -> app_process, which on a low-RAM
@@ -1374,11 +1428,13 @@ bool NanoMenu::enterDrmSleep() {
     }
     // Framework now holds its own display suspend-blocker (or we hit the cap).
     // Drop our bridge.
+    if (keepAudio) property_set("sys.gammaos.nano.keep_audio", "0");
     if (wokeWakelock) {
         int wl = open("/sys/power/wake_unlock", O_WRONLY | O_CLOEXEC);
         if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
         wokeWakelock = false;
     }
+    resetHeldInputState("sleep wake");   // releases of keys held across the sleep were lost
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);
     ctrShuffleEvent(false, (int64_t)uptimeMillis() - sleepStartMs);   // 3DS theme Shuffle: next favourite
@@ -1391,14 +1447,62 @@ bool NanoMenu::enterDrmSleep() {
 // Querying the kernel's actual key bitmap makes SELECT+volume=brightness fire only
 // while SELECT is genuinely held down.
 bool NanoMenu::selectKeyHeld() const {
+    return keyHeldAny({BTN_SELECT});
+}
+
+// A Select+Vol chord press: brightness one step, the pending SELECT action cancelled, the hold-repeat armed.
+void NanoMenu::brightChordPress(int volCode) {
+    mSelectVolChord = true;
+    const int dir = volCode == KEY_VOLUMEUP ? 1 : -1;
+    adjustBrightness(dir);
+    mBrightChordKey = volCode;
+    mBrightChordDir = dir;
+    mBrightChordDueMs = (int64_t)android::uptimeMillis() + nanobr::kChordRepeatFirstMs;
+    mBrightChordRepeating = false;
+}
+
+// K29: VOL presses read while SELECT was live but not tracked. A SELECT press in the same batch means the pad fd was
+// drained after gpio-keys: a chord. Without one the live bit is a stuck synthetic SELECT (it never repeats on the
+// RG DS Plus, so no repeat can tell): plain volume, as before.
+void NanoMenu::resolveDeferredVolume() {
+    for (int i = 0; i < mVolDeferredN; i++) {
+        if (mSelectPressInBatch) {
+            ALOGI("NanoMenu: Select+Vol read before the Select press, treated as brightness");
+            brightChordPress(mVolDeferred[i]);
+        } else {
+            adjustVolume(mVolDeferred[i] == KEY_VOLUMEUP ? 1 : -1);
+        }
+    }
+    mVolDeferredN = 0;
+}
+
+// Select+Vol held: another step after kChordRepeatFirstMs, then every kChordRepeatMs, while both keys are
+// physically down.
+void NanoMenu::tickBrightChord() {
+    if (mBrightChordKey == 0) return;
+    if (!selectKeyHeld() || !keyHeldAny({mBrightChordKey})) { mBrightChordKey = 0; return; }
+    const int64_t now = (int64_t)android::uptimeMillis();
+    if (now < mBrightChordDueMs) return;
+    mBrightChordDueMs = now + nanobr::kChordRepeatMs;
+    if (!mBrightChordRepeating) { mBrightChordRepeating = true; ALOGI("NanoMenu: Select+Vol held, repeating"); }
+    adjustBrightness(mBrightChordDir);
+}
+
+// Same live bitmap query for any set of keys: true when at least one of them is physically down on
+// a grabbed input device right now (the deferred-launch re-fire uses it to tell whether A is still
+// held before it stamps a launch fade that no key release will ever stamp).
+bool NanoMenu::keyHeldAny(std::initializer_list<int> codes) const {
     const int nlongs = (KEY_MAX + 1 + 8 * (int)sizeof(long) - 1) / (8 * (int)sizeof(long));
     unsigned long bits[nlongs];
     for (int fd : mInputFds) {
         if (fd < 0) continue;
         memset(bits, 0, sizeof(bits));
         if (ioctl(fd, EVIOCGKEY(sizeof(bits)), bits) < 0) continue;
-        if (bits[BTN_SELECT / (8 * sizeof(long))] & (1UL << (BTN_SELECT % (8 * sizeof(long)))))
-            return true;
+        for (int code : codes) {
+            if (code < 0 || code > KEY_MAX) continue;
+            if (bits[code / (8 * sizeof(long))] & (1UL << (code % (8 * sizeof(long)))))
+                return true;
+        }
     }
     return false;
 }
@@ -1476,6 +1580,10 @@ void NanoMenu::ndsTouchFrame() {
     auto scrub = [&](float cam){                       // launcher.scrub: finger owns the camera
         if (cam < 0.0f) cam = 0.0f; if (cam > camMax) cam = camMax;
         mNdsCamera = cam; mNdsScrubbing = true; mNdsFastScroll = false; mDisplayDirty = true;
+        // A scrub that carries another card to the centre (more than half a slot off the selection)
+        // is browsing: drop a launch queued before boot finished, as the D-pad handlers do, instead
+        // of leaving "Starts when ready" under a card the user never chose. A smaller wobble keeps it.
+        if (mLaunchPending && (int)lroundf(cam) != ndsFocusSel()) cancelPendingLaunch();
     };
     auto selStep = [&](int off){                        // nav step + slide (arrows / side-tile tap)
         int cur = ndsFocusSel();
@@ -1963,6 +2071,7 @@ int NanoMenu::kbdCodeToCp(int code, bool shift) {
 }
 
 void NanoMenu::armAppLaunchTrigger() {
+    resumeNoteLaunch();   // the RG DS Plus Menu tap in the home returns to this app (NanoMenuResume.cpp)
     if (!mOverlayMode && !sDrmActive) { mLaunchTriggerDeferred = true; return; }
     property_set("service.bootanim.nano_retroarch", "1");
 }
@@ -1980,6 +2089,10 @@ void NanoMenu::pollInput() {
             while (read(fd, &dev, sizeof(dev)) == (ssize_t)sizeof(dev)) { /* discard */ }
         }
         property_set("sys.gammaos.nano.nav", "");   // swallow scripted nav too
+        if (!mLaunchDrainReset) {   // the releases drained here are lost: forget what is held (once per launch)
+            mLaunchDrainReset = true;
+            resetHeldInputState("launch drain");
+        }
         return;
     }
     // Home (non-overlay) launch fade-out: once the launching select has been
@@ -2274,6 +2387,10 @@ void NanoMenu::pollInput() {
         }
     }
 
+    // Normally nothing is left over; this decides a VOL of a batch that ended through an early return inside the read
+    // loop, with that batch's flag.
+    resolveDeferredVolume();
+    mSelectPressInBatch = false;
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
@@ -2423,6 +2540,12 @@ void NanoMenu::pollInput() {
                 if (ev.type == EV_KEY) colorPickerHandleKey(ev.code, ev.value);
                 continue;
             }
+            // RG DS Plus Menu key (204, KEY_ALL_APPLICATIONS on the pad): with the home in front a short
+            // tap starts the last game or app (NanoMenuResume.cpp). Before the 3DS block so every
+            // theme gets it. Off, on other pads and for a hold it returns false and nothing changes.
+            if (ev.type == EV_KEY && ev.code == 204 && ev.value != 2
+                && menuResumeKey(fd, ev.value, (int64_t)ev.time.tv_sec * 1000000LL + ev.time.tv_usec))
+                continue;
             // 3DS theme: while its home has the screen, buttons, the D-pad and the circle pad are
             // its held state (NanoMenuCtr.cpp); START, SELECT and system keys stay with nano.
             if (mCtrTheme && (ev.type == EV_KEY || ev.type == EV_ABS) && ctrInputEvent(ev.type, ev.code, ev.value))
@@ -2631,51 +2754,57 @@ void NanoMenu::pollInput() {
             // Track SELECT button state; in XMB mode, press refreshes game lists
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
                 if (ev.value == 1) {
-                    if (mOskActive) oskCycleLanguage(1);   // Select cycles language
+                    // Arm the action of the screen in front; it runs on the release unless a chord happens
+                    // (Select+Vol brightness, Select+Power), so a chord never also fires the action.
+                    mSelectPressInBatch = true;
+                    mSelectVolChord = false;
+                    if (mOskActive) mSelectArmed = kSelOskLang;   // Select cycles language
                     // Photo viewer: SELECT toggles the EXIF/Information overlay (the
                     // "Display" control), matching the real PS3 photo viewer - which is
                     // why the viewer panel shows the SELECT pill only on that control.
                     else if (mPvActive && !mPvWpMode && !mPvTrimMode
-                             && !mPs3DlgActive && !mPvPlChooserActive) {
-                        mPvInfo = !mPvInfo; mPvPanel = false;
-                    }
+                             && !mPs3DlgActive && !mPvPlChooserActive) mSelectArmed = kSelPvInfo;
                     // Video player: SELECT toggles the Display OSD bar (web vidToggleInfo:
                     // osd=!osd, panel=false), so it also dismisses the control panel.
-                    else if (mVidActive) {
-                        if (!mVidOpenInProgress.load(std::memory_order_relaxed)) {   // ignore while opening
-                            mVidOsd = !mVidOsd;
-                            if (mVidCpOpen) vidPanelClose();
-                        }
-                    }
+                    else if (mVidActive) mSelectArmed = kSelVidOsd;
                     // PS3 XMB: SELECT invokes the global search on RELEASE (tap), not on
                     // press, so a SELECT+Volume brightness chord does not also open the
-                    // search OSK. Arm the tap here; the chord flag (set by a Volume press
-                    // below) and the release edge decide whether it actually fires.
+                    // search OSK.
                     else if (mPs3Xmb && !mMpActive && !mPs3OptActive && !mPs3DlgActive
-                             && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
-                        mSelectSearchArmed = true;
-                        mSelectVolChord    = false;
-                    }
-                    else if (mXmbMode) forceRescanAllSystems();
+                             && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) mSelectArmed = kSelSearch;
+                    else { mSelectArmed = kSelNone; if (mXmbMode) forceRescanAllSystems(); }   // harmless on the press
                 }
                 // Only a real press (1) or release (0) edge updates the held state; ignore
                 // key-repeat (2). A BTN_SELECT synthesized by the RetroArch back-override (written
                 // to the pad while the user holds BACK to exit) can be left stuck DOWN when the
-                // emulator eats its up, and the kernel then AUTO-REPEATS it forever. Treating those
-                // repeats as "held" re-armed mSelectHeld right after the app->menu raise cleared it,
-                // so a plain volume press kept adjusting brightness (and Power kept hitting the
-                // shader escape hatch). Ignoring repeats lets the raise-time clear stick.
+                // emulator eats its up; on a device whose joypad autorepeats, the kernel then repeats it
+                // forever (not the RG DS Plus: no EV_REP on the joypad or on gammapad's virtual pad, so no
+                // SELECT repeat ever arrives there). Treating those repeats as "held" re-armed mSelectHeld
+                // right after the app->menu raise cleared it, so a plain volume press kept adjusting
+                // brightness (and Power kept hitting the shader escape hatch). Ignoring repeats lets the
+                // raise-time clear stick.
                 if (ev.value != 2) mSelectHeld = (ev.value != 0);
-                // SELECT tap-to-search: fire on the real release edge, but only if no
-                // Volume chord happened while it was held (that was a brightness combo).
+                // The armed action fires on the real release edge, but only if no chord happened while
+                // SELECT was held (Select+Vol brightness or Select+Power).
                 if (ev.value == 0) {
-                    if (mSelectSearchArmed && !mSelectVolChord
-                        && mPs3Xmb && !mOskActive && !mMpActive && !mPs3OptActive
-                        && !mPs3DlgActive && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
-                        gsearchOpen();
+                    // a VOL deferred in this batch is decided as a chord at its end (K29): no action then either
+                    if (!mSelectVolChord && mVolDeferredN == 0) {
+                        switch (mSelectArmed) {   // the same screen must still be in front
+                        case kSelOskLang: if (mOskActive) oskCycleLanguage(1); break;
+                        case kSelPvInfo:
+                            if (mPvActive && !mPvWpMode && !mPvTrimMode && !mPs3DlgActive && !mPvPlChooserActive) { mPvInfo = !mPvInfo; mPvPanel = false; }
+                            break;
+                        case kSelVidOsd:
+                            if (mVidActive && !mVidOpenInProgress.load(std::memory_order_relaxed)) { mVidOsd = !mVidOsd; if (mVidCpOpen) vidPanelClose(); }   // ignore while opening
+                            break;
+                        case kSelSearch:
+                            if (mPs3Xmb && !mOskActive && !mMpActive && !mPs3OptActive && !mPs3DlgActive && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) gsearchOpen();
+                            break;
+                        default: break;
+                        }
                     }
-                    mSelectSearchArmed = false;
-                    mSelectVolChord    = false;
+                    mSelectArmed = kSelNone;
+                    mSelectVolChord = false;
                 }
             }
             if (ev.type == EV_KEY && ev.code == BTN_START) {
@@ -2702,6 +2831,7 @@ void NanoMenu::pollInput() {
                     ALOGI("NanoMenu: Power+Select -> display shader disabled (escape hatch)");
                     mPowerPressTime = 0;
                     mDisplayDirty = true;
+                    mSelectVolChord = true;   // a chord: the Select release then does nothing
                     continue;
                 }
                 // PhoneWindowManager owns the power button unless nano grabs input.
@@ -2809,19 +2939,23 @@ void NanoMenu::pollInput() {
                 case KEY_RIGHT: navRelease(NavDir::Right); break;
                 case BTN_SOUTH: if (mOskActive) oskARelease(); break;
                 case KEY_LEFTSHIFT: case KEY_RIGHTSHIFT: mKbdShiftHeld = false; break;
+                case KEY_VOLUMEUP: case KEY_VOLUMEDOWN: if (ev.code == mBrightChordKey) mBrightChordKey = 0; break;
                 default: break;
                 }
             }
             if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
-                // Volume keys: SELECT+VOL = brightness, VOL alone = volume. Verify
-                // SELECT against the live key state (not the sticky mSelectHeld) so a
-                // missed SELECT release never turns plain volume into brightness.
+                // Volume keys: SELECT+VOL = brightness, VOL alone = volume (press only; kernel autorepeat,
+                // value 2, is ignored: the chord repeats in tickBrightChord()). SELECT is checked against the
+                // live key state (not the sticky mSelectHeld) so a missed SELECT release never turns plain
+                // volume into brightness. A VOL with SELECT live but not tracked (the pad fd is drained after
+                // gpio-keys, or a stuck synthetic SELECT) waits for the end of this batch:
+                // resolveDeferredVolume() (K29).
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
-                    if (mSelectHeld && selectKeyHeld()) {
-                        mSelectVolChord = true;   // brightness combo: cancel the pending SELECT search tap
-                        adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
-                    } else if (ev.value == 1) {
-                        adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    if (ev.value == 1) {
+                        const bool live = selectKeyHeld();
+                        if (mSelectHeld && live) brightChordPress(ev.code);
+                        else if (live && mVolDeferredN < 4) mVolDeferred[mVolDeferredN++] = ev.code;
+                        else adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
                     }
                     continue;
                 }
@@ -3188,17 +3322,23 @@ void NanoMenu::pollInput() {
             }
             if (ev.type == EV_ABS) {
                 if (ev.code == ABS_HAT0X) {
-                    // HAT axes only emit a release as value==0. We don't
-                    // know from just the axis whether Left or Right was
-                    // held, so pass NavDir::None to release whichever is
-                    // currently active.
+                    // HAT axes only emit a release as value==0. Release only the direction this axis can
+                    // have held (Left or Right); a Y still deflected takes the hold back over.
                     if (ev.value < 0)      navPress(NavDir::Left);
                     else if (ev.value > 0) navPress(NavDir::Right);
-                    else                   navRelease(NavDir::None);
+                    else {
+                        if (mNavHeldDir == NavDir::Left || mNavHeldDir == NavDir::Right) navRelease(mNavHeldDir);
+                        if (mNavHeldDir == NavDir::None && mHatY != 0) navRearm(mHatY < 0 ? NavDir::Up : NavDir::Down);
+                    }
+                    mHatX = ev.value;
                 } else if (ev.code == ABS_HAT0Y) {
                     if (ev.value < 0)      navPress(NavDir::Up);
                     else if (ev.value > 0) navPress(NavDir::Down);
-                    else                   navRelease(NavDir::None);
+                    else {
+                        if (mNavHeldDir == NavDir::Up || mNavHeldDir == NavDir::Down) navRelease(mNavHeldDir);
+                        if (mNavHeldDir == NavDir::None && mHatX != 0) navRearm(mHatX < 0 ? NavDir::Left : NavDir::Right);
+                    }
+                    mHatY = ev.value;
                 } else if (ev.code == ABS_X) {
                     // Left stick X: horizontal navigation
                     int threshold = 29490; // 90% of 32767
@@ -3209,7 +3349,8 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Right);
                         mStickXTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
-                        if (mStickXTriggered) navRelease(NavDir::None);
+                        if (mStickXTriggered && (mNavHeldDir == NavDir::Left || mNavHeldDir == NavDir::Right))
+                            navRelease(mNavHeldDir);   // a stick back at centre never cancels a D-pad hold
                         mStickXTriggered = false;
                     }
                 } else if (ev.code == ABS_Y) {
@@ -3223,7 +3364,8 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Down);
                         mStickYTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
-                        if (mStickYTriggered) navRelease(NavDir::None);
+                        if (mStickYTriggered && (mNavHeldDir == NavDir::Up || mNavHeldDir == NavDir::Down))
+                            navRelease(mNavHeldDir);
                         mStickYTriggered = false;
                     }
                 }
@@ -3233,6 +3375,8 @@ void NanoMenu::pollInput() {
     // Fire accelerating repeats while a direction remains held. Must run
     // every frame, not only when events arrive, because held axes stop
     // emitting events once settled.
+    resolveDeferredVolume();
+    tickBrightChord();
     tickNavRepeat();
     tickAutoScroll();   // glide the Applications cursor to a freshly installed app
 }
