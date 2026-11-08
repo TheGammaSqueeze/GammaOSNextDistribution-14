@@ -40,6 +40,7 @@
 #include <unistd.h>
 #include <utils/Trace.h>
 
+#include <algorithm>
 #include <cerrno>
 #include <cinttypes>
 #include <climits>
@@ -4470,7 +4471,41 @@ void InputDispatcher::notifyConfigurationChanged(const NotifyConfigurationChange
     }
 }
 
+// GammaOS Nano: nano's overlay / Control Center reads the pad from evdev while drop_input is set, and the gates in
+// notifyKey/notifyMotion drop the app's events, releases included. On the 0 -> 1 edge every connection gets its held
+// keys and motion canceled (CANCEL_ALL_EVENTS: a joystick ACTION_CANCEL carries the last coordinates, so the replay
+// below is what centres a released hat). On the 1 -> 0 edge the last dropped joystick motion of each device is handed
+// back, timed after the drop fence, so the app sees the stick and hat as they are now. The virtual pad is never
+// re-created (a new deviceId would look like a hotplug).
+std::vector<NotifyMotionArgs> InputDispatcher::gammaDropInputEdge(bool dropNow) {
+    std::vector<NotifyMotionArgs> replay;
+    std::scoped_lock _l(mLock);
+    if (dropNow && !mGammaDropping) {
+        mGammaDropping = true;
+        mGammaDroppedJoystick.clear();
+        resetKeyRepeatLocked();
+        synthesizeCancelationEventsForAllConnectionsLocked(
+                CancelationOptions(CancelationOptions::Mode::CANCEL_ALL_EVENTS, "GammaOS nano took the input"));
+        ALOGI("GammaOS Nano: drop_input on, held input canceled for the app");
+    } else if (!dropNow && mGammaDropping) {
+        mGammaDropping = false;
+        const nsecs_t fence = android::base::GetIntProperty<int64_t>("sys.gammaos.nano.drop_fence_ns", 0);
+        const nsecs_t t = std::max(now(), fence + 1);
+        for (auto& [deviceId, args] : mGammaDroppedJoystick) {
+            NotifyMotionArgs r = args;
+            r.id = mIdGenerator.nextId();
+            r.eventTime = t;
+            replay.push_back(r);
+        }
+        mGammaDroppedJoystick.clear();
+        if (!replay.empty()) ALOGI("GammaOS Nano: drop_input off, replayed %zu joystick state(s)", replay.size());
+    }
+    return replay;
+}
+
 void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
+    const bool gammaDrop = android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false);
+    for (const NotifyMotionArgs& r : gammaDropInputEdge(gammaDrop)) notifyMotion(r);
     // GammaOS Nano: drop all key events during nano→RetroArch transition and while
     // the nano overlay XMB is up, to prevent the app underneath from acting on XMB
     // navigation. Exemptions reach interceptKeyBeforeQueueing on the queueing side:
@@ -4505,7 +4540,7 @@ void InputDispatcher::notifyKey(const NotifyKeyArgs& args) {
             android::base::GetProperty("ro.gammaos.device", "") == "anbernicrgdsplus";
     const bool gammaMenuHomeKey = args.keyCode == 83 /* AKEYCODE_NOTIFICATION */ && gammaRgDsPlus &&
             android::base::GetBoolProperty("sys.gammaos.minimal_boot", false);
-    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)
+    if (gammaDrop
             && !gammaSlideKey
             && !gammaMenuHomeKey
             && args.keyCode != 4 /* AKEYCODE_BACK */
@@ -4596,8 +4631,15 @@ bool InputDispatcher::shouldSendKeyToInputFilterLocked(const NotifyKeyArgs& args
 }
 
 void InputDispatcher::notifyMotion(const NotifyMotionArgs& args) {
-    // GammaOS Nano: drop all motion events during nano→RetroArch transition
-    if (android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false)) {
+    // GammaOS Nano: drop all motion events during nano→RetroArch transition. The last joystick state of each device
+    // is kept and replayed when drop_input clears (gammaDropInputEdge).
+    const bool gammaDrop = android::base::GetBoolProperty("sys.gammaos.nano.drop_input", false);
+    for (const NotifyMotionArgs& r : gammaDropInputEdge(gammaDrop)) notifyMotion(r);   // flag is 0 now: no recursion loop
+    if (gammaDrop) {
+        if (isFromSource(args.source, AINPUT_SOURCE_JOYSTICK)) {
+            std::scoped_lock _l(mLock);
+            mGammaDroppedJoystick[args.deviceId] = args;
+        }
         return;
     }
     if (debugInboundEventDetails()) {
