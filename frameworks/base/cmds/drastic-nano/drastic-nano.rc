@@ -129,7 +129,12 @@ on property:sys.gammaos.drastic_nano.session_done=1
 
 # drastic-nano owns the lid and the device sleep for its DRM game session (PhoneWindowManager
 # notifyLidSwitchChanged, device/gammaos/gammaos.rc). However the service ends (exit, crash, kill), the
-# framework gets the lid back and the vendor suspend loop is no longer held off.
+# framework gets the lid back and the vendor suspend loop is no longer held off. The session flag and the
+# published volume target end with it too.
 on property:init.svc.drastic-nano=stopped
     setprop sys.gammaos.drastic_nano.lid_owner 0
     setprop sys.gammaos.drastic_nano.awake 0
+    # A session that ended without its tail (SIGKILL, LMK) must not look live to the framework: the BACK hold
+    # would ask a dead drastic-nano for exit_home and overlay raises would be suppressed. A relaunch sets it again.
+    setprop sys.gammaos.drastic_nano.session 0
+    setprop sys.gammaos.nano.vol_target 0
