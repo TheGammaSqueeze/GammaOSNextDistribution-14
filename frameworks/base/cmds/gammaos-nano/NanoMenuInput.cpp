@@ -760,6 +760,15 @@ void NanoMenu::navRelease(NavDir dir) {
     }
 }
 
+// Hold dir for the repeat without a step now (the other HAT axis was released while this one stays deflected).
+void NanoMenu::navRearm(NavDir dir) {
+    if (dir == NavDir::None) return;
+    mNavHeldDir = dir;
+    mNavHeldStartMs = android::uptimeMillis();
+    mNavLastRepeatMs = mNavHeldStartMs;
+    mNavRepeatCount = 0;
+}
+
 // Forget every held direction and modifier: nothing was read while the fds were drained (park, launch, overlay
 // show, sleep) or a device went away, so their releases are lost. Without this the list scrolled by itself after a
 // game (K16).
@@ -3313,17 +3322,23 @@ void NanoMenu::pollInput() {
             }
             if (ev.type == EV_ABS) {
                 if (ev.code == ABS_HAT0X) {
-                    // HAT axes only emit a release as value==0. We don't
-                    // know from just the axis whether Left or Right was
-                    // held, so pass NavDir::None to release whichever is
-                    // currently active.
+                    // HAT axes only emit a release as value==0. Release only the direction this axis can
+                    // have held (Left or Right); a Y still deflected takes the hold back over.
                     if (ev.value < 0)      navPress(NavDir::Left);
                     else if (ev.value > 0) navPress(NavDir::Right);
-                    else                   navRelease(NavDir::None);
+                    else {
+                        if (mNavHeldDir == NavDir::Left || mNavHeldDir == NavDir::Right) navRelease(mNavHeldDir);
+                        if (mNavHeldDir == NavDir::None && mHatY != 0) navRearm(mHatY < 0 ? NavDir::Up : NavDir::Down);
+                    }
+                    mHatX = ev.value;
                 } else if (ev.code == ABS_HAT0Y) {
                     if (ev.value < 0)      navPress(NavDir::Up);
                     else if (ev.value > 0) navPress(NavDir::Down);
-                    else                   navRelease(NavDir::None);
+                    else {
+                        if (mNavHeldDir == NavDir::Up || mNavHeldDir == NavDir::Down) navRelease(mNavHeldDir);
+                        if (mNavHeldDir == NavDir::None && mHatX != 0) navRearm(mHatX < 0 ? NavDir::Left : NavDir::Right);
+                    }
+                    mHatY = ev.value;
                 } else if (ev.code == ABS_X) {
                     // Left stick X: horizontal navigation
                     int threshold = 29490; // 90% of 32767
@@ -3334,7 +3349,8 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Right);
                         mStickXTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
-                        if (mStickXTriggered) navRelease(NavDir::None);
+                        if (mStickXTriggered && (mNavHeldDir == NavDir::Left || mNavHeldDir == NavDir::Right))
+                            navRelease(mNavHeldDir);   // a stick back at centre never cancels a D-pad hold
                         mStickXTriggered = false;
                     }
                 } else if (ev.code == ABS_Y) {
@@ -3348,7 +3364,8 @@ void NanoMenu::pollInput() {
                         navPress(NavDir::Down);
                         mStickYTriggered = true;
                     } else if (ev.value > -threshold && ev.value < threshold) {
-                        if (mStickYTriggered) navRelease(NavDir::None);
+                        if (mStickYTriggered && (mNavHeldDir == NavDir::Up || mNavHeldDir == NavDir::Down))
+                            navRelease(mNavHeldDir);
                         mStickYTriggered = false;
                     }
                 }

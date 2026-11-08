@@ -1333,6 +1333,7 @@ private:
     // HAT axes, each with its own held direction (K34).
     int mHatX = 0, mHatY = 0;
     void resetHeldInputState(const char* why);
+    void navRearm(NavDir dir);   // hold a direction for the repeat without firing a step
     void brightChordPress(int volCode);
     void resolveDeferredVolume();
     void tickBrightChord();
