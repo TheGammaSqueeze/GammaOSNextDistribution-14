@@ -173,6 +173,8 @@ struct InputState {
     int volHeldDir = 0;
     int64_t volRepeatDueMs = 0;
     bool volRepeating = false;
+    // The left stick drives the stylus right now (Analog Stick -> Stylus); a real finger always wins.
+    bool stickStylusActive = false;
     // This state may toggle the Touch Cursor (action 28) and honour cursor_dbg. False for the fast input thread:
     // the render loop owns the cursor mode and tells that thread when it may forward (main.cpp fastOwnsNow).
     bool ownsCursorToggle = true;

@@ -479,17 +479,23 @@ int applyPortraitControls(const InputState* st, int physMask, int lsDpad,
 
 // Apply the LS -> stylus remap when analog touch is enabled. Called
 // after gamepad axes are drained for the frame. Mutates st->touchDs*
-// / st->touchHeld when the stick is outside the deadzone. The hard-
-// touch path (gt9xx-0) always wins if the panel is being touched.
+// / st->touchHeld when the stick is outside the deadzone, and lifts the
+// stylus again when the stick is back at rest. The hard-touch path
+// (gt9xx-0) always wins if the panel is being touched.
 void applyAnalogStylus(InputState* st) {
-    if (!st->analogTouchEnabled) return;
-    if (st->touchHeld) return; // real touch wins
+    if (!st->analogTouchEnabled) {
+        if (st->stickStylusActive) {            // switched off while the stick held the stylus
+            st->stickStylusActive = false;
+            if (!st->touchReal) st->touchHeld = false;
+        }
+        return;
+    }
+    if (st->touchReal) { st->stickStylusActive = false; return; }   // a real finger wins
     float nx = normAxis(st->axLX, st->analogDeadzone);
     float ny = normAxis(st->axLY, st->analogDeadzone);
     if (nx == 0.0f && ny == 0.0f) {
-        // Stick at rest: release virtual stylus but keep last coords
-        // for drastic (so idle stylus sits on the bottom screen, not
-        // at 0,0).
+        // Stick at rest: lift the stylus, keep the last coordinates (it rests on the bottom screen, not at 0,0).
+        if (st->stickStylusActive) { st->stickStylusActive = false; st->touchHeld = false; }
         return;
     }
     // Map normalized [-1, 1] to DS (0..255, 0..191), centered.
@@ -500,6 +506,7 @@ void applyAnalogStylus(InputState* st) {
     st->touchDsX = dx;
     st->touchDsY = dy;
     st->touchHeld = true;
+    st->stickStylusActive = true;
 }
 
 // Move the virtual touch cursor for this frame. Direction comes from the left
