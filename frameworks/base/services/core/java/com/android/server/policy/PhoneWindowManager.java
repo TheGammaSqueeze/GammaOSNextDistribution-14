@@ -928,6 +928,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
 
     // Track last known foreground app to detect transitions into/out of RetroArch.
     private String mLastFgApp = null;
+    // GammaOS Nano: Select+Volume hold-repeat for apps in nano mode, as NanoBrightness.h kChordRepeatFirstMs /
+    // kChordRepeatMs. The repeats are a temporary brightness (the panel follows; Settings and
+    // persist.gammaos.nano.brightness are not written) committed with one setBrightness when the hold ends, so a hold
+    // costs one persist write (an init fsync on the microSD), not one per step. All of it runs on mHandler.
+    private static final long NANO_BRIGHT_REPEAT_FIRST_MS = 400;
+    private static final long NANO_BRIGHT_REPEAT_MS = 110;
+    private int mNanoBrightRepeatKey;            // the volume key held for the chord, 0 = none
+    private int mNanoBrightRepeatDir;
+    private float mNanoBrightRepeatLevel;        // the level in effect (temporary while mNanoBrightRepeatTemp)
+    private boolean mNanoBrightRepeatTemp;
+    private boolean mNanoBrightRepeatLogged;
+    private boolean mNanoBrightRepeatIndicator;  // the indicator may show (no DRM renderer owned the panel at the press)
 
     // The device id from which the BACK key event came.
     private int mBackDeviceId = -1;
@@ -3495,6 +3507,65 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         }
         return next;
     }
+
+    // A Select+Volume press in an app (mHandler). A kernel autorepeat of the key already repeating is ignored.
+    private void nanoBrightPress(int keyCode, int direction, boolean showIndicator) {
+        if (keyCode == mNanoBrightRepeatKey && mNanoBrightRepeatDir != 0) return;
+        nanoBrightRepeatStop();   // a pending temporary level is committed first
+        final float level = adjustScreenBrightness(direction, true);
+        if (showIndicator) showNanoBrightnessIndicator(level);
+        mNanoBrightRepeatKey = keyCode;
+        mNanoBrightRepeatDir = direction;
+        mNanoBrightRepeatLevel = level;
+        mNanoBrightRepeatTemp = false;
+        mNanoBrightRepeatLogged = false;
+        mNanoBrightRepeatIndicator = showIndicator;
+        mHandler.removeCallbacks(mNanoBrightRepeat);
+        mHandler.postDelayed(mNanoBrightRepeat, NANO_BRIGHT_REPEAT_FIRST_MS);
+    }
+
+    private void nanoBrightRelease(int keyCode) {
+        if (keyCode == mNanoBrightRepeatKey) nanoBrightRepeatStop();
+    }
+
+    // Ends a hold: one setBrightness for the level reached (it also clears the temporary brightness, even when the
+    // value equals the stored one: BrightnessSetting.setBrightness always notifies).
+    private void nanoBrightRepeatStop() {
+        mHandler.removeCallbacks(mNanoBrightRepeat);
+        if (mNanoBrightRepeatTemp) {
+            mDisplayManager.setBrightness(DEFAULT_DISPLAY, mNanoBrightRepeatLevel);
+            final int to = BrightnessSynchronizer.brightnessFloatToInt(mNanoBrightRepeatLevel);
+            Slog.i(TAG, "GammaOS Nano: Select+Volume hold ended at " + to + " (" + nanoBrightnessPercent(to) + "%)");
+        }
+        mNanoBrightRepeatKey = 0;
+        mNanoBrightRepeatDir = 0;
+        mNanoBrightRepeatTemp = false;
+    }
+
+    private final Runnable mNanoBrightRepeat = new Runnable() {
+        @Override public void run() {
+            if (mNanoBrightRepeatDir == 0) return;
+            final boolean volDown = mInputManagerInternal != null
+                    && mInputManagerInternal.getKeyCodeState(-1, android.view.InputDevice.SOURCE_ANY,
+                            mNanoBrightRepeatKey) == 1;
+            if (!volDown || !gammaSelectPhysicallyHeld() || gammaNanoForeground() || gammaDrasticSessionLive()) {
+                nanoBrightRepeatStop();
+                return;
+            }
+            final float next = nextScreenBrightness(mNanoBrightRepeatLevel, mNanoBrightRepeatDir, true);
+            if (next != mNanoBrightRepeatLevel) {
+                mDisplayManager.setTemporaryBrightness(DEFAULT_DISPLAY, next);
+                mNanoBrightRepeatLevel = next;
+                mNanoBrightRepeatTemp = true;
+                if (!mNanoBrightRepeatLogged) {
+                    mNanoBrightRepeatLogged = true;
+                    Slog.i(TAG, "GammaOS Nano: Select+Volume held, repeating");
+                }
+                if (mNanoBrightRepeatIndicator) showNanoBrightnessIndicator(next);
+            }
+            mHandler.postDelayed(this, NANO_BRIGHT_REPEAT_MS);
+        }
+    };
 
     private void performKeyAction(Action action, KeyEvent event) {
         performKeyAction(action, event, AssistUtils.INVOCATION_TYPE_UNKNOWN, null);
@@ -7718,12 +7789,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             // brightness would move twice per press.
                             Slog.d(TAG, "GammaOS Nano: Select+Volume left to nano (brightness)");
                         } else if (selectHeld) {
-                            // SELECT + volume = brightness adjustment
-                            int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
-                            final float level = adjustScreenBrightness(direction, true);
-                            if (!drmOwnsPanel) {
-                                mHandler.post(() -> showNanoBrightnessIndicator(level));
-                            }
+                            // SELECT + volume = brightness adjustment. The step, the hold-repeat and the
+                            // indicator run on mHandler, off the input thread.
+                            final int dir = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
+                            final boolean show = !drmOwnsPanel;
+                            mHandler.post(() -> nanoBrightPress(keyCode, dir, show));
                         } else {
                             // Plain volume adjustment - set ALL audible streams to the
                             // same level (nano mode has one universal volume) and
@@ -7734,6 +7804,11 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 mHandler.post(() -> showNanoVolumeIndicator());
                             }
                         }
+                    }
+                    if (!down) {
+                        // The key went up: a Select+Volume hold-repeat on it ends (mHandler).
+                        final int kc = keyCode;
+                        mHandler.post(() -> nanoBrightRelease(kc));
                     }
                     result &= ~ACTION_PASS_TO_USER;
                     break;
