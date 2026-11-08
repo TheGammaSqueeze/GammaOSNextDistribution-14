@@ -7799,7 +7799,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             // same level (nano mode has one universal volume) and
                             // publish the value so the nano launcher's slider matches.
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
-                            nanoSyncAllStreamsVolume(direction);
+                            nanoSyncAllStreamsVolume(direction, event.getDownTime());
                             if (!drmOwnsPanel) {
                                 mHandler.post(() -> showNanoVolumeIndicator());
                             }
@@ -8552,12 +8552,30 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return mNanoVolumeHandler;
     }
 
-    private void nanoSyncAllStreamsVolume(int direction) {
+    private void nanoSyncAllStreamsVolume(int direction, long keyDownMs) {
         Log.i(TAG, "Nano: volume key " + (direction > 0 ? "up" : "down") + " queued");
-        nanoVolumeHandler().post(() -> nanoSyncAllStreamsVolumeNow(direction));
+        nanoVolumeHandler().post(() -> nanoSyncAllStreamsVolumeNow(direction, keyDownMs));
     }
 
-    private void nanoSyncAllStreamsVolumeNow(int direction) {
+    // GammaOS Nano: drastic-nano's published volume target ("index:uptimeMillis") for this press, -1 unless it was
+    // published at or after the key went down (the previous burst's index must not be taken), is younger than 1.5 s
+    // and the drastic-nano session is live. Any value without ':' (the "0" clear) is none.
+    private int gammaDrasticVolTarget(long keyDownMs) {
+        final String v = SystemProperties.get("sys.gammaos.nano.vol_target", "");
+        final int colon = v.indexOf(':');
+        if (colon <= 0) return -1;
+        try {
+            final int index = Integer.parseInt(v.substring(0, colon));
+            final long at = Long.parseLong(v.substring(colon + 1));
+            final long age = SystemClock.uptimeMillis() - at;
+            if (at < keyDownMs || age < 0 || age >= 1500 || !gammaDrasticSessionLive()) return -1;
+            return index;
+        } catch (NumberFormatException e) {
+            return -1;
+        }
+    }
+
+    private void nanoSyncAllStreamsVolumeNow(int direction, long keyDownMs) {
         try {
             AudioManager am = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
             if (am == null) return;
@@ -8565,6 +8583,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             int musMax = am.getStreamMaxVolume(AudioManager.STREAM_MUSIC);
             int cur = am.getStreamVolume(AudioManager.STREAM_MUSIC);
             int next = cur + direction;
+            // drastic-nano set the music stream itself for this press (OverlayMenu volThreadMain) and published the
+            // index; this step lands later and AudioService's index is stale, so take the target instead of adding
+            // the direction again (a burst would dip back otherwise).
+            final int target = gammaDrasticVolTarget(keyDownMs);
+            final boolean fromDrastic = target >= 0;
+            if (fromDrastic) next = target;
             if (next < 0) next = 0; else if (next > musMax) next = musMax;
             float frac = musMax > 0 ? (float) next / (float) musMax : 0f;
             final int[] streams = {
@@ -8580,7 +8604,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             android.os.SystemProperties.set("persist.gammaos.nano.volume", Integer.toString(next));
             android.os.SystemProperties.set("persist.gammaos.nano.volmax", Integer.toString(musMax));
-            Log.i(TAG, "Nano: volume " + cur + " -> " + next + " of " + musMax + " applied to all streams");
+            Log.i(TAG, "Nano: volume " + cur + " -> " + next + " of " + musMax + " applied to all streams"
+                    + (fromDrastic ? " (drastic target)" : ""));
         } catch (Exception e) {
             Log.e(TAG, "Nano: all-stream volume sync failed", e);
         }
