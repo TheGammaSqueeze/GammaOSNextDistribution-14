@@ -125,9 +125,10 @@ public:
     void freeRaTextures(drastic_gfx::OverlayGfx& gfx);
 
     // Called from the main loop on volume-key presses: VOL = volume,
-    // SELECT+VOL = brightness. Adjusts the level and shows the slider HUD.
+    // SELECT+VOL = brightness (a signed step count). Adjusts the level and shows the slider HUD.
     void onVolumeAdjust(int dir)     { adjustVolume(dir); }
-    void onBrightnessAdjust(int dir) { adjustBrightness(dir); }
+    // The General page row shows the new percent when the chord is used with the menu open.
+    void onBrightnessAdjust(int steps) { adjustBrightness(steps); if (mOpen && mSection == kSec_General) rebuildRows(); }
 
     // RetroAchievements: surface a UI event (unlock, game placard, login, etc.)
     // as an on-screen message, and learn whether hardcore restrictions are
@@ -435,10 +436,8 @@ private:
     // shown on the volume keys since the SF system HUDs never appear on the
     // DRM-direct path. Render every frame (even with the menu closed) and
     // auto-hide after ~1.5s.
-    int mBrightLevel = 128;     // 0-255 (Android range)
     int mVolHudTimer = 0;       // frames remaining (60fps)
     int mBrightHudTimer = 0;
-    bool mBrightInit = false;
     // System volume mirror for the DRM-path HUD: the real level PhoneWindowManager
     // publishes (persist.gammaos.nano.volume/volmax). adjustVolume tracks it so the
     // slider shows the actual output level, not the DS core's own mixer.
@@ -501,7 +500,7 @@ private:
 
     // Volume/brightness HUD (in-app slider notifications).
     void adjustVolume(int dir);
-    void adjustBrightness(int dir);
+    void adjustBrightness(int steps);
     void drawHud(drastic_gfx::OverlayGfx& gfx);  // volume + brightness bars
     // Push the current prefs to the running emulator with no relaunch
     // (rebuilds the config word and calls DrasticRunner::applyVideoConfigLive).

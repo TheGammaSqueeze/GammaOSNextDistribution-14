@@ -102,6 +102,7 @@
 #include "InputMap.h"
 #include "NanoPmSync.h"
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoMenuDrm.h"
 #include "NanoColorMatrix.h"
 #include "NanoI18n.h"
@@ -1264,132 +1265,18 @@ void boostAudioServer() {
 // Sleep / wake
 // ------------------------------------------------------------------
 
-// Set every BACKLIGHT light through the ILights AIDL HAL (same
-// convention as the nano home's setBrightnessViaHal: 0-255 packed into
-// the RGB channels). The sysfs nodes are driven separately through the
-// shared NanoBacklight helper; the HAL covers devices that route the
-// panel backlight exclusively through it.
-void setBacklightHal(int brightness) {
-    using aidl::android::hardware::light::ILights;
-    using aidl::android::hardware::light::HwLight;
-    using aidl::android::hardware::light::HwLightState;
-    using aidl::android::hardware::light::LightType;
-
-    ndk::SpAIBinder binder(
-            AServiceManager_checkService("android.hardware.light.ILights/default"));
-    bool halApplied = false;
-    if (binder.get()) {
-        std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
-        if (hal) {
-            std::vector<HwLight> lights;
-            hal->getLights(&lights);
-            for (const auto& light : lights) {
-                if (light.type == LightType::BACKLIGHT) {
-                    HwLightState state{};
-                    state.color = 0xFF000000 | (brightness << 16) |
-                                  (brightness << 8) | brightness;
-                    hal->setLightState(light.id, state);
-                    halApplied = true;
-                }
-            }
-        }
-    }
-    // Brick (and similar) expose only the HIDL light@2.0 HAL (no AIDL ILights
-    // service, no /sys/class/backlight), so the AIDL path above no-ops there.
-    // Fall back to HIDL ILight@2.0::setLight(BACKLIGHT), matching the nano home.
-    if (!halApplied) {
-        using ::android::hardware::light::V2_0::ILight;
-        using ::android::hardware::light::V2_0::Type;
-        using ::android::hardware::light::V2_0::LightState;
-        using ::android::hardware::light::V2_0::Brightness;
-        using ::android::hardware::light::V2_0::Flash;
-        android::sp<ILight> hidl = ILight::getService();
-        if (hidl != nullptr) {
-            LightState st{};
-            st.color = 0xFF000000 | (brightness << 16) |
-                       (brightness << 8) | brightness;
-            st.flashMode = Flash::NONE;
-            st.brightnessMode = Brightness::USER;
-            hidl->setLight(Type::BACKLIGHT, st);
-        }
-    }
-}
-
-// The brightness a session runs at: persist.gammaos.nano.brightness, 1..255.
+// The wanted level of this session: persist at the start, then whatever Select+Vol and the menu set, or a level
+// another program put into persist meanwhile (the gammaos-nano overlay over the SF backend) - the wake and grace
+// relights follow it, as they did when this re-read persist (D26).
 int sessionBrightness() {
-    int level = property_get_int32("persist.gammaos.nano.brightness", 128);
-    if (level < 1) level = 1;
-    if (level > 255) level = 255;
-    return level;
+    return android::nanobr::currentLevel();
 }
 
-// The lights HAL is skipped on the RG DS Plus: RockchipLights writes the same sysfs nodes, DisplayPowerController
-// writes the HAL itself, and a call of ours cost 0.4 to 0.9 s (getLights, and the HAL re-reads its config on
-// every call) on the sleep and the wake path. An empty node list there (should not happen) keeps the HAL.
-bool backlightHalSkipped() {
-    static const bool sSkip = [] {
-        char dev[PROPERTY_VALUE_MAX] = {};
-        property_get("ro.gammaos.device", dev, "");
-        return strcmp(dev, "anbernicrgdsplus") == 0 && !android::nanobl::nanoBacklightNodes().empty();
-    }();
-    return sSkip;
-}
-
-// "dn-blhal": the lights HAL calls of the devices that still need them, latest level wins. Never destroyed:
-// the thread is detached and may sit in its wait when static destructors run.
-struct BlHalWorker {
-    std::mutex mu;
-    std::condition_variable cv;
-    int want = 0;
-    uint32_t seq = 0, taken = 0;
-    bool started = false;
-};
-BlHalWorker& blHalWorker() {
-    static BlHalWorker* w = new BlHalWorker;
-    return *w;
-}
-
-void blHalMain() {
-    pthread_setname_np(pthread_self(), "dn-blhal");
-    {
-        sched_param sp = {};   // the render thread's SCHED_FIFO 80 is inherited
-        sched_setscheduler(0, SCHED_OTHER, &sp);
-        setpriority(PRIO_PROCESS, 0, 0);
-    }
-    BlHalWorker& w = blHalWorker();
-    for (;;) {
-        int level;
-        {
-            std::unique_lock<std::mutex> lk(w.mu);
-            w.cv.wait(lk, [&] { return w.seq != w.taken; });
-            level = w.want;
-            w.taken = w.seq;
-        }
-        setBacklightHal(level);
-        {
-            std::lock_guard<std::mutex> lk(w.mu);
-            if (w.seq != w.taken) continue;   // a newer level was asked for meanwhile: that one wins
-        }
-        // The HAL call can end after the render thread's sysfs write of a newer level; rewrite the node with
-        // the level this call applied, now that nothing newer is waiting, so a stale HAL(0) is never last.
-        android::nanobl::nanoBacklightSet(level);
-    }
-}
-
-// Sets the panel backlight on every device: the sysfs nodes at once, on the calling thread; where the lights
-// HAL is needed as well, it follows from "dn-blhal".
+// Sets the panel backlight on every device (sysfs at once; the lights HAL, where the device needs it, from the
+// shared nano-bright thread). 0 darkens: no panel write and no debounced Settings push until the next level > 0.
 void backlightApply(int level) {
-    android::nanobl::nanoBacklightSet(level);
-    if (backlightHalSkipped()) return;
-    BlHalWorker& w = blHalWorker();
-    std::lock_guard<std::mutex> lk(w.mu);
-    w.want = level;
-    ++w.seq;
-    if (!w.started) {
-        w.started = true;
-        std::thread(blHalMain).detach();
-    }
-    w.cv.notify_all();
+    if (level <= 0) android::nanobr::panelOff();
+    else android::nanobr::panelOn(level);
 }
 
 // Lowest brightness over the sysfs nodes, -1 when there are none. Reads the files directly
@@ -1635,6 +1522,10 @@ void doSleep(android::drastic_input::InputState* input, DrasticRunner* dr, bool 
     // blank frame still scanned, the last image showed under a bright light and a USB
     // plug relit the bottom panel onto it
     android::drmPanelsPowerOff();
+    // The panels are off (backlight_disable keeps a DisplayPowerController write dark): persist and Settings now, so
+    // DPC applies this session's level at the wake, not an older one.
+    android::nanobr::brightnessFlushPersist();
+    android::nanobr::brightnessPushNow();
 
     // Match the home XMB's clean pre-suspend state. The home suspends and
     // resumes reliably; drastic runs the session with deep CPU idle
@@ -6835,6 +6726,12 @@ int main(int argc, char** argv) {
     // home's QR preview never sets this, so it stays on the renderFrame path.
     // drastic-nano.rc clears it on session_done (clean exit and crash).
     property_set("sys.gammaos.drastic_nano.session", "1");
+    // Brightness for the session: seed from persist, let the module correct a late framework write while this
+    // session drives the panel (RG DS Plus), and make Settings hold the level before DisplayPowerController applies
+    // it at a wake (the home only wrote persist when it handed the panel over). The push waits 3 s, off the ROM load.
+    android::nanobr::currentLevel();
+    android::nanobr::brightnessWatchPanel(true);
+    android::nanobr::forceSettingsPush(android::nanobr::kSessionPushDelayMs);
     // Saves and save states the DraStic app still holds in its own data dir:
     // offer to move them to /sdcard/drastic-nano before the ROM boots, so an
     // imported autosave is what this session resumes. Asked once: either answer
@@ -7060,6 +6957,10 @@ int main(int argc, char** argv) {
     // emulator to keep running a few frames, but nobody should hear them.
     dr.setVolumeRuntime(0);
 
+    // The parked home seeds its brightness from persist: write it now, and stop this process's brightness thread from
+    // touching the panel or Settings once the home draws (the home pushes Settings itself when it wakes).
+    android::nanobr::brightnessRelease(300);
+
     // The return hand-off (runLoop's exit fade): the panels already show the held colour and the save
     // was requested at the press, so as soon as the emulator has captured it the panels go to the
     // parked home, and the write, the fsync and the exit run beside the home's wake. A save that was
@@ -7239,6 +7140,13 @@ int main(int argc, char** argv) {
     // A per-game override write is coalesced on a worker; make sure the last
     // setting change of the session is on disk before we leave.
     android::drastic_settings::flush();
+    // Without a hand-off nobody else pushes Settings after this process: do it now (the next boot and an app read it).
+    if (!panelsHanded) {
+        android::nanobr::brightnessReclaim();   // brightnessRelease above blocked the push; writes nothing itself
+        android::nanobr::brightnessFlush(1500);
+    } else {
+        ALOGI("drastic-nano: brightness left to the home (Settings pushed when it wakes)");
+    }
 
     // Quick Resume power off / reboot. drastic-nano owns the save + power action
     // here because gammaos-nano is stopped during a DRM session (and in SF the

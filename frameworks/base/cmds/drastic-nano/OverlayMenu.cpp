@@ -52,6 +52,7 @@
 #include <system/audio.h>
 
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoSliderHud.h"   // shared volume/brightness slider spec (gammaos-nano)
 #include <utils/Log.h>
 #include <utils/SystemClock.h>
@@ -1640,19 +1641,14 @@ void OverlayMenu::rebuildGeneral() {
 
     // Brightness (live). Reuses the exact path the SELECT+VOL shortcut uses
     // (adjustBrightness): the drastic-nano binary runs as root in both the
-    // DRM-direct and SF backends, so nanoBacklightSet() drives the panel
-    // backlight directly and the level is mirrored to
-    // persist.gammaos.nano.brightness. Step and 8..255 clamp match the shortcut.
+    // DRM-direct and SF backends, so the shared module drives the panel
+    // backlight directly and mirrors the level to persist.gammaos.nano.brightness
+    // and Settings. Table steps with floor 1, as the shortcut.
     {
         RowAction r;
         r.label = "Brightness";
-        if (!mBrightInit) {
-            mBrightLevel = shadowPropGetInt(
-                    "persist.gammaos.nano.brightness", 128);
-            mBrightInit = true;
-        }
         char pct[16];
-        snprintf(pct, sizeof(pct), "%d%%", mBrightLevel * 100 / 255);
+        snprintf(pct, sizeof(pct), "%d%%", android::nanobr::brightnessPercent(android::nanobr::currentLevel()));
         r.value = pct;
         // rebuildRows() is called by the input dispatcher right after onAdjust,
         // so the value string above refreshes automatically each step.
@@ -2251,110 +2247,16 @@ void OverlayMenu::adjustVolume(int dir) {
     volPressAsync(dir);
 }
 
-// Mirror the in-game brightness level into the framework's authoritative store,
-// Settings.System.screen_brightness (Android 0-255 range, the same value nano
-// home writes in syncBrightnessToAndroid). Without this the change lives only in
-// persist.gammaos.nano.brightness + the volatile sysfs/HAL nodes, so when the
-// game exits the display framework re-asserts the OLD system brightness and the
-// panel jumps back (the "reverts to ~50% on exit" report), and a reboot restores
-// the old value because nano seeds brightness from Settings.System first. Runs as
-// a reparented grandchild via a double-fork so the game process never blocks on
-// the settings CLI and never accumulates zombie children on repeated presses.
-static void pushBrightnessToSettings(int level) {
-    if (level < 0) level = 0;
-    if (level > 255) level = 255;
-    char val[16];
-    snprintf(val, sizeof(val), "%d", level);
-    pid_t pid = fork();
-    if (pid == 0) {
-        // First child: fork again so the grandchild (the settings CLI) is
-        // reparented to init and reaped by it, then exit immediately.
-        pid_t gc = fork();
-        if (gc == 0) {
-            execl("/system/bin/settings", "settings", "put", "system",
-                  "screen_brightness", val, (char*)nullptr);
-            _exit(127);   // exec failed
-        }
-        _exit(0);
-    } else if (pid > 0) {
-        // Parent: reap the short-lived first child (returns almost immediately,
-        // it only forks and exits) so it does not linger as a zombie.
-        waitpid(pid, nullptr, 0);
-    }
-}
-
-void OverlayMenu::adjustBrightness(int dir) {
-    if (!mBrightInit) {
-        mBrightLevel = shadowPropGetInt(
-                "persist.gammaos.nano.brightness", 128);
-        mBrightInit = true;
-    }
-    int b = mBrightLevel + 16 * dir;
-    if (b < 8)   b = 8;       // never fully dark via the keys
-    if (b > 255) b = 255;
-    mBrightLevel = b;
-    // Drive both mechanisms so every device relights: the sysfs backlight nodes
-    // AND the ILights HAL. The Brick routes the panel backlight through the HAL
-    // only, so the sysfs write alone no-ops (matches the nano home's applyBrightness,
-    // and the sleep/wake path here already uses the HAL).
-    android::nanobl::nanoBacklightSet(mBrightLevel);   // sysfs: immediate, cheap
-    // The HALs, the persist write and the settings exec take 400 to 700 ms on the
-    // RG DS Plus; the panel is already relit through sysfs, so they go to the worker.
-    const int level = mBrightLevel;
-    postAsync([level]() {
-    bool halApplied = false;
-    {
-        using aidl::android::hardware::light::ILights;
-        using aidl::android::hardware::light::HwLight;
-        using aidl::android::hardware::light::HwLightState;
-        using aidl::android::hardware::light::LightType;
-        ndk::SpAIBinder binder(AServiceManager_checkService(
-                "android.hardware.light.ILights/default"));
-        if (binder.get()) {
-            std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
-            if (hal) {
-                std::vector<HwLight> lights;
-                hal->getLights(&lights);
-                for (const auto& light : lights) {
-                    if (light.type == LightType::BACKLIGHT) {
-                        HwLightState state{};
-                        state.color = 0xFF000000 | (level << 16) |
-                                      (level << 8) | level;
-                        hal->setLightState(light.id, state);
-                        halApplied = true;
-                    }
-                }
-            }
-        }
-    }
-    // Brick (and similar) have no AIDL ILights service AND no
-    // /sys/class/backlight nodes, so the AIDL block above and nanoBacklightSet
-    // both no-op there. Fall back to the HIDL light@2.0 HAL - the same path the
-    // nano home uses, which is what actually drives this panel's backlight.
-    if (!halApplied) {
-        using ::android::hardware::light::V2_0::ILight;
-        using ::android::hardware::light::V2_0::Type;
-        using ::android::hardware::light::V2_0::LightState;
-        using ::android::hardware::light::V2_0::Brightness;
-        using ::android::hardware::light::V2_0::Flash;
-        android::sp<ILight> hal = ILight::getService();
-        if (hal != nullptr) {
-            LightState st{};
-            st.color = 0xFF000000 | (level << 16) |
-                       (level << 8) | level;
-            st.flashMode = Flash::NONE;
-            st.brightnessMode = Brightness::USER;
-            hal->setLight(Type::BACKLIGHT, st);
-        }
-    }
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d", level);
-    property_set("persist.gammaos.nano.brightness", buf);
-    // Persist system-wide so the level survives leaving the game, a reboot, and is
-    // visible to other apps (not just nano's own private property + volatile nodes).
-    pushBrightnessToSettings(level);
-    });
-    mBrightHudTimer = 90;
+// SELECT+VOL and the General > Brightness row: |steps| table steps through the shared module (sysfs at once; the
+// lights HAL, persist and Settings from its thread, newest level wins). Nothing goes to the menu worker any more.
+void OverlayMenu::adjustBrightness(int steps) {
+    mBrightHudTimer = 90;   // ~1.5 s; the HUD shows at the ends too
+    if (steps == 0) return;
+    const int cur = android::nanobr::currentLevel();
+    const int next = android::nanobr::brightnessStepN(cur, steps);
+    if (next == cur) return;
+    android::nanobr::brightnessSet(next);
+    ALOGI("OverlayMenu: brightness %d -> %d (%d%%)", cur, next, android::nanobr::brightnessPercent(next));
 }
 
 void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
@@ -2384,7 +2286,7 @@ void OverlayMenu::drawHud(drastic_gfx::OverlayGfx& gfx) {
     if (mBrightHudTimer > 0) {
         mBrightHudTimer--;
         nano_slider::draw(be, vw, vh, nano_slider::kBrightness,
-                          mBrightLevel * 100 / 255, slot++);
+                          android::nanobr::brightnessPercent(android::nanobr::currentLevel()), slot++);
     }
     if (mVolHudTimer > 0) {
         mVolHudTimer--;
