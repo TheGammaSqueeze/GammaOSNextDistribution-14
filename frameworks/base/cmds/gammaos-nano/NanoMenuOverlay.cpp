@@ -39,6 +39,7 @@
 #include <fcntl.h>
 #include <malloc.h>
 #include <sys/mman.h>
+#include "NanoBrightness.h"
 #include "NanoMenu.h"
 #include "NanoCtrArt.h"
 #include "NanoCtrHome.h"
@@ -552,6 +553,8 @@ void NanoMenu::overlayShow() {
             while (read(fd, &ev, sizeof(ev)) == (ssize_t)sizeof(ev)) { /* discard */ }
         }
     }
+    // The overlay drives the panel while it is shown (hidden: PhoneWindowManager steps Select+Vol for the app).
+    nanobr::brightnessWatchPanel(true);
 
     // Power-button raise over a running app: land on the Quick Menu (the GammaOS
     // legacy global actions) as the default category, mirroring the PS3 in-game XMB
@@ -829,6 +832,10 @@ void NanoMenu::overlayPageOutSelf() {
 
 void NanoMenu::overlayHide() {
     if (!mOverlayShown) return;
+    // The app owns the panel again: PhoneWindowManager steps Select+Vol from here (show_overlay=0), so the module must
+    // not correct the nodes any more; a level changed in the overlay goes to Settings now.
+    nanobr::brightnessWatchPanel(false);
+    nanobr::brightnessPushNow();
     ctrDropSuspend();   // captures not handed to the home yet
 
     // Drop any input up to NOW before restoring the app's input - notably the BACK
@@ -1779,6 +1786,7 @@ void NanoMenu::overlayStartAzaharNano() {
             property_set("persist.gammaos.nano.qr_prepared", "0");
             ALOGW("azahar nano: overlay launch -> azahar-nano (DRM), %s closed",
                   old.empty() ? "no app" : old.c_str());
+            nanobr::brightnessRelease(0);   // persist now; the session pushes Settings (init kills our children at _exit)
             property_set("sys.gammaos.azahar_nano.start", "1");
             _exit(0);
         }).detach();
@@ -1852,6 +1860,7 @@ void NanoMenu::overlayStartDrasticNano() {
             property_set("persist.gammaos.nano.qr_prepared", "0");
             ALOGW("drastic nano: overlay launch -> drastic-nano (DRM), %s closed",
                   old.empty() ? "no app" : old.c_str());
+            nanobr::brightnessRelease(0);   // persist now; the session pushes Settings (init kills our children at _exit)
             property_set("sys.gammaos.drastic_nano.start", "1");
             _exit(0);
         }).detach();

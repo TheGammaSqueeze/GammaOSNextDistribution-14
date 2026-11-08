@@ -5,6 +5,7 @@
 // collections), launches through nano's own launch paths, maps raw input onto 3DS buttons and
 // places the two 3DS screens on the panels (two panels: top on the primary, bottom on the
 // secondary; one panel: stacked or bottom only, by aspect).
+#include "NanoBrightness.h"
 #include "NanoMenu.h"
 #include "NanoMenuDrm.h"
 #include "NanoCtrHome.h"
@@ -2326,9 +2327,10 @@ void NanoMenu::ctrModalUpdate() {
     if (mPs3BrightSlider) {
         // the Quick Menu brightness: live, in percent like the other themes' bar
         char pct[16];
-        snprintf(pct, sizeof(pct), "%d%%", mBrightness * 100 / 255);
+        snprintf(pct, sizeof(pct), "%d%%", nanobr::brightnessPercent(mBrightness));
         mCtrDialog->set(std::string(), {}, 0);
-        mCtrDialog->setProgress(std::string(trDyn("Brightness")) + "\n\n" + pct, (float)mBrightness / 255.0f);
+        mCtrDialog->setProgress(std::string(trDyn("Brightness")) + "\n\n" + pct,
+                                (float)nanobr::brightnessPercent(mBrightness) / 100.0f);
         mCtrDialog->show();
     } else if (slider) {
         const float span = mPs3DlgSldMax - mPs3DlgSldMin;
@@ -2581,7 +2583,7 @@ bool NanoMenu::ctrModalTouch(float x, float y, bool touching) {
         const float f = mCtrDialog->progressTouch(down, held, up, x, y);
         if (down) mCtrSliderTap = f < 0;
         if (f >= 0) {
-            const int b = std::clamp((int)lroundf(f * 255.0f), 1, 255);
+            const int b = nanobr::brightnessLevelForFraction(f);
             if (b != mBrightness) {
                 mBrightness = b;
                 applyBrightness();

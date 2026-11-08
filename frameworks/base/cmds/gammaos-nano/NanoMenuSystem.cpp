@@ -46,6 +46,7 @@
 #include <sys/stat.h>
 
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoI18n.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"
@@ -108,93 +109,21 @@ void NanoMenu::writeSysfsInt(const char* path, int value) {
 // Brightness
 // ---------------------------------------------------------------------------
 
-// Set backlight brightness via the ILights AIDL HAL (portable across devices).
-// Returns true if HAL call succeeded, false if HAL not available yet.
-bool NanoMenu::setBrightnessViaHal(int brightness) {
-    using aidl::android::hardware::light::ILights;
-    using aidl::android::hardware::light::HwLight;
-    using aidl::android::hardware::light::HwLightState;
-    using aidl::android::hardware::light::LightType;
-
-    ndk::SpAIBinder binder(
-            AServiceManager_checkService("android.hardware.light.ILights/default"));
-    if (!binder.get()) {
-        return false;
-    }
-    std::shared_ptr<ILights> hal = ILights::fromBinder(binder);
-    if (!hal) {
-        return false;
-    }
-
-    std::vector<HwLight> lights;
-    hal->getLights(&lights);
-    // Drive EVERY backlight light, not just the first: dual-panel devices
-    // (RG DS) can expose one HwLight per panel, and stopping at the first
-    // left the second panel unblanked across sleep and untouched by the
-    // brightness HUD.
-    bool any = false;
-    for (const auto& light : lights) {
-        if (light.type == LightType::BACKLIGHT) {
-            HwLightState state{};
-            // Standard Android convention: brightness in alpha channel of ARGB
-            state.color = 0xFF000000 | (brightness << 16) | (brightness << 8) | brightness;
-            hal->setLightState(light.id, state);
-            any = true;
-        }
-    }
-    return any;
-}
-
 void NanoMenu::adjustBrightness(int direction) {
-    // mBrightness is in Android 0-255 range
-    int step = 26; // ~10% of 255
-    mBrightness += step * direction;
-    if (mBrightness < 1) mBrightness = 1;
-    if (mBrightness > 255) mBrightness = 255;
+    // mBrightness is in Android 0-255 range; one press moves to the next table entry in its direction
+    const int prev = mBrightness;
+    mBrightness = nanobr::brightnessStep(mBrightness, direction);
+    mShowBrightnessBar = true;   // before the apply: the HUD shows at once, also at the ends
+    mBrightnessBarTimer = 90;    // ~1.5 s at 60 fps
+    if (mBrightness == prev) return;
     applyBrightness();
-    mShowBrightnessBar = true;
-    mBrightnessBarTimer = 90; // ~1.5s at 60fps
+    ALOGI("NanoMenu: brightness %d -> %d (%d%%)", prev, mBrightness, nanobr::brightnessPercent(mBrightness));
 }
 
 void NanoMenu::applyBrightness() {
-    // Drive every backlight node (dual-panel devices track together), each
-    // scaled against its own max, plus the lights HAL.
-    nanobl::nanoBacklightSet(mBrightness);
-    int sysfs_val = mBrightness * mMaxBrightness / 255;
-    if (sysfs_val < 1) sysfs_val = 1;
-    setBrightnessViaHal(sysfs_val);
-    syncBrightnessToAndroid();
-}
-
-// The Settings.System mirror is a `settings put`, a forked shell plus a Java process: never on
-// the render thread, and never twice for the same level. One helper thread at normal priority
-// pushes the LATEST requested level; a burst of changes (a held brightness key, the boot
-// assertion) collapses into one push of the final value. The persist property, which nano reads
-// itself at boot, is written right away.
-void NanoMenu::syncBrightnessToAndroid() {
-    char buf[16];
-    snprintf(buf, sizeof(buf), "%d", mBrightness);
-    property_set("persist.gammaos.nano.brightness", buf);
-    static std::atomic<int> sPending{-1};      // latest level to push (-1 none)
-    static std::atomic<int> sPushed{-1};       // last level handed to `settings put`
-    static std::atomic<bool> sRunning{false};
-    if (sPushed.load() == mBrightness && sPending.load() < 0) return;   // already mirrored
-    sPending.store(mBrightness);
-    if (sRunning.exchange(true)) return;       // the worker drains sPending before it exits
-    std::thread([]() {
-        nanoThreadNormalPriority();
-        for (;;) {
-            const int lvl = sPending.exchange(-1);
-            if (lvl < 0) break;
-            sPushed.store(lvl);
-            char cmd[128];
-            snprintf(cmd, sizeof(cmd), "settings put system screen_brightness %d 2>/dev/null", lvl);
-            (void)system(cmd);
-        }
-        sRunning.store(false);
-        // A level queued between the last exchange and the flag clear is picked up by the next
-        // call (it sees sPending >= 0 and starts a new worker).
-    }).detach();
+    // Every backlight node at once (sysfs, calling thread); the lights HAL, persist and the Settings mirror
+    // come from the module's nano-bright thread, off the render thread (NanoBrightness.h).
+    nanobr::brightnessSet(mBrightness);
 }
 
 int NanoMenu::readAndroidBrightness() {
@@ -302,13 +231,13 @@ void NanoMenu::renderBrightnessBar() {
     if (mCtrTheme && mPs3BrightSlider) return;
     // DSi / Minima / 3DS draw the themed HUD; XMB keeps the shared flat system slider (top slot).
     if (mNdsTheme || mMinimaTheme || mCtrTheme) {
-        renderThemedSliderHud(false, mBrightness * 100 / 255, 0);
+        renderThemedSliderHud(false, nanobr::brightnessPercent(mBrightness), 0);
         return;
     }
     // Shared spec (see NanoSliderHud.h): brightness shows in the top slot.
     NanoMenuSliderBackend be{this};
     nano_slider::draw(be, (float)mWidth, (float)mHeight,
-                      nano_slider::kBrightness, mBrightness * 100 / 255, 0);
+                      nano_slider::kBrightness, nanobr::brightnessPercent(mBrightness), 0);
 }
 
 // ---------------------------------------------------------------------------

@@ -23,6 +23,7 @@
 #include "NanoMenuDrm.h"
 #include "NanoMenuPS3Bg.h"
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 
 #include <algorithm>
 #include <dirent.h>
@@ -294,6 +295,7 @@ bool NanoMenu::drasticParkSession() {
             ALOGW("NanoMenu: the previous drastic-nano is still running; firing the launch anyway");
         property_set("sys.gammaos.drastic_nano.panel_free", "0");
         property_set("sys.gammaos.drastic_nano.panel_taken", "0");
+        nanobr::brightnessRelease(300);   // persist now; the session pushes Settings
         property_set("sys.gammaos.drastic_nano.start", "2");
         if (!waitPropEquals("sys.gammaos.drastic_nano.start", "0", 3000)) {
             ALOGW("NanoMenu: init has no start=2 rule; falling back to the cold hand-off");
@@ -592,16 +594,12 @@ bool NanoMenu::drasticParkSession() {
     }
     mWaitForRelease = false;
 
-    // Brightness: the game may have changed it (drastic-nano writes the same
-    // persist property); adopt it and relight the panel on our value.
+    // Brightness: the game may have changed it (drastic-nano persists it before the hand-off); adopt it, relight the
+    // panel on it and push Settings unconditionally (drastic leaves the Settings push to the home after a hand-off).
     {
-        char saved[PROPERTY_VALUE_MAX] = {};
-        property_get("persist.gammaos.nano.brightness", saved, "");
-        if (saved[0]) {
-            int b = atoi(saved);
-            if (b >= 1 && b <= 255) mBrightness = b;
-        }
-        nanobl::nanoBacklightSet(mBrightness);
+        const int b = property_get_int32("persist.gammaos.nano.brightness", -1);
+        if (b >= 1 && b <= 255) mBrightness = b;
+        nanobr::brightnessAdopt(mBrightness, true);
     }
 
     // Launch state: the effect that played into the hand-off is over.

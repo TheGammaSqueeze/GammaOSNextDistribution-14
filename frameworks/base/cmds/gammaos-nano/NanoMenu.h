@@ -788,9 +788,7 @@ private:
 
     // Brightness control
     void adjustBrightness(int direction);
-    bool setBrightnessViaHal(int brightness);
     void applyBrightness();
-    void syncBrightnessToAndroid();
     int readAndroidBrightness();
     void renderBrightnessBar();
     // DSi / Minima themed volume+brightness HUD (the XMB / in-app / drastic path keeps the shared

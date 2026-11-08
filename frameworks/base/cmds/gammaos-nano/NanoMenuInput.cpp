@@ -53,6 +53,7 @@ extern "C" uint32_t __system_property_serial(const prop_info* __pi);
 #include <utils/SystemClock.h>
 
 #include "NanoBacklight.h"
+#include "NanoBrightness.h"
 #include "NanoClockProfile.h"   // nanoclock::beginSleep / endSleep (RG DS Plus)
 #include "NanoMenu.h"
 #include "NanoCtrAudio.h"      // lid sleep closes the 3DS theme audio streams
@@ -1097,9 +1098,9 @@ bool NanoMenu::enterDrmSleep() {
         glClear(GL_COLOR_BUFFER_BIT);
     }
     drmFrameEnd(mDisplay, mSurface);
-    nanobl::nanoBacklightSet(0);
-    setBrightnessViaHal(0);
+    nanobr::panelOff();
     drmPanelsPowerOff();   // the pipes too, not only a blank frame (see the framework path)
+    nanobr::brightnessPushNow();   // panels are off: Settings now holds the level DPC applies at the wake
     // Drop to the powersave governor (lowest clocks) while the screen is off - audio
     // decode + the 1Hz poll run comfortably there. Restored on wake. Publish the
     // screen-off state so the BT stability monitor reverts to powersave (not the
@@ -1350,12 +1351,7 @@ bool NanoMenu::enterDrmSleep() {
         }
         if (left > 0) ALOGW("NanoMenu: %d panel(s) did not come back after the sleep", left);
     }
-    {
-        int sysfs_val = mBrightness * mMaxBrightness / 255;
-        if (sysfs_val < 1) sysfs_val = 1;
-        nanobl::nanoBacklightSet(mBrightness);
-        setBrightnessViaHal(sysfs_val);
-    }
+    nanobr::panelOn(mBrightness);
     property_set("sys.gammaos.nano.screenoff", "0");
     nanoclock::endSleep();
     nanoRestorePerfClock();   // restore the user's performance mode (was powersave while off)

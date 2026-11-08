@@ -14,6 +14,7 @@
 // so the bottom panel costs as little GPU as possible while a game runs on the top panel.
 
 #define LOG_TAG "GammaOSNano"
+#include "NanoBrightness.h"
 #include "NanoMenu.h"
 #include "NanoMenuShaders.h"   // FONT_CHAR_H
 #include <cutils/properties.h>
@@ -1765,7 +1766,6 @@ void NanoMenu::ccTouchFrame() {
         // never per drag frame). Slider 0 = top (backlight1/d1), slider 1 = bottom (backlight/slot0).
         if (mCcHeldSlider == 0 || mCcHeldSlider == 1) {
             int v = (mCcHeldSlider == 0) ? sCc.briTop : sCc.briBot;
-            char c[176];
             // The slider of the panel on the framework's split slot d1 drives the
             // d1 override; the other panel is the default display and goes through
             // the system brightness setting. On the RG DS d1 is the TOP panel
@@ -1776,24 +1776,45 @@ void NanoMenu::ccTouchFrame() {
             if (sD1IsTop < 0) sD1IsTop = property_get_bool("persist.gammaos.nano.cc.d1_is_top", true) ? 1 : 0;
             const int d1Slider = sD1IsTop ? 0 : 1;
             if (mCcHeldSlider == d1Slider && property_get_bool("persist.gammaos.multidisplay.split_brightness", false)) {
+                char c[176];
                 snprintf(c, sizeof(c),
                     "setprop sys.gammaos.multidisplay.split_brightness.d1.override %d; "
                     "setprop persist.gammaos.multidisplay.split_brightness.d1.last %d", v, v);
+                ccShellAsync(gCcBriSlot, c);
             } else {
                 // Unified brightness: this is nano's own level too. The home re-asserts mBrightness
-                // (applyBrightness) the moment the app exits, and a fresh process after a DRM
-                // drastic-nano session adopts persist.gammaos.nano.brightness on its first tick, so
-                // unless both are updated here the Control Centre change is undone on return to the
-                // menu. Scale the raw node value to nano's 0..255 level (max is 255 on this panel).
+                // the moment the app exits, and a fresh process after a DRM drastic-nano session adopts
+                // persist.gammaos.nano.brightness on its first tick, so unless both are updated here the
+                // Control Centre change is undone on return to the menu. Scale the raw node value to
+                // nano's 0..255 level (max is 255 on this panel). The brightness module writes persist
+                // and Settings (a slider release is one deliberate change: Settings at once).
                 const int mx = (mCcHeldSlider == 0) ? sCc.briTopMax : sCc.briBotMax;
                 int lvl = (mx > 0) ? (int)lroundf((float)v * 255.0f / (float)mx) : v;
                 if (lvl < 1) lvl = 1; if (lvl > 255) lvl = 255;
                 mBrightness = lvl;
-                char pb[16]; snprintf(pb, sizeof(pb), "%d", lvl);
-                property_set("persist.gammaos.nano.brightness", pb);
-                snprintf(c, sizeof(c), "settings put system screen_brightness %d 2>/dev/null", lvl);
+                const bool splitOn = property_get_bool("persist.gammaos.multidisplay.split_brightness", false);
+                if (splitOn && !nanobr::backlightHalSkipped()) {
+                    // Split brightness where a lights HAL exists (RG DS): the module's HAL step sets every
+                    // BACKLIGHT light, the d1 panel's too, after any write-back here. Keep the old path: persist
+                    // and `settings put` (the framework routes it to the default display only; the drag already
+                    // wrote this panel's node). The module then takes the level from persist, touching no panel.
+                    char pb[16]; snprintf(pb, sizeof(pb), "%d", lvl);
+                    property_set("persist.gammaos.nano.brightness", pb);
+                    char c[176];
+                    snprintf(c, sizeof(c), "settings put system screen_brightness %d 2>/dev/null", lvl);
+                    ccShellAsync(gCcBriSlot, c);
+                    nanobr::currentLevel();
+                } else {
+                    applyBrightness();
+                    nanobr::brightnessPushNow();
+                    // Split brightness on the RG DS Plus (no lights HAL): the framework drives only the default
+                    // display here, but the module wrote every backlight node. Put the d1 panel back to its own
+                    // slider value. (The late-write watch is off while the overlay is hidden, so nothing undoes
+                    // this.)
+                    if (splitOn)
+                        writeSysfsInt(ccBlBri(d1Slider == 1), (d1Slider == 0) ? sCc.briTop : sCc.briBot);
+                }
             }
-            ccShellAsync(gCcBriSlot, c);
         }
         mCcHeldSlider = -1;
         sWokeThisTouch = false;
