@@ -268,8 +268,8 @@ void NanoInput::logCStick() {
 // hold into a tap. They are the evdev stamps of this fd (CLOCK_REALTIME, nothing sets EVIOCSCLOCK), and
 // only the press and release of one hold are compared, never against nano's Control Center or
 // PhoneWindowManager, which time the same press from their own stamps. A hold does
-// nothing here; a tap takes the game home through the same exit as the Back hold (the in-game
-// saves persist, no save state is written).
+// nothing here; a tap saves a resume state first (main.cpp, slot 11) and then takes the game home
+// through the same exit as the Back hold.
 bool NanoInput::handleMenuKey(const input_event& e) {
     if (!mMenuHome || e.type != EV_KEY || e.code != KEY_ALL_APPLICATIONS) return false;
     const int64_t us = (int64_t)e.time.tv_sec * 1000000LL + e.time.tv_usec;
@@ -277,7 +277,10 @@ bool NanoInput::handleMenuKey(const input_event& e) {
         mMenuDownUs = us;
     } else if (e.value == 0) {
         // No press seen (it fell in the sleep park) means no tap.
-        if (mMenuDownUs > 0 && us - mMenuDownUs < kMenuHoldUs && mCb.exitRequest) mCb.exitRequest();
+        if (mMenuDownUs > 0 && us - mMenuDownUs < kMenuHoldUs) {
+            if (mCb.menuTapExit) mCb.menuTapExit();
+            else if (mCb.exitRequest) mCb.exitRequest();
+        }
         mMenuDownUs = 0;
     }
     return true;

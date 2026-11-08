@@ -138,6 +138,8 @@ std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real t
 std::atomic<int> sBrightHudPct{-1};
 std::atomic<int64_t> sBrightHudUntilNs{0};
 std::atomic<uint32_t> sBrightHudSeq{0};
+// The game has drawn a frame since it started (the Menu-tap save and the resume load wait for it).
+std::atomic<bool> gGameFrameSeen{false};
 std::string gUserDir;                     // config.ini folder, for readers outside main()
 uint64_t gCheatTitleId = 0;               // the running ROM's title id (cheat files)
 int gCheatCustomCount = 0;                // the user's own cheats lead the merged cheat file
@@ -559,6 +561,42 @@ static void backupStateSlot(int slot) {
     }
 }
 
+// The Menu tap's resume state: slot 11, which the core supports (SaveStateSlotCount = 11) and the menu never offers
+// (slots 1..10), so no save of the user's is ever overwritten. Not backed up (it is replaced at every Menu exit).
+constexpr int kResumeSlot = 11;
+static std::string sRomPath;                       // set in main() right after readRomPath
+std::atomic<bool> gMenuTapSaving{false};           // a Menu-tap save runs: menu toggles are ignored
+
+// Newest mtime (CLOCK_REALTIME ns, st_mtim) of a "*.11.cst" in sStatesDir, 0 when there is none. The core writes a
+// .tmp and renames it complete (savestate.cpp), so a newer final file means the state is on disk.
+static int64_t resumeStateMtimeNs() {
+    if (sStatesDir.empty()) return 0;
+    char suffix[16];
+    snprintf(suffix, sizeof(suffix), ".%02d.cst", kResumeSlot);
+    const size_t suffixLen = strlen(suffix);
+    DIR* d = opendir(sStatesDir.c_str());
+    if (!d) return 0;
+    int64_t newest = 0;
+    while (dirent* e = readdir(d)) {
+        const std::string n = e->d_name;
+        if (n.size() <= suffixLen || n.compare(n.size() - suffixLen, suffixLen, suffix) != 0) continue;
+        struct stat st{};
+        if (stat((sStatesDir + "/" + n).c_str(), &st) != 0) continue;
+        const int64_t t = (int64_t)st.st_mtim.tv_sec * 1000000000LL + st.st_mtim.tv_nsec;
+        if (t > newest) newest = t;
+    }
+    closedir(d);
+    return newest;
+}
+
+// The resume marker: FNV-1a 64 over the ROM path, printed as 16 hex digits (a property value holds at most 91
+// bytes; ROM paths are longer).
+static uint64_t resumeKey(const std::string& path) {
+    uint64_t h = 1469598103934665603ULL;
+    for (unsigned char c : path) { h ^= c; h *= 1099511628211ULL; }
+    return h;
+}
+
 void seedConfig(const std::string& userDir) {
     // The core writes a config.ini with empty (default) values on its first load,
     // so seed on empty values rather than on a missing file; a value the user set
@@ -829,6 +867,7 @@ int main(int argc, char** argv) {
     umask(0002);
 
     const std::string rom = readRomPath(argc, argv);
+    sRomPath = rom;
     if (rom.empty()) {
         ALOGE("no ROM path (argv[1] or %s)", kRomPathFile);
         sessionDone();
@@ -1327,6 +1366,10 @@ int main(int argc, char** argv) {
         else gCore.touch_moved(x, y);
     };
     icb.menuToggle = [] {
+        if (gMenuTapSaving.load()) {
+            ALOGW("menu toggle ignored: saving the resume state");
+            return;
+        }
         if (!sOverlayReady) {
             ALOGW("menu toggle ignored: overlay not ready");
             return;
@@ -1356,6 +1399,59 @@ int main(int argc, char** argv) {
         ALOGI("exit requested");
         gExitRequested = true;
         gCore.stop();
+    };
+    // Menu tap (RG DS Plus): like drastic-nano's exit_home, save first. Slot 11 is saved, then the game exits; the next
+    // launch of this ROM loads it once (persist.gammaos.azahar_nano.resume_key). The Back hold and the menu's Exit
+    // still exit at once. persist.gammaos.azahar_nano.menu_resume=0: the tap exits at once too.
+    // Runs on the NanoInput thread, which also drives the overlay (menuToggle): the overlay close, the unpause and the
+    // save request happen here, as in oa.saveState; only the wait for the file runs on a helper thread.
+    icb.menuTapExit = [] {
+        if (gExitRequested || gMenuTapSaving.exchange(true)) return;
+        const char* skip = nullptr;
+        if (prop("persist.gammaos.azahar_nano.menu_resume", "1") != "1") skip = "turned off";
+        else if (!gCore.is_running() || !gGameFrameSeen.load()) skip = "the game has not started";
+        else if (gSleepPaused) skip = "asleep";
+        if (skip) {
+            ALOGI("menu tap: exit without a resume state (%s)", skip);
+            gExitRequested = true;
+            gCore.stop();
+            return;
+        }
+        ALOGI("menu tap: saving the resume state (slot %d)", kResumeSlot);
+        const int64_t baseline = resumeStateMtimeNs();   // the file must get newer than this
+        if (overlay.isOpen()) {   // the save is processed by the emulation loop
+            overlay.close();
+            gSetOverlayActive(0, false);
+        }
+        gCore.pause(false);
+        gDynResSettle = 5;
+        const int64_t t0 = monoNs();
+        gSavingSinceNs.store(t0);   // the HUD's "Saving" notice
+        gCore.save_state(kResumeSlot);
+        std::thread([baseline, t0] {
+            bool ok = false;
+            int64_t start = t0;   // the 10 s do not count while the core sits paused for a sleep
+            while (!gExitRequested && monoNs() - start < 10000000000LL) {
+                if (resumeStateMtimeNs() > baseline) { ok = true; break; }
+                usleep(100 * 1000);
+                if (gSleepPaused.load()) start += 100 * 1000000LL;
+            }
+            if (ok) {
+                char key[24];
+                snprintf(key, sizeof(key), "%016llx", (unsigned long long)resumeKey(sRomPath));
+                if (property_set("persist.gammaos.azahar_nano.resume_key", key) == 0) {
+                    ALOGI("menu tap: resume state saved in %lld ms, exiting", (long long)((monoNs() - t0) / 1000000));
+                } else {
+                    ALOGW("menu tap: resume state saved, exiting without a resume marker (property_set failed)");
+                }
+            } else if (gExitRequested) {
+                ALOGI("menu tap: exit requested meanwhile, exiting without a resume marker");
+            } else {
+                ALOGW("menu tap: the resume state was not written within 10 s, exiting without it");
+            }
+            gExitRequested = true;
+            gCore.stop();
+        }).detach();
     };
     // Select+Vol (NanoInput): a brightness step, and the slider on the top panel's HUD strip.
     icb.brightness = [](int steps) {
@@ -1466,6 +1562,25 @@ int main(int argc, char** argv) {
                         if (gCore.set_color_matrix) { gCore.set_color_matrix(0, top.m, 12); gCore.set_color_matrix(1, bottom.m, 12); }
                         // the HUD and overlay are their own DRM planes: no compositor corrects them
                         if (sDrm) { hud.setColorMatrix(top.m); overlay.setColorMatrix(top.m, bottom.m); }
+                    }
+                }
+                // A Menu tap left a resume state for this ROM: load it once, after the game has drawn its first frames
+                // (a load before the system runs is refused).
+                {
+                    static bool sResumeChecked = false;
+                    if (!sResumeChecked && gGameFrameSeen.load()) {
+                        sResumeChecked = true;
+                        const std::string k = prop("persist.gammaos.azahar_nano.resume_key", "");
+                        char mine[24];
+                        snprintf(mine, sizeof(mine), "%016llx", (unsigned long long)resumeKey(sRomPath));
+                        if (!k.empty() && k == mine) {
+                            property_set("persist.gammaos.azahar_nano.resume_key", "");
+                            if (prop("persist.gammaos.azahar_nano.menu_resume", "1") == "1") {
+                                ALOGI("resume: loading the Menu-exit state (slot %d)", kResumeSlot);
+                                gCore.load_state(kResumeSlot);
+                                gDynResSettle = 5;
+                            }
+                        }
                     }
                 }
                 // Test hooks (adb): sys.gammaos.azahar_nano.menu=1 toggles the menu,
@@ -1707,6 +1822,7 @@ int main(int argc, char** argv) {
                 lastFlipNs = now;
                 sHudBlitFps = blitFps;
                 sHudGameFps = (float)st.game_fps;
+                if (st.game_fps > 0.5) gGameFrameSeen = true;
                 sSystemFps = (float)st.system_fps;
                 sHudSlow = st.emulation_speed < 0.92;
                 sHudSpeed = (float)(st.emulation_speed * 100.0);
@@ -1761,7 +1877,7 @@ int main(int argc, char** argv) {
             // covers that window too, whether or not the core counts compile jobs yet.
             {
                 const int jobs = gCore.compiles_pending ? gCore.compiles_pending() : 0;
-                if (sHudGameFps.load() > 0.5f) gameFrameSeen = true;
+                if (sHudGameFps.load() > 0.5f) { gameFrameSeen = true; gGameFrameSeen = true; }
                 const bool starting = live && !gameFrameSeen;
                 const bool emuStopped = sSystemFps.load() < 0.5f;
                 if (live && !gSleepPaused && ((emuStopped && (jobs > 0 || gStallScreenOn)) || starting)) {

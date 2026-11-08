@@ -29,6 +29,7 @@ struct InputCallbacks {
     std::function<void(int panel, float x, float y)> touchMoved;
     std::function<void()> menuToggle;   // short press of the menu/back key
     std::function<void()> exitRequest;  // long press of the menu/back key
+    std::function<void()> menuTapExit;  // Menu tap: save the resume state, then exit (falls back to exitRequest)
     std::function<void(int steps)> brightness;   // Select+Vol: a brightness step (press or hold-repeat)
     std::function<void()> fastForwardToggle;   // R3 (the 3DS has no stick click)
     // True while the menu is open: the d-pad then always navigates it (no stick swap).
