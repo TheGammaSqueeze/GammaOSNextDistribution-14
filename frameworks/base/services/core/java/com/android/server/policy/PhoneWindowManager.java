@@ -216,6 +216,7 @@ import com.android.internal.R;
 import com.android.internal.accessibility.AccessibilityShortcutController;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
+import com.android.internal.display.BrightnessSynchronizer;
 import com.android.internal.display.BrightnessUtils;
 import com.android.internal.inputmethod.SoftInputShowHideReason;
 import com.android.internal.logging.MetricsLogger;
@@ -3406,32 +3407,85 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         return "/dev/input/event5";
     }
 
-    /**
-     * Adjusts the screen brightness by a fixed step.
-     * A positive direction increases brightness while a negative value decreases it.
-     */
-    private void adjustScreenBrightness(int direction) {
-        // Retrieve the brightness constraints from the PowerManager.
-        float minBrightness = mPowerManager.getBrightnessConstraint(
+    // GammaOS Nano: the nano brightness steps (RG DS Plus); keep in step with
+    // frameworks/base/cmds/gammaos-nano/NanoBrightness.h (kSteps).
+    private static final int[] NANO_BRIGHTNESS_STEPS =
+            {1, 2, 3, 4, 5, 6, 7, 8, 14, 22, 33, 46, 59, 76, 97, 123, 156, 196, 255};
+
+    // One press: the next table entry in the press direction (never against it), cur itself at the ends.
+    // Keep in step with frameworks/base/cmds/gammaos-nano/NanoBrightness.h (brightnessStep).
+    private static int nanoBrightnessStep(int cur, int direction) {
+        cur = Math.max(1, Math.min(255, cur));
+        if (direction < 0) {
+            for (int i = NANO_BRIGHTNESS_STEPS.length - 1; i >= 0; i--) {
+                if (NANO_BRIGHTNESS_STEPS[i] < cur) return NANO_BRIGHTNESS_STEPS[i];
+            }
+        } else if (direction > 0) {
+            for (int i = 0; i < NANO_BRIGHTNESS_STEPS.length; i++) {
+                if (NANO_BRIGHTNESS_STEPS[i] > cur) return NANO_BRIGHTNESS_STEPS[i];
+            }
+        }
+        return cur;
+    }
+
+    // The HUD percent: the position in the table (interpolated between entries), 1..100, 0 only for level <= 0.
+    // Keep in step with frameworks/base/cmds/gammaos-nano/NanoBrightness.h (brightnessPercent).
+    private static int nanoBrightnessPercent(int level) {
+        if (level <= 0) return 0;
+        level = Math.min(255, level);
+        final int last = NANO_BRIGHTNESS_STEPS.length - 1;
+        for (int i = 0; i < last; i++) {
+            if (level <= NANO_BRIGHTNESS_STEPS[i + 1]) {
+                final float pos = (float) i + (float) (level - NANO_BRIGHTNESS_STEPS[i])
+                        / (float) (NANO_BRIGHTNESS_STEPS[i + 1] - NANO_BRIGHTNESS_STEPS[i]);
+                final int pct = Math.round(100.0f * pos / (float) last);
+                return pct < 1 ? 1 : pct;
+            }
+        }
+        return 100;
+    }
+
+    // The brightness one press gives, as a float. nanoSteps (the nano-mode Select+Volume caller) on the RG DS Plus:
+    // the nano table with floor 1, the levels the nano programs use. Otherwise: 10 steps between the framework minimum
+    // and maximum. Never against the press direction: a level below the floor (set in nano mode) is not raised by a
+    // down press. Returns current itself when nothing changes.
+    private float nextScreenBrightness(float current, int direction, boolean nanoSteps) {
+        if (nanoSteps && GAMMA_MENU_HOME_DEVICE) {
+            final int cur = BrightnessSynchronizer.brightnessFloatToInt(current);
+            final int next = nanoBrightnessStep(cur, direction);
+            return next == cur ? current : BrightnessSynchronizer.brightnessIntToFloat(next);
+        }
+        final float minBrightness = mPowerManager.getBrightnessConstraint(
                 PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
-        float maxBrightness = mPowerManager.getBrightnessConstraint(
+        final float maxBrightness = mPowerManager.getBrightnessConstraint(
                 PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
+        final float step = (maxBrightness - minBrightness) / BRIGHTNESS_STEPS;
+        final float target = current + step * direction;
+        return direction < 0
+                ? Math.min(current, Math.max(minBrightness, target))
+                : Math.max(current, Math.min(maxBrightness, target));
+    }
 
-        // Use the default display for the brightness adjustment.
-        int defaultDisplayId = DEFAULT_DISPLAY;
+    private void adjustScreenBrightness(int direction) {
+        adjustScreenBrightness(direction, false);
+    }
 
-        // Retrieve the current brightness for the default display.
-        float currentBrightness = mDisplayManager.getBrightness(defaultDisplayId);
-
-        // Calculate the step size based on the total range and number of steps.
-        float step = (maxBrightness - minBrightness) / BRIGHTNESS_STEPS;
-
-        // Compute the new brightness value, clamped between the min and max.
-        float newBrightness = currentBrightness + (step * direction);
-        newBrightness = Math.max(minBrightness, Math.min(maxBrightness, newBrightness));
-
-        // Apply the new brightness value.
-        mDisplayManager.setBrightness(defaultDisplayId, newBrightness);
+    /**
+     * Adjusts the screen brightness one step (see nextScreenBrightness) and returns the brightness in effect
+     * afterwards. No write when nothing changes.
+     */
+    private float adjustScreenBrightness(int direction, boolean nanoSteps) {
+        final float current = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
+        final float next = nextScreenBrightness(current, direction, nanoSteps);
+        if (next == current) return current;   // at an end: no write
+        mDisplayManager.setBrightness(DEFAULT_DISPLAY, next);
+        if (nanoSteps) {
+            final int to = BrightnessSynchronizer.brightnessFloatToInt(next);
+            Slog.i(TAG, "GammaOS Nano: Select+Volume brightness "
+                    + BrightnessSynchronizer.brightnessFloatToInt(current) + " -> " + to
+                    + " (" + nanoBrightnessPercent(to) + "%)");
+        }
+        return next;
     }
 
     private void performKeyAction(Action action, KeyEvent event) {
@@ -7658,9 +7712,9 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         } else if (selectHeld) {
                             // SELECT + volume = brightness adjustment
                             int direction = (keyCode == KeyEvent.KEYCODE_VOLUME_UP) ? 1 : -1;
-                            adjustScreenBrightness(direction);
+                            final float level = adjustScreenBrightness(direction, true);
                             if (!drmOwnsPanel) {
-                                mHandler.post(() -> showNanoBrightnessIndicator());
+                                mHandler.post(() -> showNanoBrightnessIndicator(level));
                             }
                         } else {
                             // Plain volume adjustment - set ALL audible streams to the
@@ -8598,15 +8652,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     // GammaOS Nano: minimal brightness indicator overlay (sun icon + bar)
-    private void showNanoBrightnessIndicator() {
+    // level: the brightness in effect after the step. The percent is the position in the nano table (every device).
+    private void showNanoBrightnessIndicator(float level) {
         try {
-            float currentBrightness = mDisplayManager.getBrightness(DEFAULT_DISPLAY);
-            float minBrightness = mPowerManager.getBrightnessConstraint(
-                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MINIMUM);
-            float maxBrightness = mPowerManager.getBrightnessConstraint(
-                    PowerManager.BRIGHTNESS_CONSTRAINT_TYPE_MAXIMUM);
-            int pct = (int) (((currentBrightness - minBrightness)
-                    / (maxBrightness - minBrightness)) * 100);
+            int pct = nanoBrightnessPercent(BrightnessSynchronizer.brightnessFloatToInt(level));
             pct = Math.max(0, Math.min(100, pct));
 
             if (mNanoVolumeWM == null) {
