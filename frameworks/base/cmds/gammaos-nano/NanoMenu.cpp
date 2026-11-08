@@ -943,6 +943,16 @@ status_t NanoMenu::readyToRun() {
             mBrightness = 128; // safe default (~50%)
         }
     }
+    // In nano mode every nano program writes persist synchronously when it hands the panel over and Settings 0.5
+    // to 3 s later, or never when it exited first (init kills its children with it). persist is never older than
+    // Settings there, so a differing persist is the user's newest level.
+    const int persistBrt = property_get_int32("persist.gammaos.nano.brightness", -1);
+    if (property_get_bool("sys.gammaos.minimal_boot", false) && persistBrt >= 1 && persistBrt <= 255 &&
+            persistBrt != mBrightness) {
+        ALOGI("NanoMenu: persist brightness %d differs from Settings %d, using persist", persistBrt, mBrightness);
+        mBrightness = persistBrt;
+        trustedBrt = true;   // written by a nano program: the user's level, not a leftover
+    }
     // Dead-panel floor: only for UNTRUSTED sources (a stale persist prop or the
     // sysfs last-resort at cold boot, before the settings provider is up). Those
     // can be a leftover of dimming/turn-off and this hardware does not light at the
@@ -950,8 +960,10 @@ status_t NanoMenu::readyToRun() {
     // level the user EXPLICITLY set via the brightness control is written to Android
     // Settings and is authoritative -- honor it even if very dim, so a genuine low
     // setting is NOT reverted to ~50% on nano relaunch or drastic entry (which reads
-    // persist.gammaos.nano.brightness that applyBrightness keeps in sync).
-    if (!trustedBrt && mBrightness < 24) mBrightness = 128;
+    // persist.gammaos.nano.brightness that the brightness module keeps in sync).
+    // On the RG DS Plus every level from 1 lights the panel, so the reset is skipped there; elsewhere it stays
+    // (it lasts until the first tick adopts persist anyway).
+    if (!trustedBrt && mBrightness < 24 && !nanobr::isRgDsPlus()) mBrightness = 128;
     if (mBrightness > 255) mBrightness = 255;
     if (mBrightness < 1) mBrightness = 1;   // never a literal-zero dead panel
     // Write to sysfs for instant backlight during early boot. The shared
@@ -964,9 +976,10 @@ status_t NanoMenu::readyToRun() {
     // overlayShow): the module may undo a late framework write of an older level (RG DS Plus).
     if (!mOverlayMode) nanobr::brightnessWatchPanel(true);
 
-    // Apply brightness async via HAL (expects sysfs-range value)
-    {
-        int brightness = mBrightness * mMaxBrightness / 255;
+    // Apply brightness async via HAL (0..255 in the colour channels, as LightsService). Skipped on the RG DS Plus:
+    // RockchipLights writes the same sysfs nodes and the call cost 0.4 to 0.9 s there.
+    if (!nanobr::backlightHalSkipped()) {
+        int brightness = mBrightness;
         std::thread([brightness]() {
             // Try AIDL first
             {
@@ -1047,6 +1060,8 @@ status_t NanoMenu::readyToRun() {
             }
             ALOGW("NanoMenu: lights HAL not available after 5s, brightness not set");
         }).detach();
+    } else {
+        ALOGI("NanoMenu: boot brightness %d on sysfs only (lights HAL skipped)", mBrightness);
     }
 
     // Restore volume from the persist properties PhoneWindowManager publishes (the
