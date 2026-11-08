@@ -926,8 +926,6 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     private boolean mRetroarchSelectDown = false;
     private String mRetroarchSelectDevicePath = null;
 
-    // Track last known foreground app to detect transitions into/out of RetroArch.
-    private String mLastFgApp = null;
     // GammaOS Nano: Select+Volume hold-repeat for apps in nano mode, as NanoBrightness.h kChordRepeatFirstMs /
     // kChordRepeatMs. The repeats are a temporary brightness (the panel follows; Settings and
     // persist.gammaos.nano.brightness are not written) committed with one setBrightness when the hold ends, so a hold
@@ -3296,15 +3294,13 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             }
             mRetroarchSelectDown = false;
             mRetroarchSelectDevicePath = null;
-            mLastFgApp = getForegroundAppPackageName();
-           return;
         }
-        // (nano-foreground stale-combo reset handled at the top of this method.) The block below
-        // keeps the synthesized-SELECT bookkeeping accurate for the in-app override path. We cannot
-        // rely on a foreground-app *change* to clear a stuck modifier: getRunningTasks() returns the
-        // most-recent task, so after the app exits it still reports that package (it lingers in
-        // recents) - which is why the reset above keys off nano being foreground instead.
-        mLastFgApp = getForegroundAppPackageName();
+        // No foreground-app lookup here: it ran on every key edge (WM and ATM global locks, getRunningTasks) to fill a
+        // field nothing read. We cannot rely on a foreground-app *change* to clear a stuck modifier anyway:
+        // getRunningTasks() returns the most-recent task, so after the app exits it still reports that package (it
+        // lingers in recents) - which is why the stale-combo reset keys off nano being foreground instead.
+        // Follow-up, not changed here: the focused-window lookup in getForegroundAppPackageName() never matches, so
+        // all its callers fall back to getRunningTasks().
     }
 
     /**
