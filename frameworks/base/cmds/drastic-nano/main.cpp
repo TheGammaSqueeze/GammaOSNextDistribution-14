@@ -1353,6 +1353,7 @@ static void resetInputAfterWake(android::drastic_input::InputState* input) {
     input->selectChordLatched = false;
     input->selectMaskBit = 0;
     input->volHeldCode = 0;
+    input->powerPressEvUs = 0;
     input->stickStylusActive = false;
     // Select held through the sleep (the kernel re-sends the press after the resume; the drain above may have read it)
     input->selectPhys = android::drastic_input::keyHeldNow(input, BTN_SELECT);

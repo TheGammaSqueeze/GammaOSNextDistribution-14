@@ -13,6 +13,7 @@
 #include <string.h>
 #include <sys/inotify.h>
 #include <sys/ioctl.h>
+#include <time.h>
 #include <unistd.h>
 
 #include <atomic>
@@ -774,6 +775,7 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
         st->selectChordLatched = false;
         st->selectMaskBit = 0;
         st->volHeldCode = 0;
+        st->powerPressEvUs = 0;
         st->powerHoldFired = false;
         st->powerOffFired = false;
         reseedHeldState(st);   // what is still held keeps working (a pad sends no event for it)
@@ -844,17 +846,31 @@ void pollInputMap(InputState* st, bool overlayOpen, bool captureKey,
                     // powerHoldMs = sleep; the hold action fires from the
                     // hold check below (one-shot via powerHoldFired).
                     if (pressed && !st->powerWasDown) {
-                        st->powerPressStartMs = android::elapsedRealtime();
+                        // The press as it happened: a frame that drained it late must not shorten the hold.
+                        struct timespec rt;
+                        clock_gettime(CLOCK_REALTIME, &rt);   // evdev stamps are CLOCK_REALTIME here
+                        int64_t ageMs = ((int64_t)rt.tv_sec * 1000000LL + rt.tv_nsec / 1000 - evTimeUs(ev)) / 1000;
+                        if (ageMs < 0 || ageMs > 2000) ageMs = 0;   // clock step: drain time
+                        st->powerPressStartMs = android::elapsedRealtime() - ageMs;
+                        st->powerPressEvUs = evTimeUs(ev);
                         st->powerHoldFired = false;
                         st->powerOffFired = false;
                     }
                     if (!pressed && st->powerWasDown) {
-                        int64_t held = android::elapsedRealtime() -
-                                       st->powerPressStartMs;
-                        if (!st->powerHoldFired && held < powerHoldMs) {
-                            out->sleepRequested = true;
+                        int64_t held = (evTimeUs(ev) - st->powerPressEvUs) / 1000;
+                        if (st->powerPressEvUs <= 0 || held < 0) held = android::elapsedRealtime() - st->powerPressStartMs;
+                        if (!st->powerHoldFired) {
+                            if (held < powerHoldMs) {
+                                out->sleepRequested = true;
+                            } else {
+                                // the hold check never saw it (the frame stalled across the threshold)
+                                out->xmbOverlayRequested = true;
+                                st->powerHoldFired = true;
+                                ALOGI("DrasticNano::input: KEY_POWER held %lld ms (seen at the release) -> XMB overlay", (long long)held);
+                            }
                         }
                         st->powerPressStartMs = 0;
+                        st->powerPressEvUs = 0;
                     }
                     st->powerWasDown = pressed;
                     continue;
