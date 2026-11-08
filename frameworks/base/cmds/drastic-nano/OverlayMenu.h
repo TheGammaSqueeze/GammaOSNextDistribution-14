@@ -348,6 +348,8 @@ private:
     NavDir  mNavHeldDir = NavDir::None;
     int64_t mNavLastRepeatMs = 0;
     int     mNavRepeatCount = 0;
+    bool mNavSuppressUntilRelease = false;   // a direction held when the menu (or a prompt) opened stays inert until released
+    bool mNavSuppressLogged = false;         // the "ignored until released" line was logged for this open
 
     // On-screen keyboard for cheat search / custom-cheat entry. When
     // active, update() routes nav to it and drawOsk() paints it on the

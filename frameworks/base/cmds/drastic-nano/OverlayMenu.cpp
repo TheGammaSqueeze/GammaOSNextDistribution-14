@@ -390,6 +390,8 @@ void OverlayMenu::openMenu() {
     // per-input rebuilds don't re-allocate).
     mCheatModelValid = false;
     navRelease();   // clear any stale held-direction from a prior session
+    mNavSuppressUntilRelease = true;   // a direction still held from the game must not scroll the menu
+    mNavSuppressLogged = false;
     // libdrastic's pauseSystem stops and restarts its audio player through
     // audioserver (a binder round trip that took 200 to 5600 ms on the RG DS Plus
     // when audioserver was cold) and synchronises with the emulator thread. The
@@ -1084,6 +1086,8 @@ void OverlayMenu::openConfirm(const std::string& question, std::function<void()>
     mConfirm.onConfirm = std::move(onConfirm);
     mConfirm.choice = 0;   // Confirm is the default
     mNavHeldDir = NavDir::None;
+    mNavSuppressUntilRelease = true;   // the direction that opened the prompt must not flip its choice
+    mNavSuppressLogged = false;
 }
 
 void OverlayMenu::adjustCurrent(int dir) {
@@ -1183,6 +1187,7 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
             }
             if (b.navAccept || b.navCancel || b.navNextTab || b.navUpHeld || b.navDownHeld || b.navLeftHeld || b.navRightHeld) {
                 mNavHeldDir = NavDir::None;   // the synthetic press is a fresh edge
+                mNavSuppressUntilRelease = false;
                 update(b, input);
                 mNavHeldDir = NavDir::None;
             }
@@ -1229,14 +1234,32 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         return;
     }
 
+    // True while a direction that was held at open is still held; ends at the first frame with no direction.
+    auto navSuppressed = [this](NavDir held) {
+        if (!mNavSuppressUntilRelease) return false;
+        if (held == NavDir::None) {
+            mNavSuppressUntilRelease = false;
+        } else if (!mNavSuppressLogged) {
+            mNavSuppressLogged = true;
+            ALOGI("OverlayMenu: a direction held at open is ignored until released");
+        }
+        mNavHeldDir = NavDir::None;
+        return true;
+    };
+
     // Modal confirm prompt (Power Off / Reboot): it owns all input while open.
     if (mConfirm.active) {
+        NavDir held = NavDir::None;
         if (a.navLeftHeld || a.navRightHeld || a.navUpHeld || a.navDownHeld) {
-            NavDir held = a.navLeftHeld ? NavDir::Left : a.navRightHeld ? NavDir::Right
-                        : a.navUpHeld ? NavDir::Up : NavDir::Down;
-            if (held != mNavHeldDir) { mConfirm.choice ^= 1; mNavHeldDir = held; }
-        } else {
-            mNavHeldDir = NavDir::None;
+            held = a.navLeftHeld ? NavDir::Left : a.navRightHeld ? NavDir::Right
+                 : a.navUpHeld ? NavDir::Up : NavDir::Down;
+        }
+        if (!navSuppressed(held)) {
+            if (held != NavDir::None) {
+                if (held != mNavHeldDir) { mConfirm.choice ^= 1; mNavHeldDir = held; }
+            } else {
+                mNavHeldDir = NavDir::None;
+            }
         }
         if (a.navCancel) { mConfirm.active = false; }
         else if (a.navAccept) {
@@ -1291,11 +1314,13 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
         else if (a.navDownHeld)  held = NavDir::Down;
         else if (a.navLeftHeld)  held = NavDir::Left;
         else if (a.navRightHeld) held = NavDir::Right;
-        if (held != mNavHeldDir) {
-            if (held == NavDir::None) navRelease();
-            else                      navPress(held);
-        } else {
-            tickNavRepeat();
+        if (!navSuppressed(held)) {
+            if (held != mNavHeldDir) {
+                if (held == NavDir::None) navRelease();
+                else                      navPress(held);
+            } else {
+                tickNavRepeat();
+            }
         }
         if (a.navAccept) mOsk.activate();       // A = press the focused key
         if (a.navX)      mOsk.onBackspace();    // X = backspace (matches gammaos-nano)
@@ -1419,7 +1444,9 @@ void OverlayMenu::update(const drastic_input::InputActions& a,
     else if (a.navRightHeld) held = NavDir::Right;
     const bool raSub =
             (mSingleScreen && mSection == kSec_Achievements && mRaView != 0);
-    if (raSub) {
+    if (navSuppressed(held)) {
+        // inert: a direction held when the menu opened stays dead until it is released
+    } else if (raSub) {
         // Single-screen RA drill-in: edge-triggered step (short lists / page
         // scroll), routed to the active view instead of the list cursor.
         if (held != mNavHeldDir) {
