@@ -1313,8 +1313,25 @@ private:
 
     // Brightness / power
     bool mSelectHeld;
-    bool mSelectSearchArmed = false;  // XMB SELECT tap pending: open the search OSK on release
-    bool mSelectVolChord    = false;  // a Volume key was pressed while SELECT held -> suppress the OSK tap
+    // SELECT acts on its release, and only when no chord happened while it was held (Select+Vol brightness,
+    // Select+Power shader hatch): the action armed at the press.
+    enum SelectAction : uint8_t { kSelNone = 0, kSelOskLang, kSelPvInfo, kSelVidOsd, kSelSearch };
+    SelectAction mSelectArmed = kSelNone;
+    bool mSelectVolChord = false;      // a chord happened while SELECT was held (existing name, now any chord)
+    // K29: VOL presses of the current pollInput batch read while SELECT was down in the live bitmap but not tracked as
+    // held; decided at the end of the batch (resolveDeferredVolume): a SELECT press in the same batch makes them a
+    // chord, otherwise they stay volume.
+    int mVolDeferred[4] = {};
+    int mVolDeferredN = 0;
+    bool mSelectPressInBatch = false;
+    // Select+Vol hold-repeat: the volume key held for the chord (0 none), direction, next repeat (uptime ms).
+    int mBrightChordKey = 0;
+    int mBrightChordDir = 0;
+    int64_t mBrightChordDueMs = 0;
+    bool mBrightChordRepeating = false;
+    void brightChordPress(int volCode);
+    void resolveDeferredVolume();
+    void tickBrightChord();
     bool mStartHeld = false;   // for the START+SELECT PS3 boot-intro re-trigger
     int64_t mPowerPressTime;
     int mBrightness;

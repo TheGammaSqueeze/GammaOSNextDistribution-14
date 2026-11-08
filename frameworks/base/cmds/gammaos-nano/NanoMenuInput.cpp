@@ -1421,6 +1421,44 @@ bool NanoMenu::selectKeyHeld() const {
     return keyHeldAny({BTN_SELECT});
 }
 
+// A Select+Vol chord press: brightness one step, the pending SELECT action cancelled, the hold-repeat armed.
+void NanoMenu::brightChordPress(int volCode) {
+    mSelectVolChord = true;
+    const int dir = volCode == KEY_VOLUMEUP ? 1 : -1;
+    adjustBrightness(dir);
+    mBrightChordKey = volCode;
+    mBrightChordDir = dir;
+    mBrightChordDueMs = (int64_t)android::uptimeMillis() + nanobr::kChordRepeatFirstMs;
+    mBrightChordRepeating = false;
+}
+
+// K29: VOL presses read while SELECT was live but not tracked. A SELECT press in the same batch means the pad fd was
+// drained after gpio-keys: a chord. Without one the live bit is a stuck synthetic SELECT (it never repeats on the
+// RG DS Plus, so no repeat can tell): plain volume, as before.
+void NanoMenu::resolveDeferredVolume() {
+    for (int i = 0; i < mVolDeferredN; i++) {
+        if (mSelectPressInBatch) {
+            ALOGI("NanoMenu: Select+Vol read before the Select press, treated as brightness");
+            brightChordPress(mVolDeferred[i]);
+        } else {
+            adjustVolume(mVolDeferred[i] == KEY_VOLUMEUP ? 1 : -1);
+        }
+    }
+    mVolDeferredN = 0;
+}
+
+// Select+Vol held: another step after kChordRepeatFirstMs, then every kChordRepeatMs, while both keys are
+// physically down.
+void NanoMenu::tickBrightChord() {
+    if (mBrightChordKey == 0) return;
+    if (!selectKeyHeld() || !keyHeldAny({mBrightChordKey})) { mBrightChordKey = 0; return; }
+    const int64_t now = (int64_t)android::uptimeMillis();
+    if (now < mBrightChordDueMs) return;
+    mBrightChordDueMs = now + nanobr::kChordRepeatMs;
+    if (!mBrightChordRepeating) { mBrightChordRepeating = true; ALOGI("NanoMenu: Select+Vol held, repeating"); }
+    adjustBrightness(mBrightChordDir);
+}
+
 // Same live bitmap query for any set of keys: true when at least one of them is physically down on
 // a grabbed input device right now (the deferred-launch re-fire uses it to tell whether A is still
 // held before it stamps a launch fade that no key release will ever stamp).
@@ -2316,6 +2354,10 @@ void NanoMenu::pollInput() {
         }
     }
 
+    // Normally nothing is left over; this decides a VOL of a batch that ended through an early return inside the read
+    // loop, with that batch's flag.
+    resolveDeferredVolume();
+    mSelectPressInBatch = false;
     struct input_event ev;
     for (int fd : mInputFds) {
         while (read(fd, &ev, sizeof(ev)) == sizeof(ev)) {
@@ -2679,51 +2721,57 @@ void NanoMenu::pollInput() {
             // Track SELECT button state; in XMB mode, press refreshes game lists
             if (ev.type == EV_KEY && ev.code == BTN_SELECT) {
                 if (ev.value == 1) {
-                    if (mOskActive) oskCycleLanguage(1);   // Select cycles language
+                    // Arm the action of the screen in front; it runs on the release unless a chord happens
+                    // (Select+Vol brightness, Select+Power), so a chord never also fires the action.
+                    mSelectPressInBatch = true;
+                    mSelectVolChord = false;
+                    if (mOskActive) mSelectArmed = kSelOskLang;   // Select cycles language
                     // Photo viewer: SELECT toggles the EXIF/Information overlay (the
                     // "Display" control), matching the real PS3 photo viewer - which is
                     // why the viewer panel shows the SELECT pill only on that control.
                     else if (mPvActive && !mPvWpMode && !mPvTrimMode
-                             && !mPs3DlgActive && !mPvPlChooserActive) {
-                        mPvInfo = !mPvInfo; mPvPanel = false;
-                    }
+                             && !mPs3DlgActive && !mPvPlChooserActive) mSelectArmed = kSelPvInfo;
                     // Video player: SELECT toggles the Display OSD bar (web vidToggleInfo:
                     // osd=!osd, panel=false), so it also dismisses the control panel.
-                    else if (mVidActive) {
-                        if (!mVidOpenInProgress.load(std::memory_order_relaxed)) {   // ignore while opening
-                            mVidOsd = !mVidOsd;
-                            if (mVidCpOpen) vidPanelClose();
-                        }
-                    }
+                    else if (mVidActive) mSelectArmed = kSelVidOsd;
                     // PS3 XMB: SELECT invokes the global search on RELEASE (tap), not on
                     // press, so a SELECT+Volume brightness chord does not also open the
-                    // search OSK. Arm the tap here; the chord flag (set by a Volume press
-                    // below) and the release edge decide whether it actually fires.
+                    // search OSK.
                     else if (mPs3Xmb && !mMpActive && !mPs3OptActive && !mPs3DlgActive
-                             && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
-                        mSelectSearchArmed = true;
-                        mSelectVolChord    = false;
-                    }
-                    else if (mXmbMode) forceRescanAllSystems();
+                             && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) mSelectArmed = kSelSearch;
+                    else { mSelectArmed = kSelNone; if (mXmbMode) forceRescanAllSystems(); }   // harmless on the press
                 }
                 // Only a real press (1) or release (0) edge updates the held state; ignore
                 // key-repeat (2). A BTN_SELECT synthesized by the RetroArch back-override (written
                 // to the pad while the user holds BACK to exit) can be left stuck DOWN when the
-                // emulator eats its up, and the kernel then AUTO-REPEATS it forever. Treating those
-                // repeats as "held" re-armed mSelectHeld right after the app->menu raise cleared it,
-                // so a plain volume press kept adjusting brightness (and Power kept hitting the
-                // shader escape hatch). Ignoring repeats lets the raise-time clear stick.
+                // emulator eats its up; on a device whose joypad autorepeats, the kernel then repeats it
+                // forever (not the RG DS Plus: no EV_REP on the joypad or on gammapad's virtual pad, so no
+                // SELECT repeat ever arrives there). Treating those repeats as "held" re-armed mSelectHeld
+                // right after the app->menu raise cleared it, so a plain volume press kept adjusting
+                // brightness (and Power kept hitting the shader escape hatch). Ignoring repeats lets the
+                // raise-time clear stick.
                 if (ev.value != 2) mSelectHeld = (ev.value != 0);
-                // SELECT tap-to-search: fire on the real release edge, but only if no
-                // Volume chord happened while it was held (that was a brightness combo).
+                // The armed action fires on the real release edge, but only if no chord happened while
+                // SELECT was held (Select+Vol brightness or Select+Power).
                 if (ev.value == 0) {
-                    if (mSelectSearchArmed && !mSelectVolChord
-                        && mPs3Xmb && !mOskActive && !mMpActive && !mPs3OptActive
-                        && !mPs3DlgActive && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) {
-                        gsearchOpen();
+                    // a VOL deferred in this batch is decided as a chord at its end (K29): no action then either
+                    if (!mSelectVolChord && mVolDeferredN == 0) {
+                        switch (mSelectArmed) {   // the same screen must still be in front
+                        case kSelOskLang: if (mOskActive) oskCycleLanguage(1); break;
+                        case kSelPvInfo:
+                            if (mPvActive && !mPvWpMode && !mPvTrimMode && !mPs3DlgActive && !mPvPlChooserActive) { mPvInfo = !mPvInfo; mPvPanel = false; }
+                            break;
+                        case kSelVidOsd:
+                            if (mVidActive && !mVidOpenInProgress.load(std::memory_order_relaxed)) { mVidOsd = !mVidOsd; if (mVidCpOpen) vidPanelClose(); }   // ignore while opening
+                            break;
+                        case kSelSearch:
+                            if (mPs3Xmb && !mOskActive && !mMpActive && !mPs3OptActive && !mPs3DlgActive && !mPs3WizActive && !mPs3TzActive && !mPs3LangActive) gsearchOpen();
+                            break;
+                        default: break;
+                        }
                     }
-                    mSelectSearchArmed = false;
-                    mSelectVolChord    = false;
+                    mSelectArmed = kSelNone;
+                    mSelectVolChord = false;
                 }
             }
             if (ev.type == EV_KEY && ev.code == BTN_START) {
@@ -2750,6 +2798,7 @@ void NanoMenu::pollInput() {
                     ALOGI("NanoMenu: Power+Select -> display shader disabled (escape hatch)");
                     mPowerPressTime = 0;
                     mDisplayDirty = true;
+                    mSelectVolChord = true;   // a chord: the Select release then does nothing
                     continue;
                 }
                 // PhoneWindowManager owns the power button unless nano grabs input.
@@ -2857,19 +2906,23 @@ void NanoMenu::pollInput() {
                 case KEY_RIGHT: navRelease(NavDir::Right); break;
                 case BTN_SOUTH: if (mOskActive) oskARelease(); break;
                 case KEY_LEFTSHIFT: case KEY_RIGHTSHIFT: mKbdShiftHeld = false; break;
+                case KEY_VOLUMEUP: case KEY_VOLUMEDOWN: if (ev.code == mBrightChordKey) mBrightChordKey = 0; break;
                 default: break;
                 }
             }
             if (ev.type == EV_KEY && (ev.value == 1 || ev.value == 2)) {
-                // Volume keys: SELECT+VOL = brightness, VOL alone = volume. Verify
-                // SELECT against the live key state (not the sticky mSelectHeld) so a
-                // missed SELECT release never turns plain volume into brightness.
+                // Volume keys: SELECT+VOL = brightness, VOL alone = volume (press only; kernel autorepeat,
+                // value 2, is ignored: the chord repeats in tickBrightChord()). SELECT is checked against the
+                // live key state (not the sticky mSelectHeld) so a missed SELECT release never turns plain
+                // volume into brightness. A VOL with SELECT live but not tracked (the pad fd is drained after
+                // gpio-keys, or a stuck synthetic SELECT) waits for the end of this batch:
+                // resolveDeferredVolume() (K29).
                 if (ev.code == KEY_VOLUMEUP || ev.code == KEY_VOLUMEDOWN) {
-                    if (mSelectHeld && selectKeyHeld()) {
-                        mSelectVolChord = true;   // brightness combo: cancel the pending SELECT search tap
-                        adjustBrightness(ev.code == KEY_VOLUMEUP ? 1 : -1);
-                    } else if (ev.value == 1) {
-                        adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
+                    if (ev.value == 1) {
+                        const bool live = selectKeyHeld();
+                        if (mSelectHeld && live) brightChordPress(ev.code);
+                        else if (live && mVolDeferredN < 4) mVolDeferred[mVolDeferredN++] = ev.code;
+                        else adjustVolume(ev.code == KEY_VOLUMEUP ? 1 : -1);
                     }
                     continue;
                 }
@@ -3281,6 +3334,8 @@ void NanoMenu::pollInput() {
     // Fire accelerating repeats while a direction remains held. Must run
     // every frame, not only when events arrive, because held axes stop
     // emitting events once settled.
+    resolveDeferredVolume();
+    tickBrightChord();
     tickNavRepeat();
     tickAutoScroll();   // glide the Applications cursor to a freshly installed app
 }
