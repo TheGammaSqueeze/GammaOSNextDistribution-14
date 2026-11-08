@@ -1112,6 +1112,7 @@ private:
     // overlay layer up (occluding the dying old app / blank) until the new app is
     // resumed, so the user never sees the old frame or black between the two.
     bool mOverlayLaunchPending = false;
+    bool mLaunchDrainReset = false;   // resetHeldInputState ran for this pending launch (once per launch)
     std::string mOverlayLaunchTarget;
     int64_t mOverlayLaunchStartMs = 0;
     int64_t mOverlayLaunchLastCheckMs = 0;
@@ -1329,6 +1330,9 @@ private:
     int mBrightChordDir = 0;
     int64_t mBrightChordDueMs = 0;
     bool mBrightChordRepeating = false;
+    // HAT axes, each with its own held direction (K34).
+    int mHatX = 0, mHatY = 0;
+    void resetHeldInputState(const char* why);
     void brightChordPress(int volCode);
     void resolveDeferredVolume();
     void tickBrightChord();

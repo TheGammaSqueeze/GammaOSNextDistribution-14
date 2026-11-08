@@ -593,6 +593,7 @@ bool NanoMenu::drasticParkSession() {
         while (read(fd, ev, sizeof(ev)) > 0) {}
     }
     mWaitForRelease = false;
+    resetHeldInputState("park wake");
 
     // Brightness: the game may have changed it (drastic-nano persists it before the hand-off); adopt it, relight the
     // panel on it and push Settings unconditionally (drastic leaves the Settings push to the home after a hand-off).

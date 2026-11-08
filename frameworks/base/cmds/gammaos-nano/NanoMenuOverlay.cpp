@@ -553,6 +553,7 @@ void NanoMenu::overlayShow() {
             while (read(fd, &ev, sizeof(ev)) == (ssize_t)sizeof(ev)) { /* discard */ }
         }
     }
+    resetHeldInputState("overlay show");   // the releases drained above are lost
     // The overlay drives the panel while it is shown (hidden: PhoneWindowManager steps Select+Vol for the app).
     nanobr::brightnessWatchPanel(true);
 
@@ -1650,6 +1651,7 @@ void NanoMenu::overlayPoll() {
         if (!switchInProgress && el > 1500 &&
             !property_get_bool("sys.gammaos.nano.app_launched", false)) {
             mOverlayLaunchPending = false;
+            mLaunchDrainReset = false;
             mOverlayLaunchTarget.clear();
             ALOGI("overlay: launch abandoned (app not running, %lldms) - "
                   "releasing input hold", (long long)el);
@@ -1666,6 +1668,7 @@ void NanoMenu::overlayPoll() {
             // dismisses the instant the new app is up; the ceiling is only a backstop.
             if (ready || el > 12000) {
                 mOverlayLaunchPending = false;
+                mLaunchDrainReset = false;
                 mOverlayLaunchTarget.clear();
                 property_set("sys.gammaos.nano.show_overlay", "0");
                 overlayHide();

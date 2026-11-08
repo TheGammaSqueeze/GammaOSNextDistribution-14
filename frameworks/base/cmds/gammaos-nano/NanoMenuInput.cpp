@@ -166,6 +166,7 @@ void NanoMenu::checkInputHotplug() {
                         }
                         mOpenedDevices.erase(ev->name);
                         ALOGI("Device removed, dropped stale fd: %s", path);
+                        resetHeldInputState("device removed");
                     }
                 } else if ((ev->mask & IN_CREATE) && !mOpenedDevices.count(ev->name)) {
                     // Small delay for the device node to be fully ready
@@ -757,6 +758,24 @@ void NanoMenu::navRelease(NavDir dir) {
         mNavLastRepeatMs = 0;
         mNavRepeatCount  = 0;
     }
+}
+
+// Forget every held direction and modifier: nothing was read while the fds were drained (park, launch, overlay
+// show, sleep) or a device went away, so their releases are lost. Without this the list scrolled by itself after a
+// game (K16).
+void NanoMenu::resetHeldInputState(const char* why) {
+    navRelease(NavDir::None);
+    mStickXTriggered = mStickYTriggered = false;
+    mHatX = mHatY = 0;
+    mSelectHeld = false;
+    mStartHeld = false;
+    mSelectArmed = kSelNone;
+    mSelectVolChord = false;
+    mVolDeferredN = 0;
+    mSelectPressInBatch = false;
+    mBrightChordKey = 0;
+    mKbdShiftHeld = false;
+    ALOGI("NanoMenu: held input reset (%s)", why);
 }
 
 void NanoMenu::tickNavRepeat() {
@@ -1406,6 +1425,7 @@ bool NanoMenu::enterDrmSleep() {
         if (wl >= 0) { ssize_t n = write(wl, "nano_wake", 9); (void)n; close(wl); }
         wokeWakelock = false;
     }
+    resetHeldInputState("sleep wake");   // releases of keys held across the sleep were lost
     ALOGI("NanoMenu: woke up");
     mInDrmSleep.store(false, std::memory_order_relaxed);
     ctrShuffleEvent(false, (int64_t)uptimeMillis() - sleepStartMs);   // 3DS theme Shuffle: next favourite
@@ -2060,6 +2080,10 @@ void NanoMenu::pollInput() {
             while (read(fd, &dev, sizeof(dev)) == (ssize_t)sizeof(dev)) { /* discard */ }
         }
         property_set("sys.gammaos.nano.nav", "");   // swallow scripted nav too
+        if (!mLaunchDrainReset) {   // the releases drained here are lost: forget what is held (once per launch)
+            mLaunchDrainReset = true;
+            resetHeldInputState("launch drain");
+        }
         return;
     }
     // Home (non-overlay) launch fade-out: once the launching select has been
