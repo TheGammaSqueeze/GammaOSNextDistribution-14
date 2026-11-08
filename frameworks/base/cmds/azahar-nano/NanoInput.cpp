@@ -15,11 +15,14 @@
 #include <poll.h>
 #include <string.h>
 #include <sys/inotify.h>
+#include <sys/ioctl.h>
 #include <time.h>
 #include <unistd.h>
 
 #include <cutils/properties.h>
 #include <log/log.h>
+
+#include "NanoBrightness.h"
 
 namespace azahar_nano {
 
@@ -133,6 +136,9 @@ void NanoInput::scan() {
         // The lid switch (hall sensor) is its own node on most devices; it may share a node
         // with the pad on others, so it is a flag of its own.
         n.lid = testBit(ev, EV_SW) && testBit(sw, SW_LID);
+        // Volume keys (gpio-keys on the RG DS Plus): read for Select+Vol only, never grabbed, so
+        // PhoneWindowManager still sees every key.
+        n.vol = hasKeys && (testBit(key, KEY_VOLUMEUP) || testBit(key, KEY_VOLUMEDOWN));
         if (n.lid) {
             unsigned long swState[(SW_MAX + 1) / (8 * sizeof(long)) + 1] = {};
             if (ioctl(fd, EVIOCGSW(sizeof(swState)), swState) >= 0) {
@@ -144,7 +150,7 @@ void NanoInput::scan() {
                 }
             }
         }
-        if (!n.pad && !n.touch && !n.lid) {
+        if (!n.pad && !n.touch && !n.lid && !n.vol) {
             close(fd);
             continue;
         }
@@ -163,8 +169,8 @@ void NanoInput::scan() {
         if (n.touch && mDualPanel && !mBottomTouchName.empty()) {
             n.panel = (mBottomTouchName == name) ? 1 : 0;
         }
-        ALOGI("input node %s '%s' pad=%d touch=%d panel=%d", p.c_str(), name, n.pad, n.touch,
-              n.panel);
+        ALOGI("input node %s '%s' pad=%d touch=%d vol=%d panel=%d", p.c_str(), name, n.pad, n.touch,
+              n.vol, n.panel);
         mNodes.push_back(n);
     }
     closedir(d);
@@ -275,6 +281,47 @@ bool NanoInput::handleMenuKey(const input_event& e) {
         mMenuDownUs = 0;
     }
     return true;
+}
+
+// BTN_SELECT down right now on any pad node, from the kernel's live key bitmap.
+bool NanoInput::selectHeldNow() {
+    for (const auto& n : mNodes) {
+        if (!n.pad || n.fd < 0) continue;
+        unsigned long keys[(KEY_MAX + 1) / (8 * sizeof(long)) + 1] = {};
+        if (ioctl(n.fd, EVIOCGKEY(sizeof(keys)), keys) < 0) continue;
+        if (testBit(keys, BTN_SELECT)) return true;
+    }
+    return false;
+}
+
+// The volume key `code` down right now on any volume node, from the kernel's live key bitmap. The release event can
+// be lost (a rescan closes the fd with the event still queued), so the hold-repeat asks the bitmap too.
+bool NanoInput::volHeldNow(int code) {
+    for (const auto& n : mNodes) {
+        if (!n.vol || n.fd < 0) continue;
+        unsigned long keys[(KEY_MAX + 1) / (8 * sizeof(long)) + 1] = {};
+        if (ioctl(n.fd, EVIOCGKEY(sizeof(keys)), keys) < 0) continue;
+        if (testBit(keys, code)) return true;
+    }
+    return false;
+}
+
+// Physical SELECT + VOL = brightness, read from the pad's live key bitmap when the volume key arrives (the one
+// Select+Vol handler while a 3DS game runs: PhoneWindowManager leaves the chord to nano). Plain VOL stays with
+// PhoneWindowManager. Repeats in loop() while both are held.
+void NanoInput::handleVolume(const input_event& e) {
+    if (e.type != EV_KEY || (e.code != KEY_VOLUMEUP && e.code != KEY_VOLUMEDOWN)) return;
+    if (e.value == 0) {
+        if (e.code == mVolHeldCode) mVolHeldCode = 0;
+        return;
+    }
+    if (e.value != 1 || !selectHeldNow()) return;
+    const int dir = e.code == KEY_VOLUMEUP ? 1 : -1;
+    if (mCb.brightness) mCb.brightness(dir);
+    mVolHeldCode = e.code;
+    mVolHeldDir = dir;
+    mVolRepeatDueNs = nowNs() + android::nanobr::kChordRepeatFirstMs * 1000000LL;
+    mVolRepeating = false;
 }
 
 void NanoInput::handlePad(Node& n, uint16_t type, uint16_t code, int32_t value) {
@@ -420,7 +467,13 @@ void NanoInput::loop() {
         std::vector<pollfd> fds;
         for (auto& n : mNodes) fds.push_back({n.fd, POLLIN, 0});
         if (mInotify >= 0) fds.push_back({mInotify, POLLIN, 0});
-        const int r = poll(fds.data(), fds.size(), 50);
+        // A held Select+Vol repeats on its own schedule: wake for the next repeat.
+        int timeoutMs = 50;
+        if (mVolHeldCode) {
+            const int64_t left = (mVolRepeatDueNs - nowNs() + 999999) / 1000000;
+            if (left < timeoutMs) timeoutMs = left < 1 ? 1 : (int)left;
+        }
+        const int r = poll(fds.data(), fds.size(), timeoutMs);
         const bool parked = mParked.load();
         if (parked != mParkedSeen) {
             mParkedSeen = parked;
@@ -430,12 +483,30 @@ void NanoInput::loop() {
             mBackLongFired = false;
             mBackCombo = false;
             mMenuDownUs = 0;
+            mVolHeldCode = 0;
             ALOGI("azahar-nano: input %s", parked ? "parked for the sleep" : "live again");
         }
         // Long press of the back key -> exit.
         if (!parked && mBackDownNs && !mBackLongFired && nowNs() - mBackDownNs > mBackHoldNs.load()) {
             mBackLongFired = true;
             if (mCb.exitRequest) mCb.exitRequest();
+        }
+        // Select+Vol held: repeat the step while both stay down.
+        if (!parked && mVolHeldCode) {
+            if (!selectHeldNow()) {
+                mVolHeldCode = 0;
+            } else if (!volHeldNow(mVolHeldCode)) {
+                // the volume key is up: its release is still queued, or a rescan dropped it (no log: the
+                // normal release comes through here too)
+                mVolHeldCode = 0;
+            } else if (nowNs() >= mVolRepeatDueNs) {
+                mVolRepeatDueNs = nowNs() + android::nanobr::kChordRepeatMs * 1000000LL;
+                if (!mVolRepeating) {
+                    mVolRepeating = true;
+                    ALOGI("azahar-nano: Select+Vol held, repeating");
+                }
+                if (mCb.brightness) mCb.brightness(mVolHeldDir);
+            }
         }
         if (r <= 0) continue;
         bool rescan = false;
@@ -466,11 +537,13 @@ void NanoInput::loop() {
                         if (release && n.pad && !handleMenuKey(evs[k])) {
                             handlePad(n, evs[k].type, evs[k].code, evs[k].value);
                         }
+                        if (release && n.vol) handleVolume(evs[k]);
                         if (release) continue;
                     }
                     if (n.pad && !handleMenuKey(evs[k])) {
                         handlePad(n, evs[k].type, evs[k].code, evs[k].value);
                     }
+                    if (n.vol) handleVolume(evs[k]);
                     if (n.touch) handleTouch(n, evs[k].type, evs[k].code, evs[k].value);
                     if (n.lid && evs[k].type == EV_SW && evs[k].code == SW_LID) {
                         const bool closed = evs[k].value != 0;

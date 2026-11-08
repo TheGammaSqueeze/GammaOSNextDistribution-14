@@ -56,6 +56,7 @@
 #include "Overlay.h"
 #include "Hud.h"
 #include "Brightness.h"
+#include "NanoBrightness.h"
 #include "../gammaos-nano/NanoBacklight.h"
 #include "NanoSessionHw.h"
 #include <sys/system_properties.h>
@@ -133,6 +134,10 @@ std::atomic<float> sSystemFps{0.0f};
 std::atomic<bool> sHudSlow{false};
 std::atomic<bool> sFastForward{false};   // R3 fast forward state
 std::atomic<float> sHudSpeed{100.0f};    // emulation speed in percent of real time
+// Select+Vol: the brightness slider on the HUD strip (percent, show-until time, change counter).
+std::atomic<int> sBrightHudPct{-1};
+std::atomic<int64_t> sBrightHudUntilNs{0};
+std::atomic<uint32_t> sBrightHudSeq{0};
 std::string gUserDir;                     // config.ini folder, for readers outside main()
 uint64_t gCheatTitleId = 0;               // the running ROM's title id (cheat files)
 int gCheatCustomCount = 0;                // the user's own cheats lead the merged cheat file
@@ -1352,6 +1357,13 @@ int main(int argc, char** argv) {
         gExitRequested = true;
         gCore.stop();
     };
+    // Select+Vol (NanoInput): a brightness step, and the slider on the top panel's HUD strip.
+    icb.brightness = [](int steps) {
+        const int level = azahar_nano::brightnessChord(steps);
+        sBrightHudPct = android::nanobr::brightnessPercent(level);
+        sBrightHudUntilNs = monoNs() + 1500000000LL;
+        sBrightHudSeq++;
+    };
     // Physical lid -> emulated 3DS shell. The framework still owns the sleep (the lid turns
     // the screen off and sys.screen.state pauses us); this only lets the game see the shell
     // state the way it would on hardware.
@@ -1402,8 +1414,9 @@ int main(int argc, char** argv) {
                         prop("persist.gammaos.azahar_nano.sleep_sink_swap", "0") == "1";
                 if (sinkSwapped) gCore.sleep(true);
                 if (sInput) sInput->setParked(true);   // a Back held under the sleep must not exit
-                android::nanobl::nanoBacklightSet(0);
+                android::nanobr::panelOff();
                 if (sDrm) sDrm->panelsOff();           // the pipes too: a blank frame still scans
+                android::nanobr::brightnessPushNow();   // Settings holds our level before DisplayPowerController applies it at the wake (the panels are off: its write cannot light them)
                 android::nano_session_hw::releaseClusterCores();   // the cores may sleep with the device
                 android::nano_session_hw::dpClkRestore();
                 ALOGI("sleep: screen off, core %s, backlights off",
@@ -1416,7 +1429,7 @@ int main(int argc, char** argv) {
                     while (!sDrm->panelsOn() && --tries > 0) usleep(250 * 1000);
                     if (sDrm->panelsAreOff()) ALOGW("sleep: a panel did not come back after the sleep");
                 }
-                android::nanobl::nanoBacklightSet(azahar_nano::brightnessLevel());
+                android::nanobr::panelOn(azahar_nano::brightnessLevel());
                 if (sInput) sInput->setParked(false);
                 android::nano_session_hw::holdClusterCores("sys.gammaos.azahar_nano.core_ctl_hold");
                 if (sinkSwapped) gCore.sleep(false);
@@ -1717,6 +1730,8 @@ int main(int argc, char** argv) {
         float toast = 0.0f, spin = 0.0f;
         int64_t stallSinceNs = 0;
         bool gameFrameSeen = false;   // the game has drawn a frame since it started
+        uint32_t lastBrightSeq = 0;
+        bool lastBright = false;
         int64_t idleSinceNs = 0;
         int64_t lastNs = 0;
         int propTick = 0;
@@ -1810,12 +1825,16 @@ int main(int argc, char** argv) {
             }
             const bool fps = live && wantFps;
             const bool ff = live && sFastForward.load();
-            const bool want = fps || ff || toast > 0.0f || saving > 0.0f;
-            const uint32_t regions = (fps || ff ? azahar_nano::kHudTop : 0u) |
+            // Select+Vol: the brightness slider for 1.5 s after the last step.
+            const bool bright = live && now < sBrightHudUntilNs.load();
+            const uint32_t brightSeq = sBrightHudSeq.load();
+            const bool want = fps || ff || toast > 0.0f || saving > 0.0f || bright;
+            const uint32_t regions = (fps || ff || bright ? azahar_nano::kHudTop : 0u) |
                                      (toast > 0.0f || saving > 0.0f ? azahar_nano::kHudBottom : 0u);
             const uint64_t seq = sHudStatsSeq.load();
-            const bool animating = toast > 0.0f || saving > 0.0f;
-            if (want && (animating || seq != lastSeq || regions != lastRegions || !hudOn)) {
+            const bool animating = toast > 0.0f || saving > 0.0f || bright;
+            if (want && (animating || seq != lastSeq || brightSeq != lastBrightSeq || bright != lastBright ||
+                         regions != lastRegions || !hudOn)) {
                 azahar_nano::Hud::Frame f;
                 f.fps = fps;
                 f.blitFps = sHudBlitFps.load();
@@ -1826,6 +1845,7 @@ int main(int argc, char** argv) {
                 f.toastAlpha = toast;
                 f.saveAlpha = saving;
                 f.spin = spin;
+                f.brightPct = bright ? sBrightHudPct.load() : -1;
                 hud.render(f);
                 if (sDrm) {
                     sDrm->setHudRegions(0, regions);
@@ -1835,11 +1855,14 @@ int main(int argc, char** argv) {
                 }
                 hudOn = true;
                 lastSeq = seq;
+                lastBrightSeq = brightSeq;
+                lastBright = bright;
                 lastRegions = regions;
             } else if (!want && hudOn) {
                 if (sDrm) sDrm->setHudActive(0, false);
                 else if (sSf) sSf->setHudActive(0, false);
                 hudOn = false;
+                lastBright = false;
                 lastRegions = 0;
             }
             usleep(animating || gStallScreenOn ? 33 * 1000 : 100 * 1000);
@@ -1871,6 +1894,12 @@ int main(int argc, char** argv) {
         const int language = azahar_nano::settings::getInt("persist.gammaos.azahar_nano.language", 1);
         if (language >= 0) gCore.set_language(language);
     }
+    // Brightness for the session: seed from persist, let the module correct a late framework write while this
+    // session drives the panel (RG DS Plus), and make Settings hold the level before DisplayPowerController applies
+    // it at a wake (the home only wrote persist when it started us). The push waits 3 s, off the game's start.
+    android::nanobr::currentLevel();
+    android::nanobr::brightnessWatchPanel(true);
+    android::nanobr::forceSettingsPush(android::nanobr::kSessionPushDelayMs);
     const int result = gCore.run(rom.c_str());
     gExitRequested = true;
     perfThread.join();
@@ -1886,6 +1915,7 @@ int main(int argc, char** argv) {
     azahar_nano::settings::flush();
     android::nano_session_hw::releaseClusterCores();
     android::nano_session_hw::dpClkRestore();
+    android::nanobr::brightnessRelease(300);   // persist now; the fresh home (session_done starts it) pushes Settings
     sessionDone();
     // Leave without running static destructors: a library thread can still be running at
     // this point (the core's audio backend, log and worker threads), and destroying a

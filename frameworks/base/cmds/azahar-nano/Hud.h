@@ -35,6 +35,8 @@ public:
         // "Saving" notice in the same corner (a save state is being written: the frame
         // drop it brings has a reason on screen); opacity 0..1, faded by the caller.
         float saveAlpha = 0.0f;
+        // Select+Vol: the shared nano brightness slider (top centre), -1 none.
+        int brightPct = -1;
     };
     // Draws the frame and presents it.
     void render(const Frame& f);

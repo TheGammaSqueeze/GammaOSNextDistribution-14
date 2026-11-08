@@ -7,6 +7,7 @@
 #include "AzaharNanoApi.h"
 #include "GpuDriverPkg.h"
 #include "Brightness.h"
+#include "NanoBrightness.h"
 #include "AzaharSettings.h"
 
 #include <dirent.h>
@@ -412,25 +413,17 @@ void Overlay::buildPages() {
         r.hint = "Save state slot";
         pg.rows.push_back(r);
 
-        // Screen brightness, as drastic-nano's row: steps of 16 within 8..255, applied at once.
+        // Screen brightness: the shared nano table (NanoBrightness.h), applied at once.
         {
             Row b;
             b.label = "Brightness";
             b.kind = ROW_CHOICE;
             b.stopAtEnds = true;
-            for (int level = 8; level < 255; level += 16) {
-                b.choices.push_back({std::to_string(level * 100 / 255) + "%", std::to_string(level)});
+            for (int i = 0; i < android::nanobr::kStepCount; i++) {
+                const int level = android::nanobr::kSteps[i];
+                b.choices.push_back({std::to_string(android::nanobr::brightnessPercent(level)) + "%", std::to_string(level)});
             }
-            b.choices.push_back({"100%", "255"});
-            const int cur = brightnessLevel();
-            int best = 0;
-            for (size_t i = 0; i < b.choices.size(); i++) {
-                if (std::abs(atoi(b.choices[i].value.c_str()) - cur) <
-                    std::abs(atoi(b.choices[best].value.c_str()) - cur)) {
-                    best = (int)i;
-                }
-            }
-            b.sel = best;
+            b.sel = android::nanobr::stepIndexNearest(brightnessLevel());
             b.hint = "Screen brightness";
             b.change = [chs = b.choices](int i) {
                 if (i >= 0 && i < (int)chs.size()) setBrightness(atoi(chs[i].value.c_str()));
