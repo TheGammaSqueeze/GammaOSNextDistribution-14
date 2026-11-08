@@ -2747,26 +2747,13 @@ void NanoMenu::launchXmbGame() {
     if (mOverlayMode) { overlayLaunchGame(); return; }
     int sysIdx, gameIdx;
 
-    // GammaOS Nano: gate the entire XMB launch path until the system
-    // is ready to accept a handoff to a home app. Without this, an
-    // early A press on a freshly-painted XMB exits NanoMenu /
-    // bootanim while user 0 is still locked, leaving the panel black.
-    // See NanoMenuSystem.cpp / isLaunchReady() for the readiness
-    // criteria. The press is queued -- the main loop fires
-    // handleSelect() again as soon as readiness flips, so the user
-    // does not need to press A a second time after boot.
-    if (!isLaunchReady()) {
-        ALOGI("NanoMenu: XMB launch deferred -- boot not ready");
-        showLaunchBusyToast();
-        return;
-    }
-
     // Recently Played mode (index -1): launch directly from recent entry
     if (mXmbSystemIndex == -1 && !mSearchActive) {
         if (mXmbRecent.empty()) return;
         if (mXmbGameIndex < 0 || mXmbGameIndex >= (int)mXmbRecent.size()) return;
         // Take a copy -- the vector reorder below invalidates references.
         XmbRecentEntry re = mXmbRecent[mXmbGameIndex];
+        if (deferGameLaunch(re.romPath)) return;
 
         // A recent entry outlives the file it points at (game deleted, card removed). Refuse the
         // launch and drop the dead row rather than starting an emulator that cannot open it.
@@ -2957,6 +2944,7 @@ void NanoMenu::launchXmbGame() {
     if (romPath.find("/mnt/media_rw/") == 0) {
         romPath = "/storage/" + romPath.substr(14);
     }
+    if (deferGameLaunch(romPath)) return;
     // The library can be out of date (game deleted, or its card is not mounted). Check before
     // handing the path to an emulator, which would otherwise start and die on the missing file.
     if (!romLaunchExists(romPath)) {
