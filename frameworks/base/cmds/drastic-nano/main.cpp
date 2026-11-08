@@ -2772,6 +2772,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
     std::atomic<bool> gRaTestInputActive{false};   // scripted run-ahead test input owns the DS input words
     std::atomic<bool> fastInputRun{true};
     std::atomic<bool> fastOverlayOpen{false};
+    std::atomic<bool> fastOwnsNow{false};   // the render loop's fastOwns(), the only decision the fast thread follows
     std::atomic<bool> fastReapplyPrefs{false};
     bool fastPrevOverlayOpen = false;
     const bool fastDirectLayout = !drmSingleLayout;
@@ -2803,6 +2804,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         }
         android::drastic_input::InputState fin{};
         fin.admitPowerKey = false;               // never capture power here
+        fin.ownsCursorToggle = false;            // the render loop owns the Touch Cursor
+        ALOGI("drastic-nano: fast input forwards only while the render loop hands it the input");
         android::drastic_input::applyPrefs(&fin, initialPrefs);
         android::drastic_input::scanInputDevices(&fin);
         std::vector<struct pollfd> pfds;
@@ -2833,7 +2836,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             // Forward only the DS gameplay state; edge actions (menu, sleep,
             // quick save/load, etc.) stay owned by the render loop, which sees
             // the same events on its own fds.
-            if (fastOwns(ovOpen, fin.cursorMode) && !gRaTestInputActive.load() && !dr->probeOwnsInput()) {
+            if (fastOwnsNow.load(std::memory_order_relaxed) && !gRaTestInputActive.load() && !dr->probeOwnsInput()) {
                 // Two panels with a digitizer each (RP Duo Lite): a touch on the top panel is not a
                 // DS touch while the screens are not swapped (the render loop drops it the same way).
                 const bool held = fa.touchHeld && !(hasDualDisplay && !fa.touchDirect && fa.touchTop && fin.hasTopTouch);
@@ -3024,6 +3027,8 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             android::drastic_input::InputActions ov{};
             ov.menuToggle = true;
             overlay.update(ov, &input);
+            fastOverlayOpen.store(overlay.isOpen(), std::memory_order_relaxed);
+            fastOwnsNow.store(false, std::memory_order_relaxed);
             continue;
         }
         // Automation hook, same as the SF path: sys.gammaos.drastic_nano.menu=1
@@ -3049,6 +3054,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
             if (!ovNow && fastPrevOverlayOpen) fastReapplyPrefs.store(true);
             fastPrevOverlayOpen = ovNow;
             fastOverlayOpen.store(ovNow, std::memory_order_relaxed);
+            fastOwnsNow.store(fastOwns(ovNow, input.cursorMode), std::memory_order_relaxed);
         }
 
         // RetroAchievements lifecycle. Start once the first DS frame is ready,
@@ -3466,6 +3472,7 @@ RunLoopResult runLoop(Display* dpy, DrasticRunner* dr,
         // got overwritten every frame and reached the game only sporadically.
         fastSwapped.store(screensSwapped, std::memory_order_relaxed);
         const bool fastOwnsInput = fastOwns(overlay.isOpen(), input.cursorMode);
+        fastOwnsNow.store(fastOwnsInput, std::memory_order_relaxed);
         // Run-ahead test input (sys.gammaos.drastic_nano.ra_test_input = period
         // in frames, 0 off): hold A for 8 frames once per period, written
         // regardless of who owns forwarding, so bursts can be exercised and
