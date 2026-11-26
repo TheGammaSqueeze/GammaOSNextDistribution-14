@@ -9,5 +9,9 @@
             <instance>default</instance>
         </interface>
     </hal>
+    <!-- Android 15 vendors (board API 202404) require system SDK 35 -->
+    <system-sdk>
+        <version>35</version>
+    </system-sdk>
 </manifest>
 
