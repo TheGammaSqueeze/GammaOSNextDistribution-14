@@ -432,6 +432,45 @@ public final class BatteryService extends SystemService {
         return false;
     }
 
+    // GammaOS Nano: the console mode has no SystemUI, so nothing warned before the battery ran
+    // out: the device just died in the middle of a game. Crossing 5% and then 2% while not
+    // plugged in vibrates (twice, then three times), which reaches the player whatever is on
+    // the panels (an emulator draws them directly); the nano home also shows a message.
+    private static final int[] GAMMA_LOW_BATTERY_LEVELS = {5, 2};
+    private int mGammaLowBatteryWarned = Integer.MAX_VALUE;   // lowest level already warned for
+
+    private void gammaNanoLowBatteryWarnLocked() {
+        if (!android.os.SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)) return;
+        final int level = mHealthInfo.batteryLevel;
+        if (mPlugType != BATTERY_PLUGGED_NONE || level > GAMMA_LOW_BATTERY_LEVELS[0]) {
+            mGammaLowBatteryWarned = Integer.MAX_VALUE;   // charging or above the first mark
+            return;
+        }
+        for (int i = GAMMA_LOW_BATTERY_LEVELS.length - 1; i >= 0; i--) {
+            final int mark = GAMMA_LOW_BATTERY_LEVELS[i];
+            if (level > mark || mGammaLowBatteryWarned <= mark) continue;
+            mGammaLowBatteryWarned = mark;
+            final int pulses = i + 2;
+            Slog.i(TAG, "GammaOS Nano: battery at " + level + "%, low battery warning");
+            mHandler.post(() -> {
+                try {
+                    final android.os.Vibrator v = mContext.getSystemService(
+                            android.os.Vibrator.class);
+                    if (v == null || !v.hasVibrator()) return;
+                    final long[] timings = new long[pulses * 2];
+                    for (int k = 0; k < pulses; k++) {
+                        timings[k * 2] = k == 0 ? 0 : 180;   // pause before each pulse
+                        timings[k * 2 + 1] = 220;            // pulse
+                    }
+                    v.vibrate(android.os.VibrationEffect.createWaveform(timings, -1));
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: low battery vibration failed: " + e);
+                }
+            });
+            break;
+        }
+    }
+
     private boolean shouldSendBatteryLowLocked() {
         final boolean plugged = mPlugType != BATTERY_PLUGGED_NONE;
         final boolean oldPlugged = mLastPlugType != BATTERY_PLUGGED_NONE;
@@ -783,6 +822,8 @@ public final class BatteryService extends SystemService {
                 sendBatteryLevelChangedIntentLocked();
             }
 
+
+            gammaNanoLowBatteryWarnLocked();
 
             // Update the battery LED
             mLed.updateLightsLocked();

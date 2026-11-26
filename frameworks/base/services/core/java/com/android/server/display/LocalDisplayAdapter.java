@@ -2752,8 +2752,19 @@ final class LocalDisplayAdapter extends DisplayAdapter {
                 final java.io.File node = new java.io.File(dir, "brightness");
                 int max = gammaReadSysfsInt(new java.io.File(dir, "max_brightness"));
                 if (max <= 0) max = 255;
-                int level = Math.round(Math.max(0f, Math.min(1f, backlight)) * max);
-                if (backlight > 0f && level < 1) level = 1;
+                // The same float to level conversion the lights HAL path applies to the primary
+                // panel (1..255), rescaled to this node: rounding f * max instead left the bottom
+                // panel one level below the top at most low steps, so a step could move one
+                // panel and not the other.
+                final float f = Math.max(0f, Math.min(1f, backlight));
+                int level;
+                if (f <= 0f) {
+                    level = 0;
+                } else {
+                    final int level255 = BrightnessSynchronizer.brightnessFloatToInt(f);
+                    level = max == 255 ? level255 : Math.round(level255 * (float) max / 255f);
+                    if (level < 1) level = 1;
+                }
                 if (gammaReadSysfsInt(node) != level) {
                     android.os.FileUtils.stringToFile(node, Integer.toString(level));
                 }

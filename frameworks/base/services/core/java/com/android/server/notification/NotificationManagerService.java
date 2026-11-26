@@ -10790,8 +10790,14 @@ public class NotificationManagerService extends SystemService {
             }
         }
 
+        // GammaOS Nano: no notification light in the nano console mode. Its home draws the
+        // panels itself, so the framework's screen state does not follow what the user sees,
+        // and there is no shade to read or clear a notification: a pending one held the
+        // device's LED on in white through play and sleep (RP Duo Lite) until a reboot.
+        final boolean nanoMode = android.os.SystemProperties.getBoolean(
+                "sys.gammaos.minimal_boot", false);
         // Don't flash while we are in a call or screen is on
-        if (ledNotification == null || isInCall() || mScreenOn) {
+        if (ledNotification == null || isInCall() || mScreenOn || nanoMode) {
             mNotificationLight.turnOff();
         } else {
             NotificationRecord.Light light = ledNotification.getLight();
