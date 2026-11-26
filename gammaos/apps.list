@@ -8,9 +8,9 @@
 Daijisho|com.magneticchen.daijishou|/system/etc/daijisho||post_daijisho
 RetroArch|com.retroarch.aarch64|/system/etc/RetroArch_aarch64.apk||post_retroarch
 MiXplorer|com.mixplorer|/system/etc/MiXplorer_v6.64.3-API29_B23090720.apk||
-Aurora Store|com.aurora.store|/system/etc/AuroraStore_4.6.2.apk||post_aurora
-PPSSPP|org.ppsspp.ppsspp|/system/etc/ppsspp_1.20.3.apk||post_ppsspp
+Aurora Store|com.aurora.store|/system/etc/AuroraStore_4.8.4.apk||post_aurora
+PPSSPP|org.ppsspp.ppsspp|/system/etc/ppsspp_1.20.4.apk||post_ppsspp
 DraStic|com.dsemu.drastic|/system/etc/drastic_r2.6.0.4a.apk||post_drastic
 Flycast|com.flycast.emulator|/system/etc/flycast-release.apk||post_flycast
 M64Plus FZ|org.mupen64plusae.v3.fzurita|/system/etc/mupen64plusae_3.0.335.apk||post_mupen
-Firefox|org.mozilla.firefox_beta|/system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk|minmem:1300000|
+Firefox|org.mozilla.firefox_beta|/system/etc/fenix-162.0b2.multi.android-arm64-v8a.apk|minmem:1300000|
