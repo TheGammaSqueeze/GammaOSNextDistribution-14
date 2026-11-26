@@ -15,6 +15,7 @@ import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkCapabilities;
 import android.net.NetworkRequest;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 
@@ -25,6 +26,20 @@ import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.security.KeyStore;
+import java.security.cert.CertPath;
+import java.security.cert.CertPathValidator;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.security.cert.PKIXParameters;
+import java.security.cert.X509Certificate;
+import java.util.Arrays;
+import java.util.Date;
+import javax.net.ssl.HttpsURLConnection;
+import javax.net.ssl.SSLContext;
+import javax.net.ssl.SSLSocketFactory;
+import javax.net.ssl.TrustManager;
+import javax.net.ssl.X509TrustManager;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
@@ -93,13 +108,88 @@ public final class DownloadSubcommand {
             try {
                 rc = fetch(net, urlStr, dest, 6);
             } catch (Throwable t) {
-                System.err.println("download: " + t);
-                rc = 5;
+                // A console whose clock was reset (a flat RTC battery, no time sync yet) sees every
+                // server certificate as "not yet valid". When the clock is behind the date this
+                // system was built, check the chain as of the build date instead (still against
+                // the system's trusted roots, still verifying the host name) and try once more.
+                if (clockBehindBuild() && isCertTimeError(t)) {
+                    System.err.println("download: clock is behind the build date, checking the "
+                            + "certificate as of the build date");
+                    try {
+                        sBuildDateSockets = buildDateSocketFactory();
+                        rc = fetch(net, urlStr, dest, 6);
+                    } catch (Throwable t2) {
+                        System.err.println("download: " + t2);
+                        rc = 5;
+                    }
+                } else {
+                    System.err.println("download: " + t);
+                    rc = 5;
+                }
             }
         }
         try { cm.unregisterNetworkCallback(cb); } catch (Throwable ignored) {}
         ht.quitSafely();
         return rc;
+    }
+
+    // Set once the clock was found to be behind the build date (see run).
+    private static SSLSocketFactory sBuildDateSockets;
+
+    private static boolean clockBehindBuild() {
+        return Build.TIME > 0 && System.currentTimeMillis() < Build.TIME - 24L * 3600L * 1000L;
+    }
+
+    private static boolean isCertTimeError(Throwable t) {
+        for (Throwable c = t; c != null; c = c.getCause()) {
+            String n = c.getClass().getName();
+            String m = String.valueOf(c.getMessage());
+            if (n.endsWith("CertificateNotYetValidException") || n.endsWith("CertificateExpiredException")
+                    || n.endsWith("CertPathValidatorException") || n.endsWith("SSLHandshakeException")
+                    || m.contains("not yet valid") || m.contains("expired")) {
+                return true;
+            }
+            if (c.getCause() == c) break;
+        }
+        return false;
+    }
+
+    // TLS whose server chains are validated with PKIX against the system CA store as of the date
+    // this system was built rather than "now". Host names are still checked by the connection.
+    private static SSLSocketFactory buildDateSocketFactory() throws Exception {
+        final KeyStore roots = KeyStore.getInstance("AndroidCAStore");
+        roots.load(null, null);
+        final Date asOf = new Date(Build.TIME);
+        X509TrustManager tm = new X509TrustManager() {
+            @Override public void checkClientTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                throw new CertificateException("client certificates are not used here");
+            }
+            @Override public void checkServerTrusted(X509Certificate[] chain, String authType)
+                    throws CertificateException {
+                if (chain == null || chain.length == 0) throw new CertificateException("no chain");
+                // A server may send its root as the last certificate; the path to validate ends
+                // below the trust anchor, so leave out trailing self-issued certificates.
+                int n = chain.length;
+                while (n > 1 && chain[n - 1].getSubjectX500Principal().equals(chain[n - 1].getIssuerX500Principal())) n--;
+                try {
+                    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+                    CertPath path = cf.generateCertPath(Arrays.asList(chain).subList(0, n));
+                    PKIXParameters params = new PKIXParameters(roots);
+                    params.setRevocationEnabled(false);
+                    params.setDate(asOf);
+                    CertPathValidator.getInstance("PKIX").validate(path, params);
+                } catch (CertificateException e) {
+                    throw e;
+                } catch (Exception e) {
+                    throw new CertificateException(e);
+                }
+            }
+            @Override public X509Certificate[] getAcceptedIssuers() { return new X509Certificate[0]; }
+        };
+        SSLContext ctx = SSLContext.getInstance("TLS");
+        ctx.init(null, new TrustManager[] {tm}, null);
+        return ctx.getSocketFactory();
     }
 
     // Download over the given network, following redirects manually (so each hop stays on the same
@@ -113,6 +203,9 @@ public final class DownloadSubcommand {
             return 7;
         }
         HttpURLConnection h = (HttpURLConnection) uc;
+        if (sBuildDateSockets != null && h instanceof HttpsURLConnection) {
+            ((HttpsURLConnection) h).setSSLSocketFactory(sBuildDateSockets);
+        }
         h.setConnectTimeout(20000);
         h.setReadTimeout(60000);
         h.setInstanceFollowRedirects(false);
