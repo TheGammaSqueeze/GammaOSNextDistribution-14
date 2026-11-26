@@ -112,7 +112,7 @@ PRODUCT_COPY_FILES += \
     gammaos/utils/xz:system/bin/xz \
     gammaos/utils/dtc:system/bin/dtc \
     gammaos/utils/inotifywait:system/bin/inotifywait \
-    gammaos/utils/fenix-148.0b9.multi.android-arm64-v8a.apk:system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk \
+    gammaos/utils/fenix-162.0b2.multi.android-arm64-v8a.apk:system/etc/fenix-162.0b2.multi.android-arm64-v8a.apk \
     gammaos/customization.sh:system/bin/customization.sh \
     gammaos/magisk/magisk.apk:system/etc/magisk.apk \
     gammaos/magisk/magisk.tar.gz:system/etc/magisk.tar.gz \
@@ -124,7 +124,7 @@ PRODUCT_COPY_FILES += \
     gammaos/nano_cache.sh:system/bin/nano_cache.sh \
     gammaos/gammaos-swap.sh:system/bin/gammaos-swap.sh \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
-    gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
+    gammaos/launcher/AuroraStore_4.8.4.apk:system/etc/AuroraStore_4.8.4.apk \
     gammaos/launcher/aurorastore.tar.zst:system/etc/aurorastore.tar.zst \
     gammaos/daijisho/splits/base.apk:system/etc/daijisho/base.apk \
     gammaos/daijisho/splits/split_config.en.apk:system/etc/daijisho/split_config.en.apk \
@@ -135,20 +135,16 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/mupen64plusae.tar.zst:system/etc/mupen64plusae.tar.zst \
     gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
     gammaos/emulators/ppsspp.tar.zst:system/etc/ppsspp.tar.zst \
-    gammaos/emulators/ppsspp_1.20.3.apk:system/etc/ppsspp_1.20.3.apk \
+    gammaos/emulators/ppsspp_1.20.4.apk:system/etc/ppsspp_1.20.4.apk \
     gammaos/emulators/flycast.tar.zst:system/etc/flycast.tar.zst \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
-# drastic-nano runs libdrastic and its data from /system so the DS emulator keeps
-# working even when the DraStic APK is uninstalled: libdrastic_arm64.so + libdrastic_cpu.so
-# (in /system/lib64, the linker namespace of a system binary cannot dlopen from /system/etc),
-# the BIOS/firmware, the game database, the cheat database, the default touch layout and the
-# default shaders. drastic-nano seeds its private data root from here at launch; saves,
-# save states and user shaders live on /sdcard/drastic-nano.
-PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,gammaos/emulators/drastic-nano,system/etc/drastic-nano) \
-    gammaos/emulators/drastic-nano-lib/libdrastic_arm64.so:system/lib64/libdrastic_arm64.so \
-    gammaos/emulators/drastic-nano-lib/libdrastic_cpu.so:system/lib64/libdrastic_cpu.so
+# GammaOS Nano: the home and its emulators (drastic-nano, melonds-nano, azahar-nano,
+# retroarch-nano), each from its own git submodule and only when it is checked out
+$(call inherit-product, device/phh/treble/gammaos-nano.mk)
+
+# ART runtime settings shared with base.mk, which this product does not inherit
+$(call inherit-product, device/phh/treble/gammaos-art.mk)
 
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the

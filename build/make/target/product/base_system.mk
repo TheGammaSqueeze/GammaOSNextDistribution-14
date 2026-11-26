@@ -38,12 +38,10 @@ PRODUCT_PACKAGES += \
     blkid \
     bmgr \
     bootanimation \
-    gammaos-nano \
     gammaos-sharefs \
     syncthing \
     syncthing-resolv.conf \
     GammaShares \
-    drastic-nano \
     bootstat \
     boringssl_self_test \
     bpfloader \

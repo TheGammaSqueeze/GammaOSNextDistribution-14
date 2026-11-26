@@ -600,7 +600,10 @@ class LegacyGlobalActions implements DialogInterface.OnDismissListener, DialogIn
             mItems.add(getSettingsAction());
             mItems.add(getKillBackgroundAppsAction());
             mItems.add(getKillAllAppsAction());
-            mItems.add(getBootNanoAction());
+            // only an image that has the nano home can boot into it
+            if (SystemProperties.getBoolean("ro.gammaos.nano.available", false)) {
+                mItems.add(getBootNanoAction());
+            }
         }
 
         // Override ActionsAdapter's getView method to set text color to white

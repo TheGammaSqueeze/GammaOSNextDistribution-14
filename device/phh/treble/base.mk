@@ -139,7 +139,7 @@ PRODUCT_COPY_FILES += \
     gammaos/utils/xz:system/bin/xz \
     gammaos/utils/dtc:system/bin/dtc \
     gammaos/utils/inotifywait:system/bin/inotifywait \
-    gammaos/utils/fenix-148.0b9.multi.android-arm64-v8a.apk:system/etc/fenix-148.0b9.multi.android-arm64-v8a.apk \
+    gammaos/utils/fenix-162.0b2.multi.android-arm64-v8a.apk:system/etc/fenix-162.0b2.multi.android-arm64-v8a.apk \
     gammaos/customization.sh:system/bin/customization.sh \
     gammaos/magisk/magisk.apk:system/etc/magisk.apk \
     gammaos/magisk/magisk.tar.gz:system/etc/magisk.tar.gz \
@@ -151,7 +151,7 @@ PRODUCT_COPY_FILES += \
     gammaos/nano_cache.sh:system/bin/nano_cache.sh \
     gammaos/gammaos-swap.sh:system/bin/gammaos-swap.sh \
     gammaos/launcher/MiXplorer_v6.64.3-API29_B23090720.apk:system/etc/MiXplorer_v6.64.3-API29_B23090720.apk \
-    gammaos/launcher/AuroraStore_4.6.2.apk:system/etc/AuroraStore_4.6.2.apk \
+    gammaos/launcher/AuroraStore_4.8.4.apk:system/etc/AuroraStore_4.8.4.apk \
     gammaos/launcher/aurorastore.tar.zst:system/etc/aurorastore.tar.zst \
     gammaos/daijisho/splits/base.apk:system/etc/daijisho/base.apk \
     gammaos/daijisho/splits/split_config.en.apk:system/etc/daijisho/split_config.en.apk \
@@ -162,41 +162,13 @@ PRODUCT_COPY_FILES += \
     gammaos/emulators/mupen64plusae.tar.zst:system/etc/mupen64plusae.tar.zst \
     gammaos/emulators/mupen64plusae_3.0.335.apk:system/etc/mupen64plusae_3.0.335.apk \
     gammaos/emulators/ppsspp.tar.zst:system/etc/ppsspp.tar.zst \
-    gammaos/emulators/ppsspp_1.20.3.apk:system/etc/ppsspp_1.20.3.apk \
+    gammaos/emulators/ppsspp_1.20.4.apk:system/etc/ppsspp_1.20.4.apk \
     gammaos/emulators/flycast.tar.zst:system/etc/flycast.tar.zst \
     gammaos/emulators/flycast-release.apk:system/etc/flycast-release.apk
 
-# drastic-nano runs libdrastic and its data from /system so the DS emulator keeps
-# working even when the DraStic APK is uninstalled: libdrastic_arm64.so + libdrastic_cpu.so
-# (in /system/lib64, the linker namespace of a system binary cannot dlopen from /system/etc),
-# the BIOS/firmware, the game database, the cheat database, the default touch layout and the
-# default shaders. drastic-nano seeds its private data root from here at launch; saves,
-# save states and user shaders live on /sdcard/drastic-nano.
-PRODUCT_COPY_FILES += \
-    $(call find-copy-subdir-files,*,gammaos/emulators/drastic-nano,system/etc/drastic-nano) \
-    gammaos/emulators/drastic-nano-lib/libdrastic_arm64.so:system/lib64/libdrastic_arm64.so \
-    gammaos/emulators/drastic-nano-lib/libdrastic_cpu.so:system/lib64/libdrastic_cpu.so
-
-# azahar-nano (every product, like drastic-nano): the native 3DS core (Azahar azahar-2126 built with the NDK behind a C ABI)
-# and the adrenotools hook libraries for custom GPU drivers live directly in /system/lib64
-# (the system binary's linker namespace does not permit subdirectories). The frontend is
-# the azahar-nano Soong binary; its user data lives in /data/system/azahar-nano (private
-# root: config, nand, system files, shader cache) and /sdcard/azahar-nano (saves, states).
-# The GammaOS Turnip Vulkan driver (github.com/TheGammaSqueeze/gammaos-turnip, adreno-610)
-# ships as a bundled adrenotools package, the default on the Adreno 610 (GpuDriverPkg.h), and
-# malisx2 (github.com/bmdhacks/malisx2) the same way, the default on the Mali-G52.
-PRODUCT_PACKAGES += azahar-nano azahar-nano-cheats
-PRODUCT_COPY_FILES += \
-    gammaos/emulators/azahar-nano-lib/libazahar-nano-core.so:system/lib64/libazahar-nano-core.so \
-    gammaos/emulators/azahar-nano-lib/libc++_shared.so:system/lib64/libc++_shared.so \
-    gammaos/emulators/azahar-nano-lib/libmain_hook.so:system/lib64/libmain_hook.so \
-    gammaos/emulators/azahar-nano-lib/libfile_redirect_hook.so:system/lib64/libfile_redirect_hook.so \
-    gammaos/emulators/azahar-nano-lib/libgsl_alloc_hook.so:system/lib64/libgsl_alloc_hook.so \
-    gammaos/emulators/azahar-nano-lib/libhook_impl.so:system/lib64/libhook_impl.so \
-    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/meta.json:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/meta.json \
-    gammaos/emulators/azahar-nano-lib/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so:system/etc/azahar-nano/gpu_drivers/gammaos-turnip-adreno-610/vulkan.gammaos.so \
-    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/meta.json:system/etc/azahar-nano/gpu_drivers/malisx2-g52/meta.json \
-    gammaos/emulators/azahar-nano-lib/gpu_drivers/malisx2-g52/libvulkan_malisx2.so:system/etc/azahar-nano/gpu_drivers/malisx2-g52/libvulkan_malisx2.so
+# GammaOS Nano: the home and its emulators (drastic-nano, melonds-nano, azahar-nano,
+# retroarch-nano), each from its own git submodule and only when it is checked out
+$(call inherit-product, device/phh/treble/gammaos-nano.mk)
 
 # GammaOS first-boot setup: data-driven app list for setup.sh, pre-installed helper apps
 # (dex-preopted at build time), the zstd decompressor for the setup payloads, and the
@@ -272,11 +244,14 @@ PRODUCT_PRODUCT_PROPERTIES += \
 # single-screen view defaulting to PiP Small at 80% inset opacity. In base.mk so ALL
 # variants get it (build.sh + buildtv.sh + buildtv_cc.sh); the user can still change
 # these from the drastic-nano overlay menu, and dual-screen devices ignore the preset.
+# Only with the nano home and the drastic-nano submodule checked out (as in gammaos-nano.mk;
+# what an inherited makefile sets is not visible here, so the folders are looked up again).
+ifneq ($(and $(wildcard frameworks/base/cmds/gammaos-nano/Android.bp),$(wildcard gammaos/emulators/drastic-nano/Android.bp)),)
 PRODUCT_PRODUCT_PROPERTIES += \
     persist.gammaos.nano.drastic_nano=1 \
-    persist.gammaos.nano.azahar_nano=1 \
     persist.gammaos.drastic_nano.layout_preset=2 \
     persist.gammaos.drastic_nano.pip_alpha=80
+endif
 
 # AOSP overlays
 PRODUCT_PACKAGES += \
@@ -301,14 +276,8 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/window_extensions.mk)
 PRODUCT_PRODUCT_PROPERTIES += \
     persist.settings.large_screen_opt.enabled=true
 
-# GammaOS: do not have ART madvise(MADV_WILLNEED) an app's whole odex and vdex at process
-# start (the platform default reads up to 100 MB of each synchronously from flash before
-# the app runs). On a 1 GB handheld that is the black screen on every launch of a large
-# app: Mupen64Plus AE's 76 MB odex plus 27 MB vdex were read twice (main and emulation
-# process) while the kernel was already thrashing. Pages fault in on demand instead.
-PRODUCT_PRODUCT_PROPERTIES += \
-    dalvik.vm.madvise.vdexfile.size=0 \
-    dalvik.vm.madvise.odexfile.size=0
+# ART runtime settings shared with the tv product
+$(call inherit-product, device/phh/treble/gammaos-art.mk)
 
 # Hide display cutout
 PRODUCT_PRODUCT_PROPERTIES += \

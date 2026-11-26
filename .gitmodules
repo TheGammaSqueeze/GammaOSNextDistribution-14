@@ -1,0 +1,15 @@
+[submodule "frameworks/base/cmds/gammaos-nano"]
+	path = frameworks/base/cmds/gammaos-nano
+	url = git@github.com:TheGammaSqueeze/gammaos-nano.git
+[submodule "gammaos/emulators/drastic-nano"]
+	path = gammaos/emulators/drastic-nano
+	url = git@github.com:TheGammaSqueeze/drastic-nano.git
+[submodule "gammaos/emulators/melonds-nano"]
+	path = gammaos/emulators/melonds-nano
+	url = git@github.com:TheGammaSqueeze/melonds-nano.git
+[submodule "gammaos/emulators/azahar-nano"]
+	path = gammaos/emulators/azahar-nano
+	url = git@github.com:TheGammaSqueeze/azahar-nano.git
+[submodule "gammaos/emulators/retroarch-nano"]
+	path = gammaos/emulators/retroarch-nano
+	url = git@github.com:TheGammaSqueeze/retroarch-nano.git
