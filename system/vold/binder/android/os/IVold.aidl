@@ -89,6 +89,8 @@ interface IVold {
 
     void createUserStorageKeys(int userId, boolean ephemeral);
     void destroyUserStorageKeys(int userId);
+    // GammaOS Nano: destroys the early-boot copy of a user's CE key (see FsCrypt.cpp).
+    void destroyNanoCeCopy(int userId);
 
     void setCeStorageProtection(int userId, @utf8InCpp String secret);
 

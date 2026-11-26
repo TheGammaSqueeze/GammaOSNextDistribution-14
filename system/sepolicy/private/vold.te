@@ -28,6 +28,9 @@ get_prop(vold, vold_config_prop)
 get_prop(vold, storage_config_prop);
 get_prop(vold, incremental_prop);
 get_prop(vold, gsid_prop);
+# GammaOS Nano: the early CE unlock in fscrypt_init_user0 is gated on the nano boot mode.
+get_prop(vold, bootanim_system_prop)
+get_prop(vold, persist_gammaos_prop)
 
 set_prop(vold, vold_prop)
 set_prop(vold, vold_status_prop)

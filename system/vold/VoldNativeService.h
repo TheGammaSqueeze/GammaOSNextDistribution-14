@@ -115,6 +115,7 @@ class VoldNativeService : public BinderService<VoldNativeService>, public os::Bn
 
     binder::Status createUserStorageKeys(int32_t userId, bool ephemeral);
     binder::Status destroyUserStorageKeys(int32_t userId);
+    binder::Status destroyNanoCeCopy(int32_t userId);
 
     binder::Status setCeStorageProtection(int32_t userId, const std::string& secret);
 

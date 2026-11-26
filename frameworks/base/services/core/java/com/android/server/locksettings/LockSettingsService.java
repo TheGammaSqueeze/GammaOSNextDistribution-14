@@ -94,6 +94,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.IVold;
 import android.os.IProgressListener;
 import android.os.Process;
 import android.os.RemoteException;
@@ -127,6 +128,7 @@ import android.util.Log;
 import android.util.LongSparseArray;
 import android.util.Slog;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 import android.util.SparseIntArray;
 
 import com.android.internal.R;
@@ -314,6 +316,9 @@ public class LockSettingsService extends ILockSettings.Stub {
     // device or changes password. Removed if user is stopped with its CE key evicted.
     @GuardedBy("this")
     private final SparseArray<PasswordMetrics> mUserPasswordMetrics = new SparseArray<>();
+    // GammaOS Nano: users whose early vold CE unlock has been completed by unlockUserKeyIfUnsecured.
+    @GuardedBy("mSpManager")
+    private final SparseBooleanArray mNanoSpUnlockedUsers = new SparseBooleanArray();
     @VisibleForTesting
     protected boolean mHasSecureLockScreen;
 
@@ -2206,11 +2211,28 @@ public class LockSettingsService extends ILockSettings.Stub {
     public void unlockUserKeyIfUnsecured(@UserIdInt int userId) {
         checkPasswordReadPermission();
         synchronized (mSpManager) {
-            if (isCeStorageUnlocked(userId)) {
+            final boolean nanoEarlyCe = isNanoEarlyCeUnlock(userId);
+            if (isCeStorageUnlocked(userId) && !nanoEarlyCe) {
                 Slogf.d(TAG, "CE storage for user %d is already unlocked", userId);
                 // This method actually does more than unlock CE storage.  However, if CE storage is
                 // already unlocked, then the other parts must have already been done too.
                 return;
+            }
+            if (nanoEarlyCe && isUserSecure(userId)) {
+                // vold refuses its early copy once a credential exists, so this should never
+                // happen. Never leave a secured user's storage open without its credential.
+                Slogf.wtf(TAG, "CE storage of secured user %d was unlocked early, locking", userId);
+                destroyNanoCeCopy(userId);
+                try {
+                    mStorageManager.lockCeStorage(userId);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, e, "Failed to lock CE storage of user %d", userId);
+                }
+                return;
+            }
+            if (nanoEarlyCe) {
+                Slogf.i(TAG, "CE storage of user %d was unlocked early by vold, finishing the"
+                        + " synthetic password unlock", userId);
             }
             if (isUserSecure(userId)) {
                 Slogf.d(TAG, "Not unlocking CE storage for user %d yet because user is secured",
@@ -2230,6 +2252,37 @@ public class LockSettingsService extends ILockSettings.Stub {
                 unlockKeystore(userId, result.syntheticPassword);
             }
             unlockCeStorage(userId, result.syntheticPassword);
+            if (nanoEarlyCe) mNanoSpUnlockedUsers.put(userId, true);
+        }
+    }
+
+    /**
+     * GammaOS Nano: vold can install an unsecured user 0's CE key right after /data is mounted
+     * (FsCrypt.cpp, nano_try_early_ce_unlock). StorageManager then already reports CE storage as
+     * unlocked, but the synthetic password unwrap, keystore unlock and the rest of
+     * unlockUserKeyIfUnsecured() still have to run once this boot.
+     */
+    @GuardedBy("mSpManager")
+    private boolean isNanoEarlyCeUnlock(int userId) {
+        return !mNanoSpUnlockedUsers.get(userId)
+                && "1".equals(SystemProperties.get("vold.nano.ce_unlocked_" + userId));
+    }
+
+    /**
+     * GammaOS Nano: destroys vold's early-boot copy of the user's CE key. Called before any
+     * credential is saved and when the user is removed. Not gated on nano mode, so a copy made
+     * in nano can never outlive a credential set from normal Android.
+     */
+    private void destroyNanoCeCopy(int userId) {
+        final IVold vold = IVold.Stub.asInterface(ServiceManager.getService("vold"));
+        if (vold == null) {
+            throw new IllegalStateException("vold unavailable, cannot destroy the early CE copy");
+        }
+        try {
+            vold.destroyNanoCeCopy(userId);
+        } catch (Exception e) {
+            throw new IllegalStateException("Failed to destroy the early CE copy of user "
+                    + userId, e);
         }
     }
 
@@ -2579,6 +2632,11 @@ public class LockSettingsService extends ILockSettings.Stub {
     }
 
     private void removeUserState(@UserIdInt int userId) {
+        try {
+            destroyNanoCeCopy(userId);
+        } catch (IllegalStateException e) {
+            Slogf.e(TAG, e, "Failed to destroy the early CE copy of removed user %d", userId);
+        }
         removeBiometricsForUser(userId);
         mSpManager.removeUser(getGateKeeperService(), userId);
         mStrongAuth.removeUser(userId);
@@ -3068,6 +3126,11 @@ public class LockSettingsService extends ILockSettings.Stub {
         Slogf.i(TAG, "Changing lockscreen credential of user %d; newCredentialType=%s\n",
                 userId, LockPatternUtils.credentialTypeToString(credential.getType()));
         final int savedCredentialType = getCredentialTypeInternal(userId);
+        if (!credential.isNone()) {
+            // Must succeed before the credential exists, otherwise vold could still install the
+            // CE key at boot without it. A failure aborts the credential change.
+            destroyNanoCeCopy(userId);
+        }
         final long oldProtectorId = getCurrentLskfBasedProtectorId(userId);
         final long newProtectorId = mSpManager.createLskfBasedProtector(getGateKeeperService(),
                 credential, sp, userId);

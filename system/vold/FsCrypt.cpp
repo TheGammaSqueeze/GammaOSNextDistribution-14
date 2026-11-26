@@ -49,6 +49,7 @@
 
 #include <fscrypt/fscrypt.h>
 #include <keyutils.h>
+#include <openssl/mem.h>
 #include <libdm/dm.h>
 
 #include <android-base/file.h>
@@ -584,6 +585,105 @@ static bool prepare_special_dirs() {
     return true;
 }
 
+// GammaOS Nano: early CE unlock for an unsecured user 0.
+//
+// While user 0 has no lockscreen credential, vold keeps a second copy of the user's CE key
+// under nano_ce/<user>, protected only by a keymint key (exactly like the DE keys). On a nano
+// boot fscrypt_init_user0() installs it so encrypted storage is usable right after /data is
+// mounted, instead of waiting ~20 s for system_server to unwrap the synthetic password.
+// The copy is made in fscrypt_unlock_ce_storage() when the framework unlocks the user and is
+// destroyed by LockSettingsService (destroyNanoCeCopy) before any credential is saved, when
+// the user is removed, and by vold itself whenever the user's spblob shows a credential.
+// The directory name must not start with 'c' (get_ce_key_paths skips only those).
+static std::string get_nano_ce_copy_path(userid_t user_id) {
+    return StringPrintf("%s/nano_ce/%d", user_key_dir.c_str(), user_id);
+}
+
+static bool nano_early_ce_enabled() {
+    return android::base::GetProperty("persist.bootanim.skip_nano", "") == "0" &&
+           android::base::GetBoolProperty("persist.gammaos.nano.early_ce", true);
+}
+
+// True only if the user has synthetic password protectors and none of them carries password
+// data (".pwd" exists exactly when the LSKF is not empty). Fails closed on any read error.
+static bool nano_user_unsecured(userid_t user_id) {
+    auto dir = StringPrintf("/data/system_de/%d/spblob", user_id);
+    auto dirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(dir.c_str()), closedir);
+    if (!dirp) return false;
+    bool has_spblob = false;
+    for (;;) {
+        errno = 0;
+        auto const entry = readdir(dirp.get());
+        if (!entry) {
+            if (errno) return false;
+            break;
+        }
+        if (android::base::EndsWith(entry->d_name, ".pwd")) return false;
+        if (android::base::EndsWith(entry->d_name, ".spblob")) has_spblob = true;
+    }
+    return has_spblob;
+}
+
+bool fscrypt_destroy_nano_ce_copy(userid_t user_id) {
+    auto path = get_nano_ce_copy_path(user_id);
+    if (!android::vold::pathExists(path)) return true;
+    LOG(INFO) << "nano: destroying early CE copy for user " << user_id;
+    return android::vold::destroyKey(path);
+}
+
+// Keeps the copy in step with the CE key that was just unlocked. Idempotent: an identical
+// copy is left alone, so this costs one keymint decrypt per boot.
+static void nano_refresh_ce_copy(userid_t user_id, const KeyBuffer& ce_key) {
+    if (user_id != 0 || !nano_early_ce_enabled()) return;
+    if (!nano_user_unsecured(user_id)) {
+        fscrypt_destroy_nano_ce_copy(user_id);
+        return;
+    }
+    auto path = get_nano_ce_copy_path(user_id);
+    if (android::vold::pathExists(path)) {
+        KeyBuffer existing;
+        if (retrieveKey(path, kEmptyAuthentication, &existing) && existing.size() == ce_key.size() &&
+            CRYPTO_memcmp(existing.data(), ce_key.data(), ce_key.size()) == 0)
+            return;
+        fscrypt_destroy_nano_ce_copy(user_id);
+    }
+    if (!prepare_dir(user_key_dir + "/nano_ce", 0700, AID_ROOT, AID_ROOT)) return;
+    if (android::vold::storeKeyAtomically(path, user_key_temp + "_nano", kEmptyAuthentication,
+                                          ce_key)) {
+        LOG(INFO) << "nano: stored early CE copy for user " << user_id;
+    } else {
+        LOG(ERROR) << "nano: failed to store early CE copy for user " << user_id;
+    }
+}
+
+// Installs user 0's CE key from the copy and prepares its CE storage. Never fails the boot:
+// on any problem the framework unlocks CE storage the normal way.
+static void nano_try_early_ce_unlock() {
+    if (!nano_early_ce_enabled() || s_ce_policies.count(0) != 0) return;
+    auto path = get_nano_ce_copy_path(0);
+    if (!android::vold::pathExists(path)) return;
+    if (!nano_user_unsecured(0)) {
+        LOG(WARNING) << "nano: user 0 has a credential, refusing the early CE copy";
+        fscrypt_destroy_nano_ce_copy(0);
+        return;
+    }
+    KeyBuffer ce_key;
+    EncryptionPolicy ce_policy;
+    if (!retrieveKey(path, kEmptyAuthentication, &ce_key) ||
+        !install_storage_key(DATA_MNT_POINT, s_data_options, ce_key, &ce_policy)) {
+        LOG(WARNING) << "nano: early CE unlock failed, the framework will unlock CE storage";
+        return;
+    }
+    s_ce_policies[0].internal = ce_policy;
+    LOG(INFO) << "nano: installed CE key for user 0 early";
+    android::base::SetProperty("vold.nano.ce_unlocked_0", "1");
+    if (fscrypt_prepare_user_storage("", 0, android::os::IVold::STORAGE_FLAG_CE)) {
+        android::base::SetProperty("vold.nano.ce_ready_0", "1");
+    } else {
+        LOG(WARNING) << "nano: preparing CE storage early failed, the framework will retry";
+    }
+}
+
 bool fscrypt_init_user0_done;
 
 bool fscrypt_init_user0() {
@@ -616,6 +716,8 @@ bool fscrypt_init_user0() {
         LOG(ERROR) << "Failed to prepare user 0 storage";
         return false;
     }
+
+    if (IsFbeEnabled()) nano_try_early_ce_unlock();
 
     fscrypt_init_user0_done = true;
     return true;
@@ -687,6 +789,7 @@ bool fscrypt_destroy_user_keys(userid_t user_id) {
 
     success &= evict_user_keys(s_ce_policies, user_id);
     success &= evict_user_keys(s_de_policies, user_id);
+    success &= fscrypt_destroy_nano_ce_copy(user_id);
 
     if (!s_ephemeral_users.erase(user_id)) {
         auto ce_path = get_ce_key_directory_path(user_id);
@@ -893,6 +996,7 @@ bool fscrypt_unlock_ce_storage(userid_t user_id, const std::string& secret_hex) 
     if (!install_storage_key(DATA_MNT_POINT, s_data_options, ce_key, &ce_policy)) return false;
     s_ce_policies[user_id].internal = ce_policy;
     LOG(DEBUG) << "Installed CE key for user " << user_id;
+    nano_refresh_ce_copy(user_id, ce_key);
     return true;
 }
 
