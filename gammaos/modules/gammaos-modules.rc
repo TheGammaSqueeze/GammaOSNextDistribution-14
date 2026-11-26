@@ -1,0 +1,9 @@
+# The early step of gammaos-modules as a service of its own, so that init can start it at
+# early-init without waiting for it and check on it once, right before the nano home is
+# started (system/core/rootdir/init.rc). It mounts the updated home kept in /metadata.
+service gammaos-modules-early /system/bin/gammaos-modules early
+    user root
+    group root
+    disabled
+    oneshot
+    timeout_period 5

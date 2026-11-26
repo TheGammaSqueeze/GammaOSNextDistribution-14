@@ -1323,6 +1323,20 @@ static Result<void> do_enter_default_mount_ns(const BuiltinArguments& args) {
     return {};
 }
 
+// GammaOS: if_file <path> <command> [ <argument>* ]
+// Runs the given init command only when <path> exists. A boot step that has nothing to do on
+// most consoles (gammaos-modules with no module installed) then costs one access() here and
+// not the start of a process.
+static Result<void> do_if_file(const BuiltinArguments& args) {
+    if (access(args[1].c_str(), F_OK) != 0) return {};
+    std::vector<std::string> rest(args.args.begin() + 2, args.args.end());
+    auto command = GetBuiltinFunctionMap().Find(rest);
+    if (!command.ok()) {
+        return Error() << "if_file: " << command.error();
+    }
+    return command->function(BuiltinArguments{.args = std::move(rest), .context = args.context});
+}
+
 // Builtin-function-map start
 const BuiltinFunctionMap& GetBuiltinFunctionMap() {
     constexpr std::size_t kMax = std::numeric_limits<std::size_t>::max();
@@ -1344,6 +1358,7 @@ const BuiltinFunctionMap& GetBuiltinFunctionMap() {
         {"exec_start",              {1,     1,    {false,  do_exec_start}}},
         {"export",                  {2,     2,    {false,  do_export}}},
         {"hostname",                {1,     1,    {true,   do_hostname}}},
+        {"if_file",                 {2,     kMax, {false,  do_if_file}}},
         {"ifup",                    {1,     1,    {true,   do_ifup}}},
         {"init_user0",              {0,     0,    {false,  do_init_user0}}},
         {"insmod",                  {1,     kMax, {true,   do_insmod}}},

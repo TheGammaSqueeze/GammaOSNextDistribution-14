@@ -354,6 +354,8 @@ cc_library_static {
         "//art/build/sdk",
         "//bootable/recovery/updater",
         "//external/conscrypt",
+        // GammaOS: the static module mounter init runs at early-init
+        "//gammaos/modules",
         "//external/python/cpython2",
         "//external/rust/crates/quiche",
         // Strictly, only the *static* toybox for legacy devices should have

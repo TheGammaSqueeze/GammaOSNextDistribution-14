@@ -1,0 +1,71 @@
+# gammaos-modules: mounts updated builds of GammaOS programs, kept in /metadata and /data,
+# over the system image's files (gammaos/modules). init runs it at early-init, at
+# post-fs-data, when the boot has completed and at shutdown; the nano home runs it to install
+# or remove a package.
+type gammaosmodules, domain, coredomain;
+type gammaosmodules_exec, exec_type, system_file_type, file_type;
+
+# The store in /data (/data/gammaos_modules, made by init, not under file based encryption).
+type gammaos_modules_data_file, file_type, data_file_type, core_data_file_type;
+
+init_daemon_domain(gammaosmodules)
+
+# The home starts it and reads its answer from a pipe.
+domain_auto_trans(bootanim, gammaosmodules_exec, gammaosmodules)
+allow gammaosmodules bootanim:fd use;
+allow gammaosmodules bootanim:fifo_file rw_file_perms;
+
+allow gammaosmodules self:capability { sys_admin sys_chroot dac_override dac_read_search chown fowner };
+
+# Its mounts get their flags in both of init's mount namespaces, entered through the
+# handles init holds on them.
+allow gammaosmodules init:dir r_dir_perms;
+allow gammaosmodules init:lnk_file read;
+allow gammaosmodules init:file r_file_perms;
+allow gammaosmodules init:fd use;
+allow gammaosmodules unlabeled:file r_file_perms;
+allow gammaosmodules labeledfs:filesystem remount;
+
+# Its two stores and the state file.
+allow gammaosmodules metadata_file:dir create_dir_perms;
+allow gammaosmodules metadata_file:file { create_file_perms relabelfrom };
+allow gammaosmodules gammaos_modules_data_file:dir create_dir_perms;
+allow gammaosmodules gammaos_modules_data_file:file { create_file_perms relabelfrom };
+allow gammaosmodules system_data_root_file:dir r_dir_perms;
+allow gammaosmodules self:process setfscreate;
+
+# What the image ships: the files a module stands in for and the record of their versions.
+allow gammaosmodules system_file_type:dir r_dir_perms;
+allow gammaosmodules system_file_type:file r_file_perms;
+allow gammaosmodules { system_file_type -exec_type }:file mounton;
+allow gammaosmodules labeledfs:filesystem unmount;
+r_dir_file(gammaosmodules, proc)
+
+# Packages: downloaded by the home, picked from storage, or pushed for a test.
+allow gammaosmodules system_data_file:dir r_dir_perms;
+allow gammaosmodules system_data_file:file r_file_perms;
+allow gammaosmodules { media_rw_data_file shell_data_file }:dir r_dir_perms;
+allow gammaosmodules { media_rw_data_file shell_data_file }:file r_file_perms;
+allow gammaosmodules { mnt_media_rw_file mnt_user_file storage_file tmpfs }:dir search;
+allow gammaosmodules mnt_user_file:lnk_file r_file_perms;
+allow gammaosmodules { sdcard_type fuse }:dir r_dir_perms;
+allow gammaosmodules { sdcard_type fuse }:file r_file_perms;
+
+# One step at a time: a lock file in /dev.
+allow gammaosmodules device:dir { search write add_name };
+allow gammaosmodules device:file create_file_perms;
+
+# The boot steps log to the kernel log: logd is not up yet.
+allow gammaosmodules kmsg_device:chr_file w_file_perms;
+
+# sys.gammaos.modules.*, sys.gammaos.module.<name>, persist.gammaos.modules.*, and the
+# property a program sets once it runs.
+set_prop(gammaosmodules, persist_gammaos_prop)
+
+# A module's file has to carry the label of the image file it stands in for, or the program
+# would not start in its own domain, and most of these files are programs. Relabelling to a
+# system type and mounting over a program are not something the platform policy lets any
+# domain be allowed, so this domain is permissive, as the home it serves is; what is listed
+# above is everything else it does.
+permissive gammaosmodules;
+dontaudit gammaosmodules system_file_type:file { relabelto mounton unlink rename setattr };

@@ -587,6 +587,9 @@ Commands
 `hostname <name>`
 > Set the host name.
 
+`if_file <path> <command> [ <argument>\* ]`
+> GammaOS: run the given init command only when _path_ exists.
+
 `ifup <interface>`
 > Bring the network interface _interface_ online.
 

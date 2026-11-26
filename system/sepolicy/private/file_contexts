@@ -273,6 +273,9 @@
 /system/bin/gammaos-nano u:object_r:bootanim_exec:s0
 /system/bin/drastic-nano u:object_r:bootanim_exec:s0
 /system/bin/azahar-nano u:object_r:bootanim_exec:s0
+/system/bin/melonds-nano u:object_r:bootanim_exec:s0
+/system/bin/melonds-nano-launch u:object_r:bootanim_exec:s0
+/system/bin/retroarch-nano u:object_r:bootanim_exec:s0
 /system/bin/nano_cache\.sh u:object_r:gammaoscustomization_exec:s0
 /system/bin/bootstat		u:object_r:bootstat_exec:s0
 /system/bin/app_process32	u:object_r:zygote_exec:s0
@@ -912,3 +915,5 @@
 /system/bin/syncthing            u:object_r:syncthing_exec:s0
 /system/bin/gammapad_restore     u:object_r:gammapad_exec:s0
 /system/bin/gammaos-ota      u:object_r:gammaosota_exec:s0
+/system/bin/gammaos-modules  u:object_r:gammaosmodules_exec:s0
+/data/gammaos_modules(/.*)?    u:object_r:gammaos_modules_data_file:s0

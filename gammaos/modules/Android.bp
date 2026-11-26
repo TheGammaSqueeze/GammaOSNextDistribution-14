@@ -1,0 +1,24 @@
+// gammaos-modules: updates of single GammaOS programs (the nano home, the nano emulators)
+// without flashing a partition. See README.md.
+//
+// Static on purpose: init runs it at early-init, before the runtime APEX and its linker
+// are mounted, and it must cost next to nothing on a boot that has no module installed.
+cc_binary {
+    name: "gammaos-modules",
+    srcs: ["main.cpp"],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-D_FILE_OFFSET_BITS=64",
+    ],
+    static_executable: true,
+    init_rc: ["gammaos-modules.rc"],
+    stl: "libc++_static",
+    static_libs: [
+        "libziparchive",
+        "libz",
+        "libbase",
+        "liblog",
+        "libcrypto_static",
+    ],
+}
