@@ -22,18 +22,4 @@ set -e
 export GAMMAOS_BOOT_GC=cc
 echo "buildtv_cc.sh: building the CC (read-barrier) boot image for old-kernel (<=4.14) devices"
 
-MODE="${1:-nosync}"
-
-# Ship APEX modules uncompressed. With compressed .capex files every first boot (and every
-# boot after an OTA) has to decompress all of them into /data/apex before ART can even check
-# its boot artifacts; on SD-card devices that is tens of seconds. Costs image size only.
-export OVERRIDE_PRODUCT_COMPRESSED_APEX=false
-
-mkdir -p out/home/build-output
-
-# azahar-nano (3DS) core: built from gammaos/emulators/azahar-nano with the NDK and CMake
-# (fetched once into out/azahar-nano when missing), installed into
-# gammaos/emulators/azahar-nano-lib. AZAHAR_NANO_SKIP_BUILD=1 keeps the committed libraries.
-bash gammaos/emulators/azahar-nano/gammaos/build-core.sh
-
-HOME="$PWD/out/home" bash lineage_build_unified/buildbot_unified.sh treble TV64VN "$MODE"
+exec bash "$(dirname "${BASH_SOURCE[0]}")/gammaos/build-image.sh" TV64VN "${1:-nosync}"
