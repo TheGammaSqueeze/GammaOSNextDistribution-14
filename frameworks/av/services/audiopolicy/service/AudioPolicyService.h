@@ -44,6 +44,7 @@
 #include <android/hardware/BnSensorPrivacyListener.h>
 #include <android/content/AttributionSourceState.h>
 
+#include <atomic>
 #include <unordered_map>
 
 namespace android {
@@ -80,6 +81,8 @@ class AudioPolicyService :
 public:
     // for BinderService
     static const char *getServiceName() ANDROID_API { return "media.audio_policy"; }
+    // GammaOS nano boot: register framework observers off the main thread.
+    static bool nanoAsyncFrameworkRegistration();
 
     virtual status_t    dump(int fd, const Vector<String16>& args);
 
@@ -474,6 +477,9 @@ private:
 
         void registerSelf();
         void unregisterSelf();
+        // Set while the first registerSelf() runs on a detached thread, so
+        // checkRegistered() does not block a binder call on ActivityManager.
+        void setRegistrationPending(bool pending) { mRegistrationPending = pending; }
 
         // IBinder::DeathRecipient implementation
         void binderDied(const wp<IBinder> &who) override;
@@ -518,6 +524,7 @@ private:
         wp<AudioPolicyService> mService;
         audio_utils::mutex mMutex{audio_utils::MutexOrder::kUidPolicy_Mutex};
         ActivityManager mAm;
+        std::atomic_bool mRegistrationPending = false;
         bool mObserverRegistered = false;
         std::unordered_map<uid_t, std::pair<bool, int>> mOverrideUids GUARDED_BY(mMutex);
         std::unordered_map<uid_t, std::pair<bool, int>> mCachedUids GUARDED_BY(mMutex);

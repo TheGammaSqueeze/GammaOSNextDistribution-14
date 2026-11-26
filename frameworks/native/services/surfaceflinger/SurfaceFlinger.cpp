@@ -1090,7 +1090,16 @@ void SurfaceFlinger::init() FTL_FAKE_GUARD(kMainThreadContext) {
 
     // Skip shader cache priming in nano/minimal boot mode for faster startup.
     // NanoMenu uses its own simple GL shaders and doesn't need the SF cache.
-    const bool minimalBoot = base::GetBoolProperty("sys.gammaos.minimal_boot"s, false);
+    // init only raises sys.gammaos.minimal_boot once SF is running and the persistent
+    // properties are loaded, so SF almost always reads it unset here and primed the
+    // whole cache anyway (120 shaders, ~32 s of RenderEngine and Mali compiler time on
+    // the RG DS Plus, waited on again in bootFinished). On lean-boot builds wait for
+    // the persistent properties and make the same nano decision init.rc makes.
+    bool minimalBoot = base::GetBoolProperty("sys.gammaos.minimal_boot"s, false);
+    if (!minimalBoot && base::GetBoolProperty("ro.gammaos.lean_boot"s, false)) {
+        base::WaitForProperty("ro.persistent_properties.ready"s, "true"s, 10s);
+        minimalBoot = base::GetProperty("persist.bootanim.skip_nano"s, ""s) == "0";
+    }
     if (base::GetBoolProperty("service.sf.prime_shader_cache"s, true) && !minimalBoot) {
         if (setSchedFifo(false) != NO_ERROR) {
             ALOGW("Can't set SCHED_OTHER for primeCache");

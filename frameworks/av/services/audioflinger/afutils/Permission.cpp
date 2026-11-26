@@ -19,6 +19,8 @@
 
 #include "Permission.h"
 
+#include <binder/IServiceManager.h>
+
 #include <binder/PermissionController.h>
 #include <media/AidlConversionCppNdk.h>
 #include <utils/Log.h>
@@ -28,6 +30,13 @@ namespace android::afutils {
 // TODO b/182392769: use attribution source util
 content::AttributionSourceState checkAttributionSourcePackage(
         const content::AttributionSourceState& attributionSource) {
+    // GammaOS: PermissionController blocks until system_server publishes "permission". In nano
+    // mode native emulators open audio streams long before that, and a blocked createTrack trips
+    // the 5 s TimeCheck and aborts audioserver. The lookup only fills in or sanity-checks the
+    // package name, so skip it until the service exists.
+    if (defaultServiceManager()->checkService(String16("permission")) == nullptr) {
+        return attributionSource;
+    }
     Vector<String16> packages;
     PermissionController{}.getPackagesForUid(attributionSource.uid, packages);
 

@@ -3,6 +3,10 @@ import /odm/etc/ueventd.rc
 
 firmware_directories /etc/firmware/ /odm/firmware/ /vendor/firmware/ /firmware/image/ /vendor/firmware_mnt/image/
 uevent_socket_rcvbuf_size 16M
+# GammaOS: relabel /sys across the coldboot handler processes instead of in one serial pass on
+# the main thread while they run. init waits for coldboot before its init trigger, which starts
+# the nano home (RG DS Plus: coldboot took 1.155 s, init waited 376 ms of it).
+parallel_restorecon enabled
 
 subsystem graphics
     devname uevent_devpath

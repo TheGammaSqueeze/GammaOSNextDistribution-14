@@ -262,6 +262,11 @@ public class KeyguardServiceDelegate {
         return mKeyguardState.deviceHasKeyguard;
     }
 
+    /** GammaOS: whether a keyguard service (SystemUI) is connected. */
+    public boolean isServiceConnected() {
+        return mKeyguardService != null;
+    }
+
     public boolean isInputRestricted() {
         if (mKeyguardService != null) {
             mKeyguardState.inputRestricted = mKeyguardService.isInputRestricted();

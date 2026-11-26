@@ -2043,72 +2043,6 @@ public final class SystemServer implements Dumpable {
                 } catch (Exception e) {
                     Slog.w(TAG, "GammaOS Nano: early CE unlock failed: " + e);
                 }
-
-                // GammaOS Nano: If DE cache exists and QR prepared, set up bind
-                // mounts over CE paths and trigger early RetroArch launch.
-                // This runs on a background thread so AudioService can proceed
-                // on the main thread in parallel.
-                new Thread(() -> {
-                    try {
-                        if (!"1".equals(SystemProperties.get(
-                                "persist.gammaos.nano.qr_prepared", "0"))) {
-                            Slog.i(TAG, "GammaOS Nano: no QR prepared, skipping cache mount");
-                            return;
-                        }
-                        // GammaOS: Drastic QR handles its own handoff
-                        // from NanoMenu's render loop (do_launch when
-                        // the fade completes). This early-launch path
-                        // is only for libretro QR → RetroArch. Skip
-                        // entirely for drastic so we don't set
-                        // bootanim.exit=1 (which tells RWC "nano has
-                        // exited") while NanoMenu is still rendering
-                        // the drastic preview.
-                        if ("drastic".equals(SystemProperties.get(
-                                "persist.gammaos.nano.qr_core", ""))) {
-                            Slog.i(TAG, "GammaOS Nano: drastic QR active, "
-                                    + "skipping early RetroArch launch");
-                            return;
-                        }
-                        java.io.File manifest = new java.io.File(
-                                "/data/system/nano_cache/manifest");
-                        if (!manifest.exists()) {
-                            Slog.i(TAG, "GammaOS Nano: no cache manifest, skipping mount");
-                            return;
-                        }
-                        // Wait for CE paths to be accessible (fscrypt key just installed).
-                        // No FUSE wait needed — we pass DE cache paths directly in
-                        // the intent, bypassing FUSE entirely.
-                        for (int i = 0; i < 20; i++) {
-                            if (new java.io.File("/data/user/0").canRead()) break;
-                            try { Thread.sleep(100); } catch (InterruptedException ie) {}
-                        }
-                        if (!new java.io.File("/data/user/0").canRead()) {
-                            Slog.w(TAG, "GammaOS Nano: CE paths not accessible, skipping");
-                            return;
-                        }
-                        // Cache exists and CE is ready. The native libretro
-                        // runner in NanoMenu reads from cache directly — no
-                        // need to set cache_mounted (which would cause RA to
-                        // use DE cache paths instead of real FUSE paths).
-                        Slog.i(TAG, "GammaOS Nano: DE cache verified, "
-                                + "native libretro will use it directly");
-                        // DE cache verified. Do NOT set bootanim.exit here --
-                        // NanoMenu IS the bootanim, and it needs to keep
-                        // rendering QR until the user either unpauses (fires
-                        // handoff) or cancels. Setting bootanim.exit=1 early
-                        // would flip startHomeOnTaskDisplayArea's "nano has
-                        // exited" gate and cause RetroArch to launch behind
-                        // the still-running NanoMenu, which races the QR
-                        // handoff and produces a black screen on the primary.
-                        // The handoff path in NanoMenu will set
-                        // nano_retroarch=1 -> init.rc sets bootanim.exit=1
-                        // at the right moment.
-                        Slog.i(TAG, "GammaOS Nano: DE cache verified, "
-                                + "awaiting do_launch from NanoMenu");
-                    } catch (Exception e) {
-                        Slog.w(TAG, "GammaOS Nano: early cache mount failed: " + e);
-                    }
-                }, "NanoCacheEarlyLaunch").start();
             }
 
             // FontManagerService must start before any UI dialog (including nano mode power menu).
@@ -3333,6 +3267,18 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting ShortcutService/LauncherApps in minimal boot", e);
             }
             t.traceEnd();
+            // GammaOS Nano: the Settings app's App info page (opened from nano's app options)
+            // builds its "Connected work and personal apps" row from CrossProfileApps, whose
+            // service also starts only in the skipped block: getSystemService returned null and
+            // Settings crashed (NullPointerException in getCrossProfileApps) every time. It is
+            // a thin binder over the package and user managers, so start it here too.
+            t.traceBegin("StartCrossProfileAppsServiceMinimal");
+            try {
+                mSystemServiceManager.startService(CrossProfileAppsService.class);
+            } catch (Throwable e) {
+                reportWtf("starting CrossProfileAppsService in minimal boot", e);
+            }
+            t.traceEnd();
         }
 
         if (!minimalBoot) { // GammaOS Nano: skip MediaProjection through Lineage
@@ -3951,8 +3897,8 @@ public final class SystemServer implements Dumpable {
 
             // GammaOS Nano: NetworkStack must start when the Nano Wi-Fi feature
             // set is enabled, otherwise IpClient can't be bound and WifiService
-            // drops every START_CONNECT with "IpClient is not ready". Tethering
-            // stays skipped in minimal_boot -- it's not needed for station mode.
+            // drops every START_CONNECT with "IpClient is not ready". Tethering starts
+            // with it (below): the Settings app blocks on the tethering service otherwise.
             boolean nanoWifiEnabled = android.os.SystemProperties.getBoolean(
                     "persist.gammaos.nano.wifi", true);
             if (!minimalBoot || nanoWifiEnabled) {
@@ -3970,7 +3916,13 @@ public final class SystemServer implements Dumpable {
             t.traceEnd();
             }
 
-            if (!minimalBoot) { // GammaOS Nano: skip tethering in station-only mode
+            // GammaOS Nano: tethering runs in the network stack process started just above, and
+            // it starts with it in minimal_boot too. Without the "tethering" service every
+            // TetheringManager call blocks its caller until a timeout: the Settings app asks
+            // isTetheringSupported() on its main thread while building Connected devices and
+            // Network & Internet, so those pages hung for 20 to 30 seconds and the app was
+            // killed as not responding (back to the home).
+            if (!minimalBoot || nanoWifiEnabled) {
             t.traceBegin("StartTethering");
             try {
                 // TODO: hide implementation details, b/146312721.
@@ -3985,7 +3937,7 @@ public final class SystemServer implements Dumpable {
                 reportWtf("starting Tethering", e);
             }
             t.traceEnd();
-            } // !minimalBoot: tethering
+            } // tethering (with the network stack)
 
             if (!minimalBoot) { // GammaOS Nano: skip non-essential service readiness
             t.traceBegin("MakeCountryDetectionServiceReady");
@@ -4459,7 +4411,29 @@ public final class SystemServer implements Dumpable {
                         Slog.w(TAG, "GammaOS Nano: clock12 sync failed: " + e);
                     }
                 };
-                syncClock12.run();   // boot seed
+                // Boot: while the framework runs the observer below keeps the prop equal to the
+                // setting, so a prop that differs at boot was changed by nano while the framework
+                // was not up to take the setting (its `settings put` had nothing to talk to). The
+                // prop is the newer choice then: write it back instead of overwriting it with the
+                // stale setting, which reverted the user's Time Format on every boot. An unset
+                // prop is seeded from the setting as before.
+                try {
+                    String nanoClock12 = SystemProperties.get("persist.gammaos.nano.clock12", "");
+                    if ("0".equals(nanoClock12) || "1".equals(nanoClock12)) {
+                        boolean want24 = "0".equals(nanoClock12);
+                        boolean is24 = android.text.format.DateFormat.is24HourFormat(mSystemContext);
+                        if (want24 != is24) {
+                            android.provider.Settings.System.putString(
+                                    mSystemContext.getContentResolver(),
+                                    android.provider.Settings.System.TIME_12_24,
+                                    want24 ? "24" : "12");
+                        }
+                    } else {
+                        syncClock12.run();
+                    }
+                } catch (Exception e) {
+                    Slog.w(TAG, "GammaOS Nano: clock12 boot sync failed: " + e);
+                }
                 try {
                     mSystemContext.getContentResolver().registerContentObserver(
                             android.provider.Settings.System.getUriFor(

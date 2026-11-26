@@ -1689,16 +1689,15 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
         Intent homeIntent = null;
         ActivityInfo aInfo = null;
 
-        // GammaOS Nano: In minimal boot mode, launch RetroArch directly instead of home.
-        // Only redirect after CE storage is unlocked (RetroArch needs SharedPreferences).
+        // GammaOS Nano: In minimal boot mode, launch the app the nano home asked for
+        // instead of home. Only redirect after CE storage is unlocked (apps need their
+        // credential-encrypted data).
         final boolean minimalBoot = android.os.SystemProperties.getBoolean(
                 "sys.gammaos.minimal_boot", false);
         final com.android.server.pm.UserManagerInternal umInternal = minimalBoot
                 ? com.android.server.LocalServices.getService(
                         com.android.server.pm.UserManagerInternal.class)
                 : null;
-        final boolean cacheReady = "1".equals(android.os.SystemProperties.get(
-                "sys.gammaos.nano.cache_mounted", "0"));
         // GammaOS Nano: Pick the display that nano-launched apps should target.
         // Default is DEFAULT_DISPLAY. Users can override via
         // persist.gammaos.nano.primary_display (physical port number) to route
@@ -1731,13 +1730,27 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                     + " (nano target=" + nanoTargetDisplayId + ")");
             return true;
         }
+        // GammaOS Nano: a native emulator session (drastic-nano / azahar-nano) can be on the
+        // panel before the framework has user 0 unlocked: nano starts them with ctl.start as
+        // soon as vold has the CE key in, long before system_server. Until the unlock the
+        // minimal-boot branch below is skipped and this call would fall through to the stock
+        // home, starting FallbackHome or the Launcher behind (or over) the running game. Keep
+        // the panel to the game instead; once user 0 is unlocked the branch below takes over
+        // and its own session guards apply. Normal Android never sets the session props.
+        if (minimalBoot && com.android.server.NanoNativeSession.isActive()
+                && !(umInternal != null
+                        && umInternal.isUserUnlockingOrUnlocked(userId))) {
+            Slog.i(TAG, "GammaOS Nano: native emulator session live before unlock, "
+                    + "skipping home launch (" + reason + ")");
+            return true;
+        }
         // Note: Do NOT check menu_active here. It creates a race condition where
         // NanoMenu sets nano_retroarch=1 (triggering app launch) but menu_active
         // is still "1" for a few ms until the main loop exits. The task removal
         // in PhoneWindowManager handles cleanup instead.
         if (minimalBoot && taskDisplayArea == nanoTargetTda
                 && umInternal != null
-                && (umInternal.isUserUnlockingOrUnlocked(userId) || cacheReady)) {
+                && umInternal.isUserUnlockingOrUnlocked(userId)) {
             // If a kill-and-restart is in progress, skip all launches — the nano
             // menu will be restarted by the killing side via sys.gammaos.nano.restart.
             if ("1".equals(android.os.SystemProperties.get(
@@ -1841,8 +1854,6 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                             "sys.gammaos.nano.shutting_down", "0"))) {
                         android.os.SystemProperties.set(
                                 "persist.gammaos.nano.qr_prepared", "0");
-                        android.os.SystemProperties.set(
-                                "sys.gammaos.nano.cache_op", "clear_rom");
                     }
                     clearNanoLaunchRom();
                     android.os.SystemProperties.set("sys.gammaos.nano.launch_core", "");
@@ -2071,8 +2082,6 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                                             "sys.gammaos.nano.shutting_down", "0"))) {
                                         android.os.SystemProperties.set(
                                                 "persist.gammaos.nano.qr_prepared", "0");
-                                        android.os.SystemProperties.set(
-                                                "sys.gammaos.nano.cache_op", "clear_rom");
                                     }
                                     clearNanoLaunchRom();
                                     android.os.SystemProperties.set(
@@ -2142,9 +2151,6 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                         "sys.gammaos.nano.shutting_down", "0"))) {
                     android.os.SystemProperties.set(
                             "persist.gammaos.nano.qr_prepared", "0");
-                    // Clear cached ROM (user intentionally exited; saves stay)
-                    android.os.SystemProperties.set(
-                            "sys.gammaos.nano.cache_op", "clear_rom");
                 }
                 clearNanoLaunchRom();
                 android.os.SystemProperties.set(
@@ -2187,18 +2193,17 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
                 }
                 return true;
             }
-            // GammaOS Nano: never auto-launch anything while a drastic-nano DS
-            // session is live. drastic-nano is a native binary with no
-            // ActivityRecord, so the stale launch_app=com.dsemu.drastic +
+            // GammaOS Nano: never auto-launch anything while a native emulator
+            // session (drastic-nano or azahar-nano, NanoNativeSession) is live.
+            // drastic-nano is a native binary with no ActivityRecord, so the stale launch_app=com.dsemu.drastic +
             // launch_intent=file it left set (the DRM-direct handoff historically
             // did not clear them) would otherwise auto-launch STOCK DraStic in the
             // background on a sleep/wake startHome pass ("normal drastic runs on
             // wake"). Mirror the guard in nanoRaiseOverlay: return true (handled,
             // keep the panel to drastic-nano) instead of starting anything.
-            if ("1".equals(android.os.SystemProperties.get(
-                    "sys.gammaos.drastic_nano.session", "0"))) {
-                Slog.i(TAG, "GammaOS Nano: drastic-nano session live, "
-                        + "skipping auto-launch (keeping panel to drastic-nano)");
+            if (com.android.server.NanoNativeSession.isActive()) {
+                Slog.i(TAG, "GammaOS Nano: native emulator session live, "
+                        + "skipping auto-launch (keeping panel to the emulator)");
                 return true;
             }
             // GammaOS: read launch_app WITHOUT a default. SystemProperties.get
@@ -2217,24 +2222,24 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
             }
             // GammaOS Nano: auto-launch ONLY for an EXPLICIT launch request.
             // service.bootanim.nano_retroarch=1 is set by every real launch the
-            // user triggers (game/app/recent pick, and the Quick Resume boot
-            // path) but NEVER by NanoMenu.buildMenu, which sets launch_app to a
-            // default RetroArch every time the menu builds. Without this gate, a
-            // cold boot - or a stray startHome re-eval triggered by the resident
-            // overlay creating its SurfaceFlinger layer at boot_completed - would
-            // auto-launch RetroArch off that bare default even though the user
-            // never picked anything. qr_prepared / a fresh rom / a fresh intent
-            // are kept as additional positive signals so no real launch is missed.
+            // user triggers (game/app/recent pick) but NEVER by NanoMenu.buildMenu,
+            // which sets launch_app to a default RetroArch every time the menu
+            // builds. Without this gate, a cold boot - or a stray startHome re-eval
+            // triggered by the resident overlay creating its SurfaceFlinger layer at
+            // boot_completed - would auto-launch RetroArch off that bare default
+            // even though the user never picked anything. A fresh rom / a fresh
+            // intent are kept as additional positive signals so no real launch is
+            // missed. An armed Quick Resume (qr_prepared) is not one: it names a
+            // native emulator's game, which the nano home starts itself at boot,
+            // and must never bring up an app here.
             final boolean nanoLaunchRequested = "1".equals(android.os.SystemProperties.get(
                     "service.bootanim.nano_retroarch", "0"));
-            final boolean nanoQrPrepared = "1".equals(android.os.SystemProperties.get(
-                    "persist.gammaos.nano.qr_prepared", "0"));
             final boolean nanoHaveRom = !getNanoLaunchRom().isEmpty();
             final boolean nanoHaveIntent = !android.os.SystemProperties.get(
                     "sys.gammaos.nano.launch_intent", "").isEmpty();
-            if (!nanoLaunchRequested && !nanoQrPrepared && !nanoHaveRom && !nanoHaveIntent) {
+            if (!nanoLaunchRequested && !nanoHaveRom && !nanoHaveIntent) {
                 Slog.i(TAG, "GammaOS Nano: launch_app=" + nanoAppRaw + " but no "
-                        + "explicit launch (nano_retroarch=0, qr_prepared=0, no "
+                        + "explicit launch (nano_retroarch=0, no "
                         + "rom/intent) -> nano menu, not auto-launching");
                 return false;
             }
@@ -2703,24 +2708,26 @@ class RootWindowContainer extends WindowContainer<DisplayContent>
     }
 
     private boolean nanoRaiseOverlay() {
-        if (!nanoOverlayHomeActive()) {
-            return false;
-        }
-        // GammaOS Nano: never raise the XMB overlay while a drastic-nano DS session
-        // is genuinely live. drastic-nano is a native /system/bin binary, not an
-        // ActivityRecord, so the processAlive / appWasLaunched scans that lead here
-        // cannot see it and wrongly conclude the game exited (a brief BACK, a
-        // startHome pass, or the relaunch window). That raise composites the XMB
+        // GammaOS Nano: never raise the XMB overlay while a native emulator session
+        // (drastic-nano DS or azahar-nano 3DS, NanoNativeSession) is genuinely live.
+        // drastic-nano is a native /system/bin binary, not an ActivityRecord, so
+        // the processAlive / appWasLaunched scans that lead here cannot see it and
+        // wrongly conclude the game exited (a brief BACK, a startHome pass, or the
+        // relaunch window). That raise composites the XMB
         // over the running game (the double-overlay) and, mid-restart, strands
         // input. The session prop is the only truthful live-session signal (set by
         // drastic-nano, cleared by its rc on session_done). Return true (handled)
         // so the caller does not fall back to restarting the DRM home. On the
         // DRM-direct path the overlay is already stopped during a session, so this
         // is a visual no-op there.
-        if ("1".equals(android.os.SystemProperties.get(
-                "sys.gammaos.drastic_nano.session", "0"))) {
-            Slog.i(TAG, "GammaOS Nano: drastic session live, suppressing overlay raise");
+        if (com.android.server.NanoNativeSession.isActive()) {
+            Slog.i(TAG, "GammaOS Nano: native session live, suppressing overlay raise");
             return true;
+        }
+        // Checked before overlay_home on purpose: with no overlay home the caller falls
+        // back to restarting the DRM home, which would fight the emulator for DRM master.
+        if (!nanoOverlayHomeActive()) {
+            return false;
         }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising resident overlay as launcher");
         // Hint the overlay to render the opaque full-wallpaper XMB (not the

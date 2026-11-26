@@ -24,7 +24,9 @@
 
 #include <media/MediaMetricsItem.h>
 #include <media/TypeConverter.h>
+#include <binder/IServiceManager.h>
 #include <mediautils/SchedulingPolicyService.h>
+#include <private/android_filesystem_config.h>
 
 #include "binding/AAudioServiceMessage.h"
 #include "core/AudioGlobal.h"
@@ -565,6 +567,20 @@ aaudio_result_t AAudioServiceStreamBase::registerAudioThread_l(
         result = AAUDIO_ERROR_INVALID_STATE;
     } else {
         setRegisteredThread(clientThreadId);
+        // GammaOS: requestPriority() sleeps and retries until system_server has published
+        // the scheduling policy service. A native client (uid below the first app uid: an
+        // emulator init starts for a Quick Resume) can open its stream long before that,
+        // and its data callback thread only starts running once this call returns, so the
+        // game stayed silent until late in the boot. Such a client sets its own thread
+        // priority; while the service is missing the request is skipped for it.
+        if (getOwnerUserId() < AID_APP_START
+                && defaultServiceManager()->checkService(
+                        String16("scheduling_policy")) == nullptr) {
+            ALOGI("registerAudioThread(%d): no scheduling policy service yet, the native "
+                  "client (uid %d) keeps its own thread priority",
+                  clientThreadId, (int)getOwnerUserId());
+            return AAUDIO_OK;
+        }
         int err = android::requestPriority(ownerPid, clientThreadId,
                                            priority, true /* isForApp */);
         if (err != 0) {

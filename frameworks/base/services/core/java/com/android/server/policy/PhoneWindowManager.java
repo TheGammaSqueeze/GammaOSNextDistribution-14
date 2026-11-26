@@ -1911,10 +1911,16 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             // session flag and ask it to exit gracefully through the prop channel it
             // polls (which saves the Quick Resume state, then returns to the home) -
             // the equivalent of the ESC-then-close path used for RetroArch below.
-            if ("1".equals(android.os.SystemProperties.get(
-                    "sys.gammaos.drastic_nano.session", "0"))) {
+            if (com.android.server.NanoNativeSession.isDrasticActive()) {
                 android.os.SystemProperties.set(
                         "sys.gammaos.drastic_nano.exit_home", "1");
+                return;
+            }
+            // GammaOS Nano: any other native session (azahar-nano) reads the pad itself and
+            // owns its exit; a stale app_launched=1 must not make this hold force-stop
+            // launch_app and restart the home over the running game.
+            if (com.android.server.NanoNativeSession.isActive()) {
+                Slog.i(TAG, "GammaOS Nano: native session live, long-press back ignored");
                 return;
             }
             String fgApp = getForegroundAppPackageName();
@@ -2526,18 +2532,20 @@ public class PhoneWindowManager implements WindowManagerPolicy {
     }
 
     private boolean nanoRaiseOverlayHome() {
+        // GammaOS Nano: mirror RootWindowContainer.nanoRaiseOverlay - do not raise
+        // the XMB overlay while a native emulator session (drastic-nano or
+        // azahar-nano) is live (native binaries, invisible to the framework's
+        // app-alive model). Prevents the double overlay and the mid-restart input
+        // strand. Graceful DS exit runs through the session-gated backLongPress
+        // exit_home path before session clears.
+        if (com.android.server.NanoNativeSession.isActive()) {
+            Slog.i(TAG, "GammaOS Nano: native session live, suppressing overlay raise (PWM)");
+            return true;
+        }
+        // Checked before overlay_home on purpose: with no overlay home the caller falls
+        // back to restarting the DRM home, which would fight the emulator for DRM master.
         if (!nanoOverlayHomeActive()) {
             return false;
-        }
-        // GammaOS Nano: mirror RootWindowContainer.nanoRaiseOverlay - do not raise
-        // the XMB overlay while a drastic-nano DS session is live (native binary,
-        // invisible to the framework's app-alive model). Prevents the double
-        // overlay and the mid-restart input strand. Graceful DS exit runs through
-        // the session-gated backLongPress exit_home path before session clears.
-        if ("1".equals(android.os.SystemProperties.get(
-                "sys.gammaos.drastic_nano.session", "0"))) {
-            Slog.i(TAG, "GammaOS Nano: drastic session live, suppressing overlay raise (PWM)");
-            return true;
         }
         Slog.i(TAG, "GammaOS Nano: overlay-home, raising overlay launcher (PWM)");
         android.os.SystemProperties.set("sys.gammaos.nano.overlay_wallpaper", "1");
@@ -2627,6 +2635,12 @@ public class PhoneWindowManager implements WindowManagerPolicy {
         if ("1".equals(android.os.SystemProperties.get(
                 "sys.gammaos.nano.app_launched", "0"))) {
             return false;   // an app is up; a frozen app is handled by the appLaunched branch
+        }
+        // A native emulator session (drastic-nano / azahar-nano) is the foreground: the DRM
+        // home is stopped on purpose and the emulator holds DRM master, so a restarted home
+        // could only fight it for the panel. Its own exit path brings the home back.
+        if (com.android.server.NanoNativeSession.isActive()) {
+            return false;
         }
         return !"running".equals(android.os.SystemProperties.get("init.svc.gammaos-nano", ""))
                 && !"running".equals(android.os.SystemProperties.get(
@@ -6915,7 +6929,8 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                 // toggle, not an exit signal. Without this check, QR pause
                 // leaves pending_exit=1 and the handoff that follows takes the
                 // "immediate cleanup" branch instead of the normal launch path.
-                // GammaOS Nano: also skip while a drastic-nano DS session is live.
+                // GammaOS Nano: also skip while a native emulator session is live
+                // (NanoNativeSession: drastic-nano DS or azahar-nano 3DS).
                 // A brief BACK during a DS game is drastic-nano's own overlay-menu
                 // toggle (read from raw evdev), NOT an app-exit request; arming
                 // pending_exit here makes the immediate-cleanup branch force-stop
@@ -6928,8 +6943,7 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                                 "sys.gammaos.nano.app_launched", "0"))
                         && "1".equals(android.os.SystemProperties.get(
                                 "service.bootanim.exit", "0"))
-                        && !"1".equals(android.os.SystemProperties.get(
-                                "sys.gammaos.drastic_nano.session", "0"))) {
+                        && !com.android.server.NanoNativeSession.isActive()) {
                     android.os.SystemProperties.set(
                             "sys.gammaos.nano.pending_exit", "1");
                 }
@@ -7183,7 +7197,10 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                             if (!drmOwnsPanel) {
                                 mHandler.post(() -> showNanoVolumeIndicator());
                             }
+                            nanoVolumeHoldStart(keyCode, direction);
                         }
+                    } else if (!down) {
+                        nanoVolumeHoldStop(keyCode);
                     }
                     result &= ~ACTION_PASS_TO_USER;
                     break;
@@ -7391,6 +7408,18 @@ public class PhoneWindowManager implements WindowManagerPolicy {
                         && !"1".equals(android.os.SystemProperties.get(
                                 "sys.gammaos.nano.show_overlay", "0"))) {
                     result &= ~ACTION_PASS_TO_USER;
+                    break;
+                }
+                // GammaOS: a power press while the lid is shut and the device asleep does not
+                // wake it. The panels stay dark behind a closed lid (the lid switch keeps the
+                // displays off), so the press only woke the SoC into a warm, draining,
+                // screens-off state with the power LED on (RP Duo Lite, a press in a bag).
+                // Opening the lid wakes the device as before.
+                if (!interactive && mDefaultDisplayPolicy != null
+                        && mDefaultDisplayPolicy.getLidState() == LID_CLOSED) {
+                    if (down) Slog.i(TAG, "GammaOS: power pressed with the lid shut, staying asleep");
+                    result &= ~ACTION_PASS_TO_USER;
+                    isWakeKey = false;
                     break;
                 }
                 logKeyboardSystemsEventOnActionUp(event, KeyboardLogEvent.TOGGLE_POWER);
@@ -7925,6 +7954,56 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mNanoVolumeHandler = new android.os.Handler(t.getLooper());
         }
         return mNanoVolumeHandler;
+    }
+
+    // GammaOS Nano: holding a volume key keeps stepping the volume. This path only sees the
+    // raw key down and up (the input dispatcher's repeats never come back through
+    // interceptKeyBeforeQueueing), so the repeat is timed here: a first step after a short
+    // pause, then a steady cadence until the key is released. Each step is the same
+    // all-stream change and published value as a press, so nano's sliders follow it.
+    private static final long NANO_VOLUME_REPEAT_DELAY_MS = 400;
+    private static final long NANO_VOLUME_REPEAT_STEP_MS = 120;
+    private int mNanoVolumeHeldKey = 0;
+    private Runnable mNanoVolumeRepeat;
+
+    private void nanoVolumeHoldStart(int keyCode, int direction) {
+        final android.os.Handler h = nanoVolumeHandler();
+        synchronized (this) {
+            if (mNanoVolumeRepeat != null) h.removeCallbacks(mNanoVolumeRepeat);
+            mNanoVolumeHeldKey = keyCode;
+            final boolean drmOwnsPanel = android.os.SystemProperties
+                    .getBoolean("sys.gammaos.nano.drm_active", false);
+            mNanoVolumeRepeat = new Runnable() {
+                @Override public void run() {
+                    synchronized (PhoneWindowManager.this) {
+                        if (mNanoVolumeHeldKey != keyCode || mNanoVolumeRepeat != this) return;
+                    }
+                    // Select pressed while the volume key is held turns the chord into
+                    // brightness; stop stepping the volume then. The key's own state is read
+                    // from the device too, so a lost key-up (an app grabbing the device) can
+                    // never leave the volume running to the end of its range.
+                    if (gammaSelectPhysicallyHeld()) return;
+                    if (mInputManagerInternal != null && mInputManagerInternal.getKeyCodeState(-1,
+                            android.view.InputDevice.SOURCE_ANY, keyCode) != 1 /* AKEY_STATE_DOWN */) {
+                        nanoVolumeHoldStop(keyCode);
+                        return;
+                    }
+                    nanoSyncAllStreamsVolumeNow(direction);
+                    if (!drmOwnsPanel) mHandler.post(() -> showNanoVolumeIndicator());
+                    h.postDelayed(this, NANO_VOLUME_REPEAT_STEP_MS);
+                }
+            };
+            h.postDelayed(mNanoVolumeRepeat, NANO_VOLUME_REPEAT_DELAY_MS);
+        }
+    }
+
+    private void nanoVolumeHoldStop(int keyCode) {
+        synchronized (this) {
+            if (keyCode != KeyEvent.KEYCODE_VOLUME_MUTE && mNanoVolumeHeldKey != keyCode) return;
+            if (mNanoVolumeRepeat != null) nanoVolumeHandler().removeCallbacks(mNanoVolumeRepeat);
+            mNanoVolumeRepeat = null;
+            mNanoVolumeHeldKey = 0;
+        }
     }
 
     private void nanoSyncAllStreamsVolume(int direction) {
@@ -8576,7 +8655,15 @@ public class PhoneWindowManager implements WindowManagerPolicy {
             mBootAnimationDismissable = false;
 
             synchronized (mLock) {
-                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()) {
+                // GammaOS lean boot (nano): no SystemUI keyguard comes up, yet the screen waited
+                // the whole keyguard drawn timeout (5 s on the RG DS Plus, all of it before
+                // boot_completed) for a service that never connects. With none connected the
+                // keyguard counts as drawn at once, as with no keyguard at all.
+                final boolean noKeyguardService = mKeyguardDelegate != null
+                        && !mKeyguardDelegate.isServiceConnected()
+                        && android.os.SystemProperties.getBoolean("ro.gammaos.lean_boot", false);
+                if (mKeyguardDelegate != null && mKeyguardDelegate.hasKeyguard()
+                        && !noKeyguardService) {
                     mHandler.removeMessages(MSG_KEYGUARD_DRAWN_TIMEOUT);
                     mHandler.sendEmptyMessageDelayed(MSG_KEYGUARD_DRAWN_TIMEOUT,
                             getKeyguardDrawnTimeout());

@@ -6379,8 +6379,45 @@ status_t AudioPolicyManager::initialize() {
     // Silence ALOGV statements
     property_set("log.tag." LOG_TAG, "D");
 
+    initEarlyStreamVolumes();
     updateDevicesAndOutputs();
     return status;
+}
+
+// GammaOS: the volume ranges and indexes AudioService sets come only once system_server has
+// started it, often half a minute after audioserver is up on a slow boot; until then every
+// volume source has no range, computeVolume is never reached ("invalid volume index range") and
+// the GammaOS home and its emulators, which play long before that, cannot be heard. Give every
+// public stream AudioService's own default range and index now, the music stream at the user's
+// saved level (persist.gammaos.nano.volume of persist.gammaos.nano.volmax steps, written by the
+// framework at every change). AudioService replaces all of it when it starts, as on any boot.
+// persist.gammaos.audio.early_volume=0 keeps the stock behaviour.
+void AudioPolicyManager::initEarlyStreamVolumes()
+{
+    if (!property_get_bool("persist.gammaos.audio.early_volume", true)) return;
+    // AudioService MAX_STREAM_VOLUME / DEFAULT_STREAM_VOLUME / MIN_STREAM_VOLUME, in
+    // audio_stream_type_t order (VOICE_CALL .. ASSISTANT)
+    static constexpr int kMax[] = {5, 7, 7, 15, 7, 7, 15, 7, 15, 15, 15, 15};
+    static constexpr int kDefault[] = {4, 7, 5, 5, 6, 5, 7, 7, 5, 5, 5, 5};
+    static constexpr int kMin[] = {1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0};
+    static_assert(sizeof(kMax) / sizeof(kMax[0]) == AUDIO_STREAM_PUBLIC_CNT);
+    int musicMax = property_get_int32("persist.gammaos.nano.volmax", 0);
+    if (musicMax <= 0) musicMax = property_get_int32("ro.config.media_vol_steps", kMax[AUDIO_STREAM_MUSIC]);
+    for (int s = 0; s < AUDIO_STREAM_PUBLIC_CNT; s++) {
+        const audio_stream_type_t stream = (audio_stream_type_t)s;
+        int maxIdx = kMax[s], idx = kDefault[s];
+        if (stream == AUDIO_STREAM_MUSIC) {
+            maxIdx = musicMax;
+            idx = property_get_int32("persist.gammaos.nano.volume", maxIdx / 3);
+            if (idx < 0) idx = 0;
+            if (idx > maxIdx) idx = maxIdx;
+        }
+        initStreamVolume(stream, kMin[s], maxIdx);
+        if (idx < kMin[s]) idx = kMin[s];
+        setStreamVolumeIndex(stream, idx, AUDIO_DEVICE_OUT_DEFAULT_FOR_VOLUME);
+    }
+    ALOGI("%s: early stream volumes set, music %d of %d", __func__,
+          property_get_int32("persist.gammaos.nano.volume", musicMax / 3), musicMax);
 }
 
 AudioPolicyManager::~AudioPolicyManager()

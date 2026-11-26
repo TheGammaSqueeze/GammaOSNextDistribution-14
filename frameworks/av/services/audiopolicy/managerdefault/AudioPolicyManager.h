@@ -161,6 +161,8 @@ public:
          * @param indexMax to set
          */
         virtual void initStreamVolume(audio_stream_type_t stream, int indexMin, int indexMax);
+        // GammaOS: default ranges and indexes until AudioService sets its own (initialize())
+        void initEarlyStreamVolumes();
         virtual status_t setStreamVolumeIndex(audio_stream_type_t stream,
                                               int index,
                                               audio_devices_t device);

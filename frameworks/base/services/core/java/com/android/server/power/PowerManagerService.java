@@ -3741,17 +3741,18 @@ public final class PowerManagerService extends SystemService
         if (SystemProperties.getBoolean("persist.gammaos.nano.grab_input", false)) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.app_launched", "0"))) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.media_playing", "0"))) return true;
-        //  (f) A drastic-nano DS game session is active
-        //      (sys.gammaos.drastic_nano.session=1, set at session start in
-        //      drastic-nano/main.cpp and cleared on .session_done). A running DS game must
-        //      NEVER auto-sleep, in EITHER DRM or SF mode -- this is the definitive
-        //      "drastic-nano is foreground" signal for the whole run, so it holds even in any
-        //      window where app_launched (SF) or grab_input (DRM) is not yet/again asserted.
-        if ("1".equals(SystemProperties.get("sys.gammaos.drastic_nano.session", "0"))) return true;
-        //  (g) An azahar-nano 3DS session (sys.gammaos.azahar_nano.session=1, set and cleared by
-        //      azahar-nano.rc around the service): the home hands off with app_launched=0, and the
-        //      game reads the pad itself, so without this only a stale menu_active pinned the panel.
-        if ("1".equals(SystemProperties.get("sys.gammaos.azahar_nano.session", "0"))) return true;
+        //  (f) A native emulator session is active (NanoNativeSession: drastic-nano DS via
+        //      sys.gammaos.drastic_nano.session, azahar-nano 3DS via
+        //      sys.gammaos.azahar_nano.session, retroarch-nano via
+        //      sys.gammaos.retroarch_nano.session, or any DRM-direct launch via
+        //      sys.gammaos.nano.native_session, set by nano and the rc start actions and
+        //      cleared on session_done). A running game must NEVER auto-sleep, in EITHER DRM
+        //      or SF mode -- this is the definitive "an emulator is foreground" signal for the
+        //      whole run, so it holds even in any window where app_launched (SF) or grab_input
+        //      (DRM) is not yet/again asserted, and for a game started before PowerManager
+        //      existed (the home hands off with app_launched=0 and the game reads the pad
+        //      itself, so without this only a stale menu_active pinned the panel).
+        if (com.android.server.NanoNativeSession.isActive()) return true;
         if ("1".equals(SystemProperties.get("sys.gammaos.nano.menu_active", "0"))) return true;
         //  (e) The resident overlay home is the visible menu when it has been raised
         //      (sys.gammaos.nano.show_overlay=1) with no app running

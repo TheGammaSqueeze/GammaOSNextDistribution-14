@@ -1079,17 +1079,6 @@ int SecondStageMain(int argc, char** argv) {
     am.QueueBuiltinAction(wait_for_coldboot_done_action, "wait_for_coldboot_done");
     // ... so that we can start queuing up actions that require stuff from /dev.
     am.QueueBuiltinAction(SetMmapRndBitsAction, "SetMmapRndBits");
-    Keychords keychords;
-    am.QueueBuiltinAction(
-            [&epoll, &keychords](const BuiltinArguments& args) -> Result<void> {
-                for (const auto& svc : ServiceList::GetInstance()) {
-                    keychords.Register(svc->keycodes());
-                }
-                keychords.Start(&epoll, HandleKeychord);
-                return {};
-            },
-            "KeychordInit");
-
     // Trigger all the boot actions to get us started.
     am.QueueEventTrigger("init");
 
@@ -1100,6 +1089,20 @@ int SecondStageMain(int argc, char** argv) {
     } else {
         am.QueueEventTrigger("late-init");
     }
+
+    // GammaOS: keychords (the bugreport key combination) open every input device, which took
+    // 182 ms on the RG DS Plus, and ran before the init trigger that starts the home. Nothing
+    // needs them that early, so they start after the init and late-init actions instead.
+    Keychords keychords;
+    am.QueueBuiltinAction(
+            [&epoll, &keychords](const BuiltinArguments& args) -> Result<void> {
+                for (const auto& svc : ServiceList::GetInstance()) {
+                    keychords.Register(svc->keycodes());
+                }
+                keychords.Start(&epoll, HandleKeychord);
+                return {};
+            },
+            "KeychordInit");
 
     // Run all property triggers based on current state of the properties.
     am.QueueBuiltinAction(queue_property_triggers_action, "queue_property_triggers");

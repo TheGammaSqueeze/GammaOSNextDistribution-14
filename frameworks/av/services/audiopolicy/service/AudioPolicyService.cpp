@@ -24,6 +24,7 @@
 #include <stdint.h>
 #include <sys/time.h>
 #include <dlfcn.h>
+#include <thread>
 
 #include <audio_utils/clock.h>
 #include <binder/IServiceManager.h>
@@ -290,8 +291,23 @@ void AudioPolicyService::onFirstRef()
         mUidPolicy = uidPolicy;
         mSensorPrivacyPolicy = sensorPrivacyPolicy;
     }
-    uidPolicy->registerSelf();
-    sensorPrivacyPolicy->registerSelf();
+    if (nanoAsyncFrameworkRegistration()) {
+        // GammaOS nano boot: ActivityManager and SensorPrivacyManager live in
+        // system_server, which starts long after the audio HAL. Registering
+        // inline would hold media.audio_flinger and media.audio_policy back
+        // until then, so register from a detached thread. Until it lands the
+        // uid policy reports every uid active, as it does after AM death.
+        uidPolicy->setRegistrationPending(true);
+        std::thread([uidPolicy, sensorPrivacyPolicy]() {
+            uidPolicy->registerSelf();
+            uidPolicy->setRegistrationPending(false);
+            sensorPrivacyPolicy->registerSelf();
+            ALOGI("%s: framework observers registered", __func__);
+        }).detach();
+    } else {
+        uidPolicy->registerSelf();
+        sensorPrivacyPolicy->registerSelf();
+    }
 
     // Create spatializer if supported
     if (mAudioPolicyManager != nullptr) {
@@ -1576,6 +1592,14 @@ status_t AudioPolicyService::unregisterOutput(audio_io_handle_t output) {
 
 // -----------  AudioPolicyService::UidPolicy implementation ----------
 
+// static
+bool AudioPolicyService::nanoAsyncFrameworkRegistration() {
+    // sys.gammaos.minimal_boot is set after audioserver starts, so the
+    // persisted nano boot selector is what is visible this early.
+    return property_get_bool("sys.gammaos.minimal_boot", false) ||
+           property_get_int32("persist.bootanim.skip_nano", 1) == 0;
+}
+
 void AudioPolicyService::UidPolicy::registerSelf() {
     status_t res = mAm.linkToDeath(this);
     mAm.registerUidObserver(this, ActivityManager::UID_OBSERVER_GONE
@@ -1608,6 +1632,8 @@ void AudioPolicyService::UidPolicy::binderDied(__unused const wp<IBinder> &who) 
 }
 
 void AudioPolicyService::UidPolicy::checkRegistered() {
+    // The first registration is still running on its own thread (nano boot).
+    if (mRegistrationPending) return;
     bool needToReregister = false;
     {
         audio_utils::lock_guard _l(mMutex);

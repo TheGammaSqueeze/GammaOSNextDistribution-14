@@ -16,11 +16,38 @@
 
 #include <cutils/properties.h>
 #include <fcntl.h>
+#include <log/log.h>
 #include <string.h>
 #include <unistd.h>
 #include "StartPropertySetThread.h"
 
 namespace android {
+
+// GammaOS: a Quick Resume boot starts the game before SurfaceFlinger is up:
+// the nano home launches the emulator (an init service that drives the panels
+// through DRM itself) and sets sys.gammaos.nano.native_session. The property
+// alone is not enough, it only counts while one of the services is running.
+static bool nativeEmulatorOwnsPanels() {
+    char value[PROPERTY_VALUE_MAX] = {};
+    property_get("sys.gammaos.nano.native_session", value, "0");
+    if (strcmp(value, "1") != 0) {
+        return false;
+    }
+    static const char* const kServices[] = {
+        "init.svc.retroarch-nano",
+        "init.svc.melonds-nano",
+        "init.svc.drastic-nano",
+        "init.svc.azahar-nano",
+    };
+    for (const char* service : kServices) {
+        char state[PROPERTY_VALUE_MAX] = {};
+        property_get(service, state, "");
+        if (strcmp(state, "running") == 0) {
+            return true;
+        }
+    }
+    return false;
+}
 
 StartPropertySetThread::StartPropertySetThread(bool timestampPropertyValue):
         Thread(false), mTimestampPropertyValue(timestampPropertyValue) {}
@@ -53,7 +80,18 @@ bool StartPropertySetThread::threadLoop() {
     // never lands back in the menu.
     bool decided = false;
     bool wantBootanim = false;
+    // An image built without the nano home (ro.gammaos.nano.available is
+    // set only with it) always shows bootanim: a nano choice left on /data
+    // by another image must not leave the screen without anything to draw.
     {
+        char available[PROPERTY_VALUE_MAX] = {};
+        property_get("ro.gammaos.nano.available", available, "");
+        if (strcmp(available, "true") != 0) {
+            decided = true;
+            wantBootanim = true;
+        }
+    }
+    if (!decided) {
         int fd = open("/data/misc/bootanim/nano_skip",
                       O_RDONLY | O_CLOEXEC);
         if (fd >= 0) {
@@ -94,6 +132,10 @@ bool StartPropertySetThread::threadLoop() {
 
     if (wantBootanim) {
         property_set("ctl.start", "bootanim");
+    } else if (nativeEmulatorOwnsPanels()) {
+        // The home is not started over the game: it would fight it for the
+        // display. The emulator starts the home itself when the game ends.
+        ALOGI("GammaOS: a native emulator session is live, not starting gammaos-nano");
     } else {
         // SELinux: ctl.gammaos-nano is mapped to ctl_bootanim_prop in
         // property_contexts.

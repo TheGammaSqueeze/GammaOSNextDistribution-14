@@ -488,11 +488,9 @@ public final class ShutdownThread extends Thread {
         metricShutdownStart();
         metricStarted(METRIC_SYSTEM_SERVER);
 
-        // GammaOS: always close RetroArch and DraStic gracefully before
-        // shutdown so they can save state (works in both nano mode and
-        // normal Android). Quick Resume priming only happens in nano mode.
-        nanoShutdownRetroArch();
-        nanoShutdownDraStic();
+        // GammaOS: a native emulator that is running saves its Quick Resume state
+        // and exits first. Nothing is waited for when none is running.
+        nanoStopNativeEmulator();
 
         // Start dumping check points for this shutdown in a separate thread.
         Thread dumpCheckPointsThread = ShutdownCheckPoints.newDumpThread(
@@ -931,522 +929,91 @@ public final class ShutdownThread extends Thread {
                 DEFAULT_SHUTDOWN_VIBRATE_MS, VibrationEffect.DEFAULT_AMPLITUDE);
     }
 
+    // GammaOS Nano: the longest the shutdown waits for a native emulator to save and
+    // exit. retroarch-nano sees the shutdown within 200 ms (its watch thread) and then
+    // quits RetroArch, which writes the auto state and the battery save; the home gives
+    // the same quit 5 s. drastic-nano writes its resume state (well under a second as a
+    // rule), watches the file for 200 ms without a change, then holds 2 s before it
+    // exits: a little over 3 s in all. Past this bound the shutdown goes on; init still
+    // sends its own SIGTERM and waits again before it kills anything.
+    private static final long NANO_EMULATOR_STOP_TIMEOUT_MS = 5000;
+    private static final long NANO_EMULATOR_STOP_POLL_MS = 50;
+
     /**
-     * GammaOS Nano: Quick Resume preparation.
-     * Sends ESC to RetroArch (bringing it to the foreground first), waits for
-     * it to close, then reads the content history playlist and saves the most
-     * recent game's ROM + core to persist properties so the next nano boot can
-     * launch straight back into the game.
+     * GammaOS Nano: a native emulator that is running (an init service, no activity and
+     * no window) saves its Quick Resume state and exits before the shutdown goes on.
+     * Each one keeps its own resume copy and is told in the way it understands:
+     * retroarch-nano watches sys.gammaos.nano.shutting_down, drastic-nano takes
+     * sys.gammaos.drastic_nano.quit, melonds-nano watches the same property as
+     * retroarch-nano and writes its autosave.
+     * With no emulator running this returns at once.
      */
-    /**
-     * GammaOS: close RetroArch gracefully (ESC → save state) and optionally
-     * prime Quick Resume.  Called on every shutdown/reboot regardless of mode.
-     */
-    private void nanoShutdownRetroArch() {
+    private void nanoStopNativeEmulator() {
         try {
-            if (!isNanoAppRunning("retroarch")) {
-                Slog.i(TAG, "GammaOS: RetroArch not running, nothing to do");
+            // The home and retroarch-nano read this: the game that stops now is the one
+            // the next boot resumes, and no home is started over the shutdown.
+            SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
+
+            final boolean retroarch = nanoServiceRunning("retroarch-nano");
+            final boolean drastic = nanoServiceRunning("drastic-nano");
+            // melonds-nano watches sys.gammaos.nano.shutting_down as retroarch-nano does: it
+            // writes its autosave, keeps its resume and exits.
+            final boolean melonds = nanoServiceRunning("melonds-nano");
+            if (!retroarch && !drastic && !melonds) {
                 return;
             }
-            Slog.i(TAG, "GammaOS: closing RetroArch gracefully before shutdown");
 
-            final boolean nanoMode = SystemProperties.getBoolean(
-                    "sys.gammaos.minimal_boot", false);
-            // In nano mode, tell RWC not to clear qr_prepared when RetroArch
-            // exits from the ESC injection — handleSelect() priming must
-            // survive the reboot.
-            if (nanoMode) {
-                SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
-            }
-
-            // Dismiss system dialogs and bring RetroArch to foreground so
-            // the ESC key reaches it.  In normal Android, the global actions
-            // dialog or shutdown progress dialog may have focus.
-            if (mProgressDialog != null) {
-                mHandler.post(() -> {
-                    try {
-                        mProgressDialog.dismiss();
-                    } catch (Exception e) { /* ignore */ }
-                });
-            }
-            try {
-                // Dismiss any remaining system dialogs (power menu, etc.)
-                mContext.sendBroadcast(new Intent(
-                        Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
-            } catch (Exception e) {
-                Slog.w(TAG, "GammaOS: failed to close system dialogs", e);
-            }
-            // Bring RetroArch to foreground so it receives the ESC key.
-            // Use moveTaskToFront — RetroArch's activity doesn't have
-            // MAIN+LAUNCHER so startActivity won't find it.
-            try {
-                android.app.ActivityManager am = mContext.getSystemService(
-                        android.app.ActivityManager.class);
-                java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
-                        am.getRunningTasks(20);
-                for (android.app.ActivityManager.RunningTaskInfo task : tasks) {
-                    if (task.baseActivity != null && "com.retroarch.aarch64"
-                            .equals(task.baseActivity.getPackageName())) {
-                        am.moveTaskToFront(task.taskId, 0);
-                        Slog.i(TAG, "GammaOS: moved RetroArch task "
-                                + task.taskId + " to front");
-                        break;
-                    }
+            final long start = SystemClock.elapsedRealtime();
+            if (drastic) {
+                // drastic-nano leaves the resume descriptor to whoever asked it to quit.
+                if (SystemProperties.getBoolean("sys.gammaos.minimal_boot", false)
+                        && SystemProperties.getBoolean(
+                                "persist.gammaos.nano.quick_resume", true)) {
+                    // Point the resume at the game actually running:
+                    // nano_qr_rom.txt can be stale if this game launched with QR
+                    // off and was toggled on mid-game. nano_drastic_nano_rom.txt
+                    // is always the current DS ROM (written at every launch).
+                    nanoSyncQrRomFromDrasticNano();
+                    SystemProperties.set("persist.gammaos.nano.qr_prepared", "1");
+                    SystemProperties.set("persist.gammaos.nano.qr_core", "drastic");
                 }
-            } catch (Exception e) {
-                Slog.w(TAG, "GammaOS: failed to bring RetroArch to front", e);
+                SystemProperties.set("sys.gammaos.drastic_nano.quit", "1");
             }
-            // Spam ESC + moveTaskToFront until RetroArch exits.
-            // The global actions dialog may steal focus; repeatedly bringing
-            // RetroArch to front and injecting ESC ensures it lands.
-            android.hardware.input.InputManager im =
-                    android.hardware.input.InputManager.getInstance();
-            android.app.ActivityManager amSvc = mContext.getSystemService(
-                    android.app.ActivityManager.class);
-            int retroTaskId = -1;
-            try {
-                for (android.app.ActivityManager.RunningTaskInfo t :
-                        amSvc.getRunningTasks(20)) {
-                    if (t.baseActivity != null && "com.retroarch.aarch64"
-                            .equals(t.baseActivity.getPackageName())) {
-                        retroTaskId = t.taskId;
-                        break;
-                    }
-                }
-            } catch (Exception e) { /* ignore */ }
+            Slog.i(TAG, "GammaOS: waiting for "
+                    + (retroarch ? "retroarch-nano" : drastic ? "drastic-nano" : "melonds-nano")
+                    + " to save and exit before shutdown");
 
-            Slog.i(TAG, "GammaOS: spamming ESC + moveToFront (task "
-                    + retroTaskId + ")");
-            for (int i = 0; i < 30 && isNanoAppRunning("retroarch"); i++) {
-                if (retroTaskId >= 0) {
-                    try { amSvc.moveTaskToFront(retroTaskId, 0); }
-                    catch (Exception e) { /* ignore */ }
+            final long deadline = start + NANO_EMULATOR_STOP_TIMEOUT_MS;
+            boolean running = true;
+            while (running) {
+                running = (retroarch && nanoServiceRunning("retroarch-nano"))
+                        || (drastic && nanoServiceRunning("drastic-nano"))
+                        || (melonds && nanoServiceRunning("melonds-nano"));
+                if (!running || SystemClock.elapsedRealtime() >= deadline) {
+                    break;
                 }
-                long now = SystemClock.uptimeMillis();
-                final android.view.KeyEvent downEvent = new android.view.KeyEvent(
-                        now, now, android.view.KeyEvent.ACTION_DOWN,
-                        android.view.KeyEvent.KEYCODE_ESCAPE, 0, 0,
-                        android.view.KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
-                        android.view.KeyEvent.FLAG_FROM_SYSTEM,
-                        android.view.InputDevice.SOURCE_KEYBOARD);
-                final android.view.KeyEvent upEvent =
-                        android.view.KeyEvent.changeAction(
-                                downEvent, android.view.KeyEvent.ACTION_UP);
-                im.injectInputEvent(downEvent,
-                        android.hardware.input.InputManager
-                                .INJECT_INPUT_EVENT_MODE_ASYNC);
-                im.injectInputEvent(upEvent,
-                        android.hardware.input.InputManager
-                                .INJECT_INPUT_EVENT_MODE_ASYNC);
-                try { Thread.sleep(200); } catch (InterruptedException e) { }
-            }
-            if (!isNanoAppRunning("retroarch")) {
-                Slog.i(TAG, "GammaOS: RetroArch exited gracefully");
-            }
-            final boolean retroArchExited = !isNanoAppRunning("retroarch");
-            if (!retroArchExited) {
-                Slog.w(TAG, "GammaOS: RetroArch still running after ESC, "
-                        + "proceeding anyway");
-            }
-
-            // Delta sync saves/states/config to DE cache so next boot's
-            // bind mount has the freshest data from this session.
-            if (retroArchExited) {
                 try {
-                    java.io.File manifest = new java.io.File(
-                            "/data/system/nano_cache/manifest");
-                    if (manifest.exists()) {
-                        Slog.i(TAG, "GammaOS: syncing RetroArch data to DE cache");
-                        SystemProperties.set("sys.gammaos.nano.cache_op",
-                                "sync_to_cache");
-                        // Wait for sync to complete (up to 5s)
-                        for (int i = 0; i < 50; i++) {
-                            if (!"running".equals(SystemProperties.get(
-                                    "init.svc.nano_cache_sync_to_cache", "")))
-                                break;
-                            try { Thread.sleep(100); }
-                            catch (InterruptedException ie) {}
-                        }
-                        Slog.i(TAG, "GammaOS: DE cache sync complete");
-                    }
-                } catch (Exception e) {
-                    Slog.w(TAG, "GammaOS: DE cache sync failed: " + e);
+                    Thread.sleep(NANO_EMULATOR_STOP_POLL_MS);
+                } catch (InterruptedException e) {
+                    // keep waiting until the deadline
                 }
             }
-
-            // Quick Resume: only prime if the next boot will be nano mode
-            // (either already in nano, or "Boot Nano" set skip_nano=0) AND
-            // RetroArch exited gracefully.  Otherwise force-clear qr_prepared.
-            final boolean bootingNano = "0".equals(SystemProperties.get(
-                    "persist.bootanim.skip_nano", "1"));
-            if (!nanoMode && !bootingNano) {
-                Slog.i(TAG, "GammaOS: not in/booting nano mode, "
-                        + "clearing QR and skipping priming");
-                SystemProperties.set(
-                        "persist.gammaos.nano.qr_prepared", "0");
-                return;
-            }
-            if (!retroArchExited) {
-                Slog.w(TAG, "GammaOS: RetroArch didn't exit gracefully, "
-                        + "clearing QR to avoid launching with lost progress");
-                SystemProperties.set(
-                        "persist.gammaos.nano.qr_prepared", "0");
-                return;
-            }
-            if (!SystemProperties.getBoolean(
-                    "persist.gammaos.nano.quick_resume", true)) {   // default ON (matches every other reader)
-                Slog.i(TAG, "GammaOS: Quick Resume not enabled, "
-                        + "skipping playlist save");
-                return;
-            }
-            // Read the RetroArch content history playlist and save the
-            // most recent entry to persist properties.
-            java.io.File playlist = new java.io.File(
-                    "/data/media/0/RetroArch/playlists/builtin/"
-                    + "content_history.lpl");
-            if (playlist.canRead()) {
-                StringBuilder sb = new StringBuilder();
-                try (java.io.BufferedReader br = new java.io.BufferedReader(
-                        new java.io.FileReader(playlist))) {
-                    char[] buf = new char[4096];
-                    int n;
-                    while ((n = br.read(buf)) > 0) {
-                        sb.append(buf, 0, n);
-                    }
-                }
-                org.json.JSONObject json =
-                        new org.json.JSONObject(sb.toString());
-                org.json.JSONArray items = json.getJSONArray("items");
-                if (items.length() > 0) {
-                    org.json.JSONObject first = items.getJSONObject(0);
-                    String romPath = first.optString("path", "");
-                    String corePath = first.optString("core_path", "");
-                    if (!romPath.isEmpty() && !corePath.isEmpty()
-                            && !"DETECT".equals(romPath)) {
-                        SystemProperties.set(
-                                "persist.gammaos.nano.qr_rom", romPath);
-                        // GammaOS: mirror to the file fallback. The qr_rom
-                        // property is capped at PROP_VALUE_MAX (92 bytes),
-                        // and external SD paths like /storage/<UUID>/...
-                        // routinely exceed that limit, silently failing the
-                        // SetProperty above. NanoMenu and nano_cache.sh both
-                        // fall back to /data/system/nano_qr_rom.txt when
-                        // the property is empty, so write it unconditionally.
-                        try {
-                            java.io.File qrFile = new java.io.File(
-                                    "/data/system/nano_qr_rom.txt");
-                            java.nio.file.Files.write(qrFile.toPath(),
-                                    romPath.getBytes(
-                                            java.nio.charset.StandardCharsets.UTF_8));
-                            qrFile.setReadable(true, false);
-                        } catch (Exception e) {
-                            Slog.w(TAG, "GammaOS Nano: failed to write qr_rom file", e);
-                        }
-                        SystemProperties.set(
-                                "persist.gammaos.nano.qr_core", corePath);
-                        SystemProperties.set(
-                                "persist.gammaos.nano.qr_prepared", "1");
-                        Slog.i(TAG, "GammaOS Nano: Quick Resume saved ROM="
-                                + romPath + " CORE=" + corePath);
-                        // GammaOS Nano: guarantee the DE cache is fully staged for
-                        // the resume ROM before we reboot. The launch-time populate
-                        // (NanoMenuXmb.cpp) normally warms it during gameplay, but it
-                        // can be defeated by a concurrent clear_rom in the launch
-                        // handshake or by a session too short to finish the copy, and
-                        // the reactive resume-boot populate is too late (it blocks on
-                        // CE unlock, ~6s, after nano has already fallen back to the
-                        // blank "Quick Resuming" splash). Here, at power-off, CE is
-                        // unlocked and this is the last un-clobberable moment, so a
-                        // (delta-cheap) populate makes the FIRST resume a cache HIT
-                        // that renders the live preview instead of a blank fallback.
-                        // Only fire it when the ROM is not already staged, and bound
-                        // the wait so a large first-ever copy cannot hang shutdown. On
-                        // timeout qr_prepared stays 1 and the reactive resume-boot
-                        // populate re-tries as the safety net; if do_populate instead
-                        // definitively fails to stage the ROM it disarms QR
-                        // (qr_prepared=0) so the next boot is a clean XMB boot rather
-                        // than a doomed resume (intentional graceful degradation, and
-                        // it can only affect a resume that was already going to miss).
-                        try {
-                            String romBase = romPath.substring(
-                                    romPath.lastIndexOf('/') + 1);
-                            java.io.File cachedRom = new java.io.File(
-                                    "/data/system/nano_cache/rom/" + romBase);
-                            if (!cachedRom.exists() || cachedRom.length() == 0) {
-                                Slog.i(TAG, "GammaOS Nano: resume ROM not staged ("
-                                        + romBase + "), populating DE cache "
-                                        + "before reboot");
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_ready", "0");
-                                // init runs `on property:cache_op=populate` only on
-                                // a value CHANGE. An XMB launch (launchXmbGame) leaves
-                                // cache_op already at "populate", so a plain set to
-                                // "populate" here would be a silent no-op that never
-                                // restarts nano_cache_populate. Force a transition
-                                // through a neutral value first (no init trigger
-                                // matches "idle") so the populate always re-fires.
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_op", "idle");
-                                try { Thread.sleep(100); }
-                                catch (InterruptedException ie) {}
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_op", "populate");
-                                // Give init a moment to (re)start the oneshot
-                                // service, then wait for populate to finish,
-                                // bounded to ~12s. Completion is signalled either
-                                // by cache_ready flipping 0->1 (set by do_populate
-                                // on success, the deterministic signal) or by the
-                                // service leaving "running" AFTER we have observed
-                                // it running (so a slow init that has not started
-                                // the service yet does not read as "already done").
-                                try { Thread.sleep(150); }
-                                catch (InterruptedException ie) {}
-                                boolean sawRunning = false;
-                                for (int i = 0; i < 120; i++) {
-                                    if ("1".equals(SystemProperties.get(
-                                            "sys.gammaos.nano.cache_ready", "0")))
-                                        break;
-                                    boolean running = "running".equals(
-                                            SystemProperties.get(
-                                            "init.svc.nano_cache_populate", ""));
-                                    if (running) sawRunning = true;
-                                    else if (sawRunning) break;
-                                    try { Thread.sleep(100); }
-                                    catch (InterruptedException ie) {}
-                                }
-                                Slog.i(TAG, "GammaOS Nano: DE cache populate "
-                                        + "complete (ready="
-                                        + SystemProperties.get(
-                                                "sys.gammaos.nano.cache_ready", "?")
-                                        + ")");
-                            } else {
-                                Slog.i(TAG, "GammaOS Nano: resume ROM already "
-                                        + "staged (" + romBase + ")");
-                            }
-                        } catch (Exception e) {
-                            Slog.w(TAG, "GammaOS Nano: pre-reboot populate "
-                                    + "failed: " + e);
-                        }
-                    }
-                }
+            final long took = SystemClock.elapsedRealtime() - start;
+            if (running) {
+                Slog.w(TAG, "GammaOS: native emulator still running after " + took
+                        + " ms, going on with the shutdown");
             } else {
-                Slog.w(TAG, "GammaOS Nano: playlist not readable");
+                Slog.i(TAG, "GammaOS: native emulator saved and exited in " + took + " ms");
             }
         } catch (Exception e) {
-            Slog.w(TAG, "GammaOS Nano: Quick Resume preparation failed", e);
+            Slog.w(TAG, "GammaOS: stopping the native emulator failed", e);
         }
     }
 
-    /**
-     * GammaOS: close DraStic gracefully (ESC → save state) before shutdown.
-     * Mirrors the core of nanoShutdownRetroArch() but without Quick Resume
-     * priming or DE cache sync, which are RetroArch-specific.
-     */
-    private void nanoShutdownDraStic() {
-        try {
-            // The in-process drastic-nano binary (DRM / SF backends) owns evdev
-            // and the panel and has no Activity or task, so ESC injection and
-            // moveTaskToFront cannot reach it. Close it through its dedicated quit
-            // channel instead: setting the prop makes it save DraStic slot 9 and
-            // exit cleanly. (isNanoAppRunning("drastic") also substring-matches the
-            // binary, so this must be handled BEFORE the legacy APK path below or
-            // it would waste ~6s spamming ESC at a process that ignores it.)
-            if (isNanoAppRunning("drastic-nano")) {
-                Slog.i(TAG, "GammaOS: closing drastic-nano via quit prop before shutdown");
-                final boolean nanoModeDn = SystemProperties.getBoolean(
-                        "sys.gammaos.minimal_boot", false);
-                if (nanoModeDn) {
-                    SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
-                    // Arm Quick Resume for the DS game (default on) so the next
-                    // boot resumes it; drastic-nano is saving slot 9 right now.
-                    if (SystemProperties.getBoolean(
-                            "persist.gammaos.nano.quick_resume", true)) {
-                        // Point the resume at the game actually running:
-                        // nano_qr_rom.txt can be stale if this game launched with QR
-                        // off and was toggled on mid-game. nano_drastic_nano_rom.txt
-                        // is always the current DS ROM (written at every launch).
-                        nanoSyncQrRomFromDrasticNano();
-                        SystemProperties.set("persist.gammaos.nano.qr_prepared", "1");
-                        SystemProperties.set("persist.gammaos.nano.qr_core", "drastic");
-                    }
-                }
-                SystemProperties.set("sys.gammaos.drastic_nano.quit", "1");
-                for (int i = 0; i < 40 && isNanoAppRunning("drastic-nano"); i++) {
-                    try { Thread.sleep(100); } catch (InterruptedException e) { }
-                }
-                if (isNanoAppRunning("drastic-nano")) {
-                    Slog.w(TAG, "GammaOS: drastic-nano still running after quit, "
-                            + "proceeding anyway");
-                } else {
-                    Slog.i(TAG, "GammaOS: drastic-nano exited gracefully");
-                }
-                // GammaOS Nano: guarantee the DE drastic cache is staged for the DS
-                // resume ROM before reboot, mirroring the RetroArch path above but on
-                // the disjoint $CACHE/drastic tree via populate_drastic. The launch
-                // populate_drastic normally warms it during play, but a short session
-                // or a raced clear can leave it cold and the reactive resume-boot
-                // staging blocks on CE unlock; here CE is unlocked and drastic-nano
-                // has already exited, so a (delta-cheap) populate makes the first DS
-                // resume a cache HIT. Only fire if QR is armed and the ROM is missing.
-                if ("1".equals(SystemProperties.get(
-                        "persist.gammaos.nano.qr_prepared", "0"))
-                        && "drastic".equals(SystemProperties.get(
-                                "persist.gammaos.nano.qr_core", ""))) {
-                    try {
-                        String dnRom = "";
-                        java.io.File dnRomFile = new java.io.File(
-                                "/data/system/nano_drastic_nano_rom.txt");
-                        if (dnRomFile.exists()) {
-                            dnRom = new String(java.nio.file.Files.readAllBytes(
-                                    dnRomFile.toPath()),
-                                    java.nio.charset.StandardCharsets.UTF_8).trim();
-                        }
-                        if (!dnRom.isEmpty()) {
-                            String romBase = dnRom.substring(
-                                    dnRom.lastIndexOf('/') + 1);
-                            java.io.File cachedRom = new java.io.File(
-                                    "/data/system/nano_cache/drastic/rom/" + romBase);
-                            if (!cachedRom.exists() || cachedRom.length() == 0) {
-                                Slog.i(TAG, "GammaOS Nano: DS resume ROM not staged ("
-                                        + romBase + "), populating drastic DE cache "
-                                        + "before reboot");
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_ready", "0");
-                                // Force a value change so init re-fires the trigger
-                                // even if cache_op was already set (init only runs
-                                // the action on a change); see the RetroArch path.
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_op", "idle");
-                                try { Thread.sleep(100); }
-                                catch (InterruptedException ie) {}
-                                SystemProperties.set(
-                                        "sys.gammaos.nano.cache_op",
-                                        "populate_drastic");
-                                try { Thread.sleep(150); }
-                                catch (InterruptedException ie) {}
-                                boolean sawRunning = false;
-                                for (int i = 0; i < 150; i++) {
-                                    if ("1".equals(SystemProperties.get(
-                                            "sys.gammaos.nano.cache_ready", "0")))
-                                        break;
-                                    boolean running = "running".equals(
-                                            SystemProperties.get(
-                                            "init.svc.nano_cache_populate_drastic",
-                                            ""));
-                                    if (running) sawRunning = true;
-                                    else if (sawRunning) break;
-                                    try { Thread.sleep(100); }
-                                    catch (InterruptedException ie) {}
-                                }
-                                Slog.i(TAG, "GammaOS Nano: drastic DE cache "
-                                        + "populate complete (ready="
-                                        + SystemProperties.get(
-                                                "sys.gammaos.nano.cache_ready", "?")
-                                        + ")");
-                            } else {
-                                Slog.i(TAG, "GammaOS Nano: DS resume ROM already "
-                                        + "staged (" + romBase + ")");
-                            }
-                        }
-                    } catch (Exception e) {
-                        Slog.w(TAG, "GammaOS Nano: DS pre-reboot populate "
-                                + "failed: " + e);
-                    }
-                }
-                return;
-            }
-            if (!isNanoAppRunning("drastic")) {
-                return;
-            }
-            Slog.i(TAG, "GammaOS: closing DraStic gracefully before shutdown");
-
-            // GammaOS: in nano mode, tell RootWindowContainer's post-exit
-            // cleanup path NOT to clear qr_prepared when DraStic exits from
-            // the ESC injection below. The Quick Resume priming done by
-            // launchXmbGame() / the QR handoff MUST survive the reboot so
-            // the next boot brings the preview back. Mirrors the logic in
-            // nanoShutdownRetroArch(). Without this flag, reboot-from-inside
-            // drastic (power menu) clears qr_prepared and the next boot
-            // shows plain XMB instead of the drastic QR preview.
-            final boolean nanoMode = SystemProperties.getBoolean(
-                    "sys.gammaos.minimal_boot", false);
-            if (nanoMode) {
-                SystemProperties.set("sys.gammaos.nano.shutting_down", "1");
-            }
-
-            // Dismiss system dialogs so the ESC key reaches DraStic.
-            if (mProgressDialog != null) {
-                mHandler.post(() -> {
-                    try {
-                        mProgressDialog.dismiss();
-                    } catch (Exception e) { /* ignore */ }
-                });
-            }
-            try {
-                mContext.sendBroadcast(new Intent(
-                        Intent.ACTION_CLOSE_SYSTEM_DIALOGS));
-            } catch (Exception e) {
-                Slog.w(TAG, "GammaOS: failed to close system dialogs", e);
-            }
-
-            // Bring DraStic to the foreground so it receives ESC.
-            android.app.ActivityManager amSvc = mContext.getSystemService(
-                    android.app.ActivityManager.class);
-            int drasticTaskId = -1;
-            try {
-                java.util.List<android.app.ActivityManager.RunningTaskInfo> tasks =
-                        amSvc.getRunningTasks(20);
-                for (android.app.ActivityManager.RunningTaskInfo task : tasks) {
-                    if (task.baseActivity != null && "com.dsemu.drastic"
-                            .equals(task.baseActivity.getPackageName())) {
-                        drasticTaskId = task.taskId;
-                        amSvc.moveTaskToFront(drasticTaskId, 0);
-                        Slog.i(TAG, "GammaOS: moved DraStic task "
-                                + drasticTaskId + " to front");
-                        break;
-                    }
-                }
-            } catch (Exception e) {
-                Slog.w(TAG, "GammaOS: failed to bring DraStic to front", e);
-            }
-
-            // Spam ESC + moveTaskToFront until DraStic exits.
-            android.hardware.input.InputManager im =
-                    android.hardware.input.InputManager.getInstance();
-            Slog.i(TAG, "GammaOS: spamming ESC + moveToFront for DraStic "
-                    + "(task " + drasticTaskId + ")");
-            for (int i = 0; i < 30 && isNanoAppRunning("drastic"); i++) {
-                if (drasticTaskId >= 0) {
-                    try { amSvc.moveTaskToFront(drasticTaskId, 0); }
-                    catch (Exception e) { /* ignore */ }
-                }
-                long now = SystemClock.uptimeMillis();
-                final android.view.KeyEvent downEvent = new android.view.KeyEvent(
-                        now, now, android.view.KeyEvent.ACTION_DOWN,
-                        android.view.KeyEvent.KEYCODE_ESCAPE, 0, 0,
-                        android.view.KeyCharacterMap.VIRTUAL_KEYBOARD, 0,
-                        android.view.KeyEvent.FLAG_FROM_SYSTEM,
-                        android.view.InputDevice.SOURCE_KEYBOARD);
-                final android.view.KeyEvent upEvent =
-                        android.view.KeyEvent.changeAction(
-                                downEvent, android.view.KeyEvent.ACTION_UP);
-                im.injectInputEvent(downEvent,
-                        android.hardware.input.InputManager
-                                .INJECT_INPUT_EVENT_MODE_ASYNC);
-                im.injectInputEvent(upEvent,
-                        android.hardware.input.InputManager
-                                .INJECT_INPUT_EVENT_MODE_ASYNC);
-                try { Thread.sleep(200); } catch (InterruptedException e) { }
-            }
-            if (!isNanoAppRunning("drastic")) {
-                Slog.i(TAG, "GammaOS: DraStic exited gracefully");
-            } else {
-                Slog.w(TAG, "GammaOS: DraStic still running after ESC, "
-                        + "proceeding anyway");
-            }
-        } catch (Exception e) {
-            Slog.w(TAG, "GammaOS: DraStic graceful shutdown failed", e);
-        }
+    /** True while init reports the service alive (running, or stopping and not yet reaped). */
+    private static boolean nanoServiceRunning(String service) {
+        final String state = SystemProperties.get("init.svc." + service, "");
+        return "running".equals(state) || "stopping".equals(state);
     }
 
     /**
@@ -1482,31 +1049,6 @@ public final class ShutdownThread extends Thread {
         } catch (Exception e) {
             Slog.w(TAG, "GammaOS: failed to sync qr_rom from drastic-nano", e);
         }
-    }
-
-    /** Check if a process with the given name substring is running. */
-    private static boolean isNanoAppRunning(String name) {
-        java.io.File procDir = new java.io.File("/proc");
-        String[] entries = procDir.list();
-        if (entries == null) return false;
-        for (String entry : entries) {
-            try {
-                Integer.parseInt(entry);
-            } catch (NumberFormatException e) {
-                continue;
-            }
-            try (java.io.FileInputStream fis = new java.io.FileInputStream(
-                    "/proc/" + entry + "/cmdline")) {
-                byte[] data = new byte[256];
-                int len = fis.read(data);
-                if (len > 0 && new String(data, 0, len).contains(name)) {
-                    return true;
-                }
-            } catch (Exception e) {
-                // Skip unreadable proc entries
-            }
-        }
-        return false;
     }
 
     /** Utility class to inject instances, for easy testing. */

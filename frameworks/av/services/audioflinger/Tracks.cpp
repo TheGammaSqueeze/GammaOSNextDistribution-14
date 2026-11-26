@@ -29,6 +29,7 @@
 #include "ResamplerBufferProvider.h"
 
 #include <audio_utils/minifloat.h>
+#include <binder/IServiceManager.h>
 #include <media/AudioValidator.h>
 #include <media/RecordBufferConverter.h>
 #include <media/nbaio/Pipe.h>
@@ -671,6 +672,10 @@ void OpPlayAudioMonitor::PlayAudioOpCallback::opChanged(int32_t op,
 void OpPlayAudioMonitor::getPackagesForUid(
     uid_t uid, Vector<String16>& packages)
 {
+    // GammaOS: same as afutils::checkAttributionSourcePackage, never block track creation on
+    // system_server in nano mode. With no packages a service uid gets no monitor, and an app uid
+    // cannot exist before the framework does.
+    if (defaultServiceManager()->checkService(String16("permission")) == nullptr) return;
     PermissionController permissionController;
     permissionController.getPackagesForUid(uid, packages);
 }
